@@ -171,12 +171,13 @@ describe('query filter', function (): void {
             ->assertJsonCount(0, 'data');
     });
 
-    it('filters vehicles by json speed scm', function (): void {
+    it('filters vehicles by speed scm column', function (): void {
         $matchingVehicle = Vehicle::factory()->create();
         VehicleData::factory()
             ->for($matchingVehicle)
             ->for($this->version, 'gameVersion')
             ->create([
+                'speed_scm' => 123,
                 'data' => [
                     'FlightCharacteristics' => [
                         'Speeds' => [
@@ -191,6 +192,7 @@ describe('query filter', function (): void {
             ->for($otherVehicle)
             ->for($this->version, 'gameVersion')
             ->create([
+                'speed_scm' => 200,
                 'data' => [
                     'FlightCharacteristics' => [
                         'Speeds' => [
@@ -205,7 +207,7 @@ describe('query filter', function (): void {
         $response->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.uuid', $matchingVehicle->uuid);
-    })->group('db-pgsql');
+    });
 });
 
 describe('type filter', function (): void {

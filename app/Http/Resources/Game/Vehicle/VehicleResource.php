@@ -863,14 +863,14 @@ class VehicleResource extends AbstractBaseResource
             'mass_loadout' => $vehicleData->mass_loadout ?? Arr::get($payload, 'MassLoadout'),
             'mass_total' => $vehicleData->mass_total ?? Arr::get($payload, 'MassTotal'),
 
-            'cargo_capacity' => $vehicleData->cargo ?? Arr::get($payload, 'Cargo'),
+            'cargo_capacity' => $vehicleData->cargo_capacity ?? Arr::get($payload, 'Cargo'),
             'ore_capacity' => Arr::get($payload, 'OreCapacity'),
             'cargo_grids' => ItemInventoryResource::collection(Arr::get($payload, 'CargoGrids', [])),
             $this->mergeWhen(
                 ! empty($cargoLimits),
                 fn () => ['cargo_limits' => $cargoLimits]
             ),
-            'vehicle_inventory' => Arr::get($payload, 'Stowage', 0) * (10 ** 6),
+            'vehicle_inventory' => ($vehicleData->vehicle_inventory ?? 0) * (10 ** 6),
             'inventory_containers' => ItemInventoryResource::collection(Arr::get($payload, 'InventoryContainers', [])),
 
             $this->mergeWhen(
@@ -884,13 +884,13 @@ class VehicleResource extends AbstractBaseResource
             ),
 
             'crew' => [
-                'min' => Arr::get($payload, 'Crew'),
-                'max' => Arr::get($payload, 'Crew'),
+                'min' => $vehicleData->crew_min,
+                'max' => $vehicleData->crew_max ?? Arr::get($payload, 'Crew'),
                 'weapon' => Arr::get($payload, 'WeaponCrew'),
                 'operation' => null,
             ],
 
-            'max_medical_tier' => $this->resolveMaxMedicalTier($seating),
+            'max_medical_tier' => $vehicleData->max_medical_tier,
 
             'seating' => [
                 'crew_stations' => $seating['CrewStations'] ?? 0,
@@ -901,7 +901,7 @@ class VehicleResource extends AbstractBaseResource
                 'medical_beds' => $this->resolveMedicalBeds($seating),
             ],
 
-            'health' => Arr::get($payload, 'Health', 0),
+            'health' => $vehicleData->health ?? 0,
 
             'shield_hp' => $shieldsTotal['Hp'] ?? null,
             'shield_face_type' => $shieldCtrl['FaceType'] ?? null,
@@ -1363,35 +1363,6 @@ class VehicleResource extends AbstractBaseResource
             'y' => $y,
             'z' => $z,
         ];
-    }
-
-    private function resolveMaxMedicalTier(array $seating): ?string
-    {
-        $medicalBeds = $seating['MedicalBeds'] ?? [];
-
-        if ($medicalBeds === []) {
-            return null;
-        }
-
-        $best = null;
-        $bestTier = 0;
-
-        foreach ($medicalBeds as $bed) {
-            $tierLabel = $bed['Tier'] ?? null;
-
-            if (! is_string($tierLabel) || $tierLabel === '') {
-                continue;
-            }
-
-            $tier = (int) ltrim($tierLabel, 'T');
-
-            if ($tier > $bestTier) {
-                $bestTier = $tier;
-                $best = $tierLabel;
-            }
-        }
-
-        return $best;
     }
 
     private function resolveMedicalBeds(array $seating): ?array

@@ -635,7 +635,7 @@ class VehicleController extends Controller
                     'cast' => null,
                 ],
                 'shield.face_type' => [
-                    'expr' => $this->jsonExpression('ShieldController.FaceType'),
+                    'expr' => 'game_vehicle_data.shield_face_type',
                     'cast' => null,
                 ],
             ];
@@ -663,46 +663,13 @@ class VehicleController extends Controller
                 $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
             }
 
-            $driver = DB::connection()->getDriverName();
-            $tableName = $this->getJsonTableName();
-            $columnName = $this->getJsonColumnName();
-            $medicalBedsPath = "{$tableName}.{$columnName}->'Seating'->'MedicalBeds'";
-
-            if ($driver === 'sqlite') {
-                $medicalTierRows = (clone $baseQuery)
-                    ->selectRaw("json_extract({$tableName}.{$columnName}, '$.Seating.MedicalBeds') as value")
-                    ->whereNotNull(DB::raw("json_extract({$tableName}.{$columnName}, '$.Seating.MedicalBeds')"))
-                    ->get()
-                    ->flatMap(static function (object $row): array {
-                        $decoded = json_decode((string) $row->value, true);
-
-                        return is_array($decoded) ? array_map(static fn (array $bed): string => $bed['Tier'], $decoded) : [];
-                    })
-                    ->groupBy(fn (string $tier): string => $tier)
-                    ->map(static fn (Collection $items, string $tier): array => [
-                        'value' => $tier,
-                        'count' => $items->count(),
-                    ])
-                    ->values()
-                    ->all();
-            } else {
-                $medicalTierRows = (clone $baseQuery)
-                    ->joinSub(
-                        VehicleData::selectRaw("{$tableName}.id, jsonb_extract_path_text(elem, 'Tier') as value")
-                            ->fromRaw("{$tableName}, jsonb_array_elements({$medicalBedsPath}) elem")
-                            ->whereNotNull(DB::raw($medicalBedsPath)),
-                        'medical_tiers',
-                        'medical_tiers.id',
-                        "{$tableName}.id"
-                    )
-                    ->selectRaw('medical_tiers.value, count(*) as count')
-                    ->groupBy('medical_tiers.value')
-                    ->orderBy('medical_tiers.value')
-                    ->get();
-            }
-
             $out['max_medical_tier'] = FilterValues::fromRows(
-                collect($medicalTierRows),
+                (clone $baseQuery)
+                    ->selectRaw('game_vehicle_data.max_medical_tier as value, count(*) as count')
+                    ->whereNotNull('game_vehicle_data.max_medical_tier')
+                    ->groupByRaw('game_vehicle_data.max_medical_tier')
+                    ->orderByRaw('game_vehicle_data.max_medical_tier')
+                    ->get(),
             );
 
             return $out;
@@ -921,87 +888,70 @@ class VehicleController extends Controller
             AllowedFilter::exact('size'),
             AllowedFilter::exact('size_class', 'size'),
             AllowedFilter::callback('mass_total', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'MassTotal', $value, 'numeric');
+                $this->applyColumnFilter($query, 'mass_total', $value);
             }),
             AllowedFilter::callback('cargo_capacity', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Cargo', $value, 'numeric');
+                $this->applyColumnFilter($query, 'cargo_capacity', $value);
             }),
             AllowedFilter::callback('vehicle_inventory', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Stowage', $value, 'numeric');
+                $this->applyColumnFilter($query, 'vehicle_inventory', $value);
             }),
             AllowedFilter::callback('crew.min', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Crew', $value, 'numeric');
+                $this->applyColumnFilter($query, 'crew_min', $value);
+            }),
+            AllowedFilter::callback('crew.max', function (Builder $query, mixed $value): void {
+                $this->applyColumnFilter($query, 'crew_max', $value);
             }),
             AllowedFilter::callback('health', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Health', $value, 'numeric');
+                $this->applyColumnFilter($query, 'health', $value);
             }),
             AllowedFilter::callback('shield.hp', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'ShieldsTotal.Hp', $value, 'numeric');
+                $this->applyColumnFilter($query, 'shield_hp', $value);
             }),
             AllowedFilter::callback('shield.face_type', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'ShieldController.FaceType', $value);
+                $this->applyColumnFilter($query, 'shield_face_type', $value);
             }),
             AllowedFilter::callback('speed.scm', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'FlightCharacteristics.Speeds.Scm', $value, 'numeric');
+                $this->applyColumnFilter($query, 'speed_scm', $value);
             }),
             AllowedFilter::callback('speed.max', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'FlightCharacteristics.Speeds.Max', $value, 'numeric');
+                $this->applyColumnFilter($query, 'speed_max', $value);
             }),
             AllowedFilter::callback('armor.health', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Armor.Health', $value, 'numeric');
+                $this->applyColumnFilter($query, 'armor_health', $value);
             }),
             AllowedFilter::callback('cross_section.length', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'CrossSection.X', $value, 'numeric');
+                $this->applyColumnFilter($query, 'cross_section_length', $value);
             }),
             AllowedFilter::callback('cross_section.width', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'CrossSection.Y', $value, 'numeric');
+                $this->applyColumnFilter($query, 'cross_section_width', $value);
             }),
             AllowedFilter::callback('cross_section.height', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'CrossSection.Z', $value, 'numeric');
+                $this->applyColumnFilter($query, 'cross_section_height', $value);
             }),
             AllowedFilter::callback('signature.ir_quantum', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Emission.IrQuantum', $value, 'numeric');
+                $this->applyColumnFilter($query, 'signature_ir_quantum', $value);
             }),
             AllowedFilter::callback('signature.ir_shields', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Emission.IrShields', $value, 'numeric');
+                $this->applyColumnFilter($query, 'signature_ir_shields', $value);
             }),
             AllowedFilter::callback('signature.em_quantum', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Emission.EmQuantum', $value, 'numeric');
+                $this->applyColumnFilter($query, 'signature_em_quantum', $value);
             }),
             AllowedFilter::callback('signature.em_shields', function (Builder $query, mixed $value): void {
-                $this->applyJsonFilter($query, 'Emission.EmShields', $value, 'numeric');
+                $this->applyColumnFilter($query, 'signature_em_shields', $value);
             }),
-            AllowedFilter::callback('has_medical_beds', function (Builder $query, mixed $value): void {
+            AllowedFilter::callback('has_medical_beds', static function (Builder $query, mixed $value): void {
                 $hasMedicalBeds = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                $column = $this->laravelJsonColumn(
-                    $this->getJsonTableName().'.'.$this->getJsonColumnName(),
-                    'Seating.MedicalBeds',
-                );
 
                 if ($hasMedicalBeds) {
-                    $query->whereNotNull($column);
+                    $query->whereNotNull('max_medical_tier');
                 } else {
-                    $query->whereNull($column);
+                    $query->whereNull('max_medical_tier');
                 }
             }),
             AllowedFilter::callback('max_medical_tier', function (Builder $query, mixed $value): void {
-                $values = is_array($value) ? $value : [$value];
-                $driver = DB::connection()->getDriverName();
-                $tableName = $this->getJsonTableName();
-                $columnName = $this->getJsonColumnName();
-                $column = $this->laravelJsonColumn("{$tableName}.{$columnName}", 'Seating.MedicalBeds');
-
-                $query->where(static function (Builder $q) use ($values, $driver, $tableName, $columnName, $column): void {
-                    foreach ($values as $tier) {
-                        if ($driver === 'sqlite') {
-                            $q->orWhere($column, 'like', '%{"Tier":"'.$tier.'"%');
-                        } else {
-                            $q->orWhereRaw("{$tableName}.{$columnName}->'Seating'->'MedicalBeds' @> ?::jsonb", [
-                                json_encode([['Tier' => $tier]]),
-                            ]);
-                        }
-                    }
-                });
+                $this->applyColumnFilter($query, 'max_medical_tier', $value);
             }),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
@@ -1044,6 +994,28 @@ class VehicleController extends Controller
                 AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
                 AllowedSort::custom('msrp', new SortByRelation, 'shipmatrixVehicle.msrp'),
                 AllowedSort::field('size_class', 'size'),
+
+                AllowedSort::field('length', 'length'),
+                AllowedSort::field('width', 'width'),
+                AllowedSort::field('height', 'height'),
+                AllowedSort::field('mass_total', 'mass_total'),
+                AllowedSort::field('cargo_capacity', 'cargo_capacity'),
+                AllowedSort::field('vehicle_inventory', 'vehicle_inventory'),
+                AllowedSort::field('crew.min', 'crew_min'),
+                AllowedSort::field('crew.max', 'crew_max'),
+                AllowedSort::field('health', 'health'),
+                AllowedSort::field('armor.health', 'armor_health'),
+                AllowedSort::field('shield.hp', 'shield_hp'),
+                AllowedSort::field('shield.face_type', 'shield_face_type'),
+                AllowedSort::field('speed.scm', 'speed_scm'),
+                AllowedSort::field('speed.max', 'speed_max'),
+                AllowedSort::field('cross_section.length', 'cross_section_length'),
+                AllowedSort::field('cross_section.width', 'cross_section_width'),
+                AllowedSort::field('cross_section.height', 'cross_section_height'),
+                AllowedSort::field('signature.ir_quantum', 'signature_ir_quantum'),
+                AllowedSort::field('signature.ir_shields', 'signature_ir_shields'),
+                AllowedSort::field('signature.em_quantum', 'signature_em_quantum'),
+                AllowedSort::field('signature.em_shields', 'signature_em_shields'),
             ],
             $this->allowedJsonSorts()
         );
@@ -1059,7 +1031,7 @@ class VehicleController extends Controller
         $sortConfig = config('sorts.vehicles', []);
         $allowedSorts = [];
 
-        foreach ($sortConfig as $sortKey => $config) {
+        foreach ($sortConfig as $config) {
             $allowedSorts[] = $this->jsonSort(
                 // Filter only by path in raw json
                 $config['path'],

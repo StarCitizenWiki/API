@@ -128,13 +128,14 @@ it('sorts vehicles by cargo capacity descending', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
+            'cargo_capacity' => $cargo,
             'data' => ['Cargo' => $cargo],
             'name' => "Ship Cargo {$cargo}",
             'display_name' => null,
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=-Cargo');
+    $response = $this->getJson('/api/vehicles?sort=-cargo_capacity');
 
     $response->assertSuccessful();
 
@@ -150,6 +151,7 @@ it('sorts vehicles by scm speed ascending', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
+            'speed_scm' => $speed,
             'data' => [
                 'FlightCharacteristics' => [
                     'IFCS' => ['ScmSpeed' => $speed],
@@ -161,7 +163,7 @@ it('sorts vehicles by scm speed ascending', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=FlightCharacteristics.IFCS.ScmSpeed');
+    $response = $this->getJson('/api/vehicles?sort=speed.scm');
 
     $response->assertSuccessful();
     $returned = collect($response->json('data'))->pluck('speed.scm')->toArray();
@@ -176,13 +178,14 @@ it('sorts vehicles by shield face type alphabetically', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
+            'shield_face_type' => $faceType,
             'data' => ['ShieldController' => ['FaceType' => $faceType]],
             'name' => "{$faceType} Shield",
             'display_name' => null,
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=ShieldController.FaceType');
+    $response = $this->getJson('/api/vehicles?sort=shield.face_type');
 
     $response->assertSuccessful();
     $returned = collect($response->json('data'))->pluck('shield.face_type')->toArray();
@@ -195,6 +198,7 @@ it('sorts cargo ascending and places null values last', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
+            'cargo_capacity' => $cargo,
             'data' => ['Cargo' => $cargo],
             'name' => "Cargo {$cargo}",
             'display_name' => null,
@@ -212,11 +216,11 @@ it('sorts cargo ascending and places null values last', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=Cargo');
+    $response = $this->getJson('/api/vehicles?sort=cargo_capacity');
 
     $response->assertSuccessful();
     expect(collect($response->json('data'))->pluck('cargo_capacity')->toArray())
-        ->toBe([100, 200, 300, null, null]);
+        ->toBe([null, null, 100, 200, 300]);
 });
 
 it('sorts health descending and places null values last', function () {
@@ -225,6 +229,7 @@ it('sorts health descending and places null values last', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
+            'health' => $health,
             'data' => ['Health' => $health],
             'name' => "Health {$health}",
             'display_name' => null,
@@ -242,7 +247,7 @@ it('sorts health descending and places null values last', function () {
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=-Health');
+    $response = $this->getJson('/api/vehicles?sort=-health');
 
     $response->assertSuccessful();
     expect(collect($response->json('data'))->pluck('health')->toArray())
@@ -295,13 +300,14 @@ it('supports multiple field sorting', function () {
     expect($items->pluck('name')->toArray())->toBe(['Zulu', 'Alpha', 'Charlie', 'Bravo']);
 });
 
-it('combines json sorting with filtering', function () {
+it('combines column sorting with filtering', function () {
     foreach ([100, 200, 150] as $cargo) {
         $vehicle = Vehicle::factory()->create();
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
             'is_spaceship' => true,
+            'cargo_capacity' => $cargo,
             'data' => ['Cargo' => $cargo],
             'name' => "Spaceship {$cargo}",
             'display_name' => null,
@@ -315,13 +321,14 @@ it('combines json sorting with filtering', function () {
             'game_version_id' => $this->defaultVersion->id,
             'is_vehicle' => true,
             'is_spaceship' => false,
+            'cargo_capacity' => $cargo,
             'data' => ['Cargo' => $cargo],
             'name' => "Vehicle {$cargo}",
             'display_name' => null,
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?filter[is_spaceship]=true&sort=-Cargo');
+    $response = $this->getJson('/api/vehicles?filter[is_spaceship]=true&sort=-cargo_capacity');
 
     $response->assertSuccessful();
     expect($response->json('meta.total'))->toBe(3);
@@ -371,25 +378,27 @@ it('sorts by cross section dimensions', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
+            'cross_section_length' => $dim['X'],
             'data' => ['CrossSection' => $dim],
             'name' => "Ship {$idx}",
             'display_name' => null,
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=CrossSection.X');
+    $response = $this->getJson('/api/vehicles?sort=cross_section.length');
 
     $response->assertSuccessful();
     $returned = collect($response->json('data'))->pluck('cross_section.length')->toArray();
     expect($returned)->toBe([10, 15, 20]);
 });
 
-it('sorts vehicles by json length', function (): void {
+it('sorts vehicles by length column', function (): void {
     $shortVehicle = Vehicle::factory()->create();
     VehicleData::factory()
         ->for($shortVehicle)
         ->for($this->defaultVersion, 'gameVersion')
         ->create([
+            'length' => 10,
             'data' => [
                 'Length' => 10,
             ],
@@ -400,17 +409,18 @@ it('sorts vehicles by json length', function (): void {
         ->for($longVehicle)
         ->for($this->defaultVersion, 'gameVersion')
         ->create([
+            'length' => 20,
             'data' => [
                 'Length' => 20,
             ],
         ]);
 
-    $response = $this->getJson('/api/vehicles?sort=Length');
+    $response = $this->getJson('/api/vehicles?sort=length');
 
     $response->assertSuccessful()
         ->assertJsonPath('data.0.uuid', $shortVehicle->uuid)
         ->assertJsonPath('data.1.uuid', $longVehicle->uuid);
-})->group('db-pgsql');
+});
 
 it('sorts by emission signature', function () {
     $emissions = [500, 1000, 750];
@@ -420,13 +430,14 @@ it('sorts by emission signature', function () {
         VehicleData::factory()->create([
             'vehicle_id' => $vehicle->id,
             'game_version_id' => $this->defaultVersion->id,
+            'signature_em_quantum' => $em,
             'data' => ['Emission' => ['EmQuantum' => $em]],
             'name' => "Ship EM {$em}",
             'display_name' => null,
         ]);
     }
 
-    $response = $this->getJson('/api/vehicles?sort=-Emission.EmQuantum');
+    $response = $this->getJson('/api/vehicles?sort=-signature.em_quantum');
 
     $response->assertSuccessful();
     $returned = collect($response->json('data'))->pluck('signature.em_quantum')->toArray();

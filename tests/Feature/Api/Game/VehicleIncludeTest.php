@@ -91,6 +91,7 @@ it('ignores medical beds without a tier when resolving max medical tier', functi
         'game_version_id' => $this->defaultVersion->id,
         'name' => 'Medical Ship',
         'display_name' => 'Medical Ship',
+        'max_medical_tier' => 'T2',
         'data' => [
             'Seating' => [
                 'MedicalBeds' => [

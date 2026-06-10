@@ -141,8 +141,65 @@ class ImportVehicleData implements ShouldQueue
 
             'size' => Arr::get($payload, 'Size'),
 
+            'length' => Arr::get($payload, 'Length'),
+            'width' => Arr::get($payload, 'Width'),
+            'height' => Arr::get($payload, 'Height'),
+            'mass_total' => Arr::get($payload, 'MassTotal'),
+            'speed_scm' => Arr::get($payload, 'FlightCharacteristics.Speeds.Scm'),
+            'speed_max' => Arr::get($payload, 'FlightCharacteristics.Speeds.Max'),
+            'cargo_capacity' => Arr::get($payload, 'Cargo'),
+            'crew_min' => Arr::get($payload, 'Crew'),
+            'crew_max' => Arr::get($payload, 'Seating.CrewStations'),
+            'health' => Arr::get($payload, 'Health'),
+            'shield_hp' => Arr::get($payload, 'ShieldsTotal.Hp'),
+            'shield_face_type' => Arr::get($payload, 'ShieldController.FaceType'),
+            'armor_health' => Arr::get($payload, 'Armor.Health'),
+            'vehicle_inventory' => Arr::get($payload, 'Stowage'),
+            'cross_section_length' => Arr::get($payload, 'CrossSection.X'),
+            'cross_section_width' => Arr::get($payload, 'CrossSection.Y'),
+            'cross_section_height' => Arr::get($payload, 'CrossSection.Z'),
+            'signature_ir_quantum' => Arr::get($payload, 'Emission.IrQuantum'),
+            'signature_ir_shields' => Arr::get($payload, 'Emission.IrShields'),
+            'signature_em_quantum' => Arr::get($payload, 'Emission.EmQuantum'),
+            'signature_em_shields' => Arr::get($payload, 'Emission.EmShields'),
+            'max_medical_tier' => $this->resolveMaxMedicalTier(
+                Arr::get($payload, 'Seating.MedicalBeds', [])
+            ),
+
             'data' => $payload,
         ];
+    }
+
+    /**
+     * Resolve the highest medical tier from a list of medical beds.
+     *
+     * @param  array<int, array{Tier?: string}>  $medicalBeds
+     */
+    private function resolveMaxMedicalTier(array $medicalBeds): ?string
+    {
+        if ($medicalBeds === []) {
+            return null;
+        }
+
+        $best = null;
+        $bestTier = 0;
+
+        foreach ($medicalBeds as $bed) {
+            $tierLabel = $bed['Tier'] ?? null;
+
+            if (! is_string($tierLabel) || $tierLabel === '') {
+                continue;
+            }
+
+            $tier = (int) ltrim($tierLabel, 'T');
+
+            if ($tier > $bestTier) {
+                $bestTier = $tier;
+                $best = $tierLabel;
+            }
+        }
+
+        return $best;
     }
 
     private function resolveShipmatrixVehicleId(array $payload): ?int
