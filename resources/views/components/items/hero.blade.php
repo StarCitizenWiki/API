@@ -13,6 +13,7 @@
     $itemSize = data_get($item, 'size');
     $grade = data_get($item, 'grade');
     $isCraftable = data_get($item, 'is_craftable') === true;
+    $isLootable = data_get($item, 'is_lootable') === true;
     $isFps = str_starts_with($classification, 'FPS.');
     $isBaseVariant = data_get($item, 'is_base_variant');
     $currentItemUuid = data_get($item, 'uuid');
@@ -114,6 +115,7 @@
     $badges = array_values(array_filter([
         $gradeLetter ? ['label' => 'Grade '.$gradeLetter, 'url' => null, 'test_id' => null, 'badge_class' => 'badge-accent badge-outline'] : null,
         $isCraftable ? ['label' => 'Craftable', 'url' => $blueprintUrl, 'test_id' => 'item-hero-pill-craftable', 'badge_class' => 'badge-primary badge-outline'] : null,
+        $isLootable ? ['label' => 'Lootable', 'url' => null, 'test_id' => 'item-hero-pill-lootable', 'badge_class' => 'badge-secondary badge-outline'] : null,
         ($variantStateLabel && $isFps) ? ['label' => $variantStateLabel, 'url' => null, 'test_id' => 'item-hero-pill-variant-state', 'badge_class' => 'badge-accent badge-outline'] : null,
     ]));
 
