@@ -388,12 +388,12 @@ class CommodityShowResource extends CommodityIndexResource
                 'display_name' => $displayName,
                 'system' => $firstLocationData->system,
                 'type' => $firstLocationData->type_name,
-                'parent_name' => $firstLocationData->parent?->name,
-                'parent_type' => $firstLocationData->parent?->type_name,
-                'parent_uuid' => $firstLocationData->parent?->location?->uuid,
-                'uuid' => $firstLocationData->location?->uuid,
-                'link' => $firstLocationData->location?->uuid
-                    ? route('locations.show', ['identifier' => $firstLocationData->location->uuid])
+                'parent_name' => $firstLocationData->parent_name,
+                'parent_type' => $firstLocationData->parent_type_name,
+                'parent_uuid' => $firstLocationData->parent_location_uuid,
+                'uuid' => $firstLocationData->location_uuid,
+                'link' => $firstLocationData->location_uuid
+                    ? route('locations.show', ['identifier' => $firstLocationData->location_uuid])
                     : null,
                 'group_probability' => (float) $firstResourceLocation->group_probability,
                 'group_probability_percent' => self::formatPercent((float) $firstResourceLocation->group_probability, 1),

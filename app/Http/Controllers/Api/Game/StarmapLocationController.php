@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
-use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Includes\IncludeDefinition;
@@ -31,7 +30,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('starmap')]
 class StarmapLocationController extends Controller
 {
-    use FiltersJsonColumns;
     use ResolvesGameVersion;
 
     /**
@@ -40,9 +38,6 @@ class StarmapLocationController extends Controller
     private function allowedFilters(): array
     {
         $requestedFilterValues = fn (mixed $value): array => $this->requestedFilterValues($value);
-        $jsonFilter = fn (string $path): Closure => function (Builder $query, mixed $value) use ($requestedFilterValues, $path): void {
-            $this->applyJsonFilter($query, $path, $requestedFilterValues($value));
-        };
 
         $amenityFilter = static function (Builder $query, mixed $value) use ($requestedFilterValues): void {
             $values = $requestedFilterValues($value);
@@ -77,25 +72,22 @@ class StarmapLocationController extends Controller
                 return;
             }
 
-            $query->whereHas('locationHierarchyEntityTag', static function (Builder $tagQuery) use ($textValues, $uuidValues): void {
-                $tagQuery->where(static function (Builder $matchQuery) use ($textValues, $uuidValues): void {
-                    if ($textValues !== []) {
-                        $matchQuery->whereIn('name', $textValues);
-                    }
-
-                    if ($uuidValues !== []) {
-                        $method = $textValues === [] ? 'whereIn' : 'orWhereIn';
-                        $matchQuery->{$method}('uuid', $uuidValues);
-                    }
-                });
+            $query->where(static function (Builder $q) use ($textValues, $uuidValues): void {
+                if ($textValues !== []) {
+                    $q->orWhereIn('game_starmap_location_data.tag_name', $textValues);
+                }
+                if ($uuidValues !== []) {
+                    $method = $textValues === [] ? 'whereIn' : 'orWhereIn';
+                    $q->{$method}('game_starmap_location_data.tag_uuid', $uuidValues);
+                }
             });
         };
 
         $hasResourcesFilter = static function (Builder $query, mixed $value): void {
             if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
-                $query->whereHas('resourceLocations');
+                $query->where('game_starmap_location_data.has_resources', true);
             } else {
-                $query->whereDoesntHave('resourceLocations');
+                $query->where('game_starmap_location_data.has_resources', false);
             }
         };
 
@@ -122,13 +114,11 @@ class StarmapLocationController extends Controller
             });
         };
 
-        $hideMinorLocationsFilter = function (Builder $query, mixed $value): void {
+        $hideMinorLocationsFilter = static function (Builder $query, mixed $value): void {
             if (filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
-                $column = $this->getJsonTableName().'.'.$this->getJsonColumnName().'->OnlyShowWhenParentSelected';
-
-                $query->where(function (Builder $q) use ($column): void {
-                    $q->where($column, '!=', 'true')
-                        ->orWhereNull($column);
+                $query->where(function (Builder $q): void {
+                    $q->where('game_starmap_location_data.hide_minor_locations', '!=', true)
+                        ->orWhereNull('game_starmap_location_data.hide_minor_locations');
                 });
             }
         };
@@ -143,10 +133,10 @@ class StarmapLocationController extends Controller
                 $query->where('game_starmap_location_data.name', $like, "%{$value}%");
             }),
             AllowedFilter::exact('type_name'),
-            AllowedFilter::callback('type_classification', $jsonFilter('Type.Classification')),
-            AllowedFilter::callback('respawn_location_type', $jsonFilter('RespawnLocationType')),
-            AllowedFilter::callback('jurisdiction_name', $jsonFilter('Jurisdiction.Name')),
-            AllowedFilter::callback('affiliation_name', $jsonFilter('Affiliation.DisplayName')),
+            AllowedFilter::exact('type_classification'),
+            AllowedFilter::exact('respawn_location_type'),
+            AllowedFilter::exact('jurisdiction_name'),
+            AllowedFilter::exact('affiliation_name'),
             AllowedFilter::exact('is_scannable'),
             AllowedFilter::exact('block_travel'),
             AllowedFilter::callback('amenity', $amenityFilter),
@@ -157,11 +147,9 @@ class StarmapLocationController extends Controller
                 }
 
                 $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->whereHas('parent', static function (Builder $q) use ($value, $like): void {
-                    $q->where($q->qualifyColumn('name'), $like, "%{$value}%");
-                });
+                $query->where('game_starmap_location_data.parent_name', $like, "%{$value}%");
             }),
-            AllowedFilter::exact('parent_uuid', 'parent.location.uuid'),
+            AllowedFilter::exact('parent_uuid', 'parent_location_uuid'),
             AllowedFilter::callback('system', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
@@ -189,59 +177,14 @@ class StarmapLocationController extends Controller
     /**
      * @return array<string, Closure>
      */
-    private function childCountRelation(int $gameVersionId): array
-    {
-        return [
-            'children as child_count' => static function (Builder $query) use ($gameVersionId): void {
-                $query->where('game_version_id', $gameVersionId);
-            },
-        ];
-    }
-
-    /**
-     * @return array<int|string, mixed>
-     */
-    private function indexRelations(int $gameVersionId): array
-    {
-        return [
-            'location',
-            'gameVersion',
-            'parent.location',
-            'star.location',
-            'amenities',
-            'locationHierarchyEntityTag',
-        ];
-    }
-
-    /**
-     * @return array<int|string, mixed>
-     */
-    private function detailRelations(int $gameVersionId): array
-    {
-        return [
-            'location',
-            'gameVersion',
-            'parent.location',
-            'star.location',
-            'amenities',
-            'locationHierarchyEntityTag',
-        ];
-    }
-
-    /**
-     * @return array<string, Closure>
-     */
     private function childSummaryRelation(int $gameVersionId): array
     {
         return [
             'children' => static function ($query) use ($gameVersionId): void {
                 $query->where('game_version_id', $gameVersionId)
                     ->with([
-                        'location',
                         'amenities',
-                        'locationHierarchyEntityTag',
                     ])
-                    ->withExists('resourceLocations as has_resources')
                     ->orderBy('name');
             },
         ];
@@ -249,23 +192,13 @@ class StarmapLocationController extends Controller
 
     private function buildBaseQuery(Request $request): QueryBuilder
     {
-        $gameVersionId = $this->gameVersion()->id;
-
         return QueryBuilder::for(StarmapLocationData::class, $request)
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
             ->whereNotNull('game_starmap_location_data.system')
             ->allowedFilters(...$this->allowedFilters())
             ->allowedIncludes('amenities')
-            ->allowedSorts(...[
-                'name',
-                'type_name',
-                'size',
-                'child_count',
-            ])
-            ->defaultSort('name')
-            ->with($this->indexRelations($gameVersionId))
-            ->withCount($this->childCountRelation($gameVersionId))
-            ->withExists('resourceLocations as has_resources');
+            ->allowedSorts('name', 'type_name', 'size', 'child_count')
+            ->defaultSort('name');
     }
 
     #[OA\Get(
@@ -461,8 +394,6 @@ class StarmapLocationController extends Controller
                     ->unless(Str::isUuid($identifier), fn (Builder $q) => $q->where('slug', $identifier));
             })
             ->whereNotNull('system')
-            ->with($this->detailRelations($gameVersionId))
-            ->withCount($this->childCountRelation($gameVersionId))
             ->allowedIncludes(
                 IncludeDefinition::custom('children', new CustomEagerLoadInclude($childSummaryRelation))->toSpatieInclude(),
                 IncludeDefinition::custom('resources', new CustomEagerLoadInclude([
@@ -498,7 +429,7 @@ class StarmapLocationController extends Controller
             throw new NotFoundHttpException('No starmap location found for the specified identifier.');
         }
 
-        return (new StarmapLocationResource($location))
+        return new StarmapLocationResource($location)
             ->setValidIncludes(['children', 'resources', 'missions']);
     }
 
@@ -655,19 +586,19 @@ class StarmapLocationController extends Controller
                     'cast' => null,
                 ],
                 'type_classification' => [
-                    'expr' => $this->jsonExpression('Type.Classification'),
+                    'expr' => 'game_starmap_location_data.type_classification',
                     'cast' => null,
                 ],
                 'respawn_location_type' => [
-                    'expr' => $this->jsonExpression('RespawnLocationType'),
+                    'expr' => 'game_starmap_location_data.respawn_location_type',
                     'cast' => null,
                 ],
                 'jurisdiction_name' => [
-                    'expr' => $this->jsonExpression('Jurisdiction.Name'),
+                    'expr' => 'game_starmap_location_data.jurisdiction_name',
                     'cast' => null,
                 ],
                 'affiliation_name' => [
-                    'expr' => $this->jsonExpression('Affiliation.DisplayName'),
+                    'expr' => 'game_starmap_location_data.affiliation_name',
                     'cast' => null,
                 ],
                 'system' => [
@@ -675,9 +606,7 @@ class StarmapLocationController extends Controller
                     'cast' => null,
                 ],
                 'parent_name' => [
-                    'expr' => 'parents.name',
-                    'join' => static fn ($query) => $query
-                        ->leftJoin('game_starmap_location_data as parents', 'game_starmap_location_data.parent_data_id', '=', 'parents.id'),
+                    'expr' => 'game_starmap_location_data.parent_name',
                     'cast' => null,
                 ],
                 'amenity' => [
@@ -756,16 +685,6 @@ class StarmapLocationController extends Controller
         ]);
     }
 
-    protected function getJsonTableName(): string
-    {
-        return 'game_starmap_location_data';
-    }
-
-    protected function getJsonColumnName(): string
-    {
-        return 'data';
-    }
-
     /**
      * @return array<int, string>
      */
@@ -779,9 +698,8 @@ class StarmapLocationController extends Controller
             $values = explode(',', (string) $value);
         }
 
-        return array_values(array_filter(
-            array_map(static fn (mixed $entry): string => trim((string) $entry), $values),
-            static fn (string $entry): bool => $entry !== ''
-        ));
+        return array_map(static fn (mixed $entry): string => trim((string) $entry), $values)
+                |> (static fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
+                |> array_values(...);
     }
 }

@@ -111,6 +111,13 @@ class ImportStarmapData implements ShouldQueue
                 'is_scannable' => (bool) ($entry['IsScannable'] ?? false),
                 'block_travel' => (bool) ($entry['BlockTravel'] ?? false),
                 'data' => json_encode($entry, JSON_THROW_ON_ERROR),
+                'type_classification' => trim((string) Arr::get($entry, 'Type.Classification')) ?: null,
+                'jurisdiction_name' => trim((string) Arr::get($entry, 'Jurisdiction.Name')) ?: null,
+                'affiliation_name' => trim((string) Arr::get($entry, 'Affiliation.DisplayName')) ?: null,
+                'respawn_location_type' => trim((string) Arr::get($entry, 'RespawnLocationType')) ?: null,
+                'hide_in_starmap' => (bool) ($entry['HideInStarmap'] ?? false),
+                'hide_in_world' => (bool) ($entry['HideInWorld'] ?? false),
+                'hide_minor_locations' => (bool) ($entry['OnlyShowWhenParentSelected'] ?? false),
             ];
 
             foreach ($entry['Amenities'] ?? [] as $amenity) {
@@ -136,6 +143,9 @@ class ImportStarmapData implements ShouldQueue
             'starmap_location_id', 'game_version_id', 'parent_data_id', 'star_data_id',
             'location_hierarchy_entity_tag_id', 'name', 'description', 'type_name',
             'system', 'size', 'is_scannable', 'block_travel', 'data',
+            'type_classification', 'jurisdiction_name', 'affiliation_name',
+            'respawn_location_type', 'hide_in_starmap', 'hide_in_world',
+            'hide_minor_locations',
         ];
 
         DB::transaction(function () use ($locationDataRows, $validEntries, $uuids, $locationIdMap, $amenityEntries, $entryAmenityUuids, $upsertColumns): void {
@@ -189,7 +199,170 @@ class ImportStarmapData implements ShouldQueue
             $this->syncAmenitiesBulk($amenityEntries, $entryAmenityUuids, $locationIdMap, $locationDataIdMap);
         });
 
+        $this->runPostSteps();
+
         FilterCache::bust(FilterCache::NAMESPACE_STARMAP_LOCATIONS);
+    }
+
+    private function runPostSteps(): void
+    {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            $this->runPostStepsPostgres();
+
+            return;
+        }
+
+        $this->runPostStepsSqlite();
+    }
+
+    private function runPostStepsPostgres(): void
+    {
+        // Identity from starmap_locations
+        DB::statement('
+            UPDATE game_starmap_location_data gsld
+            SET location_uuid = loc.uuid,
+                location_slug = loc.slug
+            FROM game_starmap_locations loc
+            WHERE gsld.starmap_location_id = loc.id
+              AND gsld.game_version_id = ?
+        ', [$this->gameVersionId]);
+
+        // Parent/star detail (rows with both parent and star)
+        DB::statement('
+            UPDATE game_starmap_location_data gsld
+            SET parent_name = parent.name,
+                star_system_name = star.name,
+                parent_type_name = parent.type_name,
+                parent_location_uuid = ploc.uuid,
+                parent_location_slug = ploc.slug,
+                star_name = star.name,
+                star_type_name = star.type_name,
+                star_location_uuid = sloc.uuid,
+                star_location_slug = sloc.slug
+            FROM game_starmap_location_data parent
+                LEFT JOIN game_starmap_locations ploc ON parent.starmap_location_id = ploc.id,
+                game_starmap_location_data star
+                LEFT JOIN game_starmap_locations sloc ON star.starmap_location_id = sloc.id
+            WHERE gsld.parent_data_id = parent.id
+              AND gsld.star_data_id = star.id
+              AND gsld.game_version_id = ?
+        ', [$this->gameVersionId]);
+
+        // Rows with NULL parent but has star
+        DB::statement('
+            UPDATE game_starmap_location_data gsld
+            SET star_system_name = star.name,
+                star_name = star.name,
+                star_type_name = star.type_name,
+                star_location_uuid = sloc.uuid,
+                star_location_slug = sloc.slug
+            FROM game_starmap_location_data star
+                LEFT JOIN game_starmap_locations sloc ON star.starmap_location_id = sloc.id
+            WHERE gsld.star_data_id = star.id
+              AND gsld.parent_data_id IS NULL
+              AND gsld.game_version_id = ?
+        ', [$this->gameVersionId]);
+
+        // Tag from entity_tags
+        DB::statement('
+            UPDATE game_starmap_location_data gsld
+            SET tag_uuid = et.uuid,
+                tag_name = et.name
+            FROM game_entity_tags et
+            WHERE gsld.location_hierarchy_entity_tag_id = et.id
+              AND gsld.game_version_id = ?
+        ', [$this->gameVersionId]);
+
+        // Child count
+        DB::statement('
+            UPDATE game_starmap_location_data gsld
+            SET child_count = COALESCE(aggregated.cnt, 0)
+            FROM (
+                SELECT parent_data_id, COUNT(*) as cnt
+                FROM game_starmap_location_data
+                WHERE game_version_id = ? AND parent_data_id IS NOT NULL
+                GROUP BY parent_data_id
+            ) aggregated
+            WHERE gsld.id = aggregated.parent_data_id
+              AND gsld.game_version_id = ?
+        ', [$this->gameVersionId, $this->gameVersionId]);
+
+        // Has resources
+        DB::statement('
+            UPDATE game_starmap_location_data gsld
+            SET has_resources = EXISTS(
+                SELECT 1 FROM game_resource_location_placements grlp
+                WHERE grlp.starmap_location_data_id = gsld.id
+            )
+            WHERE gsld.game_version_id = ?
+        ', [$this->gameVersionId]);
+    }
+
+    private function runPostStepsSqlite(): void
+    {
+        StarmapLocationData::query()
+            ->where('game_version_id', $this->gameVersionId)
+            ->chunk(200, function ($rows) {
+                foreach ($rows as $row) {
+                    $updates = [];
+
+                    // Identity
+                    if ($row->starmap_location_id) {
+                        $loc = DB::table('game_starmap_locations')->where('id', $row->starmap_location_id)->first();
+                        if ($loc) {
+                            $updates['location_uuid'] = $loc->uuid;
+                            $updates['location_slug'] = $loc->slug;
+                        }
+                    }
+
+                    // Parent
+                    if ($row->parent_data_id) {
+                        $parent = StarmapLocationData::find($row->parent_data_id);
+                        if ($parent) {
+                            $updates['parent_name'] = $parent->name;
+                            $updates['parent_type_name'] = $parent->type_name;
+                            $ploc = DB::table('game_starmap_locations')->where('id', $parent->starmap_location_id)->first();
+                            $updates['parent_location_uuid'] = $ploc?->uuid;
+                            $updates['parent_location_slug'] = $ploc?->slug;
+                        }
+                    }
+
+                    // Star
+                    if ($row->star_data_id) {
+                        $star = StarmapLocationData::find($row->star_data_id);
+                        if ($star) {
+                            $updates['star_name'] = $star->name;
+                            $updates['star_system_name'] = $star->name;
+                            $updates['star_type_name'] = $star->type_name;
+                            $sloc = DB::table('game_starmap_locations')->where('id', $star->starmap_location_id)->first();
+                            $updates['star_location_uuid'] = $sloc?->uuid;
+                            $updates['star_location_slug'] = $sloc?->slug;
+                        }
+                    }
+
+                    // Tag
+                    if ($row->location_hierarchy_entity_tag_id) {
+                        $tag = DB::table('game_entity_tags')->where('id', $row->location_hierarchy_entity_tag_id)->first();
+                        if ($tag) {
+                            $updates['tag_uuid'] = $tag->uuid;
+                            $updates['tag_name'] = $tag->name;
+                        }
+                    }
+
+                    // Child count
+                    $updates['child_count'] = StarmapLocationData::where('parent_data_id', $row->id)
+                        ->where('game_version_id', $this->gameVersionId)
+                        ->count();
+
+                    // Has resources
+                    $updates['has_resources'] = DB::table('game_resource_location_placements')
+                        ->where('starmap_location_data_id', $row->id)->exists();
+
+                    DB::table('game_starmap_location_data')->where('id', $row->id)->update($updates);
+                }
+            });
     }
 
     private function extractName(array $entry): string

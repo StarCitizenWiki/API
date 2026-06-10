@@ -154,15 +154,9 @@ class CommodityController extends Controller
                             'game_starmap_location_data.type_name',
                             'game_starmap_location_data.parent_data_id',
                             'game_starmap_location_data.starmap_location_id',
-                        ]),
-                        'locations.starmapLocationData.location' => fn ($q) => $q->select([
-                            'game_starmap_locations.id',
-                            'game_starmap_locations.uuid',
-                        ]),
-                        'locations.starmapLocationData.parent' => fn ($q) => $q->select([
-                            'game_starmap_location_data.id',
-                            'game_starmap_location_data.name',
-                            'game_starmap_location_data.type_name',
+                            'game_starmap_location_data.location_uuid',
+                            'game_starmap_location_data.parent_name',
+                            'game_starmap_location_data.parent_type_name',
                         ]),
                     ]),
             ])
@@ -272,20 +266,10 @@ class CommodityController extends Controller
                             'game_starmap_location_data.type_name',
                             'game_starmap_location_data.parent_data_id',
                             'game_starmap_location_data.starmap_location_id',
-                        ]),
-                        'locations.starmapLocationData.location' => fn ($q) => $q->select([
-                            'game_starmap_locations.id',
-                            'game_starmap_locations.uuid',
-                        ]),
-                        'locations.starmapLocationData.parent' => fn ($q) => $q->select([
-                            'game_starmap_location_data.id',
-                            'game_starmap_location_data.name',
-                            'game_starmap_location_data.type_name',
-                            'game_starmap_location_data.starmap_location_id',
-                        ]),
-                        'locations.starmapLocationData.parent.location' => fn ($q) => $q->select([
-                            'game_starmap_locations.id',
-                            'game_starmap_locations.uuid',
+                            'game_starmap_location_data.location_uuid',
+                            'game_starmap_location_data.parent_name',
+                            'game_starmap_location_data.parent_type_name',
+                            'game_starmap_location_data.parent_location_uuid',
                         ]),
                         'locations.resourceData' => fn ($q) => $q->select([
                             'game_resource_data.id',
@@ -313,7 +297,7 @@ class CommodityController extends Controller
             throw new NotFoundHttpException('No commodity found with the given identifier.');
         }
 
-        return (new CommodityShowResource($commodityModel))
+        return new CommodityShowResource($commodityModel)
             ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 

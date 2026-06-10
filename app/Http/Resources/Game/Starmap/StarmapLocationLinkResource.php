@@ -40,12 +40,12 @@ class StarmapLocationLinkResource extends AbstractBaseResource
         $locationData = $this->resource;
 
         return [
-            'uuid' => $locationUuid = $this->locationUuid ?? $locationData->location?->uuid,
+            'uuid' => $locationUuid = $this->locationUuid ?? $locationData->location_uuid,
             'name' => $locationData->name,
-            'slug' => $locationData->location?->slug,
+            'slug' => $locationData->location_slug,
             'type_name' => $locationData->type_name,
-            'parent_name' => $locationData->parent?->name,
-            'star_system_name' => $locationData->parent?->star?->name,
+            'parent_name' => $locationData->parent_name,
+            'star_system_name' => $locationData->star_system_name,
             'link' => $locationUuid !== null
                 ? route('locations.show', ['identifier' => $locationUuid])
                 : null,

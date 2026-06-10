@@ -62,7 +62,7 @@ class MissionLocationResource extends AbstractBaseResource
 
         foreach ($starmapLocations as $location) {
             $purpose = $location->pivot->purpose ?? null;
-            $uuid = $location->location?->uuid;
+            $uuid = $location->location_uuid;
 
             $grouped[$purpose][] = $this->buildLocationData($location, $uuid, $request);
         }
@@ -90,7 +90,7 @@ class MissionLocationResource extends AbstractBaseResource
 
             $matchedGroup ??= ucfirst((string) ($purpose ?? 'Unknown'));
 
-            $uuid = $location->location?->uuid;
+            $uuid = $location->location_uuid;
             $merged[$matchedGroup][] = $this->buildLocationData($location, $uuid, $request);
         }
 

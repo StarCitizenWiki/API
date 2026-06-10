@@ -24,7 +24,6 @@ trait ExpandsUexPrices
 
         if ($uncachedIds !== []) {
             $fetched = StarmapLocationData::query()
-                ->with(['location', 'parent.star'])
                 ->whereIn('id', $uncachedIds)
                 ->get()
                 ->keyBy('id');

@@ -308,30 +308,26 @@ class StarmapLocationResource extends AbstractBaseResource
 
         $this->setCanonicalResource(
             'location',
-            $locationData->location?->uuid ?? '',
-            $locationData->location?->slug,
+            $locationData->location_uuid ?? '',
+            $locationData->location_slug,
             $this->buildApiUrl($locationData, $request),
             $this->buildWebUrl($locationData, $request),
             $locationData->gameVersion?->code,
         );
 
         return [
-            'uuid' => $locationData->location?->uuid,
-            'slug' => $locationData->location?->slug,
+            'uuid' => $locationData->location_uuid,
+            'slug' => $locationData->location_slug,
             'name' => $locationData->name,
             'description' => $locationData->description,
             'size' => $locationData->size,
-            'respawn_location_type' => is_string(Arr::get($payload, 'RespawnLocationType'))
-                ? trim((string) Arr::get($payload, 'RespawnLocationType')) ?: null
-                : null,
-            'child_count' => (int) ($locationData->child_count ?? 0),
-            'has_resources' => array_key_exists('has_resources', $locationData->getAttributes())
-                ? (bool) ($locationData->getAttributes()['has_resources'])
-                : null,
+            'respawn_location_type' => $locationData->respawn_location_type,
+            'child_count' => $locationData->child_count ?? 0,
+            'has_resources' => $locationData->has_resources,
             'mission_count' => (int) ($locationData->mission_count ?? 0),
             'is_scannable' => (bool) $locationData->is_scannable,
-            'hide_in_starmap' => (bool) Arr::get($payload, 'HideInStarmap', false),
-            'hide_in_world' => (bool) Arr::get($payload, 'HideInWorld', false),
+            'hide_in_starmap' => (bool) $locationData->hide_in_starmap,
+            'hide_in_world' => (bool) $locationData->hide_in_world,
             'block_travel' => (bool) $locationData->block_travel,
             'quantum_travel' => is_array(Arr::get($payload, 'QuantumTravel')) && Arr::get($payload, 'QuantumTravel') !== []
                 ? collect(Arr::get($payload, 'QuantumTravel'))
@@ -362,7 +358,6 @@ class StarmapLocationResource extends AbstractBaseResource
             'updated_at' => $locationData->updated_at?->toIso8601String(),
             'version' => $locationData->gameVersion?->code,
             'children' => $this->whenLoaded('children', fn (): array => $locationData->children
-                ->filter(static fn (StarmapLocationData $child): bool => $child->location !== null)
                 ->map(fn (StarmapLocationData $child): array => $this->buildChildSummary($child))
                 ->values()
                 ->all()),
@@ -379,24 +374,19 @@ class StarmapLocationResource extends AbstractBaseResource
      */
     private function buildChildSummary(StarmapLocationData $locationData): array
     {
-        $payload = $this->payload($locationData->data);
         $amenities = $this->buildAmenities($locationData);
 
         return [
-            'uuid' => $locationData->location->uuid,
+            'uuid' => $locationData->location_uuid,
             'name' => $locationData->name,
             'designation' => $this->buildDesignation($locationData),
             'web_url' => $this->buildWebUrl($locationData, request()),
             'type_name' => $locationData->type_name,
-            'type_classification' => is_string(Arr::get($payload, 'Type.Classification'))
-                ? trim((string) Arr::get($payload, 'Type.Classification')) ?: null
-                : null,
-            'respawn_location_type' => is_string(Arr::get($payload, 'RespawnLocationType'))
-                ? trim((string) Arr::get($payload, 'RespawnLocationType')) ?: null
-                : null,
+            'type_classification' => $locationData->type_classification,
+            'respawn_location_type' => $locationData->respawn_location_type,
             'amenities' => $amenities,
             'amenity_labels' => $this->buildAmenityLabels($amenities),
-            'has_resources' => (bool) ($locationData->getAttributes()['has_resources'] ?? false),
+            'has_resources' => (bool) $locationData->has_resources,
         ];
     }
 
@@ -415,14 +405,14 @@ class StarmapLocationResource extends AbstractBaseResource
     private function buildApiUrl(StarmapLocationData $locationData, Request $request): string
     {
         return $this->urlWithVersion(
-            route('locations.show', ['identifier' => $locationData->location?->uuid]),
+            route('locations.show', ['identifier' => $locationData->location_uuid]),
             $request
         );
     }
 
     private function buildWebUrl(StarmapLocationData $locationData, Request $request): string
     {
-        $identifier = $locationData->location?->slug ?? $locationData->location?->uuid;
+        $identifier = $locationData->location_slug ?? $locationData->location_uuid;
 
         return $this->urlWithVersion(
             route('web.locations.show', ['identifier' => $identifier]),
@@ -435,11 +425,16 @@ class StarmapLocationResource extends AbstractBaseResource
      */
     private function buildStarSummary(StarmapLocationData $locationData): ?array
     {
-        if (! $locationData->relationLoaded('star')) {
+        if ($locationData->star_name === null) {
             return null;
         }
 
-        return $this->buildLinkedLocationSummary($locationData->star);
+        return [
+            'uuid' => $locationData->star_location_uuid,
+            'name' => $locationData->star_name,
+            'type_name' => $locationData->star_type_name,
+            'slug' => $locationData->star_location_slug,
+        ];
     }
 
     /**
@@ -447,27 +442,15 @@ class StarmapLocationResource extends AbstractBaseResource
      */
     private function buildParentSummary(StarmapLocationData $locationData): ?array
     {
-        if (! $locationData->relationLoaded('parent')) {
-            return null;
-        }
-
-        return $this->buildLinkedLocationSummary($locationData->parent);
-    }
-
-    /**
-     * @return array{uuid: string, name: string, type_name: string, slug: string|null}|null
-     */
-    private function buildLinkedLocationSummary(?StarmapLocationData $locationData): ?array
-    {
-        if ($locationData === null || $locationData->location === null) {
+        if ($locationData->parent_name === null) {
             return null;
         }
 
         return [
-            'uuid' => $locationData->location->uuid,
-            'name' => $locationData->name,
-            'type_name' => $locationData->type_name,
-            'slug' => $locationData->location->slug,
+            'uuid' => $locationData->parent_location_uuid,
+            'name' => $locationData->parent_name,
+            'type_name' => $locationData->parent_type_name,
+            'slug' => $locationData->parent_location_slug,
         ];
     }
 
@@ -510,9 +493,7 @@ class StarmapLocationResource extends AbstractBaseResource
 
         return [
             'uuid' => Arr::get($payload, 'Jurisdiction.UUID'),
-            'name' => is_string(Arr::get($payload, 'Jurisdiction.Name'))
-                ? trim((string) Arr::get($payload, 'Jurisdiction.Name')) ?: null
-                : null,
+            'name' => $locationData->jurisdiction_name,
             'base_fine' => Arr::get($payload, 'Jurisdiction.BaseFine'),
             'max_stolen_goods_possession_scu' => Arr::get($payload, 'Jurisdiction.MaxStolenGoodsPossessionScu'),
             'is_prison' => Arr::get($payload, 'Jurisdiction.IsPrison'),
@@ -541,11 +522,7 @@ class StarmapLocationResource extends AbstractBaseResource
 
         return [
             'uuid' => Arr::get($payload, 'Affiliation.UUID'),
-            'name' => is_string(Arr::get($payload, 'Affiliation.DisplayName'))
-                ? trim((string) Arr::get($payload, 'Affiliation.DisplayName')) ?: null
-                : (is_string(Arr::get($payload, 'Affiliation.Name'))
-                    ? trim((string) Arr::get($payload, 'Affiliation.Name')) ?: null
-                    : null),
+            'name' => $locationData->affiliation_name,
         ];
     }
 
@@ -590,13 +567,13 @@ class StarmapLocationResource extends AbstractBaseResource
      */
     private function buildTag(StarmapLocationData $locationData): ?array
     {
-        if (! $locationData->relationLoaded('locationHierarchyEntityTag') || $locationData->locationHierarchyEntityTag === null) {
+        if ($locationData->tag_uuid === null) {
             return null;
         }
 
         return [
-            'uuid' => $locationData->locationHierarchyEntityTag->uuid,
-            'name' => $locationData->locationHierarchyEntityTag->name,
+            'uuid' => $locationData->tag_uuid,
+            'name' => $locationData->tag_name,
         ];
     }
 

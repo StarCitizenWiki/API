@@ -38,6 +38,28 @@ class StarmapLocationData extends Model
         'is_scannable',
         'block_travel',
         'data',
+        'location_uuid',
+        'location_slug',
+        'parent_name',
+        'star_system_name',
+        'type_classification',
+        'jurisdiction_name',
+        'affiliation_name',
+        'respawn_location_type',
+        'hide_in_starmap',
+        'hide_in_world',
+        'hide_minor_locations',
+        'parent_type_name',
+        'parent_location_uuid',
+        'parent_location_slug',
+        'star_name',
+        'star_type_name',
+        'star_location_uuid',
+        'star_location_slug',
+        'has_resources',
+        'child_count',
+        'tag_name',
+        'tag_uuid',
     ];
 
     protected $casts = [
@@ -53,6 +75,28 @@ class StarmapLocationData extends Model
         'block_travel' => 'boolean',
         'mission_count' => 'integer',
         'data' => 'array',
+        'location_uuid' => 'string',
+        'location_slug' => 'string',
+        'parent_name' => 'string',
+        'star_system_name' => 'string',
+        'type_classification' => 'string',
+        'jurisdiction_name' => 'string',
+        'affiliation_name' => 'string',
+        'respawn_location_type' => 'string',
+        'hide_in_starmap' => 'boolean',
+        'hide_in_world' => 'boolean',
+        'hide_minor_locations' => 'boolean',
+        'parent_type_name' => 'string',
+        'parent_location_uuid' => 'string',
+        'parent_location_slug' => 'string',
+        'star_name' => 'string',
+        'star_type_name' => 'string',
+        'star_location_uuid' => 'string',
+        'star_location_slug' => 'string',
+        'has_resources' => 'boolean',
+        'child_count' => 'integer',
+        'tag_name' => 'string',
+        'tag_uuid' => 'string',
     ];
 
     public function location(): BelongsTo
@@ -110,29 +154,15 @@ class StarmapLocationData extends Model
         )->withPivot('purpose');
     }
 
-    protected function jurisdictionName(): Attribute
-    {
-        return Attribute::make(
-            get: fn (): ?string => data_get($this->data, 'Jurisdiction.Name'),
-        );
-    }
-
-    protected function affiliationName(): Attribute
-    {
-        return Attribute::make(
-            get: fn (): ?string => data_get($this->data, 'Affiliation.DisplayName'),
-        );
-    }
-
     protected function designation(): Attribute
     {
         return Attribute::make(
             get: function (): ?string {
-                if ($this->locationHierarchyEntityTag === null) {
+                if ($this->tag_name === null) {
                     return null;
                 }
 
-                return self::formatDesignation($this->locationHierarchyEntityTag->name);
+                return self::formatDesignation($this->tag_name);
             },
         );
     }
