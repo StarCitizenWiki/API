@@ -414,7 +414,7 @@ class BuildItemFieldCatalog extends Command
             return false;
         }
 
-        return array_all(array_keys($properties), fn($name) => is_string($name) && preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $name) === 1);
+        return array_all(array_keys($properties), fn ($name) => is_string($name) && preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $name) === 1);
     }
 
     /**

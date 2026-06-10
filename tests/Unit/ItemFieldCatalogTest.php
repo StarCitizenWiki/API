@@ -10,6 +10,7 @@ function withFakeCatalog(array $entries): array
     $path = storage_path('app/generated/item-fields.json');
     $original = File::exists($path) ? File::get($path) : null;
 
+    File::ensureDirectoryExists(dirname($path));
     File::put($path, json_encode($entries));
 
     return [

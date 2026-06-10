@@ -999,11 +999,17 @@ class VehicleController extends Controller
                 AllowedSort::field('width', 'width'),
                 AllowedSort::field('height', 'height'),
                 AllowedSort::field('mass_total', 'mass_total'),
-                AllowedSort::field('cargo_capacity', 'cargo_capacity'),
+                AllowedSort::callback('cargo_capacity', static function (Builder $query, bool $descending): void {
+                    $direction = $descending ? 'desc' : 'asc';
+                    $query->orderByRaw("cargo_capacity {$direction} NULLS LAST");
+                }),
                 AllowedSort::field('vehicle_inventory', 'vehicle_inventory'),
                 AllowedSort::field('crew.min', 'crew_min'),
                 AllowedSort::field('crew.max', 'crew_max'),
-                AllowedSort::field('health', 'health'),
+                AllowedSort::callback('health', static function (Builder $query, bool $descending): void {
+                    $direction = $descending ? 'desc' : 'asc';
+                    $query->orderByRaw("health {$direction} NULLS LAST");
+                }),
                 AllowedSort::field('armor.health', 'armor_health'),
                 AllowedSort::field('shield.hp', 'shield_hp'),
                 AllowedSort::field('shield.face_type', 'shield_face_type'),

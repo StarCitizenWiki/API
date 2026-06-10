@@ -648,14 +648,9 @@ class MissionController extends Controller
             'reward_max',
             'time_to_complete_minutes',
             'max_players_per_instance',
-            AllowedSort::callback('reputation_amount', function (Builder $query, bool $descending): void {
+            AllowedSort::callback('reputation_amount', static function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
-
-                if (DB::connection()->getDriverName() === 'pgsql') {
-                    $query->orderBy('reputation_amount', $direction)->orderByRaw('reputation_amount IS NULL');
-                } else {
-                    $query->orderBy('reputation_amount', $direction);
-                }
+                $query->orderByRaw("reputation_amount {$direction} NULLS LAST");
             }),
         ];
     }

@@ -220,7 +220,7 @@ it('sorts cargo ascending and places null values last', function () {
 
     $response->assertSuccessful();
     expect(collect($response->json('data'))->pluck('cargo_capacity')->toArray())
-        ->toBe([null, null, 100, 200, 300]);
+        ->toBe([100, 200, 300, null, null]);
 });
 
 it('sorts health descending and places null values last', function () {

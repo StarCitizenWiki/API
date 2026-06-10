@@ -94,7 +94,7 @@ class ComputeBespokeItems implements ShouldQueue
             ->get();
 
         foreach ($vehicles as $vehicle) {
-            $loadout = $vehicle->data->get('Loadout', []) ?? [];
+            $loadout = $vehicle->data['Loadout'] ?? [];
 
             $this->walkLoadout(
                 is_array($loadout) ? $loadout : $loadout->toArray(),
