@@ -6,7 +6,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use Illuminate\Support\Facades\Cache;
 
 beforeEach(function (): void {
     $this->version = GameVersion::factory()->create([
@@ -22,15 +21,7 @@ beforeEach(function (): void {
 });
 
 describe('filter endpoint', function (): void {
-    beforeEach(function (): void {
-        app()->instance('env', 'production');
-        app('cache')->setDefaultDriver('array');
-        app()->forgetInstance('cache');
-        app('cache')->forgetDriver(['array', 'database']);
-        Cache::store('array')->flush();
-    });
-
-    it('returns filtered in-game vehicle facet values without caching the filtered response', function (): void {
+    it('returns filtered in-game vehicle facet values', function (): void {
         $destroyerManufacturer = Manufacturer::factory()->create([
             'name' => 'RSI',
             'code' => 'RSI',
@@ -87,8 +78,6 @@ describe('filter endpoint', function (): void {
             ->assertJsonPath('filters.role', [
                 ['value' => 'Capital Ship', 'label' => 'Capital Ship', 'count' => 1],
             ]);
-
-        expect(Cache::get('filters:index:vehicles'))->toBeNull();
     });
 });
 

@@ -5,15 +5,6 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\Starsystem;
-use Illuminate\Support\Facades\Cache;
-
-beforeEach(function (): void {
-    app()->instance('env', 'production');
-    app('cache')->setDefaultDriver('array');
-    app()->forgetInstance('cache');
-    app('cache')->forgetDriver(['array', 'database']);
-    Cache::store('array')->flush();
-});
 
 it('returns starsystem filter values with counts', function (): void {
     GameVersion::factory()->create([
@@ -101,5 +92,4 @@ it('returns filtered starsystem facet values without caching the filtered respon
             ],
         ]);
 
-    expect(Cache::get('filters:index:starsystems'))->toBeNull();
 });

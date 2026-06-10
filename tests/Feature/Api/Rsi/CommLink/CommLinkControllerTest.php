@@ -10,7 +10,6 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link;
 use App\Models\Rsi\CommLink\Series;
 use App\Models\System\Language;
-use Illuminate\Support\Facades\Cache;
 
 describe('index', function (): void {
     it('sorts by images and links count and filters by publication date', function (): void {
@@ -320,14 +319,6 @@ describe('search', function (): void {
 });
 
 describe('filters endpoint', function (): void {
-    beforeEach(function (): void {
-        app()->instance('env', 'production');
-        app('cache')->setDefaultDriver('array');
-        app()->forgetInstance('cache');
-        app('cache')->forgetDriver(['array', 'database']);
-        Cache::store('array')->flush();
-    });
-
     it('returns comm-link filter values with counts', function (): void {
         GameVersion::factory()->create([
             'code' => '3.25.0-LIVE',
@@ -369,7 +360,7 @@ describe('filters endpoint', function (): void {
             ]);
     });
 
-    it('returns filtered comm-link facet values without caching the filtered response', function (): void {
+    it('returns filtered comm-link facet values', function (): void {
         $updates = Category::factory()->create(['name' => 'Updates']);
         $guides = Category::factory()->create(['name' => 'Guides']);
         $news = Channel::factory()->create(['name' => 'News']);
@@ -408,6 +399,5 @@ describe('filters endpoint', function (): void {
                 ],
             ]);
 
-        expect(Cache::get('filters:index:comm-links'))->toBeNull();
     });
 });

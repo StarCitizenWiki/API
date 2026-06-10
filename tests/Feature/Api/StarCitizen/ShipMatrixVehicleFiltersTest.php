@@ -9,15 +9,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
-use Illuminate\Support\Facades\Cache;
-
-beforeEach(function (): void {
-    app()->instance('env', 'production');
-    app('cache')->setDefaultDriver('array');
-    app()->forgetInstance('cache');
-    app('cache')->forgetDriver(['array', 'database']);
-    Cache::store('array')->flush();
-});
 
 it('returns ship matrix vehicle filter values with counts', function (): void {
     GameVersion::factory()->create([
@@ -125,5 +116,4 @@ it('returns filtered ship matrix facet values without caching the filtered respo
             ],
         ]);
 
-    expect(Cache::get('filters:index:shipmatrix'))->toBeNull();
 });

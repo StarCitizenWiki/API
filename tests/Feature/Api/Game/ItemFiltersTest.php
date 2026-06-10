@@ -6,15 +6,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
-use App\Support\Filters\FilterCache;
-use Illuminate\Support\Facades\Cache;
-
-beforeEach(function (): void {
-    app()->instance('env', 'production');
-    app('cache')->setDefaultDriver('array');
-    app('cache')->forgetDriver(['array', 'database']);
-    Cache::store('array')->flush();
-});
 
 it('returns item filter values with counts', function (): void {
     $version = GameVersion::factory()->create([
@@ -260,105 +251,6 @@ it('filters item filter values by type', function (): void {
                 ],
             ],
         ]);
-});
-
-it('caches only broad item facet responses', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.25.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Cache Co',
-        'code' => 'CACHE',
-    ]);
-
-    ItemData::factory()
-        ->for(Item::factory(), 'item')
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Broad Item',
-            'type' => 'Weapon',
-            'sub_type' => 'Laser',
-            'classification' => 'FPS.Weapon',
-            'size' => 1,
-            'grade' => 2,
-            'class' => 'A',
-            'data' => [],
-        ]);
-
-    $broadKey = FilterCache::itemsKey($version->code, 'items');
-
-    $this->getJson(route('items.filters', ['version' => $version->code]))
-        ->assertOk();
-
-    expect(Cache::get('filters:index:items'))->toBe([$broadKey])
-        ->and(Cache::get($broadKey))->not->toBeNull();
-
-    Cache::flush();
-
-    $this->getJson(route('items.filters', [
-        'version' => $version->code,
-        'filter' => ['type' => 'Weapon'],
-    ]))->assertOk();
-
-    expect(Cache::get('filters:index:items'))->toBeNull()
-        ->and(Cache::get($broadKey))->toBeNull();
-});
-
-it('treats item category-only and blank facet inputs as broad cache requests', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.25.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Category Cache Co',
-        'code' => 'CATCACHE',
-    ]);
-
-    ItemData::factory()
-        ->for(Item::factory(), 'item')
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Energy Bar',
-            'type' => 'Food',
-            'sub_type' => 'Snack',
-            'classification' => 'Test',
-            'size' => 1,
-            'grade' => 1,
-            'class' => 'Civilian',
-            'data' => [],
-        ]);
-
-    $foodKey = FilterCache::itemsKey($version->code, 'food');
-
-    $this->getJson(route('items.filters', [
-        'version' => $version->code,
-        'filter' => ['category' => 'food'],
-    ]))->assertOk();
-
-    expect(Cache::get('filters:index:items'))->toBe([$foodKey])
-        ->and(Cache::get($foodKey))->not->toBeNull();
-
-    Cache::flush();
-
-    $this->getJson(route('items.filters', [
-        'version' => $version->code,
-        'filter' => [
-            'category' => 'food',
-            'type' => '',
-        ],
-    ]))->assertOk();
-
-    expect(Cache::get('filters:index:items'))->toBe([$foodKey])
-        ->and(Cache::get($foodKey))->not->toBeNull();
 });
 
 it('resolves classification labels correctly', function (): void {

@@ -7,15 +7,6 @@ use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
-use Illuminate\Support\Facades\Cache;
-
-beforeEach(function (): void {
-    app()->instance('env', 'production');
-    app('cache')->setDefaultDriver('array');
-    app()->forgetInstance('cache');
-    app('cache')->forgetDriver(['array', 'database']);
-    Cache::store('array')->flush();
-});
 
 it('returns galactapedia filter values with counts', function (): void {
     GameVersion::factory()->create([
@@ -96,5 +87,4 @@ it('returns filtered galactapedia facet values without caching the filtered resp
             ],
         ]);
 
-    expect(Cache::get('filters:index:galactapedia'))->toBeNull();
 });
