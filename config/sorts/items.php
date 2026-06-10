@@ -10,9 +10,13 @@ declare(strict_types=1);
  */
 return [
     // =====================================================================
-    // CORE PROPERTIES
+    // CORE PROPERTIES (denormalized columns)
     // =====================================================================
     'mass' => ['path' => 'Mass', 'cast' => 'numeric'],
+
+    // =====================================================================
+    // CORE PROPERTIES (JSON)
+    // =====================================================================
     'dimension.volume_converted' => ['path' => 'InventoryOccupancy.Volume.SCUConverted', 'cast' => 'numeric'],
     'inventory.scu_converted' => ['path' => 'InventoryContainer.SCU', 'cast' => 'numeric'],
 

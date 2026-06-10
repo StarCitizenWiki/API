@@ -83,6 +83,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'is_base_variant', description: 'Whether this item is the base variant (has no parent variant).', type: 'boolean'),
         new OA\Property(property: 'is_craftable', description: 'Whether this item can be crafted via blueprints.', type: 'boolean'),
+        new OA\Property(property: 'is_lootable', description: 'Whether this item can be generated as loot.', type: 'boolean'),
         new OA\Property(
             property: 'blueprint',
             description: 'Crafting blueprints that produce this item. Only returned when the item is craftable. Use include=blueprints to get full blueprint data instead of links.',
@@ -471,7 +472,7 @@ class ItemResource extends AbstractBaseResource
 
         $this->eagerLoadPortEquippedItems($itemData, $request);
 
-        $eventSource = Arr::get($itemData->data, 'event_source', []);
+        $eventSource = $itemData->event_source ?? [];
         $eventSource = is_array($eventSource) ? array_values($eventSource) : [];
 
         return [
@@ -483,13 +484,14 @@ class ItemResource extends AbstractBaseResource
             'classification_label' => $itemData->classification_label,
             'description' => $this->getTranslation($itemData->item, $request),
             'size' => $itemData->size,
-            'mass' => $this->extractNumeric($itemData, 'Mass'),
+            'mass' => $itemData->mass,
             $this->mergeWhen($itemData->rarity !== null, [
                 'rarity' => $itemData->rarity,
             ]),
             'event_source' => $eventSource,
             'is_base_variant' => $itemData->base_id === null,
             'is_craftable' => $itemData->is_craftable,
+            'is_lootable' => $itemData->is_lootable,
             $this->mergeWhen($itemData->is_craftable, [
                 'blueprint' => $this->isFullBlueprintMode($itemData)
                     ? $this->buildFullBlueprintPayload($itemData, $request)

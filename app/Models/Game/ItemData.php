@@ -45,6 +45,10 @@ class ItemData extends Model
         'uex_prices',
         'is_bespoke',
         'bespoke_vehicle_tags',
+        'mass',
+        'event_source',
+        'is_craftable',
+        'is_lootable',
     ];
 
     protected $casts = [
@@ -55,6 +59,10 @@ class ItemData extends Model
         'data' => 'array',
         'uex_prices' => 'array',
         'bespoke_vehicle_tags' => 'array',
+        'mass' => 'float',
+        'event_source' => 'array',
+        'is_craftable' => 'boolean',
+        'is_lootable' => 'boolean',
     ];
 
     public function scopeCategory(Builder $query, string $category): Builder
@@ -143,7 +151,15 @@ class ItemData extends Model
 
     public function getIsCraftableAttribute(): bool
     {
-        return $this->blueprint !== [];
+        if (array_key_exists('is_craftable', $this->attributes)) {
+            return (bool) $this->attributes['is_craftable'];
+        }
+
+        if ($this->relationLoaded('craftingBlueprints')) {
+            return $this->craftingBlueprints->isNotEmpty();
+        }
+
+        return false;
     }
 
     public function item(): BelongsTo

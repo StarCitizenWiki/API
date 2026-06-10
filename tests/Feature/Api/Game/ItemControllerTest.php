@@ -99,6 +99,7 @@ it('includes all crafting blueprints when an item is craftable', function (): vo
             'type' => 'Widget',
             'class_name' => 'crafted_component',
             'classification' => 'Test.Widget',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 
@@ -166,6 +167,7 @@ it('uses recipe keys when multiple crafting blueprints share the same output nam
             'type' => 'Weapon',
             'class_name' => 'karna_rifle',
             'classification' => 'FPS.Weapon.Rifle',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 
@@ -689,6 +691,7 @@ it('includes craftability in item index results', function (): void {
             'type' => 'Widget',
             'class_name' => 'alpha_crafted_item',
             'classification' => 'Test.Widget',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 
@@ -899,6 +902,7 @@ it('returns full blueprint data when include=blueprints is requested on show rou
             'type' => 'Widget',
             'class_name' => 'crafted_widget',
             'classification' => 'Test.Widget',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 
@@ -960,6 +964,7 @@ it('returns link-only blueprint data without include=blueprints', function (): v
             'type' => 'Widget',
             'class_name' => 'crafted_widget',
             'classification' => 'Test.Widget',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 

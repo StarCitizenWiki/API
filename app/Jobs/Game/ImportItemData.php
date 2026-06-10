@@ -179,6 +179,11 @@ class ImportItemData implements ShouldQueue
             'is_player_relevant' => ItemRelevanceChecker::isPlayerRelevant($name, $itemPayload['className'] ?? null),
             'base_id' => null,
 
+            'mass' => Arr::get($itemPayload, 'stdItem.Mass') !== null
+                ? (float) Arr::get($itemPayload, 'stdItem.Mass') : null,
+            'event_source' => Arr::get($itemPayload, 'event_source') ?? null,
+            'is_lootable' => $this->computeIsLootable($itemPayload),
+
             'data' => $itemPayload,
         ];
     }
@@ -546,6 +551,31 @@ class ImportItemData implements ShouldQueue
         }
 
         return $ids;
+    }
+
+    private function computeIsLootable(array $itemPayload): bool
+    {
+        $entityTagMap = $itemPayload['entity_tag_map'] ?? [];
+
+        if (! is_array($entityTagMap) || $entityTagMap === []) {
+            return false;
+        }
+
+        $hasLoot = false;
+
+        foreach ($entityTagMap as $tag) {
+            $name = $tag['name'] ?? null;
+
+            if ($name === 'CannotGenerateAsLoot') {
+                return false;
+            }
+
+            if ($name === 'CanGenerateAsLoot') {
+                $hasLoot = true;
+            }
+        }
+
+        return $hasLoot;
     }
 
     private function updateSlug(Item $item, string $name): void

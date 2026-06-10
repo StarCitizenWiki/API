@@ -247,4 +247,14 @@ JSON, true, 512, JSON_THROW_ON_ERROR
             ],
         ]);
     }
+
+    public function craftable(): self|Factory
+    {
+        return $this->state(['is_craftable' => true]);
+    }
+
+    public function lootable(): self|Factory
+    {
+        return $this->state(['is_lootable' => true]);
+    }
 }

@@ -29,6 +29,7 @@ it('sorts items by json mass ascending and places null values last', function ()
             'type' => 'Widget',
             'class_name' => 'zulu_item',
             'classification' => 'Test.Widget',
+            'mass' => 50.0,
             'data' => [
                 'stdItem' => [
                     'Mass' => 50.0,
@@ -44,6 +45,7 @@ it('sorts items by json mass ascending and places null values last', function ()
             'type' => 'Widget',
             'class_name' => 'alpha_item',
             'classification' => 'Test.Widget',
+            'mass' => 150.0,
             'data' => [
                 'stdItem' => [
                     'Mass' => 150.0,
@@ -82,6 +84,7 @@ it('sorts items by json mass descending and places null values last', function (
             'type' => 'Widget',
             'class_name' => 'zulu_item',
             'classification' => 'Test.Widget',
+            'mass' => 50.0,
             'data' => [
                 'stdItem' => [
                     'Mass' => 50.0,
@@ -97,6 +100,7 @@ it('sorts items by json mass descending and places null values last', function (
             'type' => 'Widget',
             'class_name' => 'alpha_item',
             'classification' => 'Test.Widget',
+            'mass' => 150.0,
             'data' => [
                 'stdItem' => [
                     'Mass' => 150.0,

@@ -7735,6 +7735,9 @@ components:
         is_craftable:
           description: 'Whether this item can be crafted via blueprints.'
           type: boolean
+        is_lootable:
+          description: 'Whether this item can be generated as loot.'
+          type: boolean
         blueprint:
           description: 'Crafting blueprints that produce this item. Only returned when the item is craftable. Use include=blueprints to get full blueprint data instead of links.'
           type: array

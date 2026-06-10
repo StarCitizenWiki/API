@@ -250,6 +250,7 @@ it('ignores nested array values in item tag filters', function (): void {
         ->create([
             'name' => 'Festival Jacket',
             'class_name' => 'festival_jacket',
+            'event_source' => ['IAE'],
             'data' => ['event_source' => ['IAE']],
         ]);
 

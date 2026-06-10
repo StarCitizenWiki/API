@@ -345,6 +345,7 @@ return [
             [
                 'title' => 'Classification',
                 'field' => 'classification_label',
+                'sortField' => 'classification',
                 'headerSort' => true,
                 'headerFilter' => 'list',
                 'minWidth' => 220,

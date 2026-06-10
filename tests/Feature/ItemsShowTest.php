@@ -820,6 +820,7 @@ it('shows variant state in the hero and base variant link in quick facts', funct
             'type' => 'WeaponPersonal',
             'sub_type' => 'Rifle',
             'base_id' => $baseItemData->id,
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 
@@ -1168,6 +1169,7 @@ it('shows blueprint links in quick-facts card when item is craftable', function 
             'classification' => 'WeaponPersonal',
             'type' => 'WeaponPersonal',
             'sub_type' => 'Rifle',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 

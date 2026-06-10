@@ -349,7 +349,16 @@ class ItemController extends Controller
                     'classification',
                     AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
                     AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),
-                    AllowedSort::field('rarity'),
+                    AllowedSort::callback('rarity', function (Builder $query, bool $descending): Builder {
+                        $direction = $descending ? 'desc' : 'asc';
+
+                        return $query->orderByRaw("game_item_data.rarity {$direction} nulls last");
+                    }),
+                    AllowedSort::callback('Mass', function (Builder $query, bool $descending): Builder {
+                        $direction = $descending ? 'desc' : 'asc';
+
+                        return $query->orderByRaw("game_item_data.mass {$direction} nulls last");
+                    }),
                 ],
                 $this->allowedJsonSorts()
             ))
@@ -441,10 +450,29 @@ class ItemController extends Controller
 
                 $query->where(static function (Builder $q) use ($sources): void {
                     foreach ($sources as $source) {
-                        $q->orWhereJsonContains('data->event_source', $source);
+                        $q->orWhereJsonContains('event_source', $source);
                     }
                 });
             }),
+            AllowedFilter::callback('is_lootable', static function (Builder $query, mixed $value): void {
+                $normalized = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+                if ($normalized === null) {
+                    return;
+                }
+
+                $query->where('is_lootable', $normalized);
+            }),
+            AllowedFilter::callback('is_craftable', static function (Builder $query, mixed $value): void {
+                $normalized = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+                if ($normalized === null) {
+                    return;
+                }
+
+                $query->where('is_craftable', $normalized);
+            }),
+
             // filter[tags]: AND on RequiredTags -> item must have ALL provided tags
             AllowedFilter::callback('tags', static function (Builder $query, mixed $value): void {
                 $tags = self::normalizeFilterTags($value);
@@ -1275,8 +1303,8 @@ class ItemController extends Controller
         $driver = DB::connection()->getDriverName();
 
         $tableExpression = $driver === 'sqlite'
-            ? "json_each(game_item_data.data, '$.event_source') AS event_source_values"
-            : "LATERAL jsonb_array_elements_text(game_item_data.data->'event_source') AS event_source_values(value)";
+            ? 'json_each(game_item_data.event_source) AS event_source_values'
+            : 'LATERAL jsonb_array_elements_text(game_item_data.event_source) AS event_source_values(value)';
 
         $valueExpression = 'event_source_values.value';
 

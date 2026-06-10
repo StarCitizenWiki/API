@@ -215,6 +215,7 @@ it('resolves crafting blueprints for the requested game version', function (): v
             'class_name' => 'live_crafted_item',
             'type' => 'Widget',
             'classification' => 'Test.Widget',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 
@@ -227,6 +228,7 @@ it('resolves crafting blueprints for the requested game version', function (): v
             'class_name' => 'ptu_crafted_item',
             'type' => 'Widget',
             'classification' => 'Test.Widget',
+            'is_craftable' => true,
             'data' => ['stdItem' => []],
         ]);
 

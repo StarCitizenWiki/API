@@ -67,7 +67,7 @@ class HardpointItemResource extends ItemResource
             'class_name' => $itemData->class_name,
             'link' => route('items.show', ['identifier' => $this->uuid]),
             'size' => $itemData->size,
-            'mass' => $this->extractNumeric($itemData, 'Mass'),
+            'mass' => $itemData->mass,
             'grade' => ItemData::formatGrade($itemData->grade, $itemData->classification),
             'class' => $itemData->class,
             'manufacturer' => new ManufacturerLinkResource($itemData->manufacturer),

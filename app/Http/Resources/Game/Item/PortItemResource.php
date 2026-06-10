@@ -106,7 +106,7 @@ class PortItemResource extends ItemResource
             'link' => $this->urlWithVersion(route('items.show', ['identifier' => $this->uuid]), $request),
             'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $this->slug ?? $this->uuid]), $request),
             'size' => $itemData->size,
-            'mass' => $this->extractFromStdItem($itemData, 'Mass'),
+            'mass' => $itemData->mass,
             'grade' => ItemData::formatGrade($itemData->grade, $itemData->classification)
                 ?? $this->extractFromStdItem($itemData, 'DescriptionData.Grade')
                 ?? $itemData->grade,
