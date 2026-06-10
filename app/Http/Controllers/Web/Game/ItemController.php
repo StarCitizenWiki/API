@@ -60,6 +60,11 @@ class ItemController extends Controller
                 ['value' => '', 'label' => 'Default'],
                 ['value' => 'true', 'label' => 'Yes'],
             ]],
+            ['title' => 'Lootable', 'field' => 'is_lootable', 'options' => [
+                ['value' => '', 'label' => 'Default'],
+                ['value' => 'true', 'label' => 'Yes'],
+                ['value' => 'false', 'label' => 'No'],
+            ]],
         ]);
 
         $total = Arr::get($initialTableData, 'meta.total');
