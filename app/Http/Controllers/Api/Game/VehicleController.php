@@ -331,6 +331,8 @@ class VehicleController extends Controller
         $identifier = $this->cleanQueryName($identifier);
         $isUuid = Str::isUuid($identifier);
         $allowedIncludes = $this->allowedIncludes();
+        $slug = Str::slug($identifier);
+
         $nameCandidates = array_values(array_unique([
             $identifier,
             str_replace('-', ' ', $identifier),
@@ -339,39 +341,42 @@ class VehicleController extends Controller
         try {
             $vehicleData = QueryBuilder::for(VehicleData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
-                ->where(function (Builder $q) use ($nameCandidates, $isUuid, $identifier, $original) {
-                    $hasConstraint = false;
-
-                    if ($isUuid) {
-                        $q->whereHas('vehicle', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier));
-                        $hasConstraint = true;
-                    }
-
-                    if (! $isUuid) {
-                        $q->orWhereHas('vehicle', fn (Builder $itemQuery) => $itemQuery->where('slug', $identifier));
-                        $hasConstraint = true;
-                    }
-
-                    foreach ($nameCandidates as $candidate) {
-                        $underscored = str_replace(' ', '_', $candidate);
-                        $boolean = $hasConstraint ? 'orWhere' : 'where';
-
-                        $q->{$boolean}(function (Builder $nameQuery) use ($candidate, $underscored) {
-                            $nameQuery->where('name', $candidate)
-                                ->orWhereRaw('LOWER(name) = LOWER(?)', [$candidate])
-                                ->orWhereRaw('LOWER(display_name) = LOWER(?)', [$candidate])
-                                ->orWhere('class_name', strtoupper($underscored))
-                                ->orWhereRaw('LOWER(class_name) = LOWER(?)', [$underscored]);
-                        });
-
-                        $hasConstraint = true;
-                    }
-
-                    $q->orWhereRaw('LOWER(class_name) = LOWER(?)', [$original]);
-                })
+                ->when(
+                    $isUuid,
+                    fn (Builder $q) => $q->whereHas('vehicle', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier)),
+                    fn (Builder $q) => $q->whereHas('vehicle', fn (Builder $itemQuery) => $itemQuery->where('slug', $slug)),
+                )
                 ->allowedIncludes(...$allowedIncludes)
                 ->with(['vehicle', 'gameVersion', 'manufacturer'])
                 ->first();
+
+            if ($vehicleData === null) {
+                $vehicleData = QueryBuilder::for(VehicleData::class, $request)
+                    ->forRequestedOrDefaultVersion($versionCode)
+                    ->where(function (Builder $q) use ($nameCandidates, $original) {
+                        $hasConstraint = false;
+
+                        foreach ($nameCandidates as $candidate) {
+                            $underscored = str_replace(' ', '_', $candidate);
+                            $boolean = $hasConstraint ? 'orWhere' : 'where';
+
+                            $q->{$boolean}(function (Builder $nameQuery) use ($candidate, $underscored) {
+                                $nameQuery->where('name', $candidate)
+                                    ->orWhereRaw('LOWER(name) = LOWER(?)', [$candidate])
+                                    ->orWhereRaw('LOWER(display_name) = LOWER(?)', [$candidate])
+                                    ->orWhere('class_name', strtoupper($underscored))
+                                    ->orWhereRaw('LOWER(class_name) = LOWER(?)', [$underscored]);
+                            });
+
+                            $hasConstraint = true;
+                        }
+
+                        $q->orWhereRaw('LOWER(class_name) = LOWER(?)', [$original]);
+                    })
+                    ->allowedIncludes(...$allowedIncludes)
+                    ->with(['vehicle', 'gameVersion', 'manufacturer'])
+                    ->first();
+            }
 
             if ($vehicleData === null || $vehicleData->vehicle === null) {
                 $shipMatrixVehicle = ShipMatrixVehicle::query()

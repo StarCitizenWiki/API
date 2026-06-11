@@ -997,7 +997,7 @@ class ItemController extends Controller
                 ->when(
                     $isUuid,
                     fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier)),
-                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', $identifier)),
+                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', Str::slug($identifier))),
                 )
                 ->first();
 
