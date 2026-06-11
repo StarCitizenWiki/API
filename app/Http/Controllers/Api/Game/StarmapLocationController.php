@@ -198,7 +198,8 @@ class StarmapLocationController extends Controller
             ->allowedFilters(...$this->allowedFilters())
             ->allowedIncludes('amenities')
             ->allowedSorts('name', 'type_name', 'size', 'child_count')
-            ->defaultSort('name');
+            ->defaultSort('name')
+            ->with('location');
     }
 
     #[OA\Get(

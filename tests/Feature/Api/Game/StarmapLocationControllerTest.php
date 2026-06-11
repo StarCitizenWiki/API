@@ -1785,3 +1785,31 @@ describe('query filter', function (): void {
             ->assertJsonCount(0, 'data');
     });
 });
+
+describe('images', function (): void {
+    it('eager loads location relationship and returns images in index', function (): void {
+        $location = StarmapLocation::factory()->create([
+            'images' => [
+                ['source' => 'uex', 'thumbnail_url' => 'https://example.com/thumb.jpg'],
+            ],
+        ]);
+
+        StarmapLocationData::factory()
+            ->for($location, 'location')
+            ->for($this->defaultVersion, 'gameVersion')
+            ->create([
+                'name' => 'ArcCorp',
+                'system' => 'Stanton',
+                'type_name' => 'Planet',
+                'data' => [],
+            ]);
+
+        $response = $this->getJson('/api/locations');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.images', [
+                ['source' => 'uex', 'thumbnail_url' => 'https://example.com/thumb.jpg'],
+            ]);
+    });
+});
