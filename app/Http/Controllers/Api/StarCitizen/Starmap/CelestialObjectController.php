@@ -40,7 +40,12 @@ class CelestialObjectController extends Controller
         return [
             IncludeDefinition::relationship('affiliation'),
             IncludeDefinition::relationship('starsystem'),
-            IncludeDefinition::custom('jumppoints', new CustomEagerLoadInclude(['jumppointEntry', 'jumppointExit'])),
+            IncludeDefinition::custom('jumppoints', new CustomEagerLoadInclude([
+                'jumppointEntry.entry',
+                'jumppointEntry.exit',
+                'jumppointExit.entry',
+                'jumppointExit.exit',
+            ])),
         ];
     }
 

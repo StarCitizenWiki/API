@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\StarCitizen\Starmap;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Models\StarCitizen\Starmap\CelestialObject;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -57,7 +58,7 @@ class JumppointResource extends AbstractBaseResource
         $entry = $this->whenLoaded('entry');
         $exit = $this->whenLoaded('exit');
 
-        $entryData = $entry ? [
+        $entryData = $entry instanceof CelestialObject ? [
             'id' => $entry->cig_id,
             'system_id' => $entry->starsystem_id,
             'system_api_url' => route(
@@ -73,7 +74,7 @@ class JumppointResource extends AbstractBaseResource
             'designation' => $entry->designation,
         ] : null;
 
-        $exitData = $exit ? [
+        $exitData = $exit instanceof CelestialObject ? [
             'id' => $exit->cig_id,
             'system_id' => $exit->starsystem_id,
             'system_api_url' => route(

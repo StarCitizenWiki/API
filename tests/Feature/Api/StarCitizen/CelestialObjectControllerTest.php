@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\CelestialObject;
+use App\Models\StarCitizen\Starmap\Jumppoint;
 use App\Models\StarCitizen\Starmap\Starsystem;
 
 beforeEach(function (): void {
@@ -143,5 +144,109 @@ describe('search', function (): void {
 
         expect(collect($response->json('data'))->pluck('id')->all())
             ->toBe([$targetObject->cig_id]);
+    });
+});
+
+describe('jumppoints include', function (): void {
+    it('returns jumppoint with entry and exit data when included', function (): void {
+        $entrySystem = Starsystem::factory()->create(['code' => 'ELLIS']);
+        $exitSystem = Starsystem::factory()->create(['code' => 'NYX']);
+
+        $entryCO = CelestialObject::factory()->create([
+            'starsystem_id' => $entrySystem->cig_id,
+            'code' => 'ELLIS.JUMPPOINTS.NEXUS',
+            'designation' => 'Nexus JP',
+            'type' => 'JUMPPOINT',
+        ]);
+
+        $exitCO = CelestialObject::factory()->create([
+            'starsystem_id' => $exitSystem->cig_id,
+            'code' => 'NYX.JUMPPOINTS.BREMEN',
+            'designation' => 'Bremen JP',
+            'type' => 'JUMPPOINT',
+        ]);
+
+        $jumppoint = Jumppoint::factory()->create([
+            'entry_id' => $entryCO->cig_id,
+            'exit_id' => $exitCO->cig_id,
+            'name' => 'Nexus Jump',
+            'size' => 'MEDIUM',
+        ]);
+
+        $response = $this->getJson(route('celestial-objects.show', [
+            'code' => $entryCO->code,
+            'include' => 'jumppoints',
+        ]));
+
+        $response->assertSuccessful();
+
+        $jp = $response->json('data.jumppoints');
+
+        expect($jp)->not->toBeNull()
+            ->and($jp['id'])->toBe($jumppoint->cig_id)
+            ->and($jp['name'])->toBe('Nexus Jump')
+            ->and($jp['size'])->toBe('MEDIUM')
+            ->and($jp['entry'])->not->toBeNull()
+            ->and($jp['entry']['code'])->toBe($entryCO->code)
+            ->and($jp['entry']['id'])->toBe($entryCO->cig_id)
+            ->and($jp['exit'])->not->toBeNull()
+            ->and($jp['exit']['code'])->toBe($exitCO->code)
+            ->and($jp['exit']['id'])->toBe($exitCO->cig_id);
+    });
+
+    it('returns null jumppoints when no jumppoint exists', function (): void {
+        $system = Starsystem::factory()->create(['code' => 'SOL']);
+
+        CelestialObject::factory()->create([
+            'starsystem_id' => $system->cig_id,
+            'code' => 'SOL.STARS.SUN',
+            'type' => 'STAR',
+        ]);
+
+        $response = $this->getJson(route('celestial-objects.index', [
+            'include' => 'jumppoints',
+        ]));
+
+        $response->assertSuccessful();
+
+        $jp = $response->json('data.0.jumppoints');
+
+        expect($jp)->toBeNull();
+    });
+
+    it('returns jumppoints in index when included', function (): void {
+        $system = Starsystem::factory()->create(['code' => 'ELLIS']);
+
+        $entryCO = CelestialObject::factory()->create([
+            'starsystem_id' => $system->cig_id,
+            'code' => 'ELLIS.JUMPPOINTS.NEXUS',
+            'type' => 'JUMPPOINT',
+        ]);
+
+        $exitCO = CelestialObject::factory()->create([
+            'starsystem_id' => $system->cig_id,
+            'code' => 'ELLIS.JUMPPOINTS.TERRA',
+            'type' => 'JUMPPOINT',
+        ]);
+
+        $jumppoint = Jumppoint::factory()->create([
+            'entry_id' => $entryCO->cig_id,
+            'exit_id' => $exitCO->cig_id,
+            'name' => 'Nexus Jump',
+            'size' => 'LARGE',
+        ]);
+
+        $response = $this->getJson(route('celestial-objects.index', [
+            'include' => 'jumppoints',
+        ]));
+
+        $response->assertSuccessful();
+
+        $item = collect($response->json('data'))->first(fn (array $item): bool => $item['code'] === $entryCO->code);
+
+        expect($item)->not->toBeNull()
+            ->and($item['jumppoints']['id'])->toBe($jumppoint->cig_id)
+            ->and($item['jumppoints']['entry']['code'])->toBe($entryCO->code)
+            ->and($item['jumppoints']['exit']['code'])->toBe($exitCO->code);
     });
 });

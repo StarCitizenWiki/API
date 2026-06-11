@@ -6,6 +6,7 @@ namespace App\Http\Resources\StarCitizen\Starmap;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\TranslationResolver;
+use App\Models\StarCitizen\Starmap\Jumppoint;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -60,7 +61,9 @@ class CelestialObjectResource extends AbstractBaseResource
 {
     public function toArray($request): array
     {
-        $jumppoint = $this->whenLoaded('jumppointEntry') ?? $this->whenLoaded('jumppointExit') ?? $this->jumppoint();
+        $jumppointEntry = $this->whenLoaded('jumppointEntry');
+        $jumppointExit = $this->whenLoaded('jumppointExit');
+        $jumppoint = $jumppointEntry instanceof Jumppoint ? $jumppointEntry : ($jumppointExit instanceof Jumppoint ? $jumppointExit : $this->jumppoint());
 
         return [
             'id' => $this->cig_id,
@@ -115,7 +118,7 @@ class CelestialObjectResource extends AbstractBaseResource
                     'type' => $this->subtype->type,
                 ],
             ]),
-            'jumppoints' => new JumppointResource($jumppoint, true),
+            'jumppoints' => $jumppoint instanceof Jumppoint ? new JumppointResource($jumppoint, true) : null,
             'time_modified' => $this->time_modified,
         ];
     }
