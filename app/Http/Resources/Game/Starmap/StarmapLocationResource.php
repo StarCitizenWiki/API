@@ -402,8 +402,12 @@ class StarmapLocationResource extends AbstractBaseResource
         };
     }
 
-    private function buildApiUrl(StarmapLocationData $locationData, Request $request): string
+    private function buildApiUrl(StarmapLocationData $locationData, Request $request): ?string
     {
+        if ($locationData->location_uuid === null) {
+            return null;
+        }
+
         return $this->urlWithVersion(
             route('locations.show', ['identifier' => $locationData->location_uuid]),
             $request

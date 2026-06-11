@@ -41,7 +41,7 @@ class ManufacturerController extends Controller
                 }
 
                 $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('manufacturers.name', $like, "%{$value}%");
+                $query->where('game_manufacturers.name', $like, "%{$value}%");
             }))
             ->groupBy('name')
             ->orderBy('name');

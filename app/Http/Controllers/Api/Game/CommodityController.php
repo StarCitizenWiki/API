@@ -553,7 +553,7 @@ class CommodityController extends Controller
                 $query->where(function (Builder $q) use ($groups): void {
                     foreach ($groups as $group) {
                         $encoded = json_encode([$group]);
-                        $q->orWhereRaw("data->'CommodityGroups' @> ?::jsonb", [$encoded]);
+                        $q->orWhereRaw("game_commodities.data->'CommodityGroups' @> ?::jsonb", [$encoded]);
                     }
                 });
             }),

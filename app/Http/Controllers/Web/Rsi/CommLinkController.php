@@ -77,13 +77,10 @@ class CommLinkController extends Controller
         ]);
     }
 
-    public function show(Request $request, int $id): View
+    public function show(Request $request, string $id): View
     {
-        $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
-        $include = array_values(array_unique(array_merge($include, ['images', 'links'])));
-
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', implode(',', $include));
+        $apiRequest->query->set('include', 'images,links');
 
         $payload = $this->apiJsonRequest->request(route('comm-links.show', ['id' => $id], false), $apiRequest);
         $commLinkData = Arr::get($payload, 'data', []);

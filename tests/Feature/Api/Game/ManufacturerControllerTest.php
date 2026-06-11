@@ -71,3 +71,29 @@ it('searches manufacturers with plain text queries that are not uuids', function
         ->assertHeader('Deprecated', 'true');
 })->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
     ->group('db-pgsql');
+
+it('filters manufacturers by name without ambiguous table error', function (): void {
+    Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Roberts Space Industries',
+        'code' => 'RSI',
+    ]);
+
+    Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Anvil Aerospace',
+        'code' => 'ANVL',
+    ]);
+
+    $response = $this->getJson('/api/manufacturers?'.http_build_query([
+        'filter' => ['name' => 'Roberts Space Industries'],
+    ]));
+
+    $response->assertSuccessful();
+
+    $names = collect($response->json('data'))->pluck('name')->all();
+
+    expect($names)->toContain('Roberts Space Industries')
+        ->and($names)->not->toContain('Anvil Aerospace');
+})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
+    ->group('db-pgsql');
