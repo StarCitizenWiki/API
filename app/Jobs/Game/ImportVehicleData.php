@@ -22,6 +22,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
 
@@ -83,6 +84,7 @@ class ImportVehicleData implements ShouldQueue
 
         $this->updateSlug($vehicle, $payload);
 
+        $this->updateDisplayNameSlug($vehicle, $vehicleData);
     }
 
     /**
@@ -393,5 +395,22 @@ class ImportVehicleData implements ShouldQueue
         }
 
         app(SlugService::class)->assignUniqueSlug($vehicle, $className, "vehicle-{$vehicle->id}");
+    }
+
+    private function updateDisplayNameSlug(Vehicle $vehicle, VehicleData $vehicleData): void
+    {
+        $displayName = $vehicleData->display_name;
+
+        if ($displayName === null || $displayName === '') {
+            return;
+        }
+
+        $slug = Str::slug($displayName);
+
+        if ($vehicle->display_name_slug === $slug) {
+            return;
+        }
+
+        $vehicle->forceFill(['display_name_slug' => $slug])->save();
     }
 }

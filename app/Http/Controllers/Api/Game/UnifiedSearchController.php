@@ -27,10 +27,10 @@ class UnifiedSearchController extends Controller
         parameters: [
             new OA\Parameter(
                 name: 'filter[query]',
-                description: 'Search query (minimum 2 characters). Searches names, class names, and other identifiers.',
+                description: 'Search query (minimum 3 characters). Searches names, class names, and other identifiers.',
                 in: 'query',
                 required: true,
-                schema: new OA\Schema(type: 'string', minLength: 2, example: 'Carrack'),
+                schema: new OA\Schema(type: 'string', minLength: 3, example: 'Carrack'),
                 examples: [
                     new OA\Examples(example: 'ship_search', summary: 'Search for a ship', value: 'carrack'),
                     new OA\Examples(example: 'item_search', summary: 'Search for an item', value: 'arrow'),
@@ -87,14 +87,14 @@ class UnifiedSearchController extends Controller
                     )),
                 ],
             )),
-            new OA\Response(response: 422, description: 'Validation error - filter[query] is required and must be at least 2 characters', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
+            new OA\Response(response: 422, description: 'Validation error - filter[query] is required and must be at least 3 characters', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
             new OA\Response(response: 429, description: 'Rate limit exceeded. Search endpoints are limited to 60 requests per minute per IP.', content: new OA\JsonContent(ref: '#/components/schemas/rate_limit_error_response')),
         ],
     )]
     public function search(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'filter.query' => ['required', 'string', 'min:2'],
+            'filter.query' => ['required', 'string', 'min:3'],
         ]);
 
         $query = $validated['filter']['query'];
@@ -191,7 +191,7 @@ class UnifiedSearchController extends Controller
                      gv.slug, {$uuidCast('gv.uuid')} AS uuid, gvd.career AS extra_label, NULL{$nt} AS item_type
               FROM game_vehicle_data gvd
               JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
-              WHERE gvd.game_version_id = ? AND (gvd.name {$like} ? OR gvd.class_name {$like} ?)
+              WHERE gvd.game_version_id = ? AND (gvd.name {$like} ? OR gvd.display_name {$like} ? OR gvd.class_name {$like} ?)
               AND gvd.is_player_relevant = TRUE
               LIMIT 5)
 
@@ -244,7 +244,7 @@ class UnifiedSearchController extends Controller
              FROM game_mission_data gmd
              JOIN game_missions gm ON gm.id = gmd.mission_id
              WHERE gmd.game_version_id = ?
-               AND (gmd.title {$like} ? OR gmd.description {$like} ? OR gmd.debug_name {$like} ?)";
+               AND (gmd.title {$like} ? OR gmd.debug_name {$like} ?)";
 
         if ($isPgsql) {
             return "SELECT * FROM (SELECT DISTINCT ON (gmd.game_version_id, gmd.title, gmd.generator_class,
@@ -255,7 +255,7 @@ class UnifiedSearchController extends Controller
                  FROM game_mission_data gmd
                  JOIN game_missions gm ON gm.id = gmd.mission_id
                  WHERE gmd.game_version_id = ?
-                   AND (gmd.title ILIKE ? OR gmd.description ILIKE ? OR gmd.debug_name ILIKE ?)
+                   AND (gmd.title ILIKE ? OR gmd.debug_name ILIKE ?)
                    AND gmd.title IS NOT NULL AND gmd.title != ''
                  ORDER BY gmd.game_version_id, gmd.title, gmd.generator_class,
                           gmd.mission_giver, gmd.faction_id, gmd.illegal, gmd.mission_key, gmd.id ASC
@@ -269,8 +269,8 @@ class UnifiedSearchController extends Controller
     {
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
         $uuidCast = static fn (string $col) => $isPgsql ? "{$col}::text" : $col;
-        $eq = static fn (string $col) => "LOWER({$col}) = LOWER(?)";
         $like = $isPgsql ? 'ILIKE' : 'LIKE';
+        $uuidEq = static fn (string $col) => "{$uuidCast($col)} = ?";
 
         return <<<SQL
             SELECT * FROM (
@@ -278,7 +278,8 @@ class UnifiedSearchController extends Controller
                 FROM game_vehicle_data gvd
                 JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
                 WHERE gvd.game_version_id = ?
-                  AND ({$eq('gvd.name')} OR {$eq('gvd.class_name')} OR LOWER({$uuidCast('gv.uuid')}) = LOWER(?))
+                  AND gvd.is_player_relevant = TRUE
+                  AND (gvd.name {$like} ? OR gvd.display_name {$like} ? OR gvd.class_name {$like} ? OR {$uuidEq('gv.uuid')})
                 LIMIT 1
             ) t
 
@@ -289,7 +290,8 @@ class UnifiedSearchController extends Controller
                 FROM game_vehicle_data gvd
                 JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
                 WHERE gvd.game_version_id = ?
-                  AND (gvd.name {$like} ? OR gvd.class_name {$like} ?)
+                  AND gvd.is_player_relevant = TRUE
+                  AND (gvd.name {$like} ? OR gvd.display_name {$like} ? OR gvd.class_name {$like} ?)
                 LIMIT 1
             ) t
 
@@ -300,7 +302,8 @@ class UnifiedSearchController extends Controller
                 FROM game_item_data gid
                 JOIN game_items gi ON gi.id = gid.item_id
                 WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>'
-                  AND ({$eq('gid.name')} OR {$eq('gid.class_name')} OR LOWER({$uuidCast('gi.uuid')}) = LOWER(?))
+                  AND gid.is_player_relevant = TRUE
+                  AND (gid.name {$like} ? OR gid.class_name {$like} ? OR {$uuidEq('gi.uuid')})
                 LIMIT 1
             ) t
 
@@ -311,7 +314,7 @@ class UnifiedSearchController extends Controller
                 FROM game_mission_data gmd
                 JOIN game_missions gm ON gm.id = gmd.mission_id
                 WHERE gmd.game_version_id = ?
-                  AND ({$eq('gmd.title')} OR {$eq('gmd.debug_name')} OR LOWER({$uuidCast('gm.uuid')}) = LOWER(?))
+                  AND (gmd.title {$like} ? OR gmd.debug_name {$like} ? OR {$uuidEq('gm.uuid')})
                 LIMIT 1
             ) t
 
@@ -322,7 +325,7 @@ class UnifiedSearchController extends Controller
                 FROM game_starmap_location_data gsld
                 JOIN game_starmap_locations gsl ON gsl.id = gsld.starmap_location_id
                 WHERE gsld.game_version_id = ? AND gsld.system IS NOT NULL AND gsld.name != '<= PLACEHOLDER =>'
-                  AND ({$eq('gsld.name')} OR LOWER({$uuidCast('gsl.uuid')}) = LOWER(?))
+                  AND (gsld.name {$like} ? OR {$uuidEq('gsl.uuid')})
                 LIMIT 1
             ) t
 
@@ -333,7 +336,7 @@ class UnifiedSearchController extends Controller
                 FROM game_blueprint_data gbd
                 JOIN game_blueprints gb ON gb.id = gbd.blueprint_id
                 WHERE gbd.game_version_id = ?
-                  AND ({$eq('gbd.output_name')} OR {$eq('gbd.output_class')} OR {$eq('gbd.key')} OR LOWER({$uuidCast('gb.uuid')}) = LOWER(?))
+                  AND (gbd.output_name {$like} ? OR gbd.output_class {$like} ? OR gbd.key {$like} ? OR {$uuidEq('gb.uuid')})
                 LIMIT 1
             ) t
 
@@ -342,7 +345,7 @@ class UnifiedSearchController extends Controller
             SELECT * FROM (
                 SELECT 7 AS priority, 'commodities' AS type, gc.slug, {$uuidCast('gc.uuid')} AS uuid
                 FROM game_commodities gc
-                WHERE ({$eq('gc.name')} OR {$eq('gc.key')} OR LOWER({$uuidCast('gc.uuid')}) = LOWER(?))
+                WHERE (gc.name {$like} ? OR gc.key {$like} ? OR {$uuidEq('gc.uuid')})
                 LIMIT 1
             ) t
 
@@ -359,19 +362,19 @@ class UnifiedSearchController extends Controller
         $likeVal = "%{$query}%";
 
         return [
-            // Vehicles exact
-            $versionId, $query, $query, $query,
-            // Vehicles LIKE
-            $versionId, $likeVal, $likeVal,
-            // Items
-            $versionId, $query, $query, $query,
-            // Missions
-            $versionId, $query, $query, $query,
-            // Locations
-            $versionId, $query, $query,
-            // Blueprints
+            // Vehicles exact (ILIKE without wildcards)
             $versionId, $query, $query, $query, $query,
-            // Commodities
+            // Vehicles fuzzy (ILIKE with wildcards)
+            $versionId, $likeVal, $likeVal, $likeVal,
+            // Items exact
+            $versionId, $query, $query, $query,
+            // Missions exact
+            $versionId, $query, $query, $query,
+            // Locations exact
+            $versionId, $query, $query,
+            // Blueprints exact
+            $versionId, $query, $query, $query, $query,
+            // Commodities exact
             $query, $query, $query,
         ];
     }
@@ -380,7 +383,7 @@ class UnifiedSearchController extends Controller
     {
         return [
             // Vehicles
-            $versionId, $like, $like,
+            $versionId, $like, $like, $like,
             // Items
             $versionId, $like, $like, $like,
             // Locations
@@ -390,7 +393,7 @@ class UnifiedSearchController extends Controller
             // Blueprints
             $versionId, $like, $like, $like,
             // Missions
-            $versionId, $like, $like, $like,
+            $versionId, $like, $like,
         ];
     }
 

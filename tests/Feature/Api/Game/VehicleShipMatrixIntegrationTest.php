@@ -620,6 +620,7 @@ it('finds ship-matrix vehicle by slug on versioned routes', function (string $ve
 it('finds game vehicle by hyphenated display name on versioned routes', function (string $version) {
     $vehicle = Vehicle::query()->create([
         'uuid' => 'dededed0-1212-4343-9494-aaaaaaaaaaaa',
+        'display_name_slug' => 'dragonfly-star-kitten',
     ]);
 
     VehicleData::query()->create([

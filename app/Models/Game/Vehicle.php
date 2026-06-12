@@ -23,6 +23,7 @@ class Vehicle extends Model
     protected $fillable = [
         'uuid',
         'slug',
+        'display_name_slug',
         'translation',
     ];
 
