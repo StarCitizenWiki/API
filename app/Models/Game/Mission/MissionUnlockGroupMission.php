@@ -23,6 +23,14 @@ class MissionUnlockGroupMission extends Pivot
 
     public function linkedMissionData(): BelongsTo
     {
-        return $this->belongsTo(MissionData::class, 'linked_mission_data_id');
+        return $this->belongsTo(MissionData::class, 'linked_mission_data_id')
+            ->select([
+                'game_mission_data.id',
+                'game_mission_data.mission_id',
+                'game_mission_data.title',
+                'game_mission_data.debug_name',
+                'game_mission_data.mission_type',
+            ])
+            ->with('mission');
     }
 }

@@ -116,18 +116,46 @@ class MissionData extends Model
 
     public function faction(): BelongsTo
     {
-        return $this->belongsTo(Faction::class, 'faction_id');
+        return $this->belongsTo(Faction::class, 'faction_id')
+            ->select([
+                'game_factions.id',
+                'game_factions.uuid',
+                'game_factions.name',
+                'game_factions.faction_type',
+                'game_factions.lawful',
+                'game_factions.is_npc',
+                'game_factions.has_reputation',
+                'game_factions.headquarters',
+                'game_factions.area',
+                'game_factions.focus',
+                'game_factions.founded',
+                'game_factions.leadership',
+            ]);
     }
 
     public function starmapLocations(): BelongsToMany
     {
         return $this->belongsToMany(StarmapLocationData::class, 'game_mission_data_starmap_location', 'mission_data_id', 'starmap_location_data_id')
+            ->select([
+                'game_starmap_location_data.id',
+                'game_starmap_location_data.starmap_location_id',
+                'game_starmap_location_data.name',
+                'game_starmap_location_data.system',
+                'game_starmap_location_data.type_name',
+                'game_starmap_location_data.location_uuid',
+            ])
             ->withPivot('purpose');
     }
 
     public function blueprints(): BelongsToMany
     {
         return $this->belongsToMany(BlueprintData::class, 'game_mission_data_blueprint', 'mission_data_id', 'blueprint_data_id')
+            ->select([
+                'game_blueprint_data.id',
+                'game_blueprint_data.blueprint_id',
+                'game_blueprint_data.output_name',
+                'game_blueprint_data.output_item_uuid',
+            ])
             ->withPivot(['pool_uuid', 'item_data_id', 'chance'])
             ->using(MissionBlueprint::class);
     }
@@ -155,6 +183,7 @@ class MissionData extends Model
     public function rewardItems(): BelongsToMany
     {
         return $this->belongsToMany(ItemData::class, 'game_mission_data_reward_item', 'mission_data_id', 'item_data_id')
+            ->select(['game_item_data.id', 'game_item_data.item_id', 'game_item_data.name'])
             ->withPivot(['amount', 'send_to_home']);
     }
 

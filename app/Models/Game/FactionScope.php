@@ -34,6 +34,13 @@ class FactionScope extends Model
 
     public function standings(): HasMany
     {
-        return $this->hasMany(FactionStanding::class);
+        return $this->hasMany(FactionStanding::class)
+            ->select([
+                'game_faction_standings.id',
+                'game_faction_standings.faction_scope_id',
+                'game_faction_standings.name',
+                'game_faction_standings.display_name',
+                'game_faction_standings.min_reputation',
+            ]);
     }
 }

@@ -101,7 +101,12 @@ class StarmapLocationData extends Model
 
     public function location(): BelongsTo
     {
-        return $this->belongsTo(StarmapLocation::class, 'starmap_location_id');
+        return $this->belongsTo(StarmapLocation::class, 'starmap_location_id')
+            ->select([
+                'game_starmap_locations.id',
+                'game_starmap_locations.uuid',
+                'game_starmap_locations.slug',
+            ]);
     }
 
     public function parent(): BelongsTo
