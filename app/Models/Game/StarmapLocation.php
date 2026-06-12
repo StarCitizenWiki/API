@@ -21,6 +21,7 @@ class StarmapLocation extends Model
     protected $fillable = [
         'uuid',
         'slug',
+        'images',
     ];
 
     protected $casts = [

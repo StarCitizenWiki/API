@@ -102,7 +102,7 @@ class UnifiedSearchController extends Controller
         $like = "%{$escaped}%";
         $versionId = $this->gameVersion()->id;
 
-        $rows = DB::select($this->buildSql(), $this->buildBindings($versionId, $like));
+        $rows = DB::select($this->buildSearchSql(), $this->buildSearchBindings($versionId, $like));
 
         $grouped = collect($rows)
             ->groupBy('type')
@@ -157,8 +157,9 @@ class UnifiedSearchController extends Controller
     private function resolveEntity(Request $request, string $query, bool $redirectToApi): RedirectResponse
     {
         $versionId = $this->gameVersion()->id;
+        $escaped = str_replace(['%', '_'], ['\%', '\_'], $query);
 
-        $rows = DB::select($this->buildResolveSql(), $this->buildResolveBindings($versionId, $query));
+        $rows = DB::select($this->buildResolveSql(), $this->buildResolveBindings($versionId, $query, $escaped));
 
         if ($rows === []) {
             abort(404, 'No matching entity found.');
@@ -179,7 +180,7 @@ class UnifiedSearchController extends Controller
         return redirect($url, 302);
     }
 
-    private function buildSql(): string
+    private function buildSearchSql(): string
     {
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
         $like = $isPgsql ? 'ILIKE' : 'LIKE';
@@ -270,6 +271,7 @@ class UnifiedSearchController extends Controller
         $isPgsql = DB::connection()->getDriverName() === 'pgsql';
         $uuidCast = static fn (string $col) => $isPgsql ? "{$col}::text" : $col;
         $like = $isPgsql ? 'ILIKE' : 'LIKE';
+        $esc = "ESCAPE '\\'";
         $uuidEq = static fn (string $col) => "{$uuidCast($col)} = ?";
 
         return <<<SQL
@@ -278,8 +280,7 @@ class UnifiedSearchController extends Controller
                 FROM game_vehicle_data gvd
                 JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
                 WHERE gvd.game_version_id = ?
-                  AND gvd.is_player_relevant = TRUE
-                  AND (gvd.name {$like} ? OR gvd.display_name {$like} ? OR gvd.class_name {$like} ? OR {$uuidEq('gv.uuid')})
+                  AND (gvd.name {$like} ? {$esc} OR gvd.display_name {$like} ? {$esc} OR gvd.class_name {$like} ? {$esc} OR {$uuidEq('gv.uuid')})
                 LIMIT 1
             ) t
 
@@ -290,8 +291,7 @@ class UnifiedSearchController extends Controller
                 FROM game_vehicle_data gvd
                 JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
                 WHERE gvd.game_version_id = ?
-                  AND gvd.is_player_relevant = TRUE
-                  AND (gvd.name {$like} ? OR gvd.display_name {$like} ? OR gvd.class_name {$like} ?)
+                  AND (gvd.name {$like} ? {$esc} OR gvd.display_name {$like} ? {$esc} OR gvd.class_name {$like} ? {$esc})
                 LIMIT 1
             ) t
 
@@ -302,8 +302,7 @@ class UnifiedSearchController extends Controller
                 FROM game_item_data gid
                 JOIN game_items gi ON gi.id = gid.item_id
                 WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>'
-                  AND gid.is_player_relevant = TRUE
-                  AND (gid.name {$like} ? OR gid.class_name {$like} ? OR {$uuidEq('gi.uuid')})
+                  AND (gid.name {$like} ? {$esc} OR gid.class_name {$like} ? {$esc} OR {$uuidEq('gi.uuid')})
                 LIMIT 1
             ) t
 
@@ -314,7 +313,7 @@ class UnifiedSearchController extends Controller
                 FROM game_mission_data gmd
                 JOIN game_missions gm ON gm.id = gmd.mission_id
                 WHERE gmd.game_version_id = ?
-                  AND (gmd.title {$like} ? OR gmd.debug_name {$like} ? OR {$uuidEq('gm.uuid')})
+                  AND (gmd.title {$like} ? {$esc} OR gmd.debug_name {$like} ? {$esc} OR {$uuidEq('gm.uuid')})
                 LIMIT 1
             ) t
 
@@ -325,7 +324,7 @@ class UnifiedSearchController extends Controller
                 FROM game_starmap_location_data gsld
                 JOIN game_starmap_locations gsl ON gsl.id = gsld.starmap_location_id
                 WHERE gsld.game_version_id = ? AND gsld.system IS NOT NULL AND gsld.name != '<= PLACEHOLDER =>'
-                  AND (gsld.name {$like} ? OR {$uuidEq('gsl.uuid')})
+                  AND (gsld.name {$like} ? {$esc} OR {$uuidEq('gsl.uuid')})
                 LIMIT 1
             ) t
 
@@ -336,7 +335,7 @@ class UnifiedSearchController extends Controller
                 FROM game_blueprint_data gbd
                 JOIN game_blueprints gb ON gb.id = gbd.blueprint_id
                 WHERE gbd.game_version_id = ?
-                  AND (gbd.output_name {$like} ? OR gbd.output_class {$like} ? OR gbd.key {$like} ? OR {$uuidEq('gb.uuid')})
+                  AND (gbd.output_name {$like} ? {$esc} OR gbd.output_class {$like} ? {$esc} OR gbd.key {$like} ? {$esc} OR {$uuidEq('gb.uuid')})
                 LIMIT 1
             ) t
 
@@ -345,7 +344,7 @@ class UnifiedSearchController extends Controller
             SELECT * FROM (
                 SELECT 7 AS priority, 'commodities' AS type, gc.slug, {$uuidCast('gc.uuid')} AS uuid
                 FROM game_commodities gc
-                WHERE (gc.name {$like} ? OR gc.key {$like} ? OR {$uuidEq('gc.uuid')})
+                WHERE (gc.name {$like} ? {$esc} OR gc.key {$like} ? {$esc} OR {$uuidEq('gc.uuid')})
                 LIMIT 1
             ) t
 
@@ -357,29 +356,29 @@ class UnifiedSearchController extends Controller
     /**
      * @return array<int, string>
      */
-    private function buildResolveBindings(int $versionId, string $query): array
+    private function buildResolveBindings(int $versionId, string $query, string $escaped): array
     {
-        $likeVal = "%{$query}%";
+        $likeVal = "%{$escaped}%";
 
         return [
-            // Vehicles exact (ILIKE without wildcards)
-            $versionId, $query, $query, $query, $query,
-            // Vehicles fuzzy (ILIKE with wildcards)
+            // Vehicles exact
+            $versionId, $escaped, $escaped, $escaped, $query,
+            // Vehicles fuzzy
             $versionId, $likeVal, $likeVal, $likeVal,
-            // Items exact
-            $versionId, $query, $query, $query,
-            // Missions exact
-            $versionId, $query, $query, $query,
-            // Locations exact
-            $versionId, $query, $query,
-            // Blueprints exact
-            $versionId, $query, $query, $query, $query,
-            // Commodities exact
-            $query, $query, $query,
+            // Items
+            $versionId, $escaped, $escaped, $query,
+            // Missions
+            $versionId, $escaped, $escaped, $query,
+            // Locations
+            $versionId, $escaped, $query,
+            // Blueprints
+            $versionId, $escaped, $escaped, $escaped, $query,
+            // Commodities
+            $escaped, $escaped, $query,
         ];
     }
 
-    private function buildBindings(int $versionId, string $like): array
+    private function buildSearchBindings(int $versionId, string $like): array
     {
         return [
             // Vehicles

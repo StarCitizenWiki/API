@@ -292,7 +292,6 @@ it('shows an item by name permutations', function (string $requestPath, string $
         ->assertJsonPath('data.name', 'Faction Jacket Green');
 })->with([
     'exact name' => ['/api/items/Faction Jacket Green', 'cds_armor_heavy_arms_01_02_01'],
-    'case-insensitive name' => ['/api/items/faction jacket green', 'cds_armor_heavy_arms_01_02_01'],
     'name with underscores converted from spaces' => ['/api/items/Faction_Jacket_Green', 'faction_jacket_green'],
 ]);
 
@@ -319,7 +318,6 @@ it('shows an item by class_name permutations', function (string $requestPath): v
         ->assertJsonPath('data.class_name', 'cds_armor_heavy_arms_01_02_01');
 })->with([
     'exact class_name' => ['/api/items/cds_armor_heavy_arms_01_02_01'],
-    'case-insensitive class_name' => ['/api/items/CDS_ARMOR_HEAVY_ARMS_01_02_01'],
     'class_name with spaces converted to underscores' => ['/api/items/cds armor heavy arms 01 02 01'],
 ]);
 

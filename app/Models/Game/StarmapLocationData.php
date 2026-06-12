@@ -106,6 +106,7 @@ class StarmapLocationData extends Model
                 'game_starmap_locations.id',
                 'game_starmap_locations.uuid',
                 'game_starmap_locations.slug',
+                'game_starmap_locations.images',
             ]);
     }
 
