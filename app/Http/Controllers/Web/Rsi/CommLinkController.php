@@ -34,40 +34,19 @@ class CommLinkController extends Controller
         $initialFilters = [];
         $searchCommLinks = [];
 
-        $apiRequest = $request->duplicate();
-
         if ($searchType === 'title' && $searchQuery !== '') {
-            $filters = [];
-
             if (ctype_digit($searchQuery)) {
-                $filters['id'] = $searchQuery;
                 $initialFilters[] = ['field' => 'id', 'value' => $searchQuery];
             } else {
-                $filters['title'] = $searchQuery;
                 $initialFilters[] = ['field' => 'title', 'value' => $searchQuery];
             }
-
-            $apiRequest->query->set('filter', array_merge(
-                (array) $apiRequest->query->get('filter', ''),
-                $filters
-            ));
-        }
-
-        if ($searchType === 'content' && $searchQuery !== '') {
-            $apiRequest->query->set('filter', array_merge(
-                (array) $apiRequest->query->get('filter', ''),
-                ['content' => $searchQuery]
-            ));
         }
 
         if ($searchType === 'media-url' && $searchUrl !== '') {
             $searchCommLinks = $this->commLinksForMediaUrl($searchUrl);
         }
 
-        $initialTableData = $this->apiJsonRequest->request(route('comm-links.index', [], false), $apiRequest);
-
         return view('comm-links.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
             'initialFilters' => $initialFilters,
             'searchType' => $searchType,

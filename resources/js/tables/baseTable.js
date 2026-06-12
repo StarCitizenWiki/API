@@ -1197,8 +1197,12 @@ export function initTabulatorTables() {
 			: effectiveInitialHeaderFilter;
 
 		const effectivePaginationSize = urlState.paginationSize ?? pageSize;
-		const effectivePaginationInitialPage =
-			urlState.paginationInitialPage ?? null;
+		const effectivePaginationInitialPage = urlState.paginationInitialPage ?? null;
+
+		const externalInitialFilter = [];
+		for (const [field, value] of externalInitialValues) {
+			externalInitialFilter.push({ field, type: '=', value });
+		}
 
 		let servedInitial = false;
 		let latestFilterOptionsRequestId = 0;
@@ -1295,6 +1299,7 @@ export function initTabulatorTables() {
 				: {}),
 
 			initialHeaderFilter: tableInitialHeaderFilter,
+			...(externalInitialFilter.length ? { initialFilter: externalInitialFilter } : {}),
 			headerFilterLiveFilterDelay: 600,
 
 			...(effectiveInitialSort ? { initialSort: effectiveInitialSort } : {}),
@@ -1421,7 +1426,6 @@ export function initTabulatorTables() {
 						select.dataset.pendingValue = initialValue;
 						ensureSelectValueOption(select, initialValue);
 						select.value = initialValue;
-						table.addFilter(field, "=", initialValue);
 					}
 
 					select.addEventListener("change", () => {

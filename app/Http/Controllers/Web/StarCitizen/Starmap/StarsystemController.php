@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Web\StarCitizen\Starmap;
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Models\StarCitizen\Starmap\Starsystem;
-use App\Services\ApiJsonRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -16,14 +15,9 @@ use Illuminate\View\View;
 #[CacheTag('starmap')]
 class StarsystemController extends Controller
 {
-    public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}
-
     public function index(Request $request): View
     {
-        $initialTableData = $this->apiJsonRequest->request(route('starsystems.index', [], false), $request);
-
         return view('starmap.systems.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
         ]);
     }

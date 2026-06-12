@@ -19,10 +19,7 @@ class GalactapediaController extends Controller
 
     public function index(Request $request): View
     {
-        $initialTableData = $this->apiJsonRequest->request(route('galactapedia.index', [], false), $request);
-
         return view('galactapedia.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
         ]);
     }

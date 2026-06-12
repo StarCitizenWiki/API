@@ -38,8 +38,6 @@ class ItemController extends Controller
         $type = $endpointFilters['type'] ?? null;
         $resolvedType = $type ?? $category;
 
-        $initialTableData = $this->apiJsonRequest->request(route('items.index', [], false), $request);
-
         $tableConfig = $this->itemTableConfig->build($resolvedType);
         $tableConfig['columnBuilder'] = true;
         $tableConfig['columnBuilderCoreFields'] = ['name'];
@@ -67,11 +65,9 @@ class ItemController extends Controller
             ]],
         ]);
 
-        $total = Arr::get($initialTableData, 'meta.total');
         $manufacturer = $endpointFilters['manufacturer'] ?? null;
 
         return view('items.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters),
             'pageTitle' => $tableConfig['title'],
@@ -87,7 +83,7 @@ class ItemController extends Controller
                 'pageTitle' => $tableConfig['title'],
                 'category' => $category,
                 'type' => $type,
-                'total' => $total,
+                'total' => null,
                 'manufacturer' => $manufacturer,
             ], $request),
         ]);

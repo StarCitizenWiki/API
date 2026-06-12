@@ -28,13 +28,9 @@ class CommodityController extends Controller
     public function index(Request $request): View
     {
         $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
-        $apiRequest = $this->prepareApiRequest($request, $endpointFilters);
         $tableConfig = $this->commodityTableConfig->build();
 
-        $initialTableData = $this->apiJsonRequest->request(route('commodities.index', [], false), $apiRequest);
-
         return view('commodities.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
@@ -88,23 +84,5 @@ class CommodityController extends Controller
         }
 
         return $initialFilters;
-    }
-
-    /**
-     * @param  array<string, string>  $filters
-     */
-    private function prepareApiRequest(Request $request, array $filters): Request
-    {
-        $apiRequest = $request->duplicate();
-
-        if ($filters === []) {
-            $apiRequest->query->remove('filter');
-
-            return $apiRequest;
-        }
-
-        $apiRequest->query->set('filter', $filters);
-
-        return $apiRequest;
     }
 }

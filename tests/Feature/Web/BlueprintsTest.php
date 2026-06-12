@@ -92,12 +92,6 @@ describe('index', function (): void {
         $response->assertOk()
             ->assertViewHas('pageTitle', 'Blueprints')
             ->assertViewHas('pageSize', 25)
-            ->assertViewHas('initialTableData', function (array $tableData): bool {
-                return data_get($tableData, 'data.0.output_name') === 'FS-9 LMG'
-                    && ! collect(data_get($tableData, 'data', []))
-                        ->pluck('output_name')
-                        ->contains('P4-AR');
-            })
             ->assertSeeText('Blueprints')
             ->assertSee(route('web.blueprints.search'), false)
             ->assertSee(route('blueprints.index'), false);
@@ -130,12 +124,6 @@ describe('index', function (): void {
 
         $response->assertOk()
             ->assertViewHas('pageTitle', 'Blueprints')
-            ->assertViewHas('initialTableData', function (array $tableData): bool {
-                return data_get($tableData, 'data.0.output_name') === 'Requested Output'
-                    && ! collect(data_get($tableData, 'data', []))
-                        ->pluck('output_name')
-                        ->contains('Default Output');
-            })
             ->assertSee(route('web.blueprints.search', ['version' => $this->requestedVersion->code]), false)
             ->assertSee(route('blueprints.index', ['version' => $this->requestedVersion->code]), false);
     });

@@ -6,21 +6,15 @@ namespace App\Http\Controllers\Web\StarCitizen;
 
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
-use App\Services\ApiJsonRequest;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 #[CacheTag('vehicles')]
 class ShipMatrixVehicleController extends Controller
 {
-    public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}
-
     public function index(Request $request): View
     {
-        $initialTableData = $this->apiJsonRequest->request(route('shipmatrix.vehicles.index', [], false), $request);
-
         return view('ship-matrix.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
         ]);
     }

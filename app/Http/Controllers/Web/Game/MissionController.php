@@ -31,10 +31,7 @@ class MissionController extends Controller
     public function index(Request $request): View
     {
         $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
-        $apiRequest = $this->prepareApiRequest($request, $endpointFilters);
         $tableConfig = $this->missionTableConfig->build();
-
-        $initialTableData = $this->apiJsonRequest->request(route('missions.index', [], false), $apiRequest);
 
         $locationUuid = $request->input('filter.location');
         $activeLocationFilter = null;
@@ -52,7 +49,6 @@ class MissionController extends Controller
         }
 
         return view('missions.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
@@ -64,7 +60,7 @@ class MissionController extends Controller
             'seo' => $this->missionIndexSeoData->build([
                 'activeLocationFilter' => $activeLocationFilter,
                 'pageTitle' => $tableConfig['title'],
-                'total' => Arr::get($initialTableData, 'meta.total', 0),
+                'total' => null,
                 'reward_scope' => $endpointFilters['reward_scope'] ?? null,
                 'faction' => $endpointFilters['faction'] ?? null,
             ], $request),
@@ -115,23 +111,5 @@ class MissionController extends Controller
         }
 
         return $initialFilters;
-    }
-
-    /**
-     * @param  array<string, string>  $filters
-     */
-    private function prepareApiRequest(Request $request, array $filters): Request
-    {
-        $apiRequest = $request->duplicate();
-
-        if ($filters === []) {
-            $apiRequest->query->remove('filter');
-
-            return $apiRequest;
-        }
-
-        $apiRequest->query->set('filter', $filters);
-
-        return $apiRequest;
     }
 }

@@ -36,17 +36,9 @@ class BlueprintController extends Controller
     public function index(Request $request): View
     {
         $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
-
         $tableConfig = $this->blueprintTableConfig->build();
-        $initialTableData = $this->apiJsonRequest->request(
-            route('blueprints.index', $this->buildVersionedRouteParameters($request, [
-                'page' => ['size' => $tableConfig['pageSize']],
-            ]), false),
-            $request,
-        );
 
         return view('blueprints.index', [
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
             'pageSize' => $tableConfig['pageSize'],
@@ -54,7 +46,7 @@ class BlueprintController extends Controller
             'tableColumns' => $tableConfig['columns'],
             'seo' => $this->blueprintIndexSeoData->build([
                 'pageTitle' => $tableConfig['title'],
-                'total' => Arr::get($initialTableData, 'meta.total', 0),
+                'total' => null,
                 'output_type' => $endpointFilters['output.type'] ?? null,
                 'output_class' => $endpointFilters['output.class'] ?? null,
             ], $request),

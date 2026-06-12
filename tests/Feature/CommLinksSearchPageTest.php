@@ -126,7 +126,7 @@ it('renders the comm-link search page with working search forms', function (): v
 });
 
 it('rewrites numeric title searches to id filters and seeds the tabulator payload', function (): void {
-    $matching = CommLink::factory()->create([
+    CommLink::factory()->create([
         'cig_id' => 14001,
         'title' => 'Roadmap Roundup',
     ]);
@@ -146,9 +146,6 @@ it('rewrites numeric title searches to id filters and seeds the tabulator payloa
         ->assertViewHas('initialFilters', [
             ['field' => 'id', 'value' => '14001'],
         ])
-        ->assertViewHas('initialTableData', function (array $payload) use ($matching): bool {
-            return collect(data_get($payload, 'data', []))->pluck('id')->all() === [$matching->cig_id];
-        })
         ->assertSeeText('Comm-Links');
 });
 
@@ -176,12 +173,6 @@ it('filters comm-links by content in the tabulator payload', function (): void {
         ->assertViewHas('searchType', 'content')
         ->assertViewHas('searchQuery', 'quantum jump drive')
         ->assertViewHas('initialFilters', [])
-        ->assertViewHas('initialTableData', function (array $payload) use ($matching, $nonMatching): bool {
-            $ids = collect(data_get($payload, 'data', []))->pluck('id')->all();
-
-            return $ids === [$matching->cig_id]
-                && ! in_array($nonMatching->cig_id, $ids, true);
-        })
         ->assertSeeText('Comm-Links');
 });
 

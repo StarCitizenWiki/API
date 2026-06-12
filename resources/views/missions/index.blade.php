@@ -66,7 +66,6 @@
         <x-tabulator-table
             :id="$tableId"
             :config="$tableConfig"
-            :initial="$initialTableData"
         />
         <x-column-source-map :columns="$tableColumns" />
     </div>

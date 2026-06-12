@@ -88,7 +88,6 @@
         <x-tabulator-table
             :id="$tableId"
             :config="$tableConfig"
-            :initial="$initialTableData"
         />
     </div>
 @endsection

@@ -29,18 +29,14 @@ class VehicleController extends Controller
     public function index(Request $request): View
     {
         $endpointFilters = $this->normalizeFilterParams($request->input('filter', []));
-        $apiRequest = $this->prepareApiRequest($request, $endpointFilters);
-
-        $initialTableData = $this->apiJsonRequest->request(route('vehicles.index', [], false), $apiRequest);
 
         return view('vehicles.index', [
             'pageTitle' => 'Vehicles',
-            'initialTableData' => $initialTableData,
             'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters),
             'seo' => $this->vehicleIndexSeoData->build([
                 'pageTitle' => 'Vehicles',
-                'total' => Arr::get($initialTableData, 'meta.total', 0),
+                'total' => null,
                 'manufacturer' => $endpointFilters['manufacturer'] ?? null,
             ], $request),
         ]);
@@ -48,8 +44,12 @@ class VehicleController extends Controller
 
     public function show(Request $request, string $item): View
     {
-        $include = array_filter(array_map('trim', explode(',', (string) $request->query('include', ''))));
-        $include = array_values(array_unique(array_merge($include, ['shipMatrixVehicle'])));
+        $include = explode(',', (string) $request->query('include', ''))
+                |> (static fn ($x) => array_map('trim', $x))
+                |> array_filter(...);
+        $include = array_merge($include, ['shipMatrixVehicle'])
+                |> array_unique(...)
+                |> array_values(...);
 
         $apiRequest = $request->duplicate();
         $apiRequest->query->set('include', implode(',', $include));
@@ -85,23 +85,5 @@ class VehicleController extends Controller
         }
 
         return $initialFilters;
-    }
-
-    /**
-     * @param  array<string, string>  $filters
-     */
-    private function prepareApiRequest(Request $request, array $filters): Request
-    {
-        $apiRequest = $request->duplicate();
-
-        if ($filters === []) {
-            $apiRequest->query->remove('filter');
-
-            return $apiRequest;
-        }
-
-        $apiRequest->query->set('filter', $filters);
-
-        return $apiRequest;
     }
 }

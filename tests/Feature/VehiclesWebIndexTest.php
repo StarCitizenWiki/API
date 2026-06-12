@@ -2,11 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Services\ApiJsonRequest;
-use Illuminate\Http\Request;
-
-use function Pest\Laravel\mock;
-
 if (! function_exists('tabulatorConfigPayloadByTestId')) {
     function tabulatorConfigPayloadByTestId(string $content, string $testId): array
     {
@@ -23,19 +18,6 @@ if (! function_exists('tabulatorConfigPayloadByTestId')) {
 }
 
 it('normalizes incoming filter values into initial filters for the table', function (): void {
-    $initialTableData = [
-        'data' => [
-            [
-                'id' => 5001,
-                'name' => 'Constellation Andromeda',
-                'manufacturer' => ['name' => 'RSI'],
-            ],
-        ],
-        'meta' => [
-            'total' => 1,
-        ],
-    ];
-
     $request = [
         'version' => '4.0.0-LIVE',
         'filter' => [
@@ -46,24 +28,6 @@ it('normalizes incoming filter values into initial filters for the table', funct
         ],
     ];
 
-    $normalizedFilter = [
-        'manufacturer.name' => 'RSI,Drake',
-        'role' => 'Cargo',
-        'crew.min' => '2',
-    ];
-
-    $apiJsonRequest = mock(ApiJsonRequest::class);
-
-    $apiJsonRequest->shouldReceive('request')
-        ->once()
-        ->ordered()
-        ->withArgs(function (string $path, Request $apiRequest) use ($normalizedFilter): bool {
-            return $path === route('vehicles.index', [], false)
-                && $apiRequest->query('version') === '4.0.0-LIVE'
-                && $apiRequest->query('filter') === $normalizedFilter;
-        })
-        ->andReturn($initialTableData);
-
     $response = $this->get(route('web.vehicles.index', $request));
 
     $expectedEndpoint = route('vehicles.index', [
@@ -73,7 +37,6 @@ it('normalizes incoming filter values into initial filters for the table', funct
         'version' => '4.0.0-LIVE',
     ]);
     $response->assertSuccessful()
-        ->assertViewHas('initialTableData', $initialTableData)
         ->assertViewHas('initialHeaderFilter', [])
         ->assertViewHas('initialFilters', [
             ['field' => 'manufacturer.name', 'value' => 'RSI,Drake'],
@@ -94,21 +57,9 @@ it('normalizes incoming filter values into initial filters for the table', funct
 });
 
 it('exposes no initial filters when request filters are empty', function (): void {
-    $apiJsonRequest = mock(ApiJsonRequest::class);
-
-    $apiJsonRequest->shouldReceive('request')
-        ->once()
-        ->ordered()
-        ->withArgs(function (string $path, Request $apiRequest): bool {
-            return $path === route('vehicles.index', [], false)
-                && $apiRequest->query('filter') === null;
-        })
-        ->andReturn(['data' => [], 'meta' => ['total' => 0]]);
-
     $response = $this->get(route('web.vehicles.index'));
 
     $response->assertSuccessful()
-        ->assertViewHas('initialTableData', ['data' => [], 'meta' => ['total' => 0]])
         ->assertViewHas('initialHeaderFilter', [])
         ->assertViewHas('initialFilters', [])
         ->assertSeeText('Vehicles')
