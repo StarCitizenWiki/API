@@ -997,21 +997,14 @@ class ItemController extends Controller
                 ->when(
                     $isUuid,
                     fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier)),
-                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', Str::slug($identifier))),
+                    fn (Builder $q) => $q->where(function (Builder $q) use ($identifier, $original, $underscored) {
+                        $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', Str::slug($identifier)))
+                            ->orWhere('game_item_data.name', $identifier)
+                            ->orWhere('game_item_data.class_name', $underscored)
+                            ->orWhere('game_item_data.class_name', $original);
+                    }),
                 )
                 ->first();
-
-            if ($itemData === null) {
-                $itemData = $baseQuery()
-                    ->where(function (Builder $q) use ($identifier, $original, $underscored) {
-                        $q->where('game_item_data.name', $identifier)
-                            ->orWhereRaw('LOWER(game_item_data.name) = LOWER(?)', [$identifier])
-                            ->orWhere('game_item_data.class_name', $underscored)
-                            ->orWhereRaw('LOWER(game_item_data.class_name) = LOWER(?)', [$underscored])
-                            ->orWhereRaw('LOWER(game_item_data.class_name) = LOWER(?)', [$original]);
-                    })
-                    ->first();
-            }
 
             if ($itemData === null) {
                 throw new ModelNotFoundException;
