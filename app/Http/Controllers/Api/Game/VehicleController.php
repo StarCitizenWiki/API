@@ -392,14 +392,15 @@ class VehicleController extends Controller
             $vehicleData->load($shipMatrixRelations);
 
             $vehicleData->load([
-                'installedItems' => fn ($q) => $q->with(['item', 'manufacturer', 'gameVersion']),
+                'installedItems' => fn ($q) => $q->with(['item' => fn ($q) => $q->select('id', 'uuid', 'slug'), 'manufacturer', 'gameVersion']),
             ]);
+
             $this->buildPortItemMap($vehicleData);
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
         }
 
-        return (new VehicleResource($vehicleData))
+        return new VehicleResource($vehicleData)
             ->setValidIncludes(IncludeDefinition::toNames($this->includeDefinitions()));
     }
 
@@ -768,7 +769,7 @@ class VehicleController extends Controller
         $itemData = ItemData::query()
             ->where('game_version_id', $version->id)
             ->whereHas('item', static fn (Builder $query): Builder => $query->whereIn('uuid', $armorUuids->all()))
-            ->with(['item', 'manufacturer', 'gameVersion', 'variantGroupItem'])
+            ->with(['item' => fn ($q) => $q->select('id', 'uuid', 'slug'), 'manufacturer', 'gameVersion', 'variantGroupItem'])
             ->get()
             ->keyBy(fn (ItemData $itemData): string => $itemData->item->uuid);
 
