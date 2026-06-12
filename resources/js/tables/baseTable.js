@@ -1203,12 +1203,24 @@ export function initTabulatorTables() {
 		let servedInitial = false;
 		let latestFilterOptionsRequestId = 0;
 
+		const filterLoadingClass = "tabulator-filters-loading";
+
+		const setFilterLoadingState = (loading) => {
+			mount.classList.toggle(filterLoadingClass, loading);
+
+			const externalFilterContainer = mount.parentElement;
+			if (externalFilterContainer) {
+				externalFilterContainer.classList.toggle(filterLoadingClass, loading);
+			}
+		};
+
 		const refreshHeaderFilterOptions = (sourceUrl, ajaxConfig) => {
 			if (!filterOptionsEndpoint || !headerFilterOptionsMap) {
 				return Promise.resolve();
 			}
 
 			const requestId = ++latestFilterOptionsRequestId;
+			setFilterLoadingState(true);
 			const filterOptionsUrl = buildMirroredQueryUrl(
 				sourceUrl,
 				filterOptionsEndpoint,
@@ -1236,7 +1248,12 @@ export function initTabulatorTables() {
 						mount,
 					);
 				})
-				.catch(() => {});
+				.catch(() => {})
+				.finally(() => {
+					if (requestId === latestFilterOptionsRequestId) {
+						setFilterLoadingState(false);
+					}
+				});
 		};
 
 		const mobile = isMobile();
@@ -1245,6 +1262,9 @@ export function initTabulatorTables() {
 			layout: "fitDataFill",
 
 			preserveHorizontalScroll: true,
+
+			dataLoaderLoading: '<div class="tabulator-loader"><span class="loading loading-spinner loading-md"></span><span class="tabulator-loader-text">Loading data&hellip;</span></div>',
+			dataLoaderError: '<div class="tabulator-loader tabulator-loader-error"><span class="tabulator-loader-text">Error loading data</span></div>',
 
 			columnDefaults: {
 				...(config.columnDefaults ?? {}),

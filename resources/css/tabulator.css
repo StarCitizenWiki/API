@@ -845,7 +845,65 @@
 }
 
 /* -----------------------------
-   15) Printing
+   15) Data loading overlay
+   ----------------------------- */
+.tabulator-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.25rem 0;
+}
+.tabulator-loader-text {
+    color: var(--tb-text-muted);
+    font-size: 0.875rem;
+}
+.tabulator-loader-error .tabulator-loader-text {
+    color: var(--tb-error);
+}
+
+/* -----------------------------
+   16) Filter options loading indicator
+   ----------------------------- */
+.tabulator-filters-loading > [data-tabulator],
+[data-tabulator].tabulator-filters-loading {
+    position: relative;
+}
+
+.tabulator-filters-loading > [data-tabulator]::before,
+[data-tabulator].tabulator-filters-loading::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 30;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--tb-primary) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: tabulator-filter-load-slide 1.5s ease-in-out infinite;
+}
+
+@keyframes tabulator-filter-load-slide {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+.tabulator-filters-loading .tabulator-header-filter input,
+.tabulator-filters-loading .tabulator-header-filter select,
+.tabulator-filters-loading .tabulator-header-filter .tabulator-multiselect-filter,
+.tabulator-filters-loading [data-external-filter] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* -----------------------------
+   17) Printing
    ----------------------------- */
 @media print {
     .tabulator.tabulator.tabulator-print-table {
