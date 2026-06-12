@@ -4,7 +4,7 @@
     {!! $pageTitle !!} - Star Citizen Starmap
 @endsection
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', 'Browse all Star Citizen starmap locations including planets, stations, outposts, and landing zones. Filter by system, type, amenities, and more.') !!}
+    {!! data_get($seo, 'metaDescription', 'Planets, moons, space stations, outposts, and landing zones in all star systems.') !!}
 @endsection
 
 @section('meta')

@@ -321,49 +321,41 @@ final class ItemShowSeoData extends AbstractShowSeoData
         ?string $subTypeLabel = null,
         ?bool $isCraftable = null,
     ): string {
-        $base = $type !== null
-            ? 'Browse Star Citizen '.$type.' data for '.$itemName
-            : 'Browse Star Citizen item data for '.$itemName;
+        $opening = $itemName;
 
         if ($manufacturerName !== null) {
-            $base .= ' by '.$manufacturerName;
+            $opening .= ' by '.$manufacturerName;
         }
 
-        $attributes = $isShipComponent
-            ? array_values(array_filter([
-                $size !== null ? 'size '.$size : null,
-                $itemClass !== null ? 'class '.$itemClass : null,
+        if ($isShipComponent) {
+            $typeInfo = $this->joinSegments([
                 $grade !== null ? 'grade '.$grade : null,
-            ], static fn (mixed $v): bool => $v !== null && $v !== ''))
-            : array_values(array_filter([
-                $classification !== null ? 'classification '.$classification : null,
-            ], static fn (mixed $v): bool => $v !== null && $v !== ''));
-
-        if ($rarity !== null) {
-            $attributes[] = strtolower($rarity);
+                $size !== null ? 'size '.$size : null,
+                $type,
+                $itemClass !== null ? 'class '.$itemClass : null,
+            ]);
+        } else {
+            $typeInfo = $this->joinSegments([$type, $classification]);
         }
 
-        if ($mass !== null) {
-            $attributes[] = $this->formatMass($mass);
+        if ($typeInfo !== '') {
+            $opening .= ', a '.$typeInfo;
         }
 
-        if ($subTypeLabel !== null) {
-            $attributes[] = $subTypeLabel;
+        $parts = [$opening];
+
+        $stats = array_values(array_filter([
+            $rarity !== null ? strtolower($rarity) : null,
+            $mass !== null ? $this->formatMass($mass) : null,
+            $subTypeLabel,
+            $isCraftable === true ? 'craftable' : null,
+        ], static fn (mixed $v): bool => $v !== null && $v !== ''));
+
+        if ($stats !== []) {
+            $parts[] = implode(', ', $stats);
         }
 
-        if ($isCraftable === true) {
-            $attributes[] = 'craftable';
-        }
-
-        if ($attributes !== []) {
-            $base .= ', '.implode(', ', $attributes);
-        }
-
-        $base .= $isShipComponent
-            ? '. View ports, variants, and technical details.'
-            : '. View description, related items, and technical details.';
-
-        return $base;
+        return implode('. ', $parts).'.';
     }
 
     private function buildOffers(array $item): ?array

@@ -47,10 +47,10 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
         $metaTitle = $blueprintName.' Blueprint';
         $metaDescription = Str::limit(
             trim(collect([
-                $blueprintName.' blueprint',
-                $outputType !== null ? 'type '.$outputType : null,
-                $craftTimeSeconds !== null ? 'craft time '.$craftTimeSeconds.' seconds' : null,
-                $ingredientCount > 0 ? $ingredientCount.' inputs' : null,
+                $blueprintName.' crafting blueprint',
+                $ingredientCount > 0 ? $ingredientCount.' ingredients' : null,
+                $craftTimeSeconds !== null ? $craftTimeSeconds.'s craft time' : null,
+                $outputType !== null ? 'produces '.$outputType : null,
                 $isAvailableByDefault === true ? 'available by default' : null,
             ])->filter()->implode(', ')),
             160,
@@ -98,8 +98,8 @@ final class BlueprintShowSeoData extends AbstractShowSeoData
         $canonicalUrl = route('web.blueprints.search', array_filter([
             'version' => $version,
         ]));
-        $metaTitle = 'Search Blueprints - Star Citizen';
-        $metaDescription = 'Search Star Citizen blueprints by output name, class, item, or input resource.';
+        $metaTitle = 'Search Blueprints - Star Citizen Wiki';
+        $metaDescription = 'Search crafting blueprints by item name, output type, or required ingredients.';
 
         return [
             'title' => $metaTitle,

@@ -8,7 +8,7 @@
     {{ $pageTitle }} - Star Citizen Changelog
 @endsection
 @section('meta_description')
-    What changed between Star Citizen versions {{ $fromCode }} and {{ $toCode }}.
+    Game data changes between patches {{ $fromCode }} and {{ $toCode }}. Items, vehicles, and locations added, removed, or modified.
 @endsection
 
 @section('content')

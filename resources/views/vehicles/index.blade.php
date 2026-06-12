@@ -4,7 +4,7 @@
     {!! $pageTitle !!} - Star Citizen
 @endsection
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', 'Explore all Star Citizen vehicles including ships, ground vehicles, and gravlevs.') !!}
+    {!! data_get($seo, 'metaDescription', 'Ships and ground vehicles with detailed stats on speed, cargo, crew, components, and insurance.') !!}
 @endsection
 
 @section('meta')
@@ -63,8 +63,12 @@
             ],
             'columns' => [
                 ['title' => 'Name', 'field' => 'name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 220, 'frozen' => true, 'formatter' => 'link', 'formatterParams' => ['labelField' => 'name', 'target' => 'blank', 'urlField' => 'web_url']],
-                ['title' => 'Class', 'field' => 'class_name', 'sortField' => 'class_name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 200],
                 ['title' => 'Manufacturer', 'field' => 'manufacturer.name', 'sortField' => 'manufacturer.name', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 180],
+                [
+                    'title' => 'MSRP', 'field' => 'msrp', 'sortField' => 'msrp', 'headerSort' => true,
+                    'formatter' => 'money',
+                    'formatterParams' => ['symbol' => ' $', 'symbolAfter' => true]
+                ],
                 ['title' => 'Career', 'field' => 'career', 'sortField' => 'career', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                 ['title' => 'Role', 'field' => 'role', 'sortField' => 'role', 'headerSort' => true, 'headerFilter' => 'list', 'minWidth' => 160],
                 ['title' => 'Size', 'field' => 'size_class', 'sorter' => 'number', 'sortField' => 'Size', 'headerSort' => true, 'headerFilter' => 'list', 'hozAlign' => 'right', 'width' => 120],
@@ -186,12 +190,7 @@
                     ],
                 ],
 
-
-                [
-                    'title' => 'MSRP', 'field' => 'msrp', 'sortField' => 'msrp', 'headerSort' => true,
-                    'formatter' => 'money',
-                    'formatterParams' => ['symbol' => ' $', 'symbolAfter' => true]
-                ],
+                ['title' => 'Class', 'field' => 'class_name', 'sortField' => 'class_name', 'headerSort' => true, 'headerFilter' => 'input', 'minWidth' => 200],
                 [
                     'title' => 'API Url',
                     'field' => 'uuid',
@@ -217,7 +216,6 @@
         <x-tabulator-table
             :id="$tableId"
             :config="$tableConfig"
-            :initial="$initialTableData"
         />
         <x-column-source-map :columns="$tableConfig['columns']" />
     </div>

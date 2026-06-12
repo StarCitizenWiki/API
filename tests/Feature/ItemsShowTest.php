@@ -233,14 +233,14 @@ it('renders the item show view with api data', function (): void {
         'meta[name="description"]' => 'Base item description',
         'meta[name="keywords"]' => 'Test Module,PowerPlant,Acme Works,Test.Module,Size 2,Small,Star Citizen,SC',
         'meta[property="og:type"]' => 'website',
-        'meta[property="og:title"]' => 'Test Module by Acme Works | PowerPlant Size 2 | Star Citizen',
+        'meta[property="og:title"]' => 'Test Module by Acme Works - PowerPlant Size 2 - Star Citizen',
         'meta[name="twitter:card"]' => 'summary',
-        'meta[name="twitter:title"]' => 'Test Module by Acme Works | PowerPlant Size 2 | Star Citizen',
+        'meta[name="twitter:title"]' => 'Test Module by Acme Works - PowerPlant Size 2 - Star Citizen',
     ]);
     assertItemSeoCanonical($response, route('web.items.show', ['item' => $item->slug]));
 
     expect(trim(itemShowCrawler($response)->filter('title')->text()))
-        ->toBe('Test Module by Acme Works | PowerPlant Size 2 | Star Citizen');
+        ->toBe('Test Module by Acme Works - PowerPlant Size 2 - Star Citizen');
 
     $breadcrumbStructuredData = itemStructuredDataBlock($response, 'BreadcrumbList');
     $productStructuredData = itemStructuredDataBlock($response, 'Item');
@@ -298,7 +298,7 @@ it('renders quoted item names in the page title without double-escaped entities'
     $title = trim(itemShowCrawler($response)->filter('title')->text());
 
     expect($title)
-        ->toBe('Arrowhead "Pathfinder" Sniper Rifle by Klaus & Werner | WeaponPersonal FPS.Weapon.Medium | Star Citizen')
+        ->toBe('Arrowhead "Pathfinder" Sniper Rifle by Klaus & Werner - WeaponPersonal FPS.Weapon.Medium - Star Citizen')
         ->and($title)->not->toContain('&quot;')
         ->and(itemShowCrawler($response)->filter('meta[name="description"]')->attr('content'))->toBe('Calibrated "test" shot.')
         ->and($response->getContent())->not->toContain('&amp;quot;');
@@ -616,7 +616,7 @@ it('renders item with long description in collapsible details', function (): voi
 
     ItemDescriptionData::factory()->for($item)->create([
         'name' => 'Technical Specifications',
-        'value' => 'Operating Range: 50,000 km | Power Consumption: 250 W | Scan Modes: Mineral, Biological, Mechanical',
+        'value' => 'Operating Range: 50,000 km - Power Consumption: 250 W - Scan Modes: Mineral, Biological, Mechanical',
     ]);
 
     $response = $this->get(route('web.items.show', $item->uuid));

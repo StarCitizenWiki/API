@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Starmap Systems')
-@section('meta_description', 'Browse Starmap systems.')
+@section('meta_description', 'Star systems in the Star Citizen starmap with celestial objects, jump points, and affiliations.')
 
 @section('content')
     @php

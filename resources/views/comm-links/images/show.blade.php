@@ -7,7 +7,7 @@
 @section('title')
     {!! $pageTitleDecoded !!}
 @endsection
-@section('meta_description', "{$pageTitle} details.")
+@section('meta_description', "{$pageTitle} comm-link image with metadata, similar images, and source posts.")
 
 @section('content')
     @php

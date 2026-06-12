@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Starmap Celestial Objects')
-@section('meta_description', 'Browse Starmap celestial objects.')
+@section('meta_description', 'Celestial objects in all star systems: planets, moons, asteroid fields, and jump points.')
 
 @section('content')
     @php

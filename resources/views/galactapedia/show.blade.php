@@ -7,7 +7,7 @@
 @section('title')
     {!! $pageTitleDecoded !!} - Galactapedia Article
 @endsection
-@section('meta_description', "{$pageTitle} Galactapedia article details.")
+@section('meta_description', "{$pageTitle} - Galactapedia article from the official Star Citizen lore encyclopedia.")
 
 @section('content')
     @php

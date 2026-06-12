@@ -25,7 +25,7 @@
 @endsection
 
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', Str::limit(data_get($resource, 'description', 'Star Citizen resource details.'), 160)) !!}
+    {!! data_get($seo, 'metaDescription', Str::limit(data_get($resource, 'description', 'Commodity details.'), 160)) !!}
 @endsection
 
 @section('meta')

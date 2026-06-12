@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Galactapedia')
-@section('meta_description', 'Browse Galactapedia articles.')
+@section('meta_description', 'The Galactapedia is the official Star Citizen lore encyclopedia. Articles on characters, organizations, planets, history, and science.')
 
 @section('content')
     @php

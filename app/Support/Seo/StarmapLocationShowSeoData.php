@@ -153,32 +153,29 @@ final class StarmapLocationShowSeoData extends AbstractShowSeoData
         ?string $parentName,
         mixed $childCount,
     ): string {
-        $description = 'Browse Star Citizen starmap data for '.$locationName;
+        $opening = $locationName;
 
         $detail = $this->joinSegments([$typeName, $classification]);
-
         if ($detail !== '') {
-            $description .= ', a '.$detail;
+            $opening .= ', a '.$detail;
         }
 
+        $parts = [$opening];
+
         $context = array_values(array_filter([
-            $parentName !== null ? 'within '.$parentName : null,
+            $parentName !== null ? 'orbiting '.$parentName : null,
             $starName !== null ? 'in the '.$starName.' system' : null,
         ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
         if ($context !== []) {
-            $description .= ' '.implode(' ', $context);
+            $parts[] = implode(' ', $context);
         }
 
         if ($childCount !== null && $childCount > 0) {
-            $description .= '. Explore '.$childCount.' connected child locations';
-        } else {
-            $description .= '. View hierarchy, amenities, and technical details';
+            $parts[] = $childCount.' connected locations';
         }
 
-        $description .= '.';
-
-        return $description;
+        return implode('. ', $parts).'.';
     }
 
     /**

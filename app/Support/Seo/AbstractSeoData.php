@@ -84,10 +84,12 @@ abstract class AbstractSeoData
      */
     protected function pipeTitle(array $segments, string $suffix = 'Star Citizen'): string
     {
-        return implode(' | ', array_values(array_filter(
+        return array_filter(
             [...$segments, $suffix],
             static fn (mixed $value): bool => $value !== null && $value !== '',
-        )));
+        )
+                |> array_values(...)
+                |> (static fn ($x) => implode(' - ', $x));
     }
 
     /**
@@ -95,10 +97,12 @@ abstract class AbstractSeoData
      */
     protected function joinSegments(array $segments, string $glue = ' '): string
     {
-        return implode($glue, array_values(array_filter(
+        return array_filter(
             $segments,
             static fn (mixed $value): bool => $value !== null && $value !== '',
-        )));
+        )
+                |> array_values(...)
+                |> (static fn ($x) => implode($glue, $x));
     }
 
     /**

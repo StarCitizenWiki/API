@@ -5,7 +5,7 @@
     {!! $pageTitle !!} - Star Citizen Items
 @endsection
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', 'Browse the complete Star Citizen items database - weapons, armor, gadgets, components, and more.') !!}
+    {!! data_get($seo, 'metaDescription', 'Items in all categories. Weapons, armor, components, gadgets, and more.') !!}
 @endsection
 
 @section('meta')

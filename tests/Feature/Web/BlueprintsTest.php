@@ -363,9 +363,9 @@ describe('show', function (): void {
             ->assertViewHas('seo', function (array $seo) use ($blueprint): bool {
                 return $seo['canonicalUrl'] === route('web.blueprints.show', ['blueprint' => $blueprint->slug ?? $blueprint->uuid])
                     && $seo['title'] === 'Detailed Output Blueprint'
-                    && str_contains($seo['metaDescription'], 'Detailed Output blueprint')
-                    && str_contains($seo['metaDescription'], 'type WeaponPersonal')
-                    && str_contains($seo['metaDescription'], 'craft time 240 seconds');
+                    && str_contains($seo['metaDescription'], 'Detailed Output crafting blueprint')
+                    && str_contains($seo['metaDescription'], 'produces WeaponPersonal')
+                    && str_contains($seo['metaDescription'], '240s craft time');
             })
             ->assertViewHas('outputItemWebUrl', route('web.items.show', ['item' => $outputItemUuid]))
             ->assertViewHas('initialSearchResults', function (array $results) use ($blueprint): bool {

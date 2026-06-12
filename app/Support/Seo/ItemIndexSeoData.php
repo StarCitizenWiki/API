@@ -31,35 +31,27 @@ class ItemIndexSeoData extends AbstractIndexSeoData
             $label = Str::headline($type);
             $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
-            $parts = ["Browse {$count}Star Citizen {$label} items"];
-
             if ($manufacturer !== null) {
-                $parts[] = 'from '.$manufacturer;
+                return "{$count}{$manufacturer} {$label}. Compare grades, sizes, and stats for the full {$manufacturer} lineup.";
             }
 
-            $parts[] = 'Filter by grade, size, and manufacturer to find the right '.$label.' for your ship or loadout.';
-
-            return Str::limit(implode('. ', $parts).'.', 160);
+            return "{$count}{$label} components and items. Compare grades, sizes, and manufacturers to find the best fit.";
         }
 
         if ($category !== null) {
             $label = Str::headline($category);
             $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
-            $parts = ["Browse {$count}Star Citizen {$label}"];
-
             if ($manufacturer !== null) {
-                $parts[] = 'from '.$manufacturer;
+                return "{$count}{$manufacturer} {$label}. Stats, grades, and variants for every {$manufacturer} item in this category.";
             }
 
-            $parts[] = 'weapons, armor, gadgets, components, and more. Filter by type, grade, and size.';
-
-            return Str::limit(implode('. ', $parts).'.', 160);
+            return "{$count}{$label}. Weapons, armor, gadgets, and equipment with detailed stats and grades.";
         }
 
         $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
-        return Str::limit("Browse the complete {$count}Star Citizen items database - weapons, armor, gadgets, components, and more. Filter by type, grade, and size.", 160);
+        return "{$count}items in all categories. Weapons, armor, components, gadgets, and more.";
     }
 
     /**
@@ -67,14 +59,13 @@ class ItemIndexSeoData extends AbstractIndexSeoData
      */
     protected function keywords(array $entityFields): array
     {
-        $keywords = ['Star Citizen', 'SC', 'items', 'item database'];
+        $keywords = ['Star Citizen', 'items', 'components', 'equipment', 'item stats'];
         $category = $entityFields['category'] ?? null;
         $type = $entityFields['type'] ?? null;
         $manufacturer = Arr::get($entityFields, 'manufacturer');
 
         if ($type !== null) {
             $keywords[] = Str::headline($type);
-            $keywords[] = Str::headline($type).' items';
         }
 
         if ($category !== null) {
@@ -94,14 +85,14 @@ class ItemIndexSeoData extends AbstractIndexSeoData
         $type = $data['type'] ?? null;
 
         if ($manufacturer !== null && $type !== null) {
-            return $manufacturer.' '.Str::headline($type).' - Star Citizen Items';
+            return $manufacturer.' '.Str::headline($type).' - Star Citizen Wiki';
         }
 
         if ($manufacturer !== null) {
-            return $manufacturer.' Items - Star Citizen Items';
+            return $manufacturer.' Items - Star Citizen Wiki';
         }
 
-        return $pageTitle.' - Star Citizen Items';
+        return 'Star Citizen Items & Components';
     }
 
     /**

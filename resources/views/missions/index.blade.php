@@ -4,7 +4,7 @@
     {!! $pageTitle !!} - Star Citizen
 @endsection
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', 'Browse Star Citizen missions.') !!}
+    {!! data_get($seo, 'metaDescription', 'Missions with payouts, objectives, faction details, and prerequisites.') !!}
 @endsection
 
 @section('meta')

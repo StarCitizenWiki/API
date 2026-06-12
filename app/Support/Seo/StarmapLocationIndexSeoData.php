@@ -18,7 +18,7 @@ class StarmapLocationIndexSeoData extends AbstractIndexSeoData
 
     protected function metaDescription(array $data): string
     {
-        return 'Browse all Star Citizen starmap locations including planets, stations, outposts, and landing zones. Filter by system, type, amenities, and more.';
+        return 'Planets, moons, space stations, outposts, and landing zones in all star systems. Filter by type, affiliation, and available services.';
     }
 
     /**
@@ -26,12 +26,12 @@ class StarmapLocationIndexSeoData extends AbstractIndexSeoData
      */
     protected function keywords(array $entityFields): array
     {
-        return ['Star Citizen', 'SC', 'starmap', 'locations', 'planets', 'stations', 'outposts'];
+        return ['Star Citizen', 'starmap', 'locations', 'planets', 'moons', 'space stations', 'outposts', 'landing zones'];
     }
 
     protected function ogTitle(string $pageTitle, array $data): string
     {
-        return $pageTitle.' - Star Citizen Starmap';
+        return 'Star Citizen Starmap - Locations';
     }
 
     /**

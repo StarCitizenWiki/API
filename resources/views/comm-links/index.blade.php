@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Comm-Links')
-@section('meta_description', 'Browse Comm-Links.')
+@section('meta_description', 'Official Star Citizen comm-links, dispatches, and lore posts from RSI.')
 
 @section('content')
     @php

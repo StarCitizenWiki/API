@@ -4,7 +4,7 @@
     {!! $pageTitle !!} - Star Citizen
 @endsection
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', 'Browse Star Citizen blueprints.') !!}
+    {!! data_get($seo, 'metaDescription', 'Crafting blueprints with ingredient lists, craft times, and output details.') !!}
 @endsection
 
 @section('meta')

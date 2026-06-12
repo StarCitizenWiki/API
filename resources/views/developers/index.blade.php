@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Developer Quickstart | Star Citizen Wiki API')
-@section('meta_description', 'Learn the Star Citizen Wiki API in four steps: search, show, filter, and set up your project.')
+@section('title', 'Developer Quickstart - Star Citizen Wiki API')
+@section('meta_description', 'Get started with the Star Citizen Wiki API. Search, fetch, and filter game data in minutes.')
 
 @push('meta')
-    <meta property="og:title" content="Developer Quickstart | Star Citizen Wiki API">
-    <meta property="og:description" content="A four-step walkthrough for the Star Citizen Wiki API: search, show, filter, and set up your project.">
+    <meta property="og:title" content="Developer Quickstart - Star Citizen Wiki API">
+    <meta property="og:description" content="Get started with the Star Citizen Wiki API. Search, fetch, and filter game data in minutes.">
 @endpush
 
 @section('content')

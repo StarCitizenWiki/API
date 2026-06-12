@@ -135,19 +135,21 @@ final class CommodityShowSeoData extends AbstractShowSeoData
 
     private function buildFallbackDescription(string $commodityName, ?string $kind, string|int|float|null $tier): string
     {
-        $base = 'Browse Star Citizen commodity data for '.$commodityName;
+        $opening = $commodityName;
 
-        $attributes = array_values(array_filter([
-            $kind !== null ? 'kind '.$kind : null,
+        $typeInfo = $this->joinSegments([
             $tier !== null ? 'tier '.$tier : null,
-        ], static fn (mixed $v): bool => $v !== null && $v !== ''));
+            $kind,
+            'commodity',
+        ]);
 
-        if ($attributes !== []) {
-            $base .= ', '.implode(', ', $attributes);
+        if ($typeInfo !== '') {
+            $opening .= ', a '.$typeInfo;
         }
 
-        $base .= '. View locations, blueprints, and technical details.';
+        $parts = [$opening];
+        $parts[] = 'Find where to mine or buy it, what it refines into, and which blueprints use it.';
 
-        return $base;
+        return implode('. ', $parts).'.';
     }
 }

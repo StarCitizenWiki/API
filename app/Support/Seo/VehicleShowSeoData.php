@@ -192,11 +192,10 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         $detail = $this->joinSegments([
             $sizeClass !== null ? 'Size '.$sizeClass : null,
             $role,
-            'Vehicle',
         ]);
 
         if ($detail === '') {
-            $detail = 'Vehicle';
+            return $this->pipeTitle([$leading, 'Ship & Vehicle Stats']);
         }
 
         return $this->pipeTitle([$leading, $detail]);
@@ -212,28 +211,36 @@ final class VehicleShowSeoData extends AbstractShowSeoData
         string|int|float|null $maxCrew = null,
         ?string $productionStatus = null,
     ): string {
-        $description = 'Browse Star Citizen vehicle data for '.$vehicleName;
+        $opening = $vehicleName;
 
         if ($manufacturerName !== null) {
-            $description .= ' by '.$manufacturerName;
+            $opening .= ' by '.$manufacturerName;
         }
 
-        $attributes = array_values(array_filter([
+        $typeInfo = $this->joinSegments([
             $sizeClass !== null ? 'size '.$sizeClass : null,
-            $role !== null ? 'role '.$role : null,
-            $career !== null ? 'career '.$career : null,
+            $role,
+            $career,
+            'ship',
+        ]);
+
+        if ($typeInfo !== '') {
+            $opening .= ', a '.$typeInfo;
+        }
+
+        $parts = [$opening];
+
+        $stats = array_values(array_filter([
             $massTotal !== null ? $this->formatMass($massTotal) : null,
             $maxCrew !== null ? 'max crew '.$maxCrew : null,
             $productionStatus !== null ? strtolower($productionStatus) : null,
         ], static fn (mixed $v): bool => $v !== null && $v !== ''));
 
-        if ($attributes !== []) {
-            $description .= ', '.implode(', ', $attributes);
+        if ($stats !== []) {
+            $parts[] = implode(', ', $stats);
         }
 
-        $description .= '. View cargo, crew, speed, quantum, signatures, and insurance data.';
-
-        return $description;
+        return implode('. ', $parts).'.';
     }
 
     private function buildOffers(array $vehicle): ?array

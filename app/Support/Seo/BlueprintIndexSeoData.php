@@ -27,23 +27,19 @@ class BlueprintIndexSeoData extends AbstractIndexSeoData
 
         if ($outputType !== null && is_numeric($total)) {
             return Str::limit(
-                collect([
-                    'Browse '.Format::number((int) $total).' Star Citizen blueprints',
-                    'filtered by type '.$outputType,
-                    'Filter by output type, class, craft time, and ingredients to find crafting recipes.',
-                ])->filter()->implode('. ').'.',
+                Format::number((int) $total).' '.$outputType.' crafting blueprints with ingredient lists, craft times, and output details.',
                 160,
             );
         }
 
         if (is_numeric($total)) {
             return Str::limit(
-                'Browse '.Format::number((int) $total).' Star Citizen blueprints. Filter by output type, class, craft time, and ingredients to find crafting recipes.',
+                Format::number((int) $total).' crafting blueprints. Find recipes by output type, craft time, and required ingredients.',
                 160,
             );
         }
 
-        return 'Browse all Star Citizen blueprints. Filter by output type, class, craft time, and ingredients to find crafting recipes.';
+        return 'Crafting blueprints with ingredient lists, craft times, and output details. Search by item name or resource.';
     }
 
     /**
@@ -51,11 +47,12 @@ class BlueprintIndexSeoData extends AbstractIndexSeoData
      */
     protected function keywords(array $entityFields): array
     {
-        $base = ['Star Citizen', 'SC', 'blueprints', 'crafting', 'recipes'];
+        $base = ['Star Citizen', 'blueprints', 'crafting', 'recipes', 'ingredients'];
 
         $outputType = Arr::get($entityFields, 'output_type');
         if ($outputType !== null) {
             $base[] = $outputType;
+            $base[] = $outputType.' blueprint';
         }
 
         $outputClass = Arr::get($entityFields, 'output_class');
@@ -63,7 +60,10 @@ class BlueprintIndexSeoData extends AbstractIndexSeoData
             $base[] = $outputClass;
         }
 
-        return array_values(array_unique(array_filter($base)));
+        return $base
+                |> array_filter(...)
+                |> array_unique(...)
+                |> array_values(...);
     }
 
     protected function ogTitle(string $pageTitle, array $data): string
@@ -71,10 +71,10 @@ class BlueprintIndexSeoData extends AbstractIndexSeoData
         $outputType = Arr::get($data, 'output_type');
 
         if ($outputType !== null) {
-            return $outputType.' Blueprints - Star Citizen';
+            return $outputType.' Blueprints - Star Citizen Wiki';
         }
 
-        return $this->itemListName();
+        return 'Star Citizen Crafting Blueprints';
     }
 
     /**

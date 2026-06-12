@@ -155,36 +155,34 @@ final class MissionShowSeoData extends AbstractShowSeoData
 
     private function buildFallbackDescription(string $title, ?string $type, ?string $factionName, array $mission): string
     {
-        $typeLabel = $type ?? 'mission';
-        $segments = ['Browse Star Citizen '.$typeLabel.' mission data for '.$title];
+        $opening = $title;
 
+        $typeInfo = $this->joinSegments([$type, 'mission']);
         if ($factionName !== null) {
-            $segments[] = 'from '.$factionName;
+            $typeInfo = $typeInfo !== '' ? $typeInfo.' from '.$factionName : 'mission from '.$factionName;
         }
+        if ($typeInfo !== '') {
+            $opening .= ', a '.$typeInfo;
+        }
+
+        $parts = [$opening];
 
         $rewardSegment = $this->buildRewardSegment($mission);
         if ($rewardSegment !== null) {
-            $segments[] = $rewardSegment;
+            $parts[] = strtolower($rewardSegment);
         }
 
         $legalityLabel = data_get($mission, 'legality_label');
         if ($legalityLabel !== null) {
-            $segments[] = $legalityLabel;
+            $parts[] = strtolower($legalityLabel);
         }
 
         $reputationAmount = data_get($mission, 'reputation_amount');
         if ($reputationAmount !== null) {
-            $segments[] = Format::number($reputationAmount).' reputation XP';
+            $parts[] = Format::number($reputationAmount).' rep';
         }
 
-        $starSystems = data_get($mission, 'star_systems');
-        if (is_array($starSystems) && $starSystems !== []) {
-            $segments[] = 'in '.implode(', ', $starSystems);
-        }
-
-        $segments[] = 'View rewards, locations, and technical details.';
-
-        return implode('. ', $segments);
+        return implode('. ', $parts).'.';
     }
 
     private function buildRewardSegment(array $mission): ?string

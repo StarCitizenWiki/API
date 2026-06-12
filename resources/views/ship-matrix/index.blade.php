@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Ship-Matrix Vehicles')
-@section('meta_description', 'Browse Ship-Matrix Vehicles')
+@section('meta_description', 'Ship matrix vehicles from the RSI website with pledge prices, loaners, and production status.')
 
 @section('content')
     @php

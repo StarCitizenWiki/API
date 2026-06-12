@@ -53,7 +53,7 @@
     {!! data_get($seo, 'title', $pageTitle.' - Star Citizen Mission') !!}
 @endsection
 @section('meta_description')
-    {!! data_get($seo, 'metaDescription', Str::limit(data_get($resource, 'description', 'Star Citizen mission details.'), 160)) !!}
+    {!! data_get($seo, 'metaDescription', Str::limit(data_get($resource, 'description', 'Mission details.'), 160)) !!}
 @endsection
 
 @section('meta')

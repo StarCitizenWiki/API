@@ -65,7 +65,7 @@ it('builds vehicle seo data with session version fallback and shared schema help
         ],
     ], $request);
 
-    expect($seo['title'])->toBe('Mercury Star Runner by Crusader Industries | Size 3 Courier Vehicle | Star Citizen')
+    expect($seo['title'])->toBe('Mercury Star Runner by Crusader Industries - Size 3 Courier - Star Citizen')
         ->and($seo['metaDescription'])->toBe('Fast & versatile courier ship.')
         ->and($seo['canonicalUrl'])->toBe(route('web.vehicles.show', [
             'vehicle' => $vehicleUuid,
@@ -199,7 +199,7 @@ it('builds item seo data with localized description and type-specific breadcrumb
         ],
     ], $request);
 
-    expect($seo['title'])->toBe('Voyager Cooler by Klaus & Werner | Cooler Size 2 Military Grade A | Star Citizen')
+    expect($seo['title'])->toBe('Voyager Cooler by Klaus & Werner - Cooler Size 2 Military Grade A - Star Citizen')
         ->and($seo['metaDescription'])->toBe('Military & tuned cooler.')
         ->and($seo['canonicalUrl'])->toBe(route('web.items.show', [
             'item' => $itemUuid,
@@ -263,7 +263,7 @@ it('builds starmap seo data with query-only version handling and identifier fall
         'identifier' => 'port-tressler',
         'version' => '4.1.0-LIVE',
     ]))
-        ->and($seo['title'])->toBe('Port Tressler | Station | Star Citizen Starmap')
+        ->and($seo['title'])->toBe('Port Tressler - Station - Star Citizen Starmap')
         ->and($seo['metaDescription'])->toBe('Orbital logistics hub.')
         ->and($seo['breadcrumbs'])->toHaveCount(4)
         ->and($seo['breadcrumbs'][0]['url'])->toBe(route('web.locations.index', ['version' => '4.1.0-LIVE']))
@@ -288,8 +288,8 @@ it('builds empty blueprint seo data with noindex robots and no structured data',
 
     $seo = app(BlueprintShowSeoData::class)->build([], $request, isEmptyMode: true);
 
-    expect($seo['title'])->toBe('Search Blueprints - Star Citizen')
-        ->and($seo['metaDescription'])->toBe('Search Star Citizen blueprints by output name, class, item, or input resource.')
+    expect($seo['title'])->toBe('Search Blueprints - Star Citizen Wiki')
+        ->and($seo['metaDescription'])->toBe('Search crafting blueprints by item name, output type, or required ingredients.')
         ->and($seo['keywords'])->toBe([])
         ->and($seo['structuredData'])->toBe([])
         ->and($seo['robots'])->toBe('noindex,follow')
@@ -342,7 +342,7 @@ it('builds mission seo data with faction breadcrumbs and Action structured data'
         'web_url' => route('web.missions.show', ['mission' => $missionSlug, 'version' => '4.1.0-LIVE']),
     ], $request);
 
-    expect($seo['title'])->toBe('Nine Tails Heist | Delivery | Star Citizen Mission')
+    expect($seo['title'])->toBe('Nine Tails Heist - Delivery - Star Citizen Mission')
         ->and($seo['metaDescription'])->toBe('Deliver cargo through dangerous space.')
         ->and($seo['canonicalUrl'])->toBe(route('web.missions.show', [
             'mission' => $missionSlug,
@@ -393,9 +393,9 @@ it('builds mission seo data without faction and with fallback description', func
         'web_url' => route('web.missions.show', ['mission' => $missionSlug, 'version' => '4.0.0-LIVE']),
     ], $request);
 
-    expect($seo['title'])->toBe('Generic Mission | Bounty | Star Citizen Mission')
+    expect($seo['title'])->toBe('Generic Mission - Bounty - Star Citizen Mission')
         ->and($seo['metaDescription'])->toContain('Bounty')
-        ->and($seo['metaDescription'])->toContain('500 reputation XP')
+        ->and($seo['metaDescription'])->toContain('500 rep')
         ->and($seo['canonicalUrl'])->toBe(route('web.missions.show', [
             'mission' => $missionSlug,
             'version' => '4.0.0-LIVE',
@@ -435,7 +435,7 @@ it('builds commodity seo data with breadcrumbs and Item structured data', functi
         ],
     ], $request);
 
-    expect($seo['title'])->toBe('Agricium | Mineral Tier 2 | Star Citizen')
+    expect($seo['title'])->toBe('Agricium - Mineral Tier 2 - Star Citizen')
         ->and($seo['metaDescription'])->toBe('A rare and valuable mineral.')
         ->and($seo['canonicalUrl'])->toBe(route('web.commodities.show', [
             'identifier' => $commoditySlug,
@@ -455,6 +455,112 @@ it('builds commodity seo data with breadcrumbs and Item structured data', functi
         ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(5);
 });
 
+describe('fallback descriptions', function (): void {
+    it('vehicle fallback description has no period-comma artifacts', function (): void {
+        $request = Request::create('/vehicles');
+        $request->setLaravelSession(app('session.store'));
+
+        $seo = app(VehicleShowSeoData::class)->build([
+            'uuid' => 'veh-fallback',
+            'name' => 'Mercury Star Runner',
+            'manufacturer' => ['name' => 'Crusader Industries', 'code' => 'CRUS'],
+            'size_class' => 3,
+            'career' => 'Transport',
+            'role' => 'Courier',
+            'description' => null,
+            'crew' => ['max' => 2],
+            'mass_total' => 350_000,
+            'production_status' => 'Flight Ready',
+        ], $request);
+
+        expect($seo['metaDescription'])
+            ->toContain('Mercury Star Runner by Crusader Industries, a size 3 Courier Transport ship')
+            ->not->toContain('. ,')
+            ->not->toContain('.,');
+    });
+
+    it('item fallback description includes article and has no period-comma artifacts', function (): void {
+        $request = Request::create('/items');
+        $request->setLaravelSession(app('session.store'));
+
+        $seo = app(ItemShowSeoData::class)->build([
+            'uuid' => 'item-fallback',
+            'name' => 'Voyager Cooler',
+            'type' => 'Cooler',
+            'manufacturer' => ['name' => 'Klaus & Werner'],
+            'classification' => 'Ship.Cooler',
+            'class' => 'Military',
+            'grade' => '1',
+            'size' => 2,
+            'description' => null,
+            'rarity' => 'Common',
+            'mass' => 12.5,
+        ], $request);
+
+        expect($seo['metaDescription'])
+            ->toContain('Voyager Cooler by Klaus & Werner, a grade A size 2 Cooler class Military')
+            ->not->toContain('. ,')
+            ->not->toContain('.,');
+    });
+
+    it('mission fallback description has no period-comma artifacts', function (): void {
+        $request = Request::create('/missions');
+        $request->setLaravelSession(app('session.store'));
+
+        $seo = app(MissionShowSeoData::class)->build([
+            'uuid' => 'mis-fallback',
+            'title' => 'Nine Tails Heist',
+            'mission_type' => 'Delivery',
+            'description' => null,
+            'faction' => ['name' => 'Nine Tails', 'uuid' => 'fac-1'],
+            'legality_label' => 'Illegal',
+            'reputation_amount' => 1500,
+        ], $request);
+
+        expect($seo['metaDescription'])
+            ->toContain('Nine Tails Heist, a Delivery mission from Nine Tails')
+            ->not->toContain('. ,')
+            ->not->toContain('.,');
+    });
+
+    it('commodity fallback description has no period-comma artifacts', function (): void {
+        $request = Request::create('/commodities');
+        $request->setLaravelSession(app('session.store'));
+
+        $seo = app(CommodityShowSeoData::class)->build([
+            'uuid' => 'com-fallback',
+            'name' => 'Agricium',
+            'kind' => 'Mineral',
+            'tier' => 2,
+            'description' => null,
+        ], $request);
+
+        expect($seo['metaDescription'])
+            ->toContain('Agricium, a tier 2 Mineral commodity')
+            ->not->toContain('. ,')
+            ->not->toContain('.,');
+    });
+
+    it('starmap location fallback description has no period-comma artifacts', function (): void {
+        $request = Request::create('/locations');
+        $request->setLaravelSession(app('session.store'));
+
+        $seo = app(StarmapLocationShowSeoData::class)->build([
+            'uuid' => 'loc-fallback',
+            'name' => 'Port Tressler',
+            'Type' => ['Name' => 'Station', 'Classification' => 'Orbital'],
+            'description' => null,
+            'star' => ['name' => 'Stanton', 'uuid' => 'star-1'],
+            'parent' => ['name' => 'microTech', 'uuid' => 'planet-1'],
+        ], $request);
+
+        expect($seo['metaDescription'])
+            ->toContain('Port Tressler, a Station Orbital')
+            ->not->toContain('. ,')
+            ->not->toContain('.,');
+    });
+});
+
 it('builds commodity seo data with raw version breadcrumb and fallback description', function (): void {
     $request = Request::create('/commodities');
 
@@ -471,7 +577,7 @@ it('builds commodity seo data with raw version breadcrumb and fallback descripti
         ],
     ], $request);
 
-    expect($seo['title'])->toBe('Quantanium | Mineral Tier 3 | Star Citizen')
+    expect($seo['title'])->toBe('Quantanium - Mineral Tier 3 - Star Citizen')
         ->and($seo['metaDescription'])->toContain('Quantanium')
         ->and($seo['metaDescription'])->toContain('Mineral')
         ->and($seo['canonicalUrl'])->toBe(route('web.commodities.show', [

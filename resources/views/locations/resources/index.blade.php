@@ -3,7 +3,7 @@
 @section('title')
     {!! $pageTitle !!} - Star Citizen
 @endsection
-@section('meta_description', 'Browse Star Citizen resource guide by location.')
+@section('meta_description', 'Resource deposits by location. Find where to mine minerals, metals, and gases.')
 
 @section('content')
     @php

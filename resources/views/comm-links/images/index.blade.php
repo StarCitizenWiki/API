@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Comm-Link Images')
-@section('meta_description', 'Browse Comm-Link images.')
+@section('meta_description', 'Comm-link images with reverse search, similarity matching, and metadata.')
 
 @section('content')
     @php

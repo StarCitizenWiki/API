@@ -37,7 +37,7 @@ it('renders seo meta tags on mission show page', function (): void {
     $response = $this->get("/missions/{$mission->slug}");
 
     $response->assertSuccessful()
-        ->assertSee('Nine Tails Heist | Delivery | Star Citizen Mission', false)
+        ->assertSee('Nine Tails Heist - Delivery - Star Citizen Mission', false)
         ->assertSee('Deliver cargo through dangerous space.', false)
         ->assertSee('rel="canonical"', false)
         ->assertSee('og:title', false)

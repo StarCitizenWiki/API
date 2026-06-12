@@ -6,7 +6,6 @@ namespace App\Support\Seo;
 
 use App\Support\Format;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class VehicleIndexSeoData extends AbstractIndexSeoData
 {
@@ -24,18 +23,13 @@ class VehicleIndexSeoData extends AbstractIndexSeoData
     {
         $total = Arr::get($data, 'total');
         $manufacturer = Arr::get($data, 'manufacturer');
-
         $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
-        $parts = ["Explore the complete {$count}Star Citizen vehicles database"];
-
         if ($manufacturer !== null) {
-            $parts[] = 'from '.$manufacturer;
+            return "{$count}{$manufacturer} ships and vehicles. Full stats, component loadouts, and variants.";
         }
 
-        $parts[] = 'including ships, ground vehicles, and gravlevs. Filter by manufacturer, career, role, and size.';
-
-        return Str::limit(implode('. ', $parts).'.', 160);
+        return "{$count}ships and ground vehicles. Compare speed, cargo, crew, components, and insurance for every flyable ship.";
     }
 
     /**
@@ -43,14 +37,18 @@ class VehicleIndexSeoData extends AbstractIndexSeoData
      */
     protected function keywords(array $entityFields): array
     {
-        $keywords = ['Star Citizen', 'SC', 'vehicles', 'ships', 'ground vehicles'];
+        $keywords = ['Star Citizen', 'ships', 'vehicles', 'ground vehicles', 'ship stats'];
         $manufacturer = Arr::get($entityFields, 'manufacturer');
 
         if ($manufacturer !== null) {
             $keywords[] = $manufacturer;
+            $keywords[] = $manufacturer.' ships';
         }
 
-        return array_values(array_unique(array_filter($keywords)));
+        return $keywords
+                |> array_filter(...)
+                |> array_unique(...)
+                |> array_values(...);
     }
 
     protected function ogTitle(string $pageTitle, array $data): string
@@ -58,10 +56,10 @@ class VehicleIndexSeoData extends AbstractIndexSeoData
         $manufacturer = Arr::get($data, 'manufacturer');
 
         if ($manufacturer !== null) {
-            return $manufacturer.' Vehicles - Star Citizen Vehicles';
+            return $manufacturer.' Vehicles - Star Citizen Wiki';
         }
 
-        return $pageTitle.' - Star Citizen Vehicles';
+        return 'Star Citizen Ships & Vehicles';
     }
 
     /**

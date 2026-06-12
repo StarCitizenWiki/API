@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Route Planner | Star Citizen Wiki API')
-@section('meta_description', 'Plan multi-system quantum travel routes. Calculate distance, time, fuel, and refuel requirements across Stanton, Pyro, and Nyx.')
+@section('title', 'Route Planner - Star Citizen Wiki API')
+@section('meta_description', 'Quantum travel route calculator. Plot jumps through Stanton, Pyro, and Nyx with distance, fuel, and time estimates.')
 
 @push('meta')
-    <meta property="og:title" content="Route Planner | Star Citizen Wiki API">
-    <meta property="og:description" content="Plan multi-system quantum travel routes. Calculate distance, time, fuel, and refuel requirements across Stanton, Pyro, and Nyx.">
+    <meta property="og:title" content="Route Planner - Star Citizen Wiki API">
+    <meta property="og:description" content="Quantum travel route calculator. Plot jumps through Stanton, Pyro, and Nyx with distance, fuel, and time estimates.">
 @endpush
 
 @section('content')

@@ -6,7 +6,6 @@ namespace App\Support\Seo;
 
 use App\Support\Format;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class MissionIndexSeoData extends AbstractIndexSeoData
 {
@@ -27,29 +26,19 @@ class MissionIndexSeoData extends AbstractIndexSeoData
         $rewardScope = Arr::get($data, 'reward_scope');
         $faction = Arr::get($data, 'faction');
 
-        $parts = [];
-
-        if (is_numeric($total)) {
-            $parts[] = 'Browse '.Format::number((int) $total).' Star Citizen missions';
-        } else {
-            $parts[] = 'Browse all Star Citizen missions';
-        }
-
-        if ($rewardScope !== null) {
-            $parts[] = 'filtered by category '.$rewardScope;
-        }
-
-        if ($faction !== null) {
-            $parts[] = 'from '.$faction;
-        }
+        $count = is_numeric($total) ? Format::number((int) $total).' ' : '';
 
         if ($activeLocationFilter !== null) {
-            $parts[] = 'available at '.$activeLocationFilter['name'];
+            $prefix = "{$count}missions available at {$activeLocationFilter['name']}";
+        } elseif ($faction !== null) {
+            $prefix = "{$count}{$faction} missions";
+        } elseif ($rewardScope !== null) {
+            $prefix = "{$count}{$rewardScope} missions";
+        } else {
+            $prefix = "{$count}missions";
         }
 
-        $parts[] = 'Filter by faction, type, location, legality, and more to find your next objective.';
-
-        return Str::limit(implode('. ', $parts).'.', 160);
+        return "{$prefix}. Payouts, objectives, faction details, and prerequisites.";
     }
 
     /**
@@ -57,25 +46,29 @@ class MissionIndexSeoData extends AbstractIndexSeoData
      */
     protected function keywords(array $entityFields): array
     {
-        $keywords = ['Star Citizen', 'SC', 'missions', 'mission guide'];
+        $keywords = ['Star Citizen', 'missions', 'mission guide', 'mission rewards'];
         $activeLocationFilter = $entityFields['activeLocationFilter'] ?? null;
         $rewardScope = Arr::get($entityFields, 'reward_scope');
         $faction = Arr::get($entityFields, 'faction');
 
         if ($activeLocationFilter !== null) {
             $keywords[] = $activeLocationFilter['name'];
-            $keywords[] = 'missions at '.$activeLocationFilter['name'];
         }
 
         if ($rewardScope !== null) {
             $keywords[] = $rewardScope;
+            $keywords[] = $rewardScope.' missions';
         }
 
         if ($faction !== null) {
             $keywords[] = $faction;
+            $keywords[] = $faction.' missions';
         }
 
-        return array_values(array_unique(array_filter($keywords)));
+        return $keywords
+                |> array_filter(...)
+                |> array_unique(...)
+                |> array_values(...);
     }
 
     protected function ogTitle(string $pageTitle, array $data): string
@@ -85,15 +78,15 @@ class MissionIndexSeoData extends AbstractIndexSeoData
         $activeLocationFilter = $data['activeLocationFilter'] ?? null;
 
         if ($rewardScope !== null) {
-            return $rewardScope.' Missions - Star Citizen';
+            return $rewardScope.' Missions - Star Citizen Wiki';
         }
 
         if ($faction !== null) {
-            return $faction.' Missions - Star Citizen';
+            return $faction.' Missions - Star Citizen Wiki';
         }
 
         if ($activeLocationFilter !== null) {
-            return 'Star Citizen Missions at '.$activeLocationFilter['name'];
+            return 'Missions at '.$activeLocationFilter['name'].' - Star Citizen Wiki';
         }
 
         return 'Star Citizen Missions';
