@@ -2618,11 +2618,11 @@ paths:
         -
           name: 'filter[query]'
           in: query
-          description: 'Search query (minimum 2 characters). Searches names, class names, and other identifiers.'
+          description: 'Search query (minimum 3 characters). Searches names, class names, and other identifiers.'
           required: true
           schema:
             type: string
-            minLength: 2
+            minLength: 3
             example: Carrack
           examples:
             ship_search:
@@ -2647,7 +2647,7 @@ paths:
                   summary: 'Grouped results for a ship search'
                   value: { data: [{ type: vehicles, label: Vehicles, results: [{ name: Carrack, class_name: ANVL_Carrack, classification: null, classification_label: null, item_type_label: null, extra_label: Exploration, web_url: 'https://star-citizen.wiki/vehicles/carrack', api_url: 'https://api.star-citizen.wiki/api/vehicles/carrack' }] }] }
         '422':
-          description: 'Validation error - filter[query] is required and must be at least 2 characters'
+          description: 'Validation error - filter[query] is required and must be at least 3 characters'
           content:
             application/json:
               schema:
@@ -8128,11 +8128,6 @@ components:
             -
               $ref: '#/components/schemas/weapon_modifier'
           nullable: true
-        salvage_modifier:
-          oneOf:
-            -
-              $ref: '#/components/schemas/salvage_modifier'
-          nullable: true
         iron_sight:
           oneOf:
             -
@@ -13479,6 +13474,16 @@ components:
           example: Arms
           nullable: true
           deprecated: true
+        type:
+          description: 'Derived clothing/armor type from the item name and type (e.g. Jacket, Gloves, Helmet). `type` field from the deprecated clothing resource'
+          type: string
+          example: Jacket
+          nullable: true
+        garment_type:
+          description: 'WIP: Specific garment type parsed from the SC class_name (e.g. Apron, Jumpsuit, Vest, Trenchcoat).'
+          type: string
+          example: Apron
+          nullable: true
         damage_resistance:
           oneOf:
             -
@@ -15918,7 +15923,6 @@ components:
           nullable: true
         max_players_per_instance:
           type: integer
-          nullable: true
         max_instances_per_player:
           type: integer
           nullable: true
@@ -15963,7 +15967,6 @@ components:
           nullable: true
         reputation_amount:
           type: integer
-          nullable: true
         game_version:
           type: string
           nullable: true
@@ -16221,7 +16224,6 @@ components:
           nullable: true
         max_players_per_instance:
           type: integer
-          nullable: true
         fail_if_became_criminal:
           type: boolean
           nullable: true
@@ -16324,7 +16326,6 @@ components:
           nullable: true
         reputation_amount:
           type: integer
-          nullable: true
         game_version:
           type: string
           nullable: true

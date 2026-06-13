@@ -131,6 +131,13 @@ final class SpecificationRegistry
             ],
         );
 
+        // Also emit suit_armor for all clothing items
+        $registry->register(
+            predicate: fn (ItemData $d): bool => str_starts_with($d->classification ?? '', 'FPS.Clothing.'),
+            specKey: 'suit_armor',
+            resourceClass: SuitArmorResource::class,
+        );
+
         // 2. FPS Armor (multi-key: clothing + suit_armor)
         $registry->registerMulti(
             predicate: fn (ItemData $d): bool => str_starts_with($d->classification ?? '', 'FPS.Armor.'),
@@ -274,8 +281,11 @@ final class SpecificationRegistry
         );
 
         // 19. Tractor / Towing Beam
+        // S3 tractor/towing beams are typed as SalvageHead, so also detect by presence
+        // of the TractorBeam data block.
         $registry->register(
-            predicate: fn (ItemData $d): bool => in_array($d->type, ['TractorBeam', 'TowingBeam'], true),
+            predicate: fn (ItemData $d): bool => in_array($d->type, ['TractorBeam', 'TowingBeam'], true)
+                || Arr::has($d->data, 'stdItem.TractorBeam'),
             specKey: 'tractor_beam',
             resourceClass: TractorBeamResource::class,
         );
@@ -329,18 +339,36 @@ final class SpecificationRegistry
             ],
         );
 
-        // 26. Salvage Modifier
+        // 26. Salvage Modifier -> weapon_modifier.salvage
         $registry->register(
-            predicate: fn (ItemData $d): bool => Arr::has($d->data, 'stdItem.SalvageModifier'),
-            specKey: 'salvage_modifier',
+            predicate: fn (ItemData $d): bool => Arr::has($d->data, 'stdItem.SalvageModifier') && ! Arr::has($d->data, 'stdItem.WeaponModifier'),
+            specKey: 'weapon_modifier',
             resourceClass: SalvageModifierResource::class,
+            deprecated: [
+                'salvage_modifier' => [
+                    'salvage_speed_multiplier' => 'Use weapon_modifier.salvage.salvage_speed_multiplier instead.',
+                    'radius_multiplier' => 'Use weapon_modifier.salvage.radius_multiplier instead.',
+                    'extraction_efficiency' => 'Use weapon_modifier.salvage.extraction_efficiency instead.',
+                ],
+            ],
         );
 
-        // 27. Weapon Modifier
-        $registry->register(
+        // 27. Weapon Modifier (merges SalvageModifier into weapon_modifier.salvage when both are present)
+        $registry->registerCustom(
             predicate: fn (ItemData $d): bool => Arr::has($d->data, 'stdItem.WeaponModifier'),
-            specKey: 'weapon_modifier',
-            resourceClass: WeaponModifierResource::class,
+            handler: function (ItemData $d): array {
+                $result = new WeaponModifierResource($d)->resolve();
+
+                if (Arr::has($d->data, 'stdItem.SalvageModifier')) {
+                    $salvage = new SalvageModifierResource($d)->resolve()['salvage'] ?? [];
+
+                    if ($salvage !== []) {
+                        $result['salvage'] = $salvage;
+                    }
+                }
+
+                return ['weapon_modifier' => static fn () => $result];
+            },
             deprecated: [
                 'weapon_modifier' => [
                     'fire_rate_multiplier' => 'use `base.fire_rate_multiplier` instead.',
@@ -359,13 +387,11 @@ final class SpecificationRegistry
         $registry->registerCustom(
             predicate: fn (ItemData $d): bool => $d->type === 'WeaponAttachment' || Arr::has($d->data, 'stdItem.WeaponAttachment'),
             handler: function (ItemData $d): array {
-                $resolved = (new WeaponAttachmentResource($d))->resolve();
-                $specs = [];
-                foreach ($resolved as $key => $data) {
-                    $specs[$key] = static fn () => $data;
-                }
+                $resolved = new WeaponAttachmentResource($d)->resolve();
 
-                return $specs;
+                return array_map(static function ($data) {
+                    return static fn () => $data;
+                }, $resolved);
             },
         );
 

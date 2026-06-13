@@ -92,6 +92,20 @@ use OpenApi\Attributes as OA;
             nullable: true,
             deprecated: true
         ),
+        new OA\Property(
+            property: 'type',
+            description: 'Derived clothing/armor type from the item name and type (e.g. Jacket, Gloves, Helmet). `type` field from the deprecated clothing resource',
+            type: 'string',
+            example: 'Jacket',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'garment_type',
+            description: 'WIP: Specific garment type parsed from the SC class_name (e.g. Apron, Jumpsuit, Vest, Trenchcoat).',
+            type: 'string',
+            example: 'Apron',
+            nullable: true
+        ),
 
         new OA\Property(
             property: 'damage_resistance',
@@ -166,6 +180,36 @@ use OpenApi\Attributes as OA;
 )]
 class SuitArmorResource extends AbstractItemSpecificationResource
 {
+    /**
+     * Known garment type tokens
+     */
+    private const array GARMENT_TYPE_TOKENS = [
+        'trenchcoat',
+        'jumpsuit',
+        'backpack',
+        'bandana',
+        'slippers',
+        'scrubs',
+        'tophat',
+        'tanktop',
+        'jacket',
+        'gloves',
+        'helmet',
+        'apron',
+        'shirt',
+        'pants',
+        'shoes',
+        'boots',
+        'dress',
+        'gown',
+        'heels',
+        'suit',
+        'vest',
+        'mask',
+        'belt',
+        'hat',
+    ];
+
     public function toArray(Request $request): array
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
@@ -177,6 +221,8 @@ class SuitArmorResource extends AbstractItemSpecificationResource
         return [
             'slot' => $slot,
             'armor_type' => $slot,
+            'type' => $this->deriveType(),
+            'garment_type' => $this->deriveGarmentType(),
             'damage_resistance' => [
                 'impact' => Arr::get($armor, 'DamageResistance.Impact'),
                 'physical' => $this->mapTypeResistance($armor, 'Physical'),
@@ -211,7 +257,7 @@ class SuitArmorResource extends AbstractItemSpecificationResource
             'temp_resistance_min' => Arr::get($data, 'stdItem.TemperatureResistance.Minimum'),
             'temp_resistance_max' => Arr::get($data, 'stdItem.TemperatureResistance.Maximum'),
             'radiation_resistance' => Arr::has($stdItem, 'RadiationResistance')
-                ? (new RadiationResistanceResource(Arr::get($stdItem, 'RadiationResistance')))->toArray($request)
+                ? new RadiationResistanceResource(Arr::get($stdItem, 'RadiationResistance'))->toArray($request)
                 : null,
             'gforce_resistance' => Arr::get($stdItem, 'GForceResistance.Value'),
         ];
@@ -241,5 +287,62 @@ class SuitArmorResource extends AbstractItemSpecificationResource
         $parts = explode('.', $classification);
 
         return $parts !== [] ? Arr::last($parts) : null;
+    }
+
+    private function deriveType(): ?string
+    {
+        $itemType = $this->resource->type ?? Arr::get($this->resource, 'type', '');
+        $name = $this->resource->name ?? Arr::get($this->resource, 'name', '');
+
+        return match (true) {
+            str_contains($name, 'T-Shirt'), str_contains($name, 'Shirt') !== false => 'T-Shirt',
+            str_contains($name, 'Jacket') !== false => 'Jacket',
+            str_contains($name, 'Gloves') !== false => 'Gloves',
+            str_contains($name, 'Pants') !== false => 'Pants',
+            str_contains($name, 'Bandana') !== false => 'Bandana',
+            str_contains($name, 'Beanie') !== false => 'Beanie',
+            str_contains($name, 'Boots') !== false => 'Boots',
+            str_contains($name, 'Sweater') !== false => 'Sweater',
+            str_contains($name, 'Hat') !== false => 'Hat',
+            str_contains($name, 'Shoes') !== false => 'Shoes',
+            str_contains($name, 'Head Cover') !== false => 'Head Cover',
+            str_contains($name, 'Gown') !== false => 'Gown',
+            str_contains($name, 'Slippers') !== false => 'Slippers',
+            default => match (true) {
+                str_contains($itemType, 'Backpack') !== false => 'Backpack',
+                str_contains($itemType, 'Feet') !== false => 'Shoes',
+                str_contains($itemType, 'Hands') !== false => 'Gloves',
+                str_contains($itemType, 'Hat') !== false => 'Hat',
+                str_contains($itemType, 'Legs') !== false => 'Pants',
+                str_contains($itemType, 'Torso_0') !== false => 'Shirt',
+                str_contains($itemType, 'Torso_1') !== false => 'Jacket',
+                str_contains($itemType, 'Helmet') !== false => 'Helmet',
+                str_contains($itemType, 'Arms') !== false => 'Arms',
+                default => null,
+            },
+        };
+    }
+
+    /**
+     * Parse the specific garment type from the SC class_name.
+     *
+     * WIP pattern:
+     *   {manufacturer}[_{subcategory}]_{garment_type}_{set}_{texture}_{color}[_{special}]
+     */
+    private function deriveGarmentType(): ?string
+    {
+        $class_name = $this->resource->class_name ?? Arr::get($this->resource, 'class_name');
+
+        if (! is_string($class_name) || $class_name === '') {
+            return null;
+        }
+
+        $tokens = implode('|', self::GARMENT_TYPE_TOKENS);
+
+        if (preg_match('/(?<=_|^)('.$tokens.')(?=_|$)/i', $class_name, $matches)) {
+            return ucfirst(strtolower($matches[1]));
+        }
+
+        return null;
     }
 }
