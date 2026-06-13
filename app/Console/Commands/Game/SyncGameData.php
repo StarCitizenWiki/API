@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\Game;
 
+use App\Actions\Game\SyncItemCraftability;
 use App\Jobs\Game\AddBatchJobs;
 use App\Jobs\Game\ComputeBespokeItems as ComputeBespokeItemsJob;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
@@ -12,7 +13,6 @@ use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportStarmapData;
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
-use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Closure;
 use Illuminate\Console\Command;
@@ -135,7 +135,7 @@ class SyncGameData extends Command
         }
 
         if (! $skipItems) {
-            $this->resetAndSetCraftability($gameVersion->id);
+            app(SyncItemCraftability::class)->execute($gameVersion->id);
         }
 
         if (! $skipMissions && $skipItems && Artisan::call('game:import-missions', [
@@ -312,15 +312,5 @@ class SyncGameData extends Command
         $loaderJobChunks->each(static function (Collection $chunk) use ($batch): void {
             $batch->add($chunk->values());
         });
-    }
-
-    private function resetAndSetCraftability(int $versionId): void
-    {
-        ItemData::where('game_version_id', $versionId)
-            ->chunkById(5000, fn ($items) => ItemData::whereIn('id', $items->pluck('id'))->update(['is_craftable' => false]));
-
-        ItemData::where('game_version_id', $versionId)
-            ->whereHas('craftingBlueprints')
-            ->chunkById(5000, fn ($items) => ItemData::whereIn('id', $items->pluck('id'))->update(['is_craftable' => true]));
     }
 }
