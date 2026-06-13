@@ -6,12 +6,20 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
+use App\Models\Game\Blueprint;
+use App\Models\Game\Commodity\Commodity;
+use App\Models\Game\Item;
+use App\Models\Game\Mission\Mission;
+use App\Models\Game\StarmapLocation;
+use App\Models\Game\Vehicle;
 use App\Support\Filters\ItemFilterLabel;
 use App\Support\Formatting\FormatMissionText;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 class UnifiedSearchController extends Controller
@@ -157,15 +165,14 @@ class UnifiedSearchController extends Controller
     private function resolveEntity(Request $request, string $query, bool $redirectToApi): RedirectResponse
     {
         $versionId = $this->gameVersion()->id;
-        $escaped = str_replace(['%', '_'], ['\%', '\_'], $query);
 
-        $rows = DB::select($this->buildResolveSql(), $this->buildResolveBindings($versionId, $query, $escaped));
+        $match = Str::isUuid($query)
+            ? $this->resolveByUuid($query)
+            : $this->resolveByText($query, $versionId);
 
-        if ($rows === []) {
+        if ($match === null) {
             abort(404, 'No matching entity found.');
         }
-
-        $match = $rows[0];
 
         $url = $redirectToApi
             ? $this->apiUrl($match->type, $match)
@@ -177,7 +184,116 @@ class UnifiedSearchController extends Controller
             $url .= str_contains($url, '?') ? '&'.$queryString : '?'.$queryString;
         }
 
-        return redirect($url, 302);
+        return redirect($url);
+    }
+
+    /**
+     * Search: By UUID
+     */
+    private function resolveByUuid(string $uuid): ?object
+    {
+        return $this->firstMatch([
+            ['vehicles', fn () => Vehicle::where('uuid', $uuid)->first(['slug', 'uuid'])],
+            ['items', fn () => Item::where('uuid', $uuid)->first(['slug', 'uuid'])],
+            ['missions', fn () => Mission::where('uuid', $uuid)->first(['slug', 'uuid'])],
+            ['locations', fn () => StarmapLocation::where('uuid', $uuid)->first(['slug', 'uuid'])],
+            ['blueprints', fn () => Blueprint::where('uuid', $uuid)->first(['slug', 'uuid'])],
+            ['commodities', fn () => Commodity::where('uuid', $uuid)->first(['slug', 'uuid'])],
+        ]);
+    }
+
+    /**
+     * Search: By name, class name, etc.
+     */
+    private function resolveByText(string $query, int $versionId): ?object
+    {
+        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query);
+        $fuzzy = "%{$escaped}%";
+
+        return $this->firstMatch([
+            ['vehicles', fn () => Vehicle::whereHas('data', fn (Builder $q) => $q
+                ->where('game_version_id', $versionId)
+                ->where(fn (Builder $q) => $this->matchAny($q, ['name', 'display_name', 'class_name'], $escaped, $like)))
+                ->first(['slug', 'uuid'])],
+
+            // fuzzy
+            ['vehicles', fn () => Vehicle::whereHas('data', fn (Builder $q) => $q
+                ->where('game_version_id', $versionId)
+                ->where(fn (Builder $q) => $this->matchAny($q, ['name', 'display_name', 'class_name'], $fuzzy, $like)))
+                ->first(['slug', 'uuid'])],
+
+            ['items', fn () => Item::whereHas('data', fn (Builder $q) => $q
+                ->where('game_version_id', $versionId)
+                ->where('type', '!=', 'NOITEM_Vehicle')
+                ->where('name', '!=', '<= PLACEHOLDER =>')
+                ->where(fn (Builder $q) => $this->matchAny($q, ['name', 'class_name'], $escaped, $like)))
+                ->first(['slug', 'uuid'])],
+
+            ['missions', fn () => Mission::whereHas('data', fn (Builder $q) => $q
+                ->where('game_version_id', $versionId)
+                ->where(fn (Builder $q) => $this->matchAny($q, ['title', 'debug_name'], $escaped, $like)))
+                ->first(['slug', 'uuid'])],
+
+            ['locations', fn () => StarmapLocation::whereHas('data', fn (Builder $q) => $q
+                ->where('game_version_id', $versionId)
+                ->whereNotNull('system')
+                ->where('name', '!=', '<= PLACEHOLDER =>')
+                ->where(fn (Builder $q) => $this->matchAny($q, ['name'], $escaped, $like)))
+                ->first(['slug', 'uuid'])],
+
+            ['blueprints', fn () => Blueprint::whereHas('data', fn (Builder $q) => $q
+                ->where('game_version_id', $versionId)
+                ->where(fn (Builder $q) => $this->matchAny($q, ['output_name', 'output_class', 'key'], $escaped, $like)))
+                ->first(['slug', 'uuid'])],
+
+            ['commodities', fn () => Commodity::query()
+                ->where(fn (Builder $q) => $this->matchAny($q, ['name', 'key'], $escaped, $like))
+                ->first(['slug', 'uuid'])],
+        ]);
+    }
+
+    /**
+     * Run lookups in order, returning the first match tagged with its entity type.
+     *
+     * @param  array<int, array{0: string, 1: callable(): ?object}>  $lookups
+     */
+    private function firstMatch(array $lookups): ?object
+    {
+        foreach ($lookups as [$type, $query]) {
+            $row = $query();
+
+            if ($row !== null) {
+                $row->type = $type;
+
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Add an OR-group of LIKE conditions across the given columns.
+     *
+     * Uses whereRaw with an explicit ESCAPE clause so the backslash escape works
+     * on both Postgres (default escape) and SQLite (no default escape).
+     *
+     * @param  string[]  $columns
+     */
+    private function matchAny(Builder $query, array $columns, string $value, string $operator): Builder
+    {
+        foreach ($columns as $index => $column) {
+            $sql = "\"{$column}\" {$operator} ? ESCAPE '\\'";
+
+            if ($index === 0) {
+                $query->whereRaw($sql, [$value]);
+            } else {
+                $query->orWhereRaw($sql, [$value]);
+            }
+        }
+
+        return $query;
     }
 
     private function buildSearchSql(): string
@@ -264,118 +380,6 @@ class UnifiedSearchController extends Controller
         }
 
         return "{$base} LIMIT 5)";
-    }
-
-    private function buildResolveSql(): string
-    {
-        $isPgsql = DB::connection()->getDriverName() === 'pgsql';
-        $uuidCast = static fn (string $col) => $isPgsql ? "{$col}::text" : $col;
-        $like = $isPgsql ? 'ILIKE' : 'LIKE';
-        $esc = "ESCAPE '\\'";
-        $uuidEq = static fn (string $col) => "{$uuidCast($col)} = ?";
-
-        return <<<SQL
-            SELECT * FROM (
-                SELECT 1 AS priority, 'vehicles' AS type, gv.slug, {$uuidCast('gv.uuid')} AS uuid
-                FROM game_vehicle_data gvd
-                JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
-                WHERE gvd.game_version_id = ?
-                  AND (gvd.name {$like} ? {$esc} OR gvd.display_name {$like} ? {$esc} OR gvd.class_name {$like} ? {$esc} OR {$uuidEq('gv.uuid')})
-                LIMIT 1
-            ) t
-
-            UNION ALL
-
-            SELECT * FROM (
-                SELECT 2 AS priority, 'vehicles' AS type, gv.slug, {$uuidCast('gv.uuid')} AS uuid
-                FROM game_vehicle_data gvd
-                JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
-                WHERE gvd.game_version_id = ?
-                  AND (gvd.name {$like} ? {$esc} OR gvd.display_name {$like} ? {$esc} OR gvd.class_name {$like} ? {$esc})
-                LIMIT 1
-            ) t
-
-            UNION ALL
-
-            SELECT * FROM (
-                SELECT 3 AS priority, 'items' AS type, gi.slug, {$uuidCast('gi.uuid')} AS uuid
-                FROM game_item_data gid
-                JOIN game_items gi ON gi.id = gid.item_id
-                WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>'
-                  AND (gid.name {$like} ? {$esc} OR gid.class_name {$like} ? {$esc} OR {$uuidEq('gi.uuid')})
-                LIMIT 1
-            ) t
-
-            UNION ALL
-
-            SELECT * FROM (
-                SELECT 4 AS priority, 'missions' AS type, gm.slug, {$uuidCast('gm.uuid')} AS uuid
-                FROM game_mission_data gmd
-                JOIN game_missions gm ON gm.id = gmd.mission_id
-                WHERE gmd.game_version_id = ?
-                  AND (gmd.title {$like} ? {$esc} OR gmd.debug_name {$like} ? {$esc} OR {$uuidEq('gm.uuid')})
-                LIMIT 1
-            ) t
-
-            UNION ALL
-
-            SELECT * FROM (
-                SELECT 5 AS priority, 'locations' AS type, {$uuidCast('gsl.uuid')} AS slug, {$uuidCast('gsl.uuid')} AS uuid
-                FROM game_starmap_location_data gsld
-                JOIN game_starmap_locations gsl ON gsl.id = gsld.starmap_location_id
-                WHERE gsld.game_version_id = ? AND gsld.system IS NOT NULL AND gsld.name != '<= PLACEHOLDER =>'
-                  AND (gsld.name {$like} ? {$esc} OR {$uuidEq('gsl.uuid')})
-                LIMIT 1
-            ) t
-
-            UNION ALL
-
-            SELECT * FROM (
-                SELECT 6 AS priority, 'blueprints' AS type, gb.slug, {$uuidCast('gb.uuid')} AS uuid
-                FROM game_blueprint_data gbd
-                JOIN game_blueprints gb ON gb.id = gbd.blueprint_id
-                WHERE gbd.game_version_id = ?
-                  AND (gbd.output_name {$like} ? {$esc} OR gbd.output_class {$like} ? {$esc} OR gbd.key {$like} ? {$esc} OR {$uuidEq('gb.uuid')})
-                LIMIT 1
-            ) t
-
-            UNION ALL
-
-            SELECT * FROM (
-                SELECT 7 AS priority, 'commodities' AS type, gc.slug, {$uuidCast('gc.uuid')} AS uuid
-                FROM game_commodities gc
-                WHERE (gc.name {$like} ? {$esc} OR gc.key {$like} ? {$esc} OR {$uuidEq('gc.uuid')})
-                LIMIT 1
-            ) t
-
-            ORDER BY priority
-            LIMIT 1
-        SQL;
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function buildResolveBindings(int $versionId, string $query, string $escaped): array
-    {
-        $likeVal = "%{$escaped}%";
-
-        return [
-            // Vehicles exact
-            $versionId, $escaped, $escaped, $escaped, $query,
-            // Vehicles fuzzy
-            $versionId, $likeVal, $likeVal, $likeVal,
-            // Items
-            $versionId, $escaped, $escaped, $query,
-            // Missions
-            $versionId, $escaped, $escaped, $query,
-            // Locations
-            $versionId, $escaped, $query,
-            // Blueprints
-            $versionId, $escaped, $escaped, $escaped, $query,
-            // Commodities
-            $escaped, $escaped, $query,
-        ];
     }
 
     private function buildSearchBindings(int $versionId, string $like): array
