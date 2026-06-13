@@ -58,8 +58,8 @@ return [
     // BOMB / EXPLOSIVES
     // =====================================================================
     'bomb.damage_total' => ['path' => 'Bomb.DamageTotal', 'cast' => 'numeric'],
-    'bomb.explosion.radius_min' => ['path' => 'Bomb.ExplosionMinRadius', 'cast' => 'numeric'],
-    'bomb.explosion.radius_max' => ['path' => 'Bomb.ExplosionMaxRadius', 'cast' => 'numeric'],
+    'bomb.explosion.radius_min' => ['path' => 'Bomb.ExplosionRadius.Minimum', 'cast' => 'numeric'],
+    'bomb.explosion.radius_max' => ['path' => 'Bomb.ExplosionRadius.Maximum', 'cast' => 'numeric'],
 
     // =====================================================================
     // AMMUNITION
@@ -405,9 +405,9 @@ return [
     // =====================================================================
     // SALVAGE MODIFIER
     // =====================================================================
-    'salvage_modifier.salvage_speed_multiplier' => ['path' => 'SalvageModifier.SalvageSpeedMultiplier', 'cast' => 'numeric'],
-    'salvage_modifier.radius_multiplier' => ['path' => 'SalvageModifier.RadiusMultiplier', 'cast' => 'numeric'],
-    'salvage_modifier.extraction_efficiency' => ['path' => 'SalvageModifier.ExtractionEfficiency', 'cast' => 'numeric'],
+    'weapon_modifier.salvage.salvage_speed_multiplier' => ['path' => 'SalvageModifier.SalvageSpeedMultiplier', 'cast' => 'numeric'],
+    'weapon_modifier.salvage.radius_multiplier' => ['path' => 'SalvageModifier.RadiusMultiplier', 'cast' => 'numeric'],
+    'weapon_modifier.salvage.extraction_efficiency' => ['path' => 'SalvageModifier.ExtractionEfficiency', 'cast' => 'numeric'],
 
     // =====================================================================
     // SELF DESTRUCT

@@ -422,7 +422,7 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
             'modes' => $modes,
 
             'damage' => [
-                'sustained_60s' => Arr::get($weapon, 'Damage.Sustained60s'),
+                'sustained_60s' => Arr::get($weapon, 'Damage.Sustained60s') ?? Arr::get($weapon, 'Damage.Sustained'),
                 'burst' => Arr::get($weapon, 'Damage.Burst'),
                 'alpha_total' => Arr::get($weapon, 'Damage.AlphaTotal'),
                 'max' => Arr::get($weapon, 'Damage.Maximum'),

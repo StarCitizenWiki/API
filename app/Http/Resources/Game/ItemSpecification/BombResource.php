@@ -159,15 +159,15 @@ class BombResource extends AbstractItemSpecificationResource
             'ignite_time' => Arr::get($bomb, 'IgniteTime'),
             'collision_delay_time' => Arr::get($bomb, 'CollisionDelayTime'),
             'explosion_safety_distance' => Arr::get($bomb, 'ExplosionSafetyDistance'),
-            'explosion_radius_min' => Arr::get($bomb, 'ExplosionMinRadius'),
-            'explosion_radius_max' => Arr::get($bomb, 'ExplosionMaxRadius'),
+            'explosion_radius_min' => Arr::get($bomb, 'ExplosionRadius.Minimum'),
+            'explosion_radius_max' => Arr::get($bomb, 'ExplosionRadius.Maximum'),
             'maximum_drop_angle' => Arr::get($bomb, 'MaximumDropAngleFromFlatFlight'),
 
             'explosion' => [
                 'requires_launcher' => Arr::get($bomb, 'RequiresLauncher'),
 
-                'radius_min' => Arr::get($bomb, 'ExplosionMinRadius'),
-                'radius_max' => Arr::get($bomb, 'ExplosionMaxRadius'),
+                'radius_min' => Arr::get($bomb, 'ExplosionRadius.Minimum'),
+                'radius_max' => Arr::get($bomb, 'ExplosionRadius.Maximum'),
 
                 'safety_distance' => Arr::get($bomb, 'ExplosionSafetyDistance'),
                 'proximity' => Arr::get($bomb, 'ProjectileProximity'),

@@ -359,10 +359,6 @@
                                     <x-items.cargo-grid-card :cargo-grid="data_get($item, 'cargo_grid')" />
                                 @endif
 
-                                @if (data_get($item, 'salvage_modifier'))
-                                    <x-items.salvage-modifier-card :salvage-modifier="data_get($item, 'salvage_modifier')" />
-                                @endif
-
                                 @if (data_get($item, 'weapon_modifier'))
                                     <x-items.weapon-modifier-card :weapon-modifier="data_get($item, 'weapon_modifier')" />
                                 @endif

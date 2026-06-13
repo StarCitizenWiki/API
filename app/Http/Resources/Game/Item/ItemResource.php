@@ -268,7 +268,6 @@ use OpenApi\Attributes as OA;
 
         new OA\Property(property: 'weapon_rack', ref: '#/components/schemas/weapon_rack', nullable: true),
         new OA\Property(property: 'weapon_modifier', ref: '#/components/schemas/weapon_modifier', nullable: true),
-        new OA\Property(property: 'salvage_modifier', ref: '#/components/schemas/salvage_modifier', nullable: true),
 
         // WeaponAttachment: blocks are emitted as top-level keys (only when non-empty)
         new OA\Property(property: 'iron_sight', ref: '#/components/schemas/weapon_attachment_iron_sight', nullable: true),

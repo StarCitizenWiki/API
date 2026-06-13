@@ -2126,7 +2126,7 @@ return [
                     'title' => 'Damage',
                     'columns' => [
                         [
-                            'title' => 'Sustained 60s',
+                            'title' => 'Sustained',
                             'field' => 'vehicle_weapon.damage.sustained_60s',
                             ...numFormat(),
                         ],

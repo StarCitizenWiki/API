@@ -32,9 +32,11 @@ class SalvageModifierResource extends AbstractItemSpecificationResource
         $efficiency = Arr::get($salvageModifier, 'ExtractionEfficiency');
 
         return [
-            'salvage_speed_multiplier' => $speed,
-            'radius_multiplier' => $radius,
-            'extraction_efficiency' => $efficiency,
+            'salvage' => collect([
+                'salvage_speed_multiplier' => $speed,
+                'radius_multiplier' => $radius,
+                'extraction_efficiency' => $efficiency,
+            ])->filter(fn ($value) => $value !== null)->all(),
         ];
     }
 }
