@@ -24,7 +24,7 @@
                             $globalMod = data_get($area, 'global_modifier');
                         @endphp
 
-                        <tr class="hover">
+                        <tr class="row-hover">
                             <td class="text-sm font-medium">{{ data_get($area, 'name') }}</td>
                             <td class="text-sm tabular-nums">
                                 <span class="badge badge-success badge-sm">×{{ data_get($area, 'global_modifier') }}</span>

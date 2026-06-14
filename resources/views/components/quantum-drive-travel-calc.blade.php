@@ -43,7 +43,7 @@
                 <select
                     x-model="startUuid"
                     @change="if (startEntity && endEntity && startEntity.system !== endEntity.system) endUuid = null"
-                    class="select select-sm select-bordered flex-1 min-w-0 border-1"
+                    class="select select-sm flex-1 min-w-0 border-1"
                     :disabled="loading"
                 >
                     <option value="" disabled selected x-text="loading ? 'Loading...' : 'From'"></option>
@@ -60,7 +60,7 @@
 
                 <select
                     x-model="endUuid"
-                    class="select select-sm select-bordered flex-1 min-w-0 border-1"
+                    class="select select-sm flex-1 min-w-0 border-1"
                     :disabled="loading"
                 >
                     <option value=""  selected>Select a destination</option>

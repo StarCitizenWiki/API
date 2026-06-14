@@ -54,7 +54,7 @@
 
 
 <div {{ $attributes->merge(['class' => 'card card-border bg-base-100 shadow', 'data-testid' => $imageId ? 'comm-link-image-card-'.$imageId : 'comm-link-image-card']) }}>
-    <div class="relative">
+    <figure class="relative">
         @if ($previewTag)
             <span class="badge badge-neutral absolute left-3 top-3 z-10">
                 {{ $previewTag['translated_name'] ?? $previewTag['name'] ?? 'Tag' }}
@@ -100,12 +100,12 @@
                 {{ $name ?? 'File' }}
             </div>
         @endif
-    </div>
+    </figure>
 
     <div class="card-body gap-4">
         <div class="flex items-start justify-between gap-3">
             <div>
-                <div class="text-sm font-semibold">{{ $name ?? 'Image' }}</div>
+                <div class="card-title text-sm">{{ $name ?? 'Image' }}</div>
                 @if ($alt)
                     <div class="text-xs text-subtle">{{ $alt }}</div>
                 @endif

@@ -207,7 +207,7 @@
     }
 @endphp
 <div class="breadcrumbs text-sm text-subtle overflow-x-auto" data-testid="item-breadcrumbs">
-    <ul class="w">
+    <ul>
         @foreach ($breadcrumbs as $breadcrumb)
             <li>
                 @if ($breadcrumb['url'] !== null)

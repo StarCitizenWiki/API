@@ -115,11 +115,11 @@
                 <div class="flex flex-wrap gap-1.5">
                     @foreach ($variantChips as $chip)
                         @if (! $chip['current'] && filled($chip['href']))
-                            <a href="{{ $chip['href'] }}" class="rounded-lg border border-base-300 px-2.5 py-1 text-sm hover:bg-base-200 transition-colors">
+                            <a href="{{ $chip['href'] }}" class="rounded-field border border-base-300 px-2.5 py-1 text-sm hover:bg-base-200 transition-colors">
                                 <span class="link link-primary">{{ $chip['label'] }}</span>
                             </a>
                         @else
-                            <span class="rounded-lg border border-base-300 px-2.5 py-1 text-sm opacity-60">{{ $chip['label'] }}</span>
+                            <span class="rounded-field border border-base-300 px-2.5 py-1 text-sm opacity-60">{{ $chip['label'] }}</span>
                         @endif
                     @endforeach
                 </div>

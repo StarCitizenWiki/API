@@ -32,10 +32,10 @@
                         <a href="{{ data_get($item, 'web_url') ?? route('web.items.show', $uuid) }}" class="link link-hover link-primary font-medium">
                             {{ $itemName }}
                         </a>
-                        <span class="text-xs text-ghost truncate">{{ $hardpoint }}</span>
+                        <span class="text-xs text-subtle truncate">{{ $hardpoint }}</span>
                     @elseif (! $isPlaceholderName)
                         <span class="font-medium">{{ $itemName }}</span>
-                        <span class="text-xs text-ghost truncate">{{ $hardpoint }}</span>
+                        <span class="text-xs text-subtle truncate">{{ $hardpoint }}</span>
                     @else
                         <span class="text-xs text-subtle truncate">{{ $hardpoint }}</span>
                     @endif

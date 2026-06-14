@@ -143,7 +143,7 @@
             @click.stop="toggle($el)"
         @endif
         @class([
-            'grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-lg border-2 bg-base-200 border-base-200',
+            'grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-box border-2 bg-base-200 border-base-200',
             'cursor-pointer hover:bg-base-300/50 transition-colors' => $canBrowse,
             'border-dashed border-base-300' => $isDeactivated,
         ])
@@ -161,11 +161,11 @@
                 @endif
 
                 @if ($size !== null)
-                    <span class="text-md" title="{{ $sizeTitle }}">S{{ $size }}</span>
+                    <span class="text-base" title="{{ $sizeTitle }}">S{{ $size }}</span>
                 @endif
 
                 @if ($fallbackSizeLabel !== null)
-                    <span class="text-md" title="Equippable Size">{{ $fallbackSizeLabel }}</span>
+                    <span class="text-base" title="Equippable Size">{{ $fallbackSizeLabel }}</span>
                 @endif
             </div>
         </aside>

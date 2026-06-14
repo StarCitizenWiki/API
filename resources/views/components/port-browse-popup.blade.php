@@ -46,7 +46,7 @@
                 </thead>
                 <tbody>
                 <template x-for="item in items" :key="item.web_url">
-                    <tr class="hover">
+                    <tr class="row-hover">
                         <td class="max-w-40 truncate">
                             <a :href="item.web_url"
                                class="link link-primary text-sm truncate inline-flex items-center gap-1">

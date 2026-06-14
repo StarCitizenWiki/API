@@ -21,7 +21,7 @@
                 <div class="mt-2">
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-medium">Ore Capacity</span>
-                        <span class="badge badge-primary badge-sm">{{ Format::valueWithUnit($oreCapacity, 'SCU', 0) }}</span>
+                        <span class="badge badge-soft badge-sm">{{ Format::valueWithUnit($oreCapacity, 'SCU', 0) }}</span>
                     </div>
                 </div>
             @endif
@@ -48,7 +48,7 @@
                             <td>
                                 {{ Format::valueWithUnit(data_get($grid, 'width'), 'm', 1) }} × {{ Format::valueWithUnit(data_get($grid, 'height'), 'm', 1) }} × {{ Format::valueWithUnit(data_get($grid, 'length'), 'm', 1) }}
                             </td>
-                            <td>@if ($gridMinScuBox !== null && $gridMaxScuBox !== null && $gridMinScuBox !== $gridMaxScuBox) {{ Format::valueWithUnit($gridMinScuBox, 'SCU', 0) }} – {{ Format::valueWithUnit($gridMaxScuBox, 'SCU', 0) }} @elseif ($gridMaxScuBox !== null) {{ Format::valueWithUnit($gridMaxScuBox, 'SCU', 0) }} @elseif ($gridMinScuBox !== null) {{ Format::valueWithUnit($gridMinScuBox, 'SCU', 0) }} @else - @endif</td>
+                            <td>@if ($gridMinScuBox !== null && $gridMaxScuBox !== null && $gridMinScuBox !== $gridMaxScuBox) {{ Format::valueWithUnit($gridMinScuBox, 'SCU', 0) }} - {{ Format::valueWithUnit($gridMaxScuBox, 'SCU', 0) }} @elseif ($gridMaxScuBox !== null) {{ Format::valueWithUnit($gridMaxScuBox, 'SCU', 0) }} @elseif ($gridMinScuBox !== null) {{ Format::valueWithUnit($gridMinScuBox, 'SCU', 0) }} @else - @endif</td>
                             <td>
                                 <div class="flex flex-wrap gap-1">
                                     @if (data_get($grid, 'open') === true)

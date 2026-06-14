@@ -135,7 +135,7 @@
         }
     }
 
-    $iconClass = $isActive ? 'text-primary' : 'text-subtle';
+    $iconClass = $isActive ? '' : 'text-subtle';
 @endphp
 
 @if ($collapsible && isset($children) && !empty(trim((string) $children)))
@@ -145,10 +145,10 @@
                 @if ($testId)
                     data-testid="{{ $testId }}"
                 @endif
-                @class(['menu-item', 'active' => $isActive, 'flex'])
+                @class(['menu-active' => $isActive, 'flex'])
             >
                 @isset($icon)
-                    <span class="{{ $iconClass }}">
+                    <span @class(array_filter([$iconClass]))>
                         {{ $icon }}
                     </span>
                 @endisset
@@ -166,10 +166,10 @@
             @if ($testId)
                 data-testid="{{ $testId }}"
             @endif
-            @class(['active' => $isActive])
+            @class(['menu-active' => $isActive])
         >
             @isset($icon)
-                <span class="{{ $iconClass }}">
+                <span @class(array_filter([$iconClass]))>
                     {{ $icon }}
                 </span>
             @endisset

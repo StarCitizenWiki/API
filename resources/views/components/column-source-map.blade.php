@@ -24,7 +24,7 @@
                     <tr>
                         <td class="font-medium">{{ $mapping['title'] }}</td>
                         <td>
-                            <code class="rounded bg-base-200 px-2 py-1 text-xs">{{ $mapping['field'] }}</code>
+                            <code class="rounded-field bg-base-200 px-2 py-1 text-xs">{{ $mapping['field'] }}</code>
                         </td>
                     </tr>
                 @endforeach

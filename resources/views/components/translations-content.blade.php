@@ -44,7 +44,7 @@
             {!! e($translationEntries[0]['text']) !!}
         </div>
     @else
-        <div role="tablist" class="tabs tabs-bordered">
+        <div role="tablist" class="tabs tabs-border">
             @foreach ($translationEntries as $entry)
                 @php
                     $isNonEnglish = $entry['label'] !== 'English';

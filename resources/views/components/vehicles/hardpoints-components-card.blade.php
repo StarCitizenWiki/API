@@ -65,7 +65,7 @@
     @endif
 
     @if($otherGroups->isNotEmpty())
-        <details class="collapse collapse-arrow rounded-lg border border-base-300 bg-base-100 shadow-sm" @if($columns->isEmpty()) open @endif>
+        <details class="collapse collapse-arrow border border-base-300 bg-base-100 shadow-sm" @if($columns->isEmpty()) open @endif>
             <summary class="collapse-title min-h-10 py-2 text-sm">
                 <span class="flex items-center gap-2">
                     <span class="text-subtle">Other hardpoints</span>

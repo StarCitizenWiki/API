@@ -111,7 +111,7 @@
                         </span>
                     </th>
                     @if ($hasQuantization)
-                        <th title="The discrete quality values you can actually receive. The game divides the full 0-1000 quality space into non-linear bands, each with a fixed mapped value. A roll within a band's range always produces that band's value, which may be higher (or lower) than the rolled number. For example, a roll of 450 in a 400–599 band can yield a received value of 585." id="received-th">
+                        <th title="The discrete quality values you can actually receive. The game divides the full 0-1000 quality space into non-linear bands, each with a fixed mapped value. A roll within a band's range always produces that band's value, which may be higher (or lower) than the rolled number. For example, a roll of 450 in a 400-599 band can yield a received value of 585." id="received-th">
                             <span class="flex items-center gap-1">
                                 Received
                                 <x-icon name="info" class="size-3.5 opacity-50" />
@@ -148,7 +148,7 @@
                         }
                     @endphp
 
-                    <tr class="hover{{ $isCurrent ? ' bg-primary/5' : '' }}">
+                    <tr class="row-hover{{ $isCurrent ? ' bg-primary/5' : '' }}">
                         <td class="text-xs font-medium whitespace-nowrap">
                             @if ($isCurrent)
                                 <span class="font-bold">{{ $matName }}</span>

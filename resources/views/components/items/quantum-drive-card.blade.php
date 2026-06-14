@@ -110,7 +110,7 @@
         </div>
 
         @if ($standardRows !== [] || $splineRows !== [])
-            <details class="collapse collapse-arrow rounded-box border border-base-200 bg-base-100">
+            <details class="collapse collapse-arrow border border-base-200 bg-base-100">
                 <summary class="collapse-title min-h-0 py-2 pr-10 text-xs font-medium uppercase tracking-wider text-muted">Jump Profiles</summary>
                 <div class="collapse-content border-t border-base-300 px-4 pb-3 pt-3">
                     <dl class="grid grid-cols-3 gap-x-2 gap-y-1">

@@ -73,8 +73,7 @@
         </div>
 
         @if ($relayCount > 1)
-            <input type="text" x-model="search" placeholder="Search relays, hardpoints, items…"
-                   class="input input-bordered input-sm w-full max-w-xs"/>
+            <input type="text" x-model="search" placeholder="Search relays, hardpoints, items..." class="input input-sm w-full max-w-xs" />
         @endif
 
         <div @if($relayCount > 1) class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2" @endif>

@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2 border-b border-base-300 p-2">
-                    <label class="input input-sm input-bordered min-w-56 flex-1 items-center gap-2">
+                    <label class="input input-sm min-w-56 flex-1 items-center gap-2">
                         <span class="text-xs font-semibold uppercase tracking-wide text-subtle">Search</span>
                         <input
                             type="search"
@@ -78,14 +78,14 @@
     <div class="card card-border bg-base-100" data-testid="tabulator-external-filters-{{ $id }}">
         <div class="flex flex-wrap items-end gap-3 px-4 pt-4" data-testid="tabulator-external-filters-bar-{{ $id }}">
             @foreach ($config['externalFilters'] as $filter)
-                <label class="form-control">
+                <label class="flex flex-col gap-1">
                     <span class="label">
-                        <span class="label-text text-xs font-semibold uppercase tracking-wide text-subtle">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-subtle">
                             {{ $filter['title'] }}
                         </span>
                     </span>
                     <select
-                        class="select select-bordered select-sm"
+                        class="select select-sm"
                         data-external-filter="{{ $filter['field'] }}"
                         data-testid="tabulator-external-filter-{{ $filter['field'] }}"
                         @isset($filter['options'])
@@ -127,7 +127,7 @@
     <div class="card card-border bg-base-100" data-testid="tabulator-api-url-card-{{ $id }}">
         <div class="card-body gap-3 p-4">
             <label class="label p-0" for="{{ $apiUrlTargetId }}" data-testid="tabulator-api-url-label-{{ $id }}">
-                <span class="label-text text-xs font-semibold uppercase tracking-wide text-subtle">
+                <span class="text-xs font-semibold uppercase tracking-wide text-subtle">
                     {{ $apiUrlLabel }}
                 </span>
             </label>
@@ -135,7 +135,7 @@
                 <input
                     id="{{ $apiUrlTargetId }}"
                     data-testid="tabulator-api-url-input-{{ $id }}"
-                    class="input input-bordered join-item w-full font-mono text-xs"
+                    class="input join-item w-full font-mono text-xs"
                     type="text"
                     readonly
                     value="{{ $apiUrlEndpoint }}"
