@@ -46,7 +46,7 @@
             <div class="min-w-0 space-y-2">
                 <div class="flex items-center gap-3">
                     <span
-                        class="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-muted sm:size-11"
+                        class="inline-flex size-10 shrink-0 items-center justify-center rounded-box bg-accent/10 text-muted sm:size-11"
                         aria-label="Mission type"
                     >
                         <x-icon :name="$iconName" class="size-5 sm:size-6" />
@@ -104,7 +104,7 @@
 
         @if ($descriptionVariants !== null && count($descriptionVariants) > 1)
             <div class="max-w-3xl" data-testid="mission-hero-description">
-                <div role="tablist" class="tabs tabs-bordered">
+                <div role="tablist" class="tabs tabs-border">
                     @foreach ($descriptionVariants as $index => $variantHtml)
                         <input
                             type="radio"
