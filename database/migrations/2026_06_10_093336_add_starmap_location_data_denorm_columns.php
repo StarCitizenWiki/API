@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Game\StarmapLocationData;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -34,13 +33,7 @@ return new class extends Migration
             $table->uuid('tag_uuid')->nullable();
         });
 
-        $driver = DB::connection()->getDriverName();
-
-        if ($driver === 'pgsql') {
-            $this->backfillPostgres();
-        } else {
-            $this->backfillSqlite();
-        }
+        $this->backfillPostgres();
     }
 
     private function backfillPostgres(): void
@@ -129,77 +122,6 @@ return new class extends Migration
                 WHERE grlp.starmap_location_data_id = gsld.id
             )
         ');
-    }
-
-    private function backfillSqlite(): void
-    {
-        StarmapLocationData::query()->chunk(200, function ($rows) {
-            foreach ($rows as $row) {
-                $data = $row->data ?? [];
-                $updates = [];
-
-                // Identity
-                if ($row->starmap_location_id) {
-                    $loc = DB::table('game_starmap_locations')->where('id', $row->starmap_location_id)->first();
-                    if ($loc) {
-                        $updates['location_uuid'] = $loc->uuid;
-                        $updates['location_slug'] = $loc->slug;
-                    }
-                }
-
-                // Parent
-                if ($row->parent_data_id) {
-                    $parent = StarmapLocationData::find($row->parent_data_id);
-                    if ($parent) {
-                        $updates['parent_name'] = $parent->name;
-                        $updates['parent_type_name'] = $parent->type_name;
-                        $ploc = DB::table('game_starmap_locations')->where('id', $parent->starmap_location_id)->first();
-                        $updates['parent_location_uuid'] = $ploc?->uuid;
-                        $updates['parent_location_slug'] = $ploc?->slug;
-                    }
-                }
-
-                // Star
-                if ($row->star_data_id) {
-                    $star = StarmapLocationData::find($row->star_data_id);
-                    if ($star) {
-                        $updates['star_name'] = $star->name;
-                        $updates['star_type_name'] = $star->type_name;
-                        $updates['star_system_name'] = $star->name;
-                        $sloc = DB::table('game_starmap_locations')->where('id', $star->starmap_location_id)->first();
-                        $updates['star_location_uuid'] = $sloc?->uuid;
-                        $updates['star_location_slug'] = $sloc?->slug;
-                    }
-                }
-
-                // JSON extracts
-                $updates['type_classification'] = trim((string) ($data['Type']['Classification'] ?? '')) ?: null;
-                $updates['jurisdiction_name'] = trim((string) ($data['Jurisdiction']['Name'] ?? '')) ?: null;
-                $updates['affiliation_name'] = trim((string) ($data['Affiliation']['DisplayName'] ?? '')) ?: null;
-                $updates['respawn_location_type'] = trim((string) ($data['RespawnLocationType'] ?? '')) ?: null;
-                $updates['hide_in_starmap'] = (bool) ($data['HideInStarmap'] ?? false);
-                $updates['hide_in_world'] = (bool) ($data['HideInWorld'] ?? false);
-                $updates['hide_minor_locations'] = (bool) ($data['OnlyShowWhenParentSelected'] ?? false);
-
-                // Tag
-                if ($row->location_hierarchy_entity_tag_id) {
-                    $tag = DB::table('game_entity_tags')->where('id', $row->location_hierarchy_entity_tag_id)->first();
-                    if ($tag) {
-                        $updates['tag_uuid'] = $tag->uuid;
-                        $updates['tag_name'] = $tag->name;
-                    }
-                }
-
-                // Child count
-                $updates['child_count'] = StarmapLocationData::where('parent_data_id', $row->id)->count();
-
-                // Has resources
-                $updates['has_resources'] = DB::table('game_resource_location_placements')
-                    ->where('starmap_location_data_id', $row->id)->exists();
-
-                DB::table('game_starmap_location_data')->where('id', $row->id)->update($updates);
-            }
-        });
     }
 
     public function down(): void

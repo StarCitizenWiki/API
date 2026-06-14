@@ -69,11 +69,9 @@ return new class extends Migration
             $table->index(['game_version_id', 'reward_scope']);
         });
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement(
-                'CREATE INDEX IF NOT EXISTS game_mission_data_star_systems_gin_index ON game_mission_data USING GIN (star_systems)'
-            );
-        }
+        DB::statement(
+            'CREATE INDEX game_mission_data_star_systems_gin_index ON game_mission_data USING GIN (star_systems)'
+        );
 
         Schema::create('game_mission_data_starmap_location', static function (Blueprint $table): void {
             $table->foreignId('mission_data_id')->constrained('game_mission_data')->cascadeOnDelete();
@@ -181,9 +179,7 @@ return new class extends Migration
         Schema::dropIfExists('game_mission_data_blueprint');
         Schema::dropIfExists('game_mission_data_starmap_location');
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement('DROP INDEX IF EXISTS game_mission_data_star_systems_gin_index');
-        }
+        DB::statement('DROP INDEX game_mission_data_star_systems_gin_index');
 
         Schema::dropIfExists('game_mission_data');
         Schema::dropIfExists('game_missions');

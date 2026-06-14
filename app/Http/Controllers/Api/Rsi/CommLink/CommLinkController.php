@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Rsi\CommLink;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\DateFilter;
 use App\Http\Filters\SortByRelation;
@@ -13,13 +14,11 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Support\Filters\FilterCache;
-use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -48,6 +47,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('comm-links')]
 class CommLinkController extends Controller
 {
+    use ComputesFacets;
+
     /**
      * @return array<int, IncludeDefinition>
      */
@@ -71,8 +72,7 @@ class CommLinkController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('comm_links.title', $like, "%{$value}%");
+                $query->whereLike('comm_links.title', "%{$value}%");
             }),
             AllowedFilter::callback('content', static function (Builder $query, mixed $value): void {
                 if (! is_string($value)) {
@@ -85,19 +85,10 @@ class CommLinkController extends Controller
                     return;
                 }
 
-                if (DB::connection()->getDriverName() === 'pgsql') {
-                    $query->whereFullText('translation->en', $searchTerm, [
-                        'language' => 'english',
-                        'mode' => 'websearch',
-                    ]);
-
-                    return;
-                }
-
-                $query->whereRaw(
-                    "LOWER(COALESCE(json_extract(comm_links.translation, '$.en'), '')) LIKE ?",
-                    ['%'.strtolower($searchTerm).'%']
-                );
+                $query->whereFullText('translation->en', $searchTerm, [
+                    'language' => 'english',
+                    'mode' => 'websearch',
+                ]);
             }),
             AllowedFilter::exact('channel', 'channel.name'),
             AllowedFilter::exact('category', 'category.name'),
@@ -211,68 +202,40 @@ class CommLinkController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $isAuthenticated = $request->user() !== null;
-        $resolver = function () use ($request): array {
-            $baseQuery = QueryBuilder::for(CommLink::class, $request)
-                ->allowedFilters(...$this->allowedFilters());
+        return $this->computeFacetsResponse($request);
+    }
 
-            $facets = [
-                'category' => [
-                    'expr' => 'comm_link_categories.name',
-                    'join' => static fn ($q) => $q->leftJoin('comm_link_categories', 'comm_links.category_id', '=', 'comm_link_categories.id'),
-                    'cast' => null,
-                ],
-                'channel' => [
-                    'expr' => 'comm_link_channels.name',
-                    'join' => static fn ($q) => $q->leftJoin('comm_link_channels', 'comm_links.channel_id', '=', 'comm_link_channels.id'),
-                    'cast' => null,
-                ],
-                'series' => [
-                    'expr' => 'comm_link_series.name',
-                    'join' => static fn ($q) => $q->leftJoin('comm_link_series', 'comm_links.series_id', '=', 'comm_link_series.id'),
-                    'cast' => null,
-                ],
-            ];
+    protected function facetModelClass(): string
+    {
+        return CommLink::class;
+    }
 
-            $out = [];
+    protected function facetDefinitions(Request $request): array
+    {
+        return [
+            'category' => [
+                'expr' => 'comm_link_categories.name',
+                'join' => static fn ($q) => $q->leftJoin('comm_link_categories', 'comm_links.category_id', '=', 'comm_link_categories.id'),
+            ],
+            'channel' => [
+                'expr' => 'comm_link_channels.name',
+                'join' => static fn ($q) => $q->leftJoin('comm_link_channels', 'comm_links.channel_id', '=', 'comm_link_channels.id'),
+            ],
+            'series' => [
+                'expr' => 'comm_link_series.name',
+                'join' => static fn ($q) => $q->leftJoin('comm_link_series', 'comm_links.series_id', '=', 'comm_link_series.id'),
+            ],
+        ];
+    }
 
-            foreach ($facets as $key => $facet) {
-                $expr = $facet['expr'];
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_COMM_LINKS;
+    }
 
-                $q = clone $baseQuery;
-
-                if (isset($facet['join'])) {
-                    ($facet['join'])($q);
-                }
-
-                $rows = $q
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
-
-                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
-            }
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_COMM_LINKS,
-                FilterCache::commLinksKey($isAuthenticated),
-                $resolver
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::commLinksKey($request->user() !== null);
     }
 
     #[OA\Get(

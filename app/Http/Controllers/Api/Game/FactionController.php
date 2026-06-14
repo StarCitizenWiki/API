@@ -12,7 +12,6 @@ use App\Models\Game\Faction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -140,8 +139,7 @@ class FactionController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($value): void {
-                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                    $q->where('name', $like, "%{$value}%")->orWhere('description', $like, "%{$value}%");
+                    $q->whereLike('name', "%{$value}%")->orWhereLike('description', "%{$value}%");
                 });
             }),
         ];

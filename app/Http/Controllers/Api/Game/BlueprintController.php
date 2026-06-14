@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\Blueprint\BlueprintResource;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('blueprints')]
 class BlueprintController extends Controller
 {
+    use ComputesFacets;
     use FiltersJsonColumns;
     use ResolvesGameVersion;
 
@@ -198,100 +200,109 @@ class BlueprintController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $versionCode = $this->gameVersionCode() ?? $this->gameVersion()->code;
+        return $this->computeFacetsResponse($request);
+    }
 
-        $resolver = function () use ($request, $versionCode): array {
-            $out = [];
+    protected function facetModelClass(): string
+    {
+        return BlueprintData::class;
+    }
 
-            $baseQuery = QueryBuilder::for(BlueprintData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
-                ->allowedFilters(...$this->allowedFilters());
+    protected function facetBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(BlueprintData::class, $request)
+            ->forRequestedOrDefaultVersion($this->gameVersionCode() ?? $this->gameVersion()->code)
+            ->allowedFilters(...$this->allowedFilters());
+    }
 
-            $typeExpr = $this->jsonExpression('Output.Type');
+    protected function facetDefinitions(Request $request): array
+    {
+        $typeExpr = $this->jsonExpression('Output.Type');
 
-            $typeRows = (clone $baseQuery)
-                ->select([
-                    DB::raw("{$typeExpr} as value"),
-                    DB::raw('count(*) as count'),
-                ])
-                ->groupByRaw($typeExpr)
-                ->orderByRaw($typeExpr)
-                ->get();
+        return [
+            'output.type' => [
+                'expr' => $typeExpr,
+                'order_by' => $typeExpr,
+                'labelResolver' => [ItemFilterLabel::class, 'resolveType'],
+            ],
+            'ingredient.uuid' => [
+                'expr' => 'ic.uuid',
+                'label_expr' => 'ic.name',
+                'group_by' => 'ic.uuid, ic.name',
+                'order_by' => 'ic.name',
+                'join' => static fn ($q) => $q
+                    ->join('game_blueprint_data_ingredients as bdi', 'game_blueprint_data.id', '=', 'bdi.blueprint_data_id')
+                    ->join('game_commodities as ic', 'bdi.resource_type_id', '=', 'ic.id'),
+            ],
+        ];
+    }
 
-            $out['output.type'] = FilterValues::fromRows(
-                $typeRows,
-                labelResolver: [ItemFilterLabel::class, 'resolveType'],
-            );
+    protected function extraFacets(Request $request): array
+    {
+        $baseQuery = $this->facetBaseQuery($request);
 
-            $ingredientRows = (clone $baseQuery)
-                ->join('game_blueprint_data_ingredients as bdi', 'game_blueprint_data.id', '=', 'bdi.blueprint_data_id')
-                ->join('game_commodities as ic', 'bdi.resource_type_id', '=', 'ic.id')
-                ->select([
-                    DB::raw('ic.uuid as value'),
-                    DB::raw('ic.name as label'),
-                    DB::raw('count(*) as count'),
-                ])
-                ->groupByRaw('ic.uuid, ic.name')
-                ->orderByRaw('ic.name')
-                ->get();
+        $ingredientRows = (clone $baseQuery)
+            ->join('game_blueprint_data_ingredients as bdi', 'game_blueprint_data.id', '=', 'bdi.blueprint_data_id')
+            ->join('game_commodities as ic', 'bdi.resource_type_id', '=', 'ic.id')
+            ->select([
+                DB::raw('ic.uuid as value'),
+                DB::raw('ic.name as label'),
+                DB::raw('count(*) as count'),
+            ])
+            ->groupByRaw('ic.uuid, ic.name')
+            ->orderByRaw('ic.name')
+            ->get();
 
-            $out['ingredient.uuid'] = FilterValues::fromRows($ingredientRows);
+        $combined = [];
+        foreach ($ingredientRows as $row) {
+            $combined[$row->value] = [
+                'value' => $row->value,
+                'label' => $row->label,
+                'count' => (int) $row->count,
+            ];
+        }
 
-            $combined = [];
-            foreach ($ingredientRows as $row) {
+        $dismantleRows = (clone $baseQuery)
+            ->join('game_blueprint_data_dismantle_returns as bddr', 'game_blueprint_data.id', '=', 'bddr.blueprint_data_id')
+            ->join('game_commodities as dc', 'bddr.resource_type_id', '=', 'dc.id')
+            ->select([
+                DB::raw('dc.uuid as value'),
+                DB::raw('dc.name as label'),
+                DB::raw('count(*) as count'),
+            ])
+            ->groupByRaw('dc.uuid, dc.name')
+            ->orderByRaw('dc.name')
+            ->get();
+
+        foreach ($dismantleRows as $row) {
+            if (isset($combined[$row->value])) {
+                $combined[$row->value]['count'] += (int) $row->count;
+            } else {
                 $combined[$row->value] = [
                     'value' => $row->value,
                     'label' => $row->label,
                     'count' => (int) $row->count,
                 ];
             }
-
-            $dismantleRows = (clone $baseQuery)
-                ->join('game_blueprint_data_dismantle_returns as bddr', 'game_blueprint_data.id', '=', 'bddr.blueprint_data_id')
-                ->join('game_commodities as dc', 'bddr.resource_type_id', '=', 'dc.id')
-                ->select([
-                    DB::raw('dc.uuid as value'),
-                    DB::raw('dc.name as label'),
-                    DB::raw('count(*) as count'),
-                ])
-                ->groupByRaw('dc.uuid, dc.name')
-                ->orderByRaw('dc.name')
-                ->get();
-
-            foreach ($dismantleRows as $row) {
-                if (isset($combined[$row->value])) {
-                    $combined[$row->value]['count'] += (int) $row->count;
-                } else {
-                    $combined[$row->value] = [
-                        'value' => $row->value,
-                        'label' => $row->label,
-                        'count' => (int) $row->count,
-                    ];
-                }
-            }
-
-            usort($combined, static fn (array $a, array $b): int => strcmp($a['label'], $b['label']));
-
-            $out['resource.uuid'] = FilterValues::fromRows(
-                collect($combined)->map(static fn (array $entry): object => (object) $entry)
-            );
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_BLUEPRINTS,
-                FilterCache::blueprintsKey($versionCode),
-                $resolver
-            );
         }
 
-        return response()->json([
-            'filters' => $filters,
-        ]);
+        usort($combined, static fn (array $a, array $b): int => strcmp($a['label'], $b['label']));
+
+        return [
+            'resource.uuid' => FilterValues::fromRows(
+                collect($combined)->map(static fn (array $entry): object => (object) $entry)
+            ),
+        ];
+    }
+
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_BLUEPRINTS;
+    }
+
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::blueprintsKey($this->gameVersionCode() ?? $this->gameVersion()->code);
     }
 
     /**
@@ -387,14 +398,15 @@ class BlueprintController extends Controller
             }),
             AllowedFilter::callback('resource.uuid', static function (Builder $query, mixed $value): void {
                 $resourceTypeUuids = match (true) {
-                    is_array($value) => array_values(array_unique(array_filter(
-                        array_map(static fn (mixed $entry): string => trim((string) $entry), $value),
-                        static fn (string $entry): bool => $entry !== '',
-                    ))),
-                    is_string($value) => array_values(array_unique(array_filter(
-                        array_map(static fn (string $entry): string => trim($entry), explode(',', $value)),
-                        static fn (string $entry): bool => $entry !== '',
-                    ))),
+                    is_array($value) => array_map(static fn (mixed $entry): string => trim((string) $entry), $value)
+                            |> (static fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
+                            |> array_unique(...)
+                            |> array_values(...),
+                    is_string($value) => explode(',', $value)
+                            |> (static fn ($x) => array_map(static fn (string $entry): string => trim($entry), $x))
+                            |> (static fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
+                            |> array_unique(...)
+                            |> array_values(...),
                     default => [],
                 };
 
@@ -423,35 +435,11 @@ class BlueprintController extends Controller
             'craft_time_seconds',
             'unlocking_missions_count',
             AllowedSort::callback('ingredient_count', function (Builder $query, bool $descending): void {
-                $direction = $descending ? 'desc' : 'asc';
-
-                $query->orderByRaw($this->ingredientCountSortExpression().' '.$direction.' nulls last');
+                $query->orderByRaw(
+                    "jsonb_array_length(jsonb_path_query_array(game_blueprint_data.data, '$.Tiers[0].Requirements.**.Kind ? (@ == \"resource\" || @ == \"item\")')) "
+                    .($descending ? 'desc' : 'asc').' nulls last'
+                );
             }),
         ];
-    }
-
-    private function ingredientCountSortExpression(): string
-    {
-        $driver = DB::connection()->getDriverName();
-
-        if ($driver === 'sqlite') {
-            return <<<'SQL'
-(
-    SELECT COUNT(*)
-    FROM json_tree(game_blueprint_data.data, '$.Tiers[0].Requirements')
-    WHERE json_tree.key = 'Kind'
-      AND json_tree.value IN ('resource', 'item')
-)
-SQL;
-        }
-
-        return <<<'SQL'
-jsonb_array_length(
-    jsonb_path_query_array(
-        game_blueprint_data.data,
-        '$.Tiers[0].Requirements.**.Kind ? (@ == "resource" || @ == "item")'
-    )
-)
-SQL;
     }
 }

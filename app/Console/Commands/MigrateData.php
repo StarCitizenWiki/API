@@ -321,8 +321,7 @@ class MigrateData extends Command
             );
         }
 
-        // Automatically sync sequences for PostgreSQL unless explicitly disabled
-        $isPostgres = $to->getDriverName() === 'pgsql';
+        // sync sequences for non-pivot tables.
         $isPivot = in_array(
             $targetTable, [
                 'comm_link_image',
@@ -337,7 +336,7 @@ class MigrateData extends Command
             true
         );
 
-        if ($isPostgres && ! $dryRun && ! $isPivot) {
+        if (! $dryRun && ! $isPivot) {
             $this->syncPostgresSequenceBestEffort($to, $targetTable, $pk ?: 'id');
         }
     }

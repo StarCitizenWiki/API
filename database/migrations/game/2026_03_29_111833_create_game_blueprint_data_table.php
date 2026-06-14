@@ -37,11 +37,9 @@ return new class extends Migration
             $table->index(['game_version_id', 'output_class']);
         });
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement(
-                'CREATE INDEX IF NOT EXISTS game_blueprint_data_ingredient_resource_type_uuids_gin_index ON game_blueprint_data USING GIN (ingredient_resource_type_uuids)'
-            );
-        }
+        DB::statement(
+            'CREATE INDEX game_blueprint_data_ingredient_resource_type_uuids_gin_index ON game_blueprint_data USING GIN (ingredient_resource_type_uuids)'
+        );
     }
 
     /**
@@ -49,9 +47,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement('DROP INDEX IF EXISTS game_blueprint_data_ingredient_resource_type_uuids_gin_index');
-        }
+        DB::statement('DROP INDEX game_blueprint_data_ingredient_resource_type_uuids_gin_index');
 
         Schema::dropIfExists('game_blueprint_data');
     }

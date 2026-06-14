@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\SortByRelation;
 use App\Http\Includes\IncludeDefinition;
@@ -12,13 +13,11 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Support\Filters\FilterCache;
-use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
@@ -28,6 +27,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('vehicles')]
 class VehicleController extends Controller
 {
+    use ComputesFacets;
+
     /**
      * @return array<int, IncludeDefinition>
      */
@@ -56,8 +57,7 @@ class VehicleController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('shipmatrix_vehicles.name', $like, "%{$value}%");
+                $query->whereLike('shipmatrix_vehicles.name', "%{$value}%");
             }),
         ];
     }
@@ -69,7 +69,7 @@ class VehicleController extends Controller
     {
         return QueryBuilder::for(Vehicle::class, $request)
             ->allowedFilters(...$this->allowedFilters())
-            ->allowedSorts(...[
+            ->allowedSorts(
                 AllowedSort::field('id', 'cig_id'),
                 'chassis_id',
                 'name',
@@ -79,13 +79,13 @@ class VehicleController extends Controller
                 AllowedSort::field('width', 'beam'),
                 'height',
                 'cargo_capacity',
-                AllowedSort::field('min_crew'),
-                AllowedSort::field('max_crew'),
+                'min_crew',
+                'max_crew',
                 AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
                 AllowedSort::custom('focus', new SortByRelation, 'focus.slug'),
                 AllowedSort::custom('type', new SortByRelation, 'type.slug'),
                 AllowedSort::custom('size', new SortByRelation, 'size.slug'),
-            ]);
+            );
     }
 
     #[OA\Get(
@@ -162,79 +162,50 @@ class VehicleController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $resolver = function () use ($request): array {
-            $baseQuery = QueryBuilder::for(Vehicle::class, $request)
-                ->allowedFilters(...$this->allowedFilters());
+        return $this->computeFacetsResponse($request);
+    }
 
-            $facets = [
-                'manufacturer' => [
-                    'expr' => 'shipmatrix_manufacturers.name',
-                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_manufacturers', 'shipmatrix_vehicles.manufacturer_id', '=', 'shipmatrix_manufacturers.id'),
-                    'cast' => null,
-                ],
-                'size' => [
-                    'expr' => 'shipmatrix_vehicle_sizes.slug',
-                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_sizes', 'shipmatrix_vehicles.size_id', '=', 'shipmatrix_vehicle_sizes.id'),
-                    'cast' => null,
-                ],
-                'type' => [
-                    'expr' => 'shipmatrix_vehicle_types.slug',
-                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_types', 'shipmatrix_vehicles.type_id', '=', 'shipmatrix_vehicle_types.id'),
-                    'cast' => null,
-                ],
-                'focus' => [
-                    'expr' => 'shipmatrix_vehicle_foci.slug',
-                    'join' => static fn ($q) => $q
-                        ->leftJoin('shipmatrix_vehicle_vehicle_focus', 'shipmatrix_vehicles.id', '=', 'shipmatrix_vehicle_vehicle_focus.vehicle_id')
-                        ->leftJoin('shipmatrix_vehicle_foci', 'shipmatrix_vehicle_vehicle_focus.focus_id', '=', 'shipmatrix_vehicle_foci.id'),
-                    'cast' => null,
-                ],
-                'production_status' => [
-                    'expr' => 'shipmatrix_production_statuses.slug',
-                    'join' => static fn ($q) => $q->leftJoin('shipmatrix_production_statuses', 'shipmatrix_vehicles.production_status_id', '=', 'shipmatrix_production_statuses.id'),
-                    'cast' => null,
-                ],
-            ];
+    protected function facetModelClass(): string
+    {
+        return Vehicle::class;
+    }
 
-            $out = [];
+    protected function facetDefinitions(Request $request): array
+    {
+        return [
+            'manufacturer' => [
+                'expr' => 'shipmatrix_manufacturers.name',
+                'join' => static fn ($q) => $q->leftJoin('shipmatrix_manufacturers', 'shipmatrix_vehicles.manufacturer_id', '=', 'shipmatrix_manufacturers.id'),
+            ],
+            'size' => [
+                'expr' => 'shipmatrix_vehicle_sizes.slug',
+                'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_sizes', 'shipmatrix_vehicles.size_id', '=', 'shipmatrix_vehicle_sizes.id'),
+            ],
+            'type' => [
+                'expr' => 'shipmatrix_vehicle_types.slug',
+                'join' => static fn ($q) => $q->leftJoin('shipmatrix_vehicle_types', 'shipmatrix_vehicles.type_id', '=', 'shipmatrix_vehicle_types.id'),
+            ],
+            'focus' => [
+                'expr' => 'shipmatrix_vehicle_foci.slug',
+                'join' => static fn ($q) => $q
+                    ->leftJoin('shipmatrix_vehicle_vehicle_focus', 'shipmatrix_vehicles.id', '=', 'shipmatrix_vehicle_vehicle_focus.vehicle_id')
+                    ->leftJoin('shipmatrix_vehicle_foci', 'shipmatrix_vehicle_vehicle_focus.focus_id', '=', 'shipmatrix_vehicle_foci.id'),
+            ],
+            'production_status' => [
+                'expr' => 'shipmatrix_production_statuses.slug',
+                'join' => static fn ($q) => $q->leftJoin('shipmatrix_production_statuses', 'shipmatrix_vehicles.production_status_id', '=', 'shipmatrix_production_statuses.id'),
+            ],
+        ];
+    }
 
-            foreach ($facets as $key => $facet) {
-                $expr = $facet['expr'];
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_SHIPMATRIX;
+    }
 
-                $q = clone $baseQuery;
-
-                if (isset($facet['join'])) {
-                    ($facet['join'])($q);
-                }
-
-                $rows = $q
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
-
-                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
-            }
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_SHIPMATRIX,
-                FilterCache::shipMatrixKey(),
-                $resolver
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::shipMatrixKey();
     }
 
     #[OA\Get(

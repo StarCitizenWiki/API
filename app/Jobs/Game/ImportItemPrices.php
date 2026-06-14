@@ -202,8 +202,9 @@ class ImportItemPrices implements ShouldQueue
 
             $pricesData = $this->mapItemPrices($prices, $locationMapping, $mapper, $locationDataLookup, $gameVersionCode);
 
-            $itemData->uex_prices = $pricesData;
-            $itemData->save();
+            $itemData->update([
+                'uex_prices' => $pricesData,
+            ]);
 
             $updatedCount++;
         }
@@ -292,9 +293,13 @@ class ImportItemPrices implements ShouldQueue
             $purchases = $purchaseGrouped->get($idVehicle, collect());
             $rentals = $rentalGrouped->get($idVehicle, collect());
 
-            $vehicleData->uex_purchase_prices = $this->mapVehiclePrices($purchases, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $gameVersionCode);
-            $vehicleData->uex_rental_prices = $this->mapVehiclePrices($rentals, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $gameVersionCode);
-            $vehicleData->save();
+            $purchasePrices = $this->mapVehiclePrices($purchases, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $gameVersionCode);
+            $rentalPrices = $this->mapVehiclePrices($rentals, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $gameVersionCode);
+
+            $vehicleData->update([
+                'uex_purchase_prices' => $purchasePrices,
+                'uex_rental_prices' => $rentalPrices,
+            ]);
 
             $updatedCount++;
         }

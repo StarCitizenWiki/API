@@ -16,17 +16,13 @@ return new class extends Migration
             $table->integer('reputation_amount')->nullable();
         });
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            $this->backfillPostgres();
-        }
+        $this->backfillPostgres();
 
         Schema::table('game_blueprint_data', function (Blueprint $table): void {
             $table->integer('unlocking_missions_count')->default(0);
         });
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            $this->backfillBlueprintCountPostgres();
-        }
+        $this->backfillBlueprintCountPostgres();
     }
 
     public function down(): void

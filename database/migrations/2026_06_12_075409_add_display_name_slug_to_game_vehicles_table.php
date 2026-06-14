@@ -40,12 +40,10 @@ return new class extends Migration
                 }
             });
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement('
-                CREATE INDEX IF NOT EXISTS game_vehicle_data_display_name_trgm_idx
-                ON game_vehicle_data USING gin (display_name gin_trgm_ops)
-            ');
-        }
+        DB::statement('
+            CREATE INDEX game_vehicle_data_display_name_trgm_idx
+            ON game_vehicle_data USING gin (display_name gin_trgm_ops)
+        ');
     }
 
     /**
@@ -57,8 +55,6 @@ return new class extends Migration
             $table->dropColumn('display_name_slug');
         });
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement('DROP INDEX IF EXISTS game_vehicle_data_display_name_trgm_idx');
-        }
+        DB::statement('DROP INDEX game_vehicle_data_display_name_trgm_idx');
     }
 };

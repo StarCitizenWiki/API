@@ -9865,35 +9865,6 @@ components:
           type: object
           nullable: true
       type: object
-    cargo_grid:
-      title: 'Cargo Grid'
-      description: 'Cargo grid capacity and dimensions derived from inventory container data.'
-      properties:
-        scu:
-          description: 'Cargo capacity in Standard Cargo Units.'
-          type: number
-          format: double
-          nullable: true
-          x-suffix: ' SCU'
-        x:
-          description: 'Interior width in meters.'
-          type: number
-          format: double
-          nullable: true
-          x-suffix: ' m'
-        'y':
-          description: 'Interior depth in meters.'
-          type: number
-          format: double
-          nullable: true
-          x-suffix: ' m'
-        z:
-          description: 'Interior height in meters.'
-          type: number
-          format: double
-          nullable: true
-          x-suffix: ' m'
-      type: object
     clothing:
       title: Clothing
       description: 'DEPRECATED: Use suit_armor instead. Wearable clothing like shirts, pants, gloves, etc., little to no damage reduction capabilities. Generated from SCItemClothingParams.'
@@ -20007,33 +19978,6 @@ components:
         component_class:
           type: string
       type: object
-    shipmatrix_vehicle_link:
-      title: 'Ship-Matrix Vehicle Link'
-      type: object
-      allOf:
-        -
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
-            slug:
-              type: string
-            size:
-              $ref: '#/components/schemas/translation'
-            type:
-              $ref: '#/components/schemas/translation'
-            manufacturer:
-              $ref: '#/components/schemas/shipmatrix_manufacturer_link'
-            production_status:
-              $ref: '#/components/schemas/translation'
-            link:
-              type: string
-            updated_at:
-              type: string
-          type: object
-        -
-          $ref: '#/components/schemas/metadata'
     vehicle_loaner:
       title: 'Vehicle Loaner'
       properties:

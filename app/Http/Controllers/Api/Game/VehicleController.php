@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
+use App\Http\Filters\NonEmptyExactFilter;
 use App\Http\Filters\SortByRelation;
 use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Includes\IncludeDefinition;
@@ -27,7 +29,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -38,6 +39,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('vehicles')]
 class VehicleController extends Controller
 {
+    use ComputesFacets;
     use FiltersJsonColumns;
     use ResolvesGameVersion;
 
@@ -571,98 +573,82 @@ class VehicleController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $versionCode = $this->gameVersionCode();
-        $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
-        $resolver = function () use ($request, $versionCode, $vehicleType): array {
-            $baseQuery = QueryBuilder::for(VehicleData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
-                ->forVehicleType($vehicleType)
-                ->allowedFilters(...$this->allowedFilters());
+        return $this->computeFacetsResponse($request);
+    }
 
-            $facets = [
-                'manufacturer' => [
-                    'expr' => 'game_manufacturers.name',
-                    'join' => static fn ($q) => $q->leftJoinRelationship('manufacturer'),
-                    'cast' => null,
-                ],
-                'is_vehicle' => [
-                    'expr' => 'game_vehicle_data.is_vehicle',
-                    'cast' => static fn ($value) => $value === null ? null : (bool) $value,
-                ],
-                'is_gravlev' => [
-                    'expr' => 'game_vehicle_data.is_gravlev',
-                    'cast' => static fn ($value) => $value === null ? null : (bool) $value,
-                ],
-                'is_spaceship' => [
-                    'expr' => 'game_vehicle_data.is_spaceship',
-                    'cast' => static fn ($value) => $value === null ? null : (bool) $value,
-                ],
-                'size' => [
-                    'expr' => 'game_vehicle_data.size',
-                    'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                ],
-                'role' => [
-                    'expr' => 'game_vehicle_data.role',
-                    'cast' => null,
-                ],
-                'career' => [
-                    'expr' => 'game_vehicle_data.career',
-                    'cast' => null,
-                ],
-                'shield.face_type' => [
-                    'expr' => 'game_vehicle_data.shield_face_type',
-                    'cast' => null,
-                ],
-            ];
+    protected function facetModelClass(): string
+    {
+        return VehicleData::class;
+    }
 
-            $out = [];
+    protected function facetBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(VehicleData::class, $request)
+            ->forRequestedOrDefaultVersion($this->gameVersionCode())
+            ->forVehicleType($request->route()->defaults['vehicle_type'] ?? 'vehicles')
+            ->allowedFilters(...$this->allowedFilters());
+    }
 
-            foreach ($facets as $key => $facet) {
-                $expr = $facet['expr'];
+    protected function facetDefinitions(Request $request): array
+    {
+        return [
+            'manufacturer' => [
+                'expr' => 'game_manufacturers.name',
+                'join' => static fn ($q) => $q->leftJoinRelationship('manufacturer'),
+            ],
+            'is_vehicle' => [
+                'expr' => 'game_vehicle_data.is_vehicle',
+                'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+            ],
+            'is_gravlev' => [
+                'expr' => 'game_vehicle_data.is_gravlev',
+                'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+            ],
+            'is_spaceship' => [
+                'expr' => 'game_vehicle_data.is_spaceship',
+                'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+            ],
+            'size' => [
+                'expr' => 'game_vehicle_data.size',
+                'cast' => static fn ($value) => $value === null ? null : (int) $value,
+            ],
+            'role' => [
+                'expr' => 'game_vehicle_data.role',
+            ],
+            'career' => [
+                'expr' => 'game_vehicle_data.career',
+            ],
+            'shield.face_type' => [
+                'expr' => 'game_vehicle_data.shield_face_type',
+            ],
+        ];
+    }
 
-                $q = clone $baseQuery;
-
-                if (isset($facet['join'])) {
-                    ($facet['join'])($q);
-                }
-
-                $rows = $q
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
-
-                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
-            }
-
-            $out['max_medical_tier'] = FilterValues::fromRows(
-                (clone $baseQuery)
+    protected function extraFacets(Request $request): array
+    {
+        return [
+            'max_medical_tier' => FilterValues::fromRows(
+                (clone $this->facetBaseQuery($request))
                     ->selectRaw('game_vehicle_data.max_medical_tier as value, count(*) as count')
                     ->whereNotNull('game_vehicle_data.max_medical_tier')
                     ->groupByRaw('game_vehicle_data.max_medical_tier')
                     ->orderByRaw('game_vehicle_data.max_medical_tier')
                     ->get(),
-            );
+            ),
+        ];
+    }
 
-            return $out;
-        };
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_VEHICLES;
+    }
 
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_VEHICLES,
-                FilterCache::vehiclesKey($versionCode, $vehicleType),
-                $resolver
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::vehiclesKey(
+            $this->gameVersionCode(),
+            $request->route()->defaults['vehicle_type'] ?? 'vehicles',
+        );
     }
 
     /**
@@ -841,16 +827,14 @@ class VehicleController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_vehicle_data.class_name', $like, "%{$value}%");
+                $query->whereLike('game_vehicle_data.class_name', "%{$value}%");
             }),
             AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_vehicle_data.name', $like, "%{$value}%");
+                $query->whereLike('game_vehicle_data.name', "%{$value}%");
             }),
             AllowedFilter::exact('career'),
             AllowedFilter::exact('role'),
@@ -862,60 +846,24 @@ class VehicleController extends Controller
             }),
             AllowedFilter::exact('size'),
             AllowedFilter::exact('size_class', 'size'),
-            AllowedFilter::callback('mass_total', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'mass_total', $value);
-            }),
-            AllowedFilter::callback('cargo_capacity', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'cargo_capacity', $value);
-            }),
-            AllowedFilter::callback('vehicle_inventory', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'vehicle_inventory', $value);
-            }),
-            AllowedFilter::callback('crew.min', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'crew_min', $value);
-            }),
-            AllowedFilter::callback('crew.max', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'crew_max', $value);
-            }),
-            AllowedFilter::callback('health', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'health', $value);
-            }),
-            AllowedFilter::callback('shield.hp', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'shield_hp', $value);
-            }),
-            AllowedFilter::callback('shield.face_type', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'shield_face_type', $value);
-            }),
-            AllowedFilter::callback('speed.scm', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'speed_scm', $value);
-            }),
-            AllowedFilter::callback('speed.max', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'speed_max', $value);
-            }),
-            AllowedFilter::callback('armor.health', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'armor_health', $value);
-            }),
-            AllowedFilter::callback('cross_section.length', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'cross_section_length', $value);
-            }),
-            AllowedFilter::callback('cross_section.width', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'cross_section_width', $value);
-            }),
-            AllowedFilter::callback('cross_section.height', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'cross_section_height', $value);
-            }),
-            AllowedFilter::callback('signature.ir_quantum', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'signature_ir_quantum', $value);
-            }),
-            AllowedFilter::callback('signature.ir_shields', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'signature_ir_shields', $value);
-            }),
-            AllowedFilter::callback('signature.em_quantum', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'signature_em_quantum', $value);
-            }),
-            AllowedFilter::callback('signature.em_shields', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'signature_em_shields', $value);
-            }),
+            AllowedFilter::custom('mass_total', new NonEmptyExactFilter),
+            AllowedFilter::custom('cargo_capacity', new NonEmptyExactFilter),
+            AllowedFilter::custom('vehicle_inventory', new NonEmptyExactFilter),
+            AllowedFilter::custom('crew.min', new NonEmptyExactFilter, 'crew_min'),
+            AllowedFilter::custom('crew.max', new NonEmptyExactFilter, 'crew_max'),
+            AllowedFilter::custom('health', new NonEmptyExactFilter),
+            AllowedFilter::custom('shield.hp', new NonEmptyExactFilter, 'shield_hp'),
+            AllowedFilter::custom('shield.face_type', new NonEmptyExactFilter, 'shield_face_type'),
+            AllowedFilter::custom('speed.scm', new NonEmptyExactFilter, 'speed_scm'),
+            AllowedFilter::custom('speed.max', new NonEmptyExactFilter, 'speed_max'),
+            AllowedFilter::custom('armor.health', new NonEmptyExactFilter, 'armor_health'),
+            AllowedFilter::custom('cross_section.length', new NonEmptyExactFilter, 'cross_section_length'),
+            AllowedFilter::custom('cross_section.width', new NonEmptyExactFilter, 'cross_section_width'),
+            AllowedFilter::custom('cross_section.height', new NonEmptyExactFilter, 'cross_section_height'),
+            AllowedFilter::custom('signature.ir_quantum', new NonEmptyExactFilter, 'signature_ir_quantum'),
+            AllowedFilter::custom('signature.ir_shields', new NonEmptyExactFilter, 'signature_ir_shields'),
+            AllowedFilter::custom('signature.em_quantum', new NonEmptyExactFilter, 'signature_em_quantum'),
+            AllowedFilter::custom('signature.em_shields', new NonEmptyExactFilter, 'signature_em_shields'),
             AllowedFilter::callback('has_medical_beds', static function (Builder $query, mixed $value): void {
                 $hasMedicalBeds = filter_var($value, FILTER_VALIDATE_BOOLEAN);
 
@@ -925,20 +873,17 @@ class VehicleController extends Controller
                     $query->whereNull('max_medical_tier');
                 }
             }),
-            AllowedFilter::callback('max_medical_tier', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'max_medical_tier', $value);
-            }),
+            AllowedFilter::custom('max_medical_tier', new NonEmptyExactFilter),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
                 $pattern = "%{$value}%";
 
-                $query->where(static function (Builder $q) use ($pattern, $like): void {
-                    $q->whereRaw("game_vehicle_data.name {$like} ?", [$pattern])
-                        ->orWhereRaw("game_vehicle_data.class_name {$like} ?", [$pattern]);
+                $query->where(static function (Builder $q) use ($pattern): void {
+                    $q->whereLike('game_vehicle_data.name', $pattern)
+                        ->orWhereLike('game_vehicle_data.class_name', $pattern);
                 });
             }),
         ];
@@ -970,15 +915,15 @@ class VehicleController extends Controller
                 AllowedSort::custom('msrp', new SortByRelation, 'shipmatrixVehicle.msrp'),
                 AllowedSort::field('size_class', 'size'),
 
-                AllowedSort::field('length', 'length'),
-                AllowedSort::field('width', 'width'),
-                AllowedSort::field('height', 'height'),
-                AllowedSort::field('mass_total', 'mass_total'),
+                'length',
+                'width',
+                'height',
+                'mass_total',
                 AllowedSort::callback('cargo_capacity', static function (Builder $query, bool $descending): void {
                     $direction = $descending ? 'desc' : 'asc';
                     $query->orderByRaw("cargo_capacity {$direction} NULLS LAST");
                 }),
-                AllowedSort::field('vehicle_inventory', 'vehicle_inventory'),
+                'vehicle_inventory',
                 AllowedSort::field('crew.min', 'crew_min'),
                 AllowedSort::field('crew.max', 'crew_max'),
                 AllowedSort::callback('health', static function (Builder $query, bool $descending): void {

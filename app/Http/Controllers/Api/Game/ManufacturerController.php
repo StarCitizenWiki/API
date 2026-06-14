@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -40,8 +39,7 @@ class ManufacturerController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_manufacturers.name', $like, "%{$value}%");
+                $query->whereLike('game_manufacturers.name', "%{$value}%");
             }))
             ->groupBy('name')
             ->orderBy('name');
@@ -128,8 +126,8 @@ class ManufacturerController extends Controller
                     ->firstOrFail();
             } else {
                 $manufacturer = QueryBuilder::for(Manufacturer::class, $request)
-                    ->orWhere('name', 'LIKE', sprintf('%%%s%%', $identifier))
-                    ->orWhere('code', 'LIKE', sprintf('%%%s%%', $identifier))
+                    ->orWhere('name', 'LIKE', "%{$identifier}%")
+                    ->orWhere('code', 'LIKE', "%{$identifier}%")
                     ->firstOrFail();
             }
         } catch (ModelNotFoundException) {
@@ -181,14 +179,13 @@ class ManufacturerController extends Controller
     {
         $query = $request->validated('query');
         $isUuid = Str::isUuid($query);
-        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
 
         $manufacturers = QueryBuilder::for(Manufacturer::class)
             ->select(['name'])
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
             ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
-            ->where(function (Builder $q) use ($query, $isUuid, $like) {
-                $q->where('name', $like, "%{$query}%")->orWhere('code', $like, "%{$query}%");
+            ->where(function (Builder $q) use ($query, $isUuid) {
+                $q->whereLike('name', "%{$query}%")->orWhereLike('code', "%{$query}%");
 
                 if ($isUuid) {
                     $q->orWhere('uuid', $query);

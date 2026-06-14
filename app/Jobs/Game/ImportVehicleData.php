@@ -21,6 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
@@ -70,13 +71,35 @@ class ImportVehicleData implements ShouldQueue
         $manufacturerId = $this->resolveManufacturerId($payload);
         $shipmatrixId = $this->resolveShipmatrixVehicleId($payload);
 
-        $vehicleData = VehicleData::query()->updateOrCreate(
-            [
-                'vehicle_id' => $vehicle->id,
-                'game_version_id' => $this->gameVersionId,
-            ],
-            $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId)
+        $values = $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId);
+        $updateColumns = $values
+                |> array_keys(...)
+                |> (static fn ($x) => array_diff($x, ['vehicle_id', 'game_version_id']))
+                |> array_values(...);
+
+        $now = now();
+        $row = array_map(
+            static function (mixed $value): mixed {
+                return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
+            },
+            $values,
+        ) + [
+            'vehicle_id' => $vehicle->id,
+            'game_version_id' => $this->gameVersionId,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+
+        DB::table('game_vehicle_data')->upsert(
+            [$row],
+            ['vehicle_id', 'game_version_id'],
+            [...$updateColumns, 'updated_at'],
         );
+
+        $vehicleData = VehicleData::query()
+            ->where('vehicle_id', $vehicle->id)
+            ->where('game_version_id', $this->gameVersionId)
+            ->first();
 
         $this->syncInstalledItems($vehicleData, $payload);
 

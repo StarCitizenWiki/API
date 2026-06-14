@@ -7,22 +7,14 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public $withinTransaction = false;
-
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        if (! Schema::hasColumn('game_mission_data', 'reputation_scopes')) {
-            Schema::table('game_mission_data', static function (Blueprint $table): void {
-                $table->jsonb('reputation_scopes')->nullable()->after('reward_scope');
-            });
-        }
-
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            return;
-        }
+        Schema::table('game_mission_data', static function (Blueprint $table): void {
+            $table->jsonb('reputation_scopes')->nullable()->after('reward_scope');
+        });
 
         DB::statement(<<<'SQL'
             UPDATE game_mission_data AS gmd
@@ -47,7 +39,7 @@ return new class extends Migration
         SQL);
 
         DB::statement(<<<'SQL'
-            CREATE INDEX CONCURRENTLY IF NOT EXISTS game_mission_data_reputation_scopes_gin_index
+            CREATE INDEX game_mission_data_reputation_scopes_gin_index
             ON game_mission_data
             USING GIN (reputation_scopes)
         SQL);
@@ -58,14 +50,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement('DROP INDEX CONCURRENTLY IF EXISTS game_mission_data_reputation_scopes_gin_index');
-        }
+        DB::statement('DROP INDEX game_mission_data_reputation_scopes_gin_index');
 
-        if (Schema::hasColumn('game_mission_data', 'reputation_scopes')) {
-            Schema::table('game_mission_data', static function (Blueprint $table): void {
-                $table->dropColumn('reputation_scopes');
-            });
-        }
+        Schema::table('game_mission_data', static function (Blueprint $table): void {
+            $table->dropColumn('reputation_scopes');
+        });
     }
 };

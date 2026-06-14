@@ -63,6 +63,7 @@ class ComputeItemVariantGroups implements ShouldQueue
             if ($hadPreviousGroups) {
                 ItemData::query()
                     ->where('game_version_id', $this->gameVersionId)
+                    ->whereNotNull('base_id')
                     ->update(['base_id' => null]);
             }
 

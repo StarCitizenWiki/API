@@ -410,22 +410,23 @@ class ComputeBespokeItems implements ShouldQueue
         return array_any(self::BESPOKE_CLASS_NAME_TOKENS, fn ($token) => str_contains($className, $token));
     }
 
-    /**
-     * Persist the bespoke classification to the database.
-     *
-     * @param  array<string, array{is_bespoke: bool, bespoke_vehicle_tags: list<string>}>  $bespokeItems
-     */
     private function persist(array $bespokeItems): void
     {
-        DB::transaction(function () use ($bespokeItems): void {
+        $bespokeEntries = array_filter($bespokeItems, static fn (array $item): bool => $item['is_bespoke']);
+        $bespokeClassNames = array_keys($bespokeEntries);
+
+        DB::transaction(function () use ($bespokeEntries, $bespokeClassNames): void {
             ItemData::query()
                 ->where('game_version_id', $this->gameVersionId)
+                ->where(function ($query): void {
+                    $query->where('is_bespoke', true)
+                        ->orWhereNotNull('bespoke_vehicle_tags');
+                })
+                ->when($bespokeClassNames !== [], fn ($query) => $query->whereNotIn('class_name', $bespokeClassNames))
                 ->update([
                     'is_bespoke' => false,
                     'bespoke_vehicle_tags' => null,
                 ]);
-
-            $bespokeEntries = array_filter($bespokeItems, static fn (array $item): bool => $item['is_bespoke']);
 
             $byTags = [];
 
@@ -438,18 +439,27 @@ class ComputeBespokeItems implements ShouldQueue
                 $tags = json_decode($tagJson, true, 512, JSON_THROW_ON_ERROR);
 
                 foreach (array_chunk($classNames, 500) as $chunk) {
-                    ItemData::query()
+                    $staleIds = ItemData::query()
                         ->where('game_version_id', $this->gameVersionId)
                         ->whereIn('class_name', $chunk)
-                        ->update([
-                            'is_bespoke' => true,
-                            'bespoke_vehicle_tags' => $tags,
-                        ]);
+                        ->get(['id', 'is_bespoke', 'bespoke_vehicle_tags'])
+                        ->reject(fn (ItemData $row): bool => $row->is_bespoke === true && $row->bespoke_vehicle_tags === $tags)
+                        ->pluck('id');
+
+                    if ($staleIds->isNotEmpty()) {
+                        ItemData::query()
+                            ->where('game_version_id', $this->gameVersionId)
+                            ->whereIn('id', $staleIds)
+                            ->update([
+                                'is_bespoke' => true,
+                                'bespoke_vehicle_tags' => $tags,
+                            ]);
+                    }
                 }
             }
         });
 
-        $bespokeCount = count(array_filter($bespokeItems, static fn (array $item): bool => $item['is_bespoke']));
+        $bespokeCount = count($bespokeEntries);
 
         Log::info('Computed bespoke items', [
             'game_version_id' => $this->gameVersionId,

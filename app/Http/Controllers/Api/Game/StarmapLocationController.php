@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Controller;
 use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Includes\IncludeDefinition;
@@ -12,7 +13,6 @@ use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Starmap\StarmapLocationResource;
 use App\Models\Game\StarmapLocationData;
 use App\Support\Filters\FilterCache;
-use App\Support\Filters\FilterValues;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -30,6 +29,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('starmap')]
 class StarmapLocationController extends Controller
 {
+    use ComputesFacets;
     use ResolvesGameVersion;
 
     /**
@@ -129,8 +129,7 @@ class StarmapLocationController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_starmap_location_data.name', $like, "%{$value}%");
+                $query->whereLike('game_starmap_location_data.name', "%{$value}%");
             }),
             AllowedFilter::exact('type_name'),
             AllowedFilter::exact('type_classification'),
@@ -146,8 +145,7 @@ class StarmapLocationController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_starmap_location_data.parent_name', $like, "%{$value}%");
+                $query->whereLike('game_starmap_location_data.parent_name', "%{$value}%");
             }),
             AllowedFilter::exact('parent_uuid', 'parent_location_uuid'),
             AllowedFilter::callback('system', static function (Builder $query, mixed $value): void {
@@ -155,8 +153,7 @@ class StarmapLocationController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_starmap_location_data.system', $like, "%{$value}%");
+                $query->whereLike('game_starmap_location_data.system', "%{$value}%");
             }),
             AllowedFilter::callback('has_resources', $hasResourcesFilter),
             AllowedFilter::callback('resource', $resourceFilter),
@@ -166,9 +163,8 @@ class StarmapLocationController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where(static function (Builder $q) use ($value, $like): void {
-                    $q->where('game_starmap_location_data.name', $like, '%'.$value.'%');
+                $query->where(static function (Builder $q) use ($value): void {
+                    $q->whereLike('game_starmap_location_data.name', "%{$value}%");
                 });
             }),
         ];
@@ -575,116 +571,78 @@ class StarmapLocationController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $versionCode = $this->gameVersionCode();
-        $resolver = function () use ($request, $versionCode): array {
-            $baseQuery = QueryBuilder::for(StarmapLocationData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
-                ->whereNotNull('game_starmap_location_data.system')
-                ->allowedFilters(...$this->allowedFilters());
+        return $this->computeFacetsResponse($request);
+    }
 
-            $facets = [
-                'type_name' => [
-                    'expr' => 'game_starmap_location_data.type_name',
-                    'cast' => null,
-                ],
-                'type_classification' => [
-                    'expr' => 'game_starmap_location_data.type_classification',
-                    'cast' => null,
-                ],
-                'respawn_location_type' => [
-                    'expr' => 'game_starmap_location_data.respawn_location_type',
-                    'cast' => null,
-                ],
-                'jurisdiction_name' => [
-                    'expr' => 'game_starmap_location_data.jurisdiction_name',
-                    'cast' => null,
-                ],
-                'affiliation_name' => [
-                    'expr' => 'game_starmap_location_data.affiliation_name',
-                    'cast' => null,
-                ],
-                'system' => [
-                    'expr' => 'game_starmap_location_data.system',
-                    'cast' => null,
-                ],
-                'parent_name' => [
-                    'expr' => 'game_starmap_location_data.parent_name',
-                    'cast' => null,
-                ],
-                'amenity' => [
-                    'expr' => 'game_starmap_amenities.uuid',
-                    'label_expr' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
-                    'group_by' => 'game_starmap_amenities.uuid, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
-                    'order_by' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name) IS NULL, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name), game_starmap_amenities.uuid',
-                    'join' => static fn ($query) => $query
-                        ->leftJoin('game_starmap_location_data_amenity', 'game_starmap_location_data.id', '=', 'game_starmap_location_data_amenity.location_data_id')
-                        ->leftJoin('game_starmap_amenities', 'game_starmap_location_data_amenity.amenity_id', '=', 'game_starmap_amenities.id'),
-                    'cast' => null,
-                ],
-                'resource' => [
-                    'expr' => 'game_commodities.uuid',
-                    'label_expr' => 'game_commodities.name',
-                    'group_by' => 'game_commodities.uuid, game_commodities.name',
-                    'order_by' => 'game_commodities.name IS NULL, game_commodities.name, game_commodities.uuid',
-                    'join' => static fn ($query) => $query
-                        ->leftJoin('game_resource_location_placements', 'game_starmap_location_data.id', '=', 'game_resource_location_placements.starmap_location_data_id')
-                        ->leftJoin('game_resource_locations', 'game_resource_location_placements.resource_location_id', '=', 'game_resource_locations.id')
-                        ->leftJoin('game_resource_data', 'game_resource_locations.resource_data_id', '=', 'game_resource_data.id')
-                        ->leftJoin('game_resource_commodity', 'game_resource_data.id', '=', 'game_resource_commodity.resource_data_id')
-                        ->leftJoin('game_commodities', 'game_resource_commodity.commodity_id', '=', 'game_commodities.id'),
-                    'cast' => null,
-                ],
-            ];
+    protected function facetModelClass(): string
+    {
+        return StarmapLocationData::class;
+    }
 
-            $out = [];
+    protected function facetBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(StarmapLocationData::class, $request)
+            ->forRequestedOrDefaultVersion($this->gameVersionCode())
+            ->whereNotNull('game_starmap_location_data.system')
+            ->allowedFilters(...$this->allowedFilters());
+    }
 
-            foreach ($facets as $key => $facet) {
-                $expr = $facet['expr'];
-                $labelExpr = $facet['label_expr'] ?? null;
-                $groupBy = $facet['group_by'] ?? $expr;
-                $orderBy = $facet['order_by'] ?? "{$expr} IS NULL, {$expr}";
-                $query = clone $baseQuery;
+    protected function facetDefinitions(Request $request): array
+    {
+        return [
+            'type_name' => [
+                'expr' => 'game_starmap_location_data.type_name',
+            ],
+            'type_classification' => [
+                'expr' => 'game_starmap_location_data.type_classification',
+            ],
+            'respawn_location_type' => [
+                'expr' => 'game_starmap_location_data.respawn_location_type',
+            ],
+            'jurisdiction_name' => [
+                'expr' => 'game_starmap_location_data.jurisdiction_name',
+            ],
+            'affiliation_name' => [
+                'expr' => 'game_starmap_location_data.affiliation_name',
+            ],
+            'system' => [
+                'expr' => 'game_starmap_location_data.system',
+            ],
+            'parent_name' => [
+                'expr' => 'game_starmap_location_data.parent_name',
+            ],
+            'amenity' => [
+                'expr' => 'game_starmap_amenities.uuid',
+                'label_expr' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
+                'group_by' => 'game_starmap_amenities.uuid, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name)',
+                'order_by' => 'COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name) IS NULL, COALESCE(game_starmap_amenities.display_name, game_starmap_amenities.name), game_starmap_amenities.uuid',
+                'join' => static fn ($query) => $query
+                    ->leftJoin('game_starmap_location_data_amenity', 'game_starmap_location_data.id', '=', 'game_starmap_location_data_amenity.location_data_id')
+                    ->leftJoin('game_starmap_amenities', 'game_starmap_location_data_amenity.amenity_id', '=', 'game_starmap_amenities.id'),
+            ],
+            'resource' => [
+                'expr' => 'game_commodities.uuid',
+                'label_expr' => 'game_commodities.name',
+                'group_by' => 'game_commodities.uuid, game_commodities.name',
+                'order_by' => 'game_commodities.name IS NULL, game_commodities.name, game_commodities.uuid',
+                'join' => static fn ($query) => $query
+                    ->leftJoin('game_resource_location_placements', 'game_starmap_location_data.id', '=', 'game_resource_location_placements.starmap_location_data_id')
+                    ->leftJoin('game_resource_locations', 'game_resource_location_placements.resource_location_id', '=', 'game_resource_locations.id')
+                    ->leftJoin('game_resource_data', 'game_resource_locations.resource_data_id', '=', 'game_resource_data.id')
+                    ->leftJoin('game_resource_commodity', 'game_resource_data.id', '=', 'game_resource_commodity.resource_data_id')
+                    ->leftJoin('game_commodities', 'game_resource_commodity.commodity_id', '=', 'game_commodities.id'),
+            ],
+        ];
+    }
 
-                if (isset($facet['join'])) {
-                    ($facet['join'])($query);
-                }
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_STARMAP_LOCATIONS;
+    }
 
-                $select = [
-                    DB::raw("{$expr} as value"),
-                ];
-
-                if ($labelExpr !== null) {
-                    $select[] = DB::raw("{$labelExpr} as label");
-                }
-
-                $rows = $query
-                    ->select([
-                        ...$select,
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($groupBy)
-                    ->orderByRaw($orderBy)
-                    ->get();
-
-                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
-            }
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_STARMAP_LOCATIONS,
-                FilterCache::starmapLocationsKey($versionCode),
-                $resolver
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::starmapLocationsKey($this->gameVersionCode());
     }
 
     /**

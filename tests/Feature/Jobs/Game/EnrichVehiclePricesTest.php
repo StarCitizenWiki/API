@@ -8,6 +8,7 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -351,4 +352,55 @@ it('skips vehicles without existing prices', function (): void {
         'chunk_size' => 1,
         'game_version_id' => $version->id,
     ]);
+});
+
+afterEach(function (): void {
+    Carbon::setTestNow();
+});
+
+it('updates vehicle prices when the enriched source data changes', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
+
+    $vehicleUuid = '11111111-2222-3333-4444-555566667784';
+    $vehicle = Vehicle::factory()->create(['uuid' => $vehicleUuid]);
+    $vehicleData = VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $version->id,
+        'uex_purchase_prices' => [
+            ['terminal_name' => 'Old Terminal', 'price_buy' => 1, 'game_version' => '4.7.1', 'date_updated' => '2024-01-01T00:00:00+00:00'],
+        ],
+    ]);
+
+    $priceBuy = 2000000;
+
+    Http::fake(function ($request) use (&$priceBuy) {
+        if (str_contains($request->url(), 'vehicles_purchases_prices?uuid')) {
+            return Http::response(['data' => [
+                ['id' => 1, 'id_terminal' => 107, 'terminal_name' => 'New Terminal', 'terminal_code' => 'NT', 'price_buy' => $priceBuy, 'game_version' => '4.7.1', 'date_modified' => 1700000000],
+            ]]);
+        }
+
+        if (str_contains($request->url(), 'vehicles_rentals_prices?uuid')) {
+            return Http::response(['data' => []]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    Carbon::setTestNow('2024-01-01 10:00:00');
+    (new EnrichVehiclePrices($version->id, [$vehicleUuid]))->handle();
+
+    $firstUpdatedAt = $vehicleData->refresh()->updated_at;
+
+    $priceBuy = 9999999;
+
+    Carbon::setTestNow('2024-01-01 11:00:00');
+    (new EnrichVehiclePrices($version->id, [$vehicleUuid]))->handle();
+
+    $vehicleData->refresh();
+
+    expect($vehicleData->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
+        ->and($vehicleData->uex_purchase_prices[0]['price_buy'])->toBe(9999999);
 });

@@ -26,6 +26,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ImportMissionData implements ShouldQueue
@@ -197,13 +198,36 @@ class ImportMissionData implements ShouldQueue
 
         $factionId = $this->resolveFactionId($payload);
 
-        $missionData = MissionData::query()->updateOrCreate(
-            [
-                'mission_id' => $mission->id,
-                'game_version_id' => $this->gameVersionId,
-            ],
-            $this->mapMissionData($payload, $factionId)
+        $values = $this->mapMissionData($payload, $factionId);
+        $values['mission_key'] = $this->computeMissionKey($payload);
+        $updateColumns = $values
+                |> array_keys(...)
+                |> (static fn ($x) => array_diff($x, ['mission_id', 'game_version_id']))
+                |> array_values(...);
+
+        $now = now();
+        $row = array_map(
+            static function (mixed $value): mixed {
+                return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
+            },
+            $values,
+        ) + [
+            'mission_id' => $mission->id,
+            'game_version_id' => $this->gameVersionId,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+
+        DB::table('game_mission_data')->upsert(
+            [$row],
+            ['mission_id', 'game_version_id'],
+            [...$updateColumns, 'updated_at'],
         );
+
+        $missionData = MissionData::query()
+            ->where('mission_id', $mission->id)
+            ->where('game_version_id', $this->gameVersionId)
+            ->first();
 
         $this->syncStarmapLocations($missionData, $payload);
         $this->syncBlueprints($missionData, $payload);
@@ -462,6 +486,41 @@ class ImportMissionData implements ShouldQueue
         $missionData->starmapLocations()->sync($syncData);
     }
 
+    /**
+     * Derive the mission grouping key: md5 of sorted unique blueprint pool UUIDs.
+     */
+    private function computeMissionKey(array $payload): ?string
+    {
+        $blueprintPayloads = $payload['Blueprints'] ?? null;
+
+        if ($blueprintPayloads === null && isset($payload['Blueprint']) && is_array($payload['Blueprint'])) {
+            $blueprintPayloads = [$payload['Blueprint']];
+        }
+
+        if (! is_array($blueprintPayloads) || $blueprintPayloads === []) {
+            return null;
+        }
+
+        $poolUuids = [];
+
+        foreach ($blueprintPayloads as $pool) {
+            if (! is_array($pool)) {
+                continue;
+            }
+
+            $poolUuid = $this->trimOrNull($pool['PoolUUID'] ?? null);
+
+            if ($poolUuid !== null) {
+                $poolUuids[] = $poolUuid;
+            }
+        }
+
+        $sortedPoolUuids = array_unique($poolUuids);
+        sort($sortedPoolUuids);
+
+        return $sortedPoolUuids !== [] ? md5(implode(',', $sortedPoolUuids)) : null;
+    }
+
     private function syncBlueprints(MissionData $missionData, array $payload): void
     {
         // Support both new (Blueprints array) and legacy (Blueprint object) formats
@@ -473,14 +532,10 @@ class ImportMissionData implements ShouldQueue
 
         if (! is_array($blueprintPayloads) || $blueprintPayloads === []) {
             $missionData->blueprints()->sync([]);
-            $missionData->mission_key = null;
-            $missionData->save();
 
             return;
         }
 
-        // Collect all pool UUIDs for mission_key computation
-        $poolUuids = [];
         $pivots = [];
 
         foreach ($blueprintPayloads as $pool) {
@@ -492,10 +547,6 @@ class ImportMissionData implements ShouldQueue
             $poolChance = isset($pool['Chance']) && is_numeric($pool['Chance'])
                 ? (float) $pool['Chance']
                 : null;
-
-            if ($poolUuid !== null) {
-                $poolUuids[] = $poolUuid;
-            }
 
             foreach ($pool['PoolContents'] ?? [] as $content) {
                 if (! is_array($content)) {
@@ -536,12 +587,6 @@ class ImportMissionData implements ShouldQueue
                 ];
             }
         }
-
-        // mission_key = md5 of sorted unique pool UUIDs
-        $sortedPoolUuids = array_unique($poolUuids);
-        sort($sortedPoolUuids);
-        $missionData->mission_key = $sortedPoolUuids !== [] ? md5(implode(',', $sortedPoolUuids)) : null;
-        $missionData->save();
 
         $missionData->blueprints()->detach();
 

@@ -13,27 +13,16 @@ return new class extends Migration
             $table->uuid('blueprint_pool_uuid')->nullable()->after('blueprint_drop_chance');
         });
 
-        if (DB::connection()->getDriverName() === 'pgsql') {
-            DB::statement(<<<'SQL'
-                UPDATE game_mission_data md
-                SET blueprint_pool_uuid = sub.pool::uuid
-                FROM (
-                    SELECT mission_data_id, min(pool_uuid::text) AS pool
-                    FROM game_mission_data_blueprint
-                    GROUP BY mission_data_id
-                ) sub
-                WHERE md.id = sub.mission_data_id
-            SQL);
-        } else {
-            DB::statement(<<<'SQL'
-                UPDATE game_mission_data
-                SET blueprint_pool_uuid = (
-                    SELECT min(pool_uuid)
-                    FROM game_mission_data_blueprint
-                    WHERE mission_data_id = game_mission_data.id
-                )
-            SQL);
-        }
+        DB::statement(<<<'SQL'
+            UPDATE game_mission_data md
+            SET blueprint_pool_uuid = sub.pool::uuid
+            FROM (
+                SELECT mission_data_id, min(pool_uuid::text) AS pool
+                FROM game_mission_data_blueprint
+                GROUP BY mission_data_id
+            ) sub
+            WHERE md.id = sub.mission_data_id
+        SQL);
     }
 
     public function down(): void

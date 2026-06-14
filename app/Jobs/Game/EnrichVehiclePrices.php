@@ -176,15 +176,19 @@ class EnrichVehiclePrices implements ShouldQueue
             return false;
         }
 
+        $jsonValues = [];
+
         if (is_array($purchaseData) && $purchaseData !== []) {
-            $vehicleData->uex_purchase_prices = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
+            $jsonValues['uex_purchase_prices'] = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
         }
 
         if (is_array($rentalData) && $rentalData !== []) {
-            $vehicleData->uex_rental_prices = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
+            $jsonValues['uex_rental_prices'] = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
         }
 
-        $vehicleData->save();
+        if ($jsonValues !== []) {
+            $vehicleData->update($jsonValues);
+        }
 
         return true;
     }

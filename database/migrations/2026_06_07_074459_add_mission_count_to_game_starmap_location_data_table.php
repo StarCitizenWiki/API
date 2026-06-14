@@ -16,18 +16,16 @@ return new class extends Migration
         });
 
         // Backfill
-        if (DB::getDriverName() === 'pgsql') {
-            DB::update(<<<'SQL'
-                UPDATE game_starmap_location_data gsld
-                SET mission_count = aggregated.cnt
-                FROM (
-                    SELECT starmap_location_data_id, COUNT(*) as cnt
-                    FROM game_mission_data_starmap_location
-                    GROUP BY starmap_location_data_id
-                ) aggregated
-                WHERE gsld.id = aggregated.starmap_location_data_id
-            SQL);
-        }
+        DB::update(<<<'SQL'
+            UPDATE game_starmap_location_data gsld
+            SET mission_count = aggregated.cnt
+            FROM (
+                SELECT starmap_location_data_id, COUNT(*) as cnt
+                FROM game_mission_data_starmap_location
+                GROUP BY starmap_location_data_id
+            ) aggregated
+            WHERE gsld.id = aggregated.starmap_location_data_id
+        SQL);
     }
 
     public function down(): void

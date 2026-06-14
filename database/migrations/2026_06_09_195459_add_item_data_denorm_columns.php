@@ -16,10 +16,6 @@ return new class extends Migration
             $table->boolean('is_lootable')->default(false)->after('is_craftable');
         });
 
-        if (DB::connection()->getDriverName() === 'sqlite') {
-            return;
-        }
-
         // Backfill mass
         DB::statement("
             UPDATE game_item_data

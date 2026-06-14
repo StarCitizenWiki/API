@@ -199,10 +199,6 @@ class MissionData extends Model
 
     public function scopeGroupByTitle(Builder $query, int $gameVersionId): Builder
     {
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            return $query;
-        }
-
         $representatives = $this->groupRepresentativeSubquery($query, $gameVersionId);
 
         return $query->where(function (Builder $q) use ($representatives) {
@@ -219,7 +215,7 @@ class MissionData extends Model
      */
     public static function loadGroupedAggregates(Collection $missions): array
     {
-        if (DB::connection()->getDriverName() !== 'pgsql' || $missions->isEmpty()) {
+        if ($missions->isEmpty()) {
             return ['grouped_star_systems' => [], 'variant_uuids' => [], 'variant_counts' => []];
         }
 
@@ -237,7 +233,7 @@ class MissionData extends Model
 
         $rows = DB::table('game_mission_data as gmd')
             ->join('game_missions as m', 'm.id', '=', 'gmd.mission_id')
-            ->leftJoin(DB::raw('LATERAL jsonb_array_elements_text(gmd.star_systems) AS sys(value)'), DB::raw('true'), '=', DB::raw('true'))
+            ->leftJoin(DB::raw('LATERAL jsonb_array_elements_text(gmd.star_systems) AS sys(value)'), DB::raw('1'), '=', DB::raw('1'))
             ->whereNotNull('gmd.title')
             ->where('gmd.title', '!=', '')
             ->where(function (QueryBuilder $query) use ($groupedMissions): void {

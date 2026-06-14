@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class BlueprintData extends Model
@@ -120,25 +119,19 @@ class BlueprintData extends Model
 
     public function scopeForOutputName(Builder $query, string $outputName): Builder
     {
-        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-
-        return $query->whereRaw("output_name {$like} ?", ['%'.$outputName.'%']);
+        return $query->whereLike('output_name', "%{$outputName}%");
     }
 
     public function scopeForOutputClass(Builder $query, string $outputClass): Builder
     {
-        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-
-        return $query->whereRaw("output_class {$like} ?", ['%'.$outputClass.'%']);
+        return $query->whereLike('output_class', "%{$outputClass}%");
     }
 
     public function scopeSearchOutput(Builder $query, string $searchTerm): Builder
     {
-        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-
-        return $query->where(static function (Builder $builder) use ($searchTerm, $like): void {
-            $builder->whereRaw("output_name {$like} ?", ['%'.$searchTerm.'%'])
-                ->orWhereRaw("output_class {$like} ?", ['%'.$searchTerm.'%']);
+        return $query->where(static function (Builder $builder) use ($searchTerm): void {
+            $builder->whereLike('output_name', "%{$searchTerm}%")
+                ->orWhereLike('output_class', "%{$searchTerm}%");
 
             if (Str::isUuid($searchTerm)) {
                 $builder->orWhere('output_item_uuid', $searchTerm);

@@ -8,6 +8,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -509,4 +510,54 @@ it('prefers name override over slug match for empty-UUID items', function (): vo
         'game_version_id' => $version->id,
         'slug_matched_empty_uuid' => 1,
     ]);
+});
+
+afterEach(function (): void {
+    Carbon::setTestNow();
+});
+
+it('updates item prices when the UEX source data changes', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+    ]);
+
+    $priceBuy = 100;
+
+    Http::fake(function ($request) use ($item, &$priceBuy) {
+        if (str_contains($request->url(), 'items_prices_all')) {
+            return Http::response(['data' => [
+                [
+                    'item_uuid' => $item->uuid,
+                    'id_terminal' => 1,
+                    'terminal_name' => 'Test Terminal',
+                    'price_buy' => $priceBuy,
+                    'price_sell' => 50,
+                    'date_modified' => 1700000000,
+                ],
+            ]]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    Carbon::setTestNow('2024-01-01 10:00:00');
+    (new ImportItemPrices($version->id))->handle();
+
+    $firstUpdatedAt = $itemData->refresh()->updated_at;
+
+    // Genuine change in the UEX source.
+    $priceBuy = 999;
+
+    Carbon::setTestNow('2024-01-01 11:00:00');
+    (new ImportItemPrices($version->id))->handle();
+
+    $itemData->refresh();
+
+    expect($itemData->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
+        ->and($itemData->uex_prices[0]['price_buy'])->toBe(999);
 });

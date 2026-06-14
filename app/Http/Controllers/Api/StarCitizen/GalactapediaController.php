@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\StarCitizen;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\DateFilter;
 use App\Http\Includes\IncludeDefinition;
@@ -13,13 +14,11 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Support\Filters\FilterCache;
-use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -30,6 +29,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('galactapedia')]
 class GalactapediaController extends Controller
 {
+    use ComputesFacets;
+
     /**
      * @return array<int, IncludeDefinition>
      */
@@ -57,8 +58,7 @@ class GalactapediaController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('galactapedia_articles.title', $like, "%{$value}%");
+                $query->whereLike('galactapedia_articles.title', "%{$value}%");
             }),
             AllowedFilter::custom('created_at', new DateFilter('created_at')),
         ];
@@ -175,73 +175,46 @@ class GalactapediaController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $resolver = function () use ($request): array {
-            $baseQuery = QueryBuilder::for(Article::class, $request)
-                ->allowedFilters(...$this->allowedFilters());
+        return $this->computeFacetsResponse($request);
+    }
 
-            $facets = [
-                'category' => [
-                    'expr' => 'galactapedia_categories.name',
-                    'join' => static fn ($q) => $q
-                        ->leftJoin('galactapedia_article_categories', 'galactapedia_articles.id', '=', 'galactapedia_article_categories.article_id')
-                        ->leftJoin('galactapedia_categories', 'galactapedia_article_categories.category_id', '=', 'galactapedia_categories.id'),
-                    'cast' => null,
-                ],
-                'tag' => [
-                    'expr' => 'galactapedia_tags.name',
-                    'join' => static fn ($q) => $q
-                        ->leftJoin('galactapedia_article_tags', 'galactapedia_articles.id', '=', 'galactapedia_article_tags.article_id')
-                        ->leftJoin('galactapedia_tags', 'galactapedia_article_tags.tag_id', '=', 'galactapedia_tags.id'),
-                    'cast' => null,
-                ],
-                'template' => [
-                    'expr' => 'galactapedia_templates.template',
-                    'join' => static fn ($q) => $q
-                        ->leftJoin('galactapedia_article_templates', 'galactapedia_articles.id', '=', 'galactapedia_article_templates.article_id')
-                        ->leftJoin('galactapedia_templates', 'galactapedia_article_templates.template_id', '=', 'galactapedia_templates.id'),
-                    'cast' => null,
-                ],
-            ];
+    protected function facetModelClass(): string
+    {
+        return Article::class;
+    }
 
-            $out = [];
+    protected function facetDefinitions(Request $request): array
+    {
+        return [
+            'category' => [
+                'expr' => 'galactapedia_categories.name',
+                'join' => static fn ($q) => $q
+                    ->leftJoin('galactapedia_article_categories', 'galactapedia_articles.id', '=', 'galactapedia_article_categories.article_id')
+                    ->leftJoin('galactapedia_categories', 'galactapedia_article_categories.category_id', '=', 'galactapedia_categories.id'),
+            ],
+            'tag' => [
+                'expr' => 'galactapedia_tags.name',
+                'join' => static fn ($q) => $q
+                    ->leftJoin('galactapedia_article_tags', 'galactapedia_articles.id', '=', 'galactapedia_article_tags.article_id')
+                    ->leftJoin('galactapedia_tags', 'galactapedia_article_tags.tag_id', '=', 'galactapedia_tags.id'),
+            ],
+            'template' => [
+                'expr' => 'galactapedia_templates.template',
+                'join' => static fn ($q) => $q
+                    ->leftJoin('galactapedia_article_templates', 'galactapedia_articles.id', '=', 'galactapedia_article_templates.article_id')
+                    ->leftJoin('galactapedia_templates', 'galactapedia_article_templates.template_id', '=', 'galactapedia_templates.id'),
+            ],
+        ];
+    }
 
-            foreach ($facets as $key => $facet) {
-                $expr = $facet['expr'];
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_GALACTAPEDIA;
+    }
 
-                $q = clone $baseQuery;
-
-                if (isset($facet['join'])) {
-                    ($facet['join'])($q);
-                }
-
-                $rows = $q
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
-
-                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
-            }
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_GALACTAPEDIA,
-                FilterCache::galactapediaKey(),
-                $resolver
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::galactapediaKey();
     }
 
     #[OA\Get(

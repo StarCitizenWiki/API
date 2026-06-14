@@ -183,8 +183,9 @@ class EnrichCommodityPrices implements ShouldQueue
             ->values()
             ->toArray();
 
-        $commodity->uex_prices = $enrichedPrices;
-        $commodity->save();
+        $commodity->update([
+            'uex_prices' => $enrichedPrices,
+        ]);
 
         return true;
     }

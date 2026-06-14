@@ -91,6 +91,7 @@ class ImportStarmapData implements ShouldQueue
         $locationDataRows = [];
         $amenityEntries = [];
         $entryAmenityUuids = [];
+        $now = now();
 
         foreach ($validEntries as $uuid => $entry) {
             $name = $this->extractName($entry);
@@ -118,6 +119,8 @@ class ImportStarmapData implements ShouldQueue
                 'hide_in_starmap' => (bool) ($entry['HideInStarmap'] ?? false),
                 'hide_in_world' => (bool) ($entry['HideInWorld'] ?? false),
                 'hide_minor_locations' => (bool) ($entry['OnlyShowWhenParentSelected'] ?? false),
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
 
             foreach ($entry['Amenities'] ?? [] as $amenity) {
@@ -139,20 +142,22 @@ class ImportStarmapData implements ShouldQueue
             }
         }
 
-        $upsertColumns = [
-            'starmap_location_id', 'game_version_id', 'parent_data_id', 'star_data_id',
+        // Columns the primary upsert compares and writes. The hierarchy columns
+        // (parent_data_id, star_data_id, system) are resolved in a second,
+        // guarded upsert below so a steady-state re-import skips both steps.
+        $mainUpdateColumns = [
             'location_hierarchy_entity_tag_id', 'name', 'description', 'type_name',
-            'system', 'size', 'is_scannable', 'block_travel', 'data',
+            'size', 'is_scannable', 'block_travel', 'data',
             'type_classification', 'jurisdiction_name', 'affiliation_name',
             'respawn_location_type', 'hide_in_starmap', 'hide_in_world',
             'hide_minor_locations',
         ];
 
-        DB::transaction(function () use ($locationDataRows, $validEntries, $uuids, $locationIdMap, $amenityEntries, $entryAmenityUuids, $upsertColumns): void {
-            StarmapLocationData::upsert(
+        DB::transaction(function () use ($locationDataRows, $validEntries, $uuids, $locationIdMap, $amenityEntries, $entryAmenityUuids, $mainUpdateColumns, $now): void {
+            DB::table('game_starmap_location_data')->upsert(
                 array_values($locationDataRows),
                 ['starmap_location_id', 'game_version_id'],
-                array_values(array_diff($upsertColumns, ['starmap_location_id', 'game_version_id'])),
+                [...$mainUpdateColumns, 'updated_at'],
             );
 
             $locationDataIdMap = StarmapLocationData::query()
@@ -187,13 +192,15 @@ class ImportStarmapData implements ShouldQueue
                     'parent_data_id' => $h['parent_data_id'],
                     'star_data_id' => $h['star_data_id'],
                     'system' => $h['system'],
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ];
             }
 
-            StarmapLocationData::upsert(
+            DB::table('game_starmap_location_data')->upsert(
                 $hierarchyRows,
                 ['starmap_location_id', 'game_version_id'],
-                ['parent_data_id', 'star_data_id', 'system'],
+                ['parent_data_id', 'star_data_id', 'system', 'updated_at'],
             );
 
             $this->syncAmenitiesBulk($amenityEntries, $entryAmenityUuids, $locationIdMap, $locationDataIdMap);
@@ -206,15 +213,7 @@ class ImportStarmapData implements ShouldQueue
 
     private function runPostSteps(): void
     {
-        $driver = DB::connection()->getDriverName();
-
-        if ($driver === 'pgsql') {
-            $this->runPostStepsPostgres();
-
-            return;
-        }
-
-        $this->runPostStepsSqlite();
+        $this->runPostStepsPostgres();
     }
 
     private function runPostStepsPostgres(): void
@@ -227,6 +226,7 @@ class ImportStarmapData implements ShouldQueue
             FROM game_starmap_locations loc
             WHERE gsld.starmap_location_id = loc.id
               AND gsld.game_version_id = ?
+              AND (gsld.location_uuid, gsld.location_slug) IS DISTINCT FROM (loc.uuid, loc.slug)
         ', [$this->gameVersionId]);
 
         // Parent/star detail (rows with both parent and star)
@@ -248,6 +248,8 @@ class ImportStarmapData implements ShouldQueue
             WHERE gsld.parent_data_id = parent.id
               AND gsld.star_data_id = star.id
               AND gsld.game_version_id = ?
+              AND (gsld.parent_name, gsld.star_system_name, gsld.parent_type_name, gsld.parent_location_uuid, gsld.parent_location_slug, gsld.star_name, gsld.star_type_name, gsld.star_location_uuid, gsld.star_location_slug)
+                  IS DISTINCT FROM (parent.name, star.name, parent.type_name, ploc.uuid, ploc.slug, star.name, star.type_name, sloc.uuid, sloc.slug)
         ', [$this->gameVersionId]);
 
         // Rows with NULL parent but has star
@@ -263,6 +265,8 @@ class ImportStarmapData implements ShouldQueue
             WHERE gsld.star_data_id = star.id
               AND gsld.parent_data_id IS NULL
               AND gsld.game_version_id = ?
+              AND (gsld.star_system_name, gsld.star_name, gsld.star_type_name, gsld.star_location_uuid, gsld.star_location_slug)
+                  IS DISTINCT FROM (star.name, star.name, star.type_name, sloc.uuid, sloc.slug)
         ', [$this->gameVersionId]);
 
         // Tag from entity_tags
@@ -273,6 +277,7 @@ class ImportStarmapData implements ShouldQueue
             FROM game_entity_tags et
             WHERE gsld.location_hierarchy_entity_tag_id = et.id
               AND gsld.game_version_id = ?
+              AND (gsld.tag_uuid, gsld.tag_name) IS DISTINCT FROM (et.uuid, et.name)
         ', [$this->gameVersionId]);
 
         // Child count
@@ -287,6 +292,7 @@ class ImportStarmapData implements ShouldQueue
             ) aggregated
             WHERE gsld.id = aggregated.parent_data_id
               AND gsld.game_version_id = ?
+              AND gsld.child_count IS DISTINCT FROM COALESCE(aggregated.cnt, 0)
         ', [$this->gameVersionId, $this->gameVersionId]);
 
         // Has resources
@@ -297,72 +303,11 @@ class ImportStarmapData implements ShouldQueue
                 WHERE grlp.starmap_location_data_id = gsld.id
             )
             WHERE gsld.game_version_id = ?
+              AND gsld.has_resources IS DISTINCT FROM EXISTS(
+                  SELECT 1 FROM game_resource_location_placements grlp
+                  WHERE grlp.starmap_location_data_id = gsld.id
+              )
         ', [$this->gameVersionId]);
-    }
-
-    private function runPostStepsSqlite(): void
-    {
-        StarmapLocationData::query()
-            ->where('game_version_id', $this->gameVersionId)
-            ->chunk(200, function ($rows) {
-                foreach ($rows as $row) {
-                    $updates = [];
-
-                    // Identity
-                    if ($row->starmap_location_id) {
-                        $loc = DB::table('game_starmap_locations')->where('id', $row->starmap_location_id)->first();
-                        if ($loc) {
-                            $updates['location_uuid'] = $loc->uuid;
-                            $updates['location_slug'] = $loc->slug;
-                        }
-                    }
-
-                    // Parent
-                    if ($row->parent_data_id) {
-                        $parent = StarmapLocationData::find($row->parent_data_id);
-                        if ($parent) {
-                            $updates['parent_name'] = $parent->name;
-                            $updates['parent_type_name'] = $parent->type_name;
-                            $ploc = DB::table('game_starmap_locations')->where('id', $parent->starmap_location_id)->first();
-                            $updates['parent_location_uuid'] = $ploc?->uuid;
-                            $updates['parent_location_slug'] = $ploc?->slug;
-                        }
-                    }
-
-                    // Star
-                    if ($row->star_data_id) {
-                        $star = StarmapLocationData::find($row->star_data_id);
-                        if ($star) {
-                            $updates['star_name'] = $star->name;
-                            $updates['star_system_name'] = $star->name;
-                            $updates['star_type_name'] = $star->type_name;
-                            $sloc = DB::table('game_starmap_locations')->where('id', $star->starmap_location_id)->first();
-                            $updates['star_location_uuid'] = $sloc?->uuid;
-                            $updates['star_location_slug'] = $sloc?->slug;
-                        }
-                    }
-
-                    // Tag
-                    if ($row->location_hierarchy_entity_tag_id) {
-                        $tag = DB::table('game_entity_tags')->where('id', $row->location_hierarchy_entity_tag_id)->first();
-                        if ($tag) {
-                            $updates['tag_uuid'] = $tag->uuid;
-                            $updates['tag_name'] = $tag->name;
-                        }
-                    }
-
-                    // Child count
-                    $updates['child_count'] = StarmapLocationData::where('parent_data_id', $row->id)
-                        ->where('game_version_id', $this->gameVersionId)
-                        ->count();
-
-                    // Has resources
-                    $updates['has_resources'] = DB::table('game_resource_location_placements')
-                        ->where('starmap_location_data_id', $row->id)->exists();
-
-                    DB::table('game_starmap_location_data')->where('id', $row->id)->update($updates);
-                }
-            });
     }
 
     private function extractName(array $entry): string

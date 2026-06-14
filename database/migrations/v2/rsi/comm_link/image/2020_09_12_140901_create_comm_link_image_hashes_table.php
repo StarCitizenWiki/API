@@ -18,11 +18,7 @@ return new class extends Migration
             $table->foreignId('comm_link_image_id')
                 ->constrained('comm_link_images')
                 ->cascadeOnDelete();
-            if (Schema::getConnection()->getDriverName() === 'sqlite') {
-                $table->text('pdq_hash');
-            } else {
-                $table->addColumn('raw', 'pdq_hash', ['definition' => 'bit(256)']);
-            }
+            $table->addColumn('raw', 'pdq_hash', ['definition' => 'bit(256)']);
             $table->smallInteger('pdq_quality')->nullable();
             $table->timestamps();
 

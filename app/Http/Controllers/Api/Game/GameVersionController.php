@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -27,7 +26,7 @@ class GameVersionController extends Controller
     {
         return QueryBuilder::for(GameVersion::class, $request)
             ->allowedFilters(AllowedFilter::exact('code'), AllowedFilter::exact('channel'), AllowedFilter::exact('is_default'))
-            ->allowedSorts('code', 'channel', 'released_at', AllowedSort::field('released_at', 'released_at'))
+            ->allowedSorts('code', 'channel', 'released_at')
             ->defaultSort('-released_at');
     }
 

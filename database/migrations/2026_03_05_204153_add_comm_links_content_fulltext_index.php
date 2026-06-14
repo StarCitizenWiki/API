@@ -12,12 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            return;
-        }
-
         DB::statement(
-            "CREATE INDEX IF NOT EXISTS comm_links_translation_en_fulltext_index ON comm_links USING GIN (to_tsvector('english', COALESCE(translation->>'en', '')))"
+            "CREATE INDEX comm_links_translation_en_fulltext_index ON comm_links USING GIN (to_tsvector('english', COALESCE(translation->>'en', '')))"
         );
     }
 
@@ -26,10 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            return;
-        }
-
-        DB::statement('DROP INDEX IF EXISTS comm_links_translation_en_fulltext_index');
+        DB::statement('DROP INDEX comm_links_translation_en_fulltext_index');
     }
 };

@@ -10,10 +10,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (DB::getDriverName() !== 'pgsql') {
-            return;
-        }
-
         DB::statement('CREATE EXTENSION IF NOT EXISTS pg_trgm');
 
         // Items
@@ -48,10 +44,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (DB::getDriverName() !== 'pgsql') {
-            return;
-        }
-
         $indexes = [
             'game_item_data_name_trgm_idx',
             'game_item_data_class_name_trgm_idx',
@@ -70,7 +62,7 @@ return new class extends Migration
         ];
 
         foreach ($indexes as $index) {
-            DB::statement("DROP INDEX IF EXISTS {$index}");
+            DB::statement("DROP INDEX {$index}");
         }
     }
 };

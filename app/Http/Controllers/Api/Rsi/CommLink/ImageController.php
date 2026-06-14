@@ -13,7 +13,6 @@ use App\Models\Rsi\CommLink\Image\Image;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -168,9 +167,8 @@ class ImageController extends Controller
                         return;
                     }
 
-                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                    $query->whereHas('tags', static function (Builder $q) use ($value, $like): void {
-                        $q->where('comm_link_image_tags.name', $like, "%{$value}%");
+                    $query->whereHas('tags', static function (Builder $q) use ($value): void {
+                        $q->whereLike('comm_link_image_tags.name', "%{$value}%");
                     });
                 }),
             )
@@ -247,15 +245,14 @@ class ImageController extends Controller
                         return;
                     }
 
-                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                    $query->whereHas('tags', static function (Builder $q) use ($value, $like): void {
-                        $q->where('comm_link_image_tags.name', $like, "%{$value}%");
+                    $query->whereHas('tags', static function (Builder $q) use ($value): void {
+                        $q->whereLike('comm_link_image_tags.name', "%{$value}%");
                     });
                 }),
             )
             ->with(['metadata'])
             ->whereNull('base_image_id')
-            ->whereRaw('src ILIKE ?', [sprintf('%%%s%%', $request->validated('query'))])
+            ->whereLike('src', "%{$request->validated('query')}%")
             ->whereRelation('metadata', 'size', '>', 0)
             ->limit(100)
             ->orderByDesc('created_at')

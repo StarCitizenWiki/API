@@ -8,6 +8,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -596,4 +597,50 @@ it('uses reverse UUID override for per-item API calls', function (): void {
             'price_sell' => 22000,
             'game_version' => '4.7.1',
         ]);
+});
+
+afterEach(function (): void {
+    Carbon::setTestNow();
+});
+
+it('updates item prices when the enriched source data changes', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.7.1']);
+
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            ['terminal_code' => 'OLD', 'terminal_name' => 'Old Terminal', 'price_buy' => 1, 'price_sell' => 1, 'game_version' => '4.7.1', 'date_updated' => '2024-01-01T00:00:00+00:00'],
+        ],
+    ]);
+
+    $priceBuy = 15461;
+
+    Http::fake(function ($request) use (&$priceBuy) {
+        if (str_contains($request->url(), 'items_prices?uuid')) {
+            return Http::response(['data' => [
+                ['id' => 1, 'id_terminal' => 107, 'terminal_name' => 'CenterMass', 'terminal_code' => 'CM', 'price_buy' => $priceBuy, 'price_sell' => 0, 'game_version' => '4.7.1', 'date_modified' => 1700000000],
+            ]]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    Carbon::setTestNow('2024-01-01 10:00:00');
+    new EnrichItemPrices($version->id, [$item->uuid])->handle();
+
+    $firstUpdatedAt = $itemData->refresh()->updated_at;
+
+    $priceBuy = 99999;
+
+    Carbon::setTestNow('2024-01-01 11:00:00');
+    new EnrichItemPrices($version->id, [$item->uuid])->handle();
+
+    $itemData->refresh();
+
+    expect($itemData->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
+        ->and($itemData->uex_prices[0]['price_buy'])->toBe(99999);
 });

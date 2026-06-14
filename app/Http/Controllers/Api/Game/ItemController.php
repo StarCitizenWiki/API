@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\ItemVariantsFilter;
+use App\Http\Filters\NonEmptyExactFilter;
 use App\Http\Filters\SortByRelation;
 use App\Http\Includes\CustomEagerLoadInclude;
 use App\Http\Includes\IncludeDefinition;
@@ -16,7 +18,6 @@ use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemResource;
 use App\Models\Game\ItemData;
 use App\Support\Filters\FilterCache;
-use App\Support\Filters\FilterValues;
 use App\Support\Filters\ItemFilterLabel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,6 +37,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('items')]
 class ItemController extends Controller
 {
+    use ComputesFacets;
     use FiltersJsonColumns;
     use ResolvesGameVersion;
 
@@ -414,24 +416,21 @@ class ItemController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_item_data.class_name', $like, "%{$value}%");
+                $query->whereLike('game_item_data.class_name', "%{$value}%");
             }),
             AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_item_data.name', $like, "%{$value}%");
+                $query->whereLike('game_item_data.name', "%{$value}%");
             }),
             AllowedFilter::callback('classification', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where('game_item_data.classification', $like, "%{$value}%");
+                $query->whereLike('game_item_data.classification', "%{$value}%");
             }),
             AllowedFilter::exact('size'),
             AllowedFilter::exact('grade'),
@@ -439,9 +438,7 @@ class ItemController extends Controller
             AllowedFilter::callback('include_irrelevant', static function (Builder $query): void {
                 // noop
             }),
-            AllowedFilter::callback('rarity', function (Builder $query, mixed $value): void {
-                $this->applyColumnFilter($query, 'game_item_data.rarity', $value);
-            }),
+            AllowedFilter::custom('rarity', new NonEmptyExactFilter, 'game_item_data.rarity'),
             AllowedFilter::callback('event_source', static function (Builder $query, mixed $value): void {
                 $sources = self::normalizeFilterTags($value);
                 if ($sources === []) {
@@ -538,11 +535,10 @@ class ItemController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($value): void {
-                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
                     $pattern = "%{$value}%";
 
-                    $q->whereRaw("game_item_data.name {$like} ?", [$pattern])
-                        ->orWhereRaw("game_item_data.class_name {$like} ?", [$pattern]);
+                    $q->whereLike('game_item_data.name', $pattern)
+                        ->orWhereLike('game_item_data.class_name', $pattern);
                 });
             }),
         ];
@@ -1102,12 +1098,11 @@ class ItemController extends Controller
         $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);
 
-        $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
         $pattern = "%{$toSearch}%";
 
         $query = $this->buildBaseQuery($request)
-            ->where(function (Builder $query) use ($toSearch, $isUuid, $like, $pattern) {
-                $query->whereRaw("name {$like} ?", [$pattern])
+            ->where(function (Builder $query) use ($toSearch, $isUuid, $pattern) {
+                $query->whereLike('name', $pattern)
                     ->orWhereRaw('LOWER(type) = LOWER(?)', [$toSearch])
                     ->orWhereRaw('LOWER(sub_type) = LOWER(?)', [$toSearch]);
 
@@ -1180,7 +1175,16 @@ class ItemController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $versionCode = $this->gameVersionCode();
+        return $this->computeFacetsResponse($request);
+    }
+
+    protected function facetModelClass(): string
+    {
+        return ItemData::class;
+    }
+
+    private function resolveCategory(Request $request): string
+    {
         $category = $request->input('filter.category');
 
         if (! is_string($category) || $category === '') {
@@ -1189,103 +1193,84 @@ class ItemController extends Controller
             $category = trim($category);
         }
 
-        $resolver = function () use ($request, $versionCode, $category): array {
-            $baseQuery = QueryBuilder::for(ItemData::class, $request)
-                ->forRequestedOrDefaultVersion($versionCode)
-                ->forCategory($category)
-                ->playerRelevant()
-                ->allowedFilters(...$this->allowedFilters());
+        return $category;
+    }
 
-            $facets = [
-                'type' => [
-                    'expr' => 'game_item_data.type',
-                    'cast' => null,
-                    'labelResolver' => [ItemFilterLabel::class, 'resolveType'],
-                ],
-                'sub_type' => [
-                    'expr' => 'game_item_data.sub_type',
-                    'cast' => null,
-                    'labelResolver' => [ItemFilterLabel::class, 'resolveSubType'],
-                ],
-                'classification' => [
-                    'expr' => 'game_item_data.classification',
-                    'cast' => null,
-                    'labelResolver' => [ItemFilterLabel::class, 'resolveClassification'],
-                ],
-                'size' => [
-                    'expr' => 'game_item_data.size',
-                    'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                ],
-                'grade' => [
-                    'expr' => 'game_item_data.grade',
-                    'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                    'labelResolver' => static fn ($value, $Lbl) => match ($value) {
-                        1 => 'A',
-                        2 => 'B',
-                        3 => 'C',
-                        4 => 'D',
-                        5 => 'E',
-                        6 => 'F',
-                        7 => 'G',
-                        default => null,
-                    },
-                ],
-                'class' => [
-                    'expr' => 'game_item_data.class',
-                    'cast' => null,
-                ],
-                'rarity' => [
-                    'expr' => 'game_item_data.rarity',
-                    'cast' => null,
-                ],
-                'manufacturer' => [
-                    'expr' => 'game_manufacturers.name',
-                    'join' => static fn ($q) => $q->leftJoin('game_manufacturers', 'game_item_data.manufacturer_id', '=', 'game_manufacturers.id'),
-                    'cast' => null,
-                ],
-            ];
+    protected function facetBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(ItemData::class, $request)
+            ->forRequestedOrDefaultVersion($this->gameVersionCode())
+            ->forCategory($this->resolveCategory($request))
+            ->playerRelevant()
+            ->allowedFilters(...$this->allowedFilters());
+    }
 
-            $out = [];
+    protected function facetDefinitions(Request $request): array
+    {
+        return [
+            'type' => [
+                'expr' => 'game_item_data.type',
+                'labelResolver' => [ItemFilterLabel::class, 'resolveType'],
+            ],
+            'sub_type' => [
+                'expr' => 'game_item_data.sub_type',
+                'labelResolver' => [ItemFilterLabel::class, 'resolveSubType'],
+            ],
+            'classification' => [
+                'expr' => 'game_item_data.classification',
+                'labelResolver' => [ItemFilterLabel::class, 'resolveClassification'],
+            ],
+            'size' => [
+                'expr' => 'game_item_data.size',
+                'cast' => static fn ($value) => $value === null ? null : (int) $value,
+            ],
+            'grade' => [
+                'expr' => 'game_item_data.grade',
+                'cast' => static fn ($value) => $value === null ? null : (int) $value,
+                'labelResolver' => static fn ($value, $Lbl) => match ($value) {
+                    1 => 'A',
+                    2 => 'B',
+                    3 => 'C',
+                    4 => 'D',
+                    5 => 'E',
+                    6 => 'F',
+                    7 => 'G',
+                    default => null,
+                },
+            ],
+            'class' => [
+                'expr' => 'game_item_data.class',
+            ],
+            'rarity' => [
+                'expr' => 'game_item_data.rarity',
+            ],
+            'manufacturer' => [
+                'expr' => 'game_manufacturers.name',
+                'join' => static fn ($q) => $q->leftJoin('game_manufacturers', 'game_item_data.manufacturer_id', '=', 'game_manufacturers.id'),
+            ],
+        ];
+    }
 
-            foreach ($facets as $key => $facet) {
-                $expr = $facet['expr'];
+    protected function ignoredFacetFilters(): array
+    {
+        return ['category'];
+    }
 
-                $q = clone $baseQuery;
+    protected function extraFacets(Request $request): array
+    {
+        return [
+            'event_source' => $this->eventSourceFilterValues(clone $this->facetBaseQuery($request)),
+        ];
+    }
 
-                if (isset($facet['join'])) {
-                    ($facet['join'])($q);
-                }
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_ITEMS;
+    }
 
-                $rows = $q
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
-
-                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null, $facet['labelResolver'] ?? null);
-            }
-
-            $out['event_source'] = $this->eventSourceFilterValues(clone $baseQuery);
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []), ['category'])) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_ITEMS,
-                FilterCache::itemsKey($versionCode, $category),
-                $resolver
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::itemsKey($this->gameVersionCode(), $this->resolveCategory($request));
     }
 
     /**
@@ -1293,11 +1278,7 @@ class ItemController extends Controller
      */
     private function eventSourceFilterValues(QueryBuilder $query): array
     {
-        $driver = DB::connection()->getDriverName();
-
-        $tableExpression = $driver === 'sqlite'
-            ? 'json_each(game_item_data.event_source) AS event_source_values'
-            : 'LATERAL jsonb_array_elements_text(game_item_data.event_source) AS event_source_values(value)';
+        $tableExpression = 'LATERAL jsonb_array_elements_text(game_item_data.event_source) AS event_source_values(value)';
 
         $valueExpression = 'event_source_values.value';
 

@@ -23,6 +23,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -87,13 +88,35 @@ class ImportItemData implements ShouldQueue
 
         $name = $this->extractName($itemPayload);
 
-        $itemData = ItemData::query()->updateOrCreate(
-            [
-                'item_id' => $item->id,
-                'game_version_id' => $this->gameVersionId,
-            ],
-            $this->mapItemData($itemPayload, $manufacturerId, $name)
+        $values = $this->mapItemData($itemPayload, $manufacturerId, $name);
+        $updateColumns = $values
+                |> array_keys(...)
+                |> (static fn ($x) => array_diff($x, ['item_id', 'game_version_id']))
+                |> array_values(...);
+
+        $now = now();
+        $row = array_map(
+            static function (mixed $value): mixed {
+                return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
+            },
+            $values,
+        ) + [
+            'item_id' => $item->id,
+            'game_version_id' => $this->gameVersionId,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+
+        DB::table('game_item_data')->upsert(
+            [$row],
+            ['item_id', 'game_version_id'],
+            [...$updateColumns, 'updated_at'],
         );
+
+        $itemData = ItemData::query()
+            ->where('item_id', $item->id)
+            ->where('game_version_id', $this->gameVersionId)
+            ->first();
 
         $this->updateSlug($item, $name);
 

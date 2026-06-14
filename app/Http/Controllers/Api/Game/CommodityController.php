@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Controller;
 use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\CommodityIndexRequest;
@@ -32,6 +33,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('commodities')]
 class CommodityController extends Controller
 {
+    use ComputesFacets;
     use ResolvesGameVersion;
 
     /**
@@ -352,127 +354,102 @@ class CommodityController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $gameVersion = $this->gameVersion();
-        $versionCode = $this->gameVersionCode() ?? $gameVersion->code;
-        $versionId = $gameVersion->id;
-
-        $resolver = function () use ($request, $versionId): array {
-            $out = [];
-
-            $simpleFacets = [
-                'rarity' => 'game_commodities.tier',
-                'refined_version' => 'game_commodities.refined_version_name',
-            ];
-
-            foreach ($simpleFacets as $key => $expr) {
-                $rows = QueryBuilder::for(Commodity::class, $request)
-                    ->allowedFilters(...$this->allowedFilters())
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
-
-                $labelResolver = $key === 'rarity'
-                    ? static fn (mixed $value, ?string $label): ?string => is_string($value) ? Str::title($value) : null
-                    : null;
-
-                $out[$key] = FilterValues::fromRows($rows, labelResolver: $labelResolver);
-            }
-
-            $locationFacets = [
-                'system' => 'sld.system',
-                'type' => 'sld.type_name',
-                'kind' => 'grd.kind',
-            ];
-
-            $baseQuery = $this->buildFiltersBaseQuery($request, $versionId)
-                ->allowedFilters(...$this->allowedFilters());
-
-            foreach ($locationFacets as $key => $expr) {
-                $query = clone $baseQuery;
-
-                $rows = $query
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(distinct game_commodities.id) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
-
-                $labelResolver = $key === 'kind'
-                    ? static fn (mixed $value, ?string $label): ?string => is_string($value) ? Str::title($value) : null
-                    : null;
-
-                $out[$key] = FilterValues::fromRows($rows, labelResolver: $labelResolver);
-            }
-
-            $locationQuery = clone $baseQuery;
-
-            if ($system = $request->input('filter.system')) {
-                $locationQuery->where('sld.system', $system);
-            }
-
-            $locationRows = $locationQuery
-                ->select([
-                    DB::raw('sld.name as value'),
-                    DB::raw('sld.system as grp'),
-                    DB::raw('count(distinct game_commodities.id) as count'),
-                ])
-                ->groupByRaw('sld.name, sld.system')
-                ->orderByRaw('sld.system, sld.name')
-                ->get();
-
-            $out['location'] = FilterValues::fromRows($locationRows, groupColumn: 'grp');
-
-            if (DB::getDriverName() === 'pgsql') {
-                $groupRows = QueryBuilder::for(Commodity::class, $request)
-                    ->allowedFilters(...$this->allowedFilters())
-                    ->select([
-                        DB::raw("jsonb_array_elements_text(data->'CommodityGroups') as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->whereRaw("data->'CommodityGroups' IS NOT NULL")
-                    ->groupByRaw('value')
-                    ->orderBy('value')
-                    ->get();
-
-                $out['group'] = FilterValues::fromRows($groupRows);
-            }
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []))) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_COMMODITIES,
-                FilterCache::commoditiesKey($versionCode),
-                $resolver
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+        return $this->computeFacetsResponse($request);
     }
 
-    private function buildFiltersBaseQuery(Request $request, int $versionId): QueryBuilder
+    protected function facetModelClass(): string
+    {
+        return Commodity::class;
+    }
+
+    protected function facetDefinitions(Request $request): array
+    {
+        $joinResourceData = fn (QueryBuilder $q) => $this->joinResourceData($q);
+
+        return [
+            'rarity' => [
+                'expr' => 'game_commodities.tier',
+                'labelResolver' => static fn (mixed $value, ?string $label): ?string => is_string($value) ? Str::title($value) : null,
+            ],
+            'refined_version' => [
+                'expr' => 'game_commodities.refined_version_name',
+            ],
+            'system' => [
+                'expr' => 'sld.system',
+                'count_expr' => 'count(distinct game_commodities.id)',
+                'join' => $joinResourceData,
+            ],
+            'type' => [
+                'expr' => 'sld.type_name',
+                'count_expr' => 'count(distinct game_commodities.id)',
+                'join' => $joinResourceData,
+            ],
+            'kind' => [
+                'expr' => 'grd.kind',
+                'count_expr' => 'count(distinct game_commodities.id)',
+                'join' => $joinResourceData,
+                'labelResolver' => static fn (mixed $value, ?string $label): ?string => is_string($value) ? Str::title($value) : null,
+            ],
+        ];
+    }
+
+    protected function extraFacets(Request $request): array
+    {
+        $baseQuery = $this->joinResourceData(clone $this->facetBaseQuery($request));
+
+        if ($system = $request->input('filter.system')) {
+            $baseQuery->where('sld.system', $system);
+        }
+
+        $locationRows = (clone $baseQuery)
+            ->select([
+                DB::raw('sld.name as value'),
+                DB::raw('sld.system as grp'),
+                DB::raw('count(distinct game_commodities.id) as count'),
+            ])
+            ->groupByRaw('sld.name, sld.system')
+            ->orderByRaw('sld.system, sld.name')
+            ->get();
+
+        $groupRows = QueryBuilder::for(Commodity::class, $request)
+            ->allowedFilters(...$this->allowedFilters())
+            ->select([
+                DB::raw("jsonb_array_elements_text(data->'CommodityGroups') as value"),
+                DB::raw('count(*) as count'),
+            ])
+            ->whereRaw("data->'CommodityGroups' IS NOT NULL")
+            ->groupByRaw('value')
+            ->orderBy('value')
+            ->get();
+
+        return [
+            'location' => FilterValues::fromRows($locationRows, groupColumn: 'grp'),
+            'group' => FilterValues::fromRows($groupRows),
+        ];
+    }
+
+    private function joinResourceData(QueryBuilder $query): QueryBuilder
     {
         $versionedResourceData = ResourceData::query()
             ->select('game_resource_data.id', 'game_resource_data.kind', 'grc.commodity_id')
             ->join('game_resource_commodity as grc', 'game_resource_data.id', '=', 'grc.resource_data_id')
-            ->where('game_resource_data.game_version_id', $versionId);
+            ->where('game_resource_data.game_version_id', $this->gameVersion()->id);
 
-        return QueryBuilder::for(Commodity::class, $request)
+        return $query
             ->leftJoinSub($versionedResourceData, 'grd', 'game_commodities.id', '=', 'grd.commodity_id')
             ->leftJoin('game_resource_locations as grl', 'grd.id', '=', 'grl.resource_data_id')
             ->leftJoin('game_resource_location_placements as grlp', 'grl.id', '=', 'grlp.resource_location_id')
             ->leftJoin('game_starmap_location_data as sld', 'grlp.starmap_location_data_id', '=', 'sld.id');
+    }
+
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_COMMODITIES;
+    }
+
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::commoditiesKey($this->gameVersionCode() ?? $this->gameVersion()->code);
     }
 
     private function buildIndexQuery(CommodityIndexRequest $request): QueryBuilder
@@ -492,8 +469,8 @@ class CommodityController extends Controller
             'name',
             AllowedSort::field('rarity', 'tier'),
             AllowedSort::field('density', 'density_g_per_cc'),
-            AllowedSort::field('instability', 'instability'),
-            AllowedSort::field('resistance', 'resistance'),
+            'instability',
+            'resistance',
             AllowedSort::callback('signature', function (Builder $query, bool $descending): void {
                 $direction = $descending ? 'desc' : 'asc';
                 $versionId = $this->gameVersion()->id;
@@ -568,14 +545,13 @@ class CommodityController extends Controller
             AllowedFilter::exact('refined_version', 'refined_version_name'),
             AllowedFilter::callback('location', function (Builder $query, mixed $value): void {
                 $values = is_array($value) ? $value : [$value];
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
 
-                $query->whereHas('resourceData', function (Builder $q) use ($values, $like): void {
+                $query->whereHas('resourceData', function (Builder $q) use ($values): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())
-                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values, $like): void {
-                            $q->where(static function (Builder $inner) use ($values, $like): void {
+                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values): void {
+                            $q->where(static function (Builder $inner) use ($values): void {
                                 foreach ($values as $v) {
-                                    $inner->orWhereRaw("name {$like} ?", ['%'.$v.'%']);
+                                    $inner->orWhereLike('name', "%{$v}%");
                                 }
                             });
                         });
@@ -586,10 +562,9 @@ class CommodityController extends Controller
                     return;
                 }
 
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->where(static function (Builder $q) use ($value, $like): void {
-                    $q->whereRaw("game_commodities.name {$like} ?", ['%'.$value.'%'])
-                        ->orWhereRaw("game_commodities.key {$like} ?", ['%'.$value.'%']);
+                $query->where(static function (Builder $q) use ($value): void {
+                    $q->whereLike('game_commodities.name', "%{$value}%")
+                        ->orWhereLike('game_commodities.key', "%{$value}%");
                 });
             }),
             AllowedFilter::callback('ship', $this->booleanFilterCallback(self::GROUP_SHIP)),

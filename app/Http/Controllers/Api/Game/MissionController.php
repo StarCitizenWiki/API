@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Mission\MissionIndexResource;
@@ -32,6 +33,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 #[CacheTag('missions')]
 class MissionController extends Controller
 {
+    use ComputesFacets;
     use ResolvesGameVersion;
 
     #[OA\Get(
@@ -295,204 +297,157 @@ class MissionController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
-        $versionCode = $this->gameVersionCode() ?? $this->gameVersion()->code;
+        return $this->computeFacetsResponse($request);
+    }
 
-        $resolver = function () use ($request, $versionCode): array {
-            $out = [];
+    protected function facetModelClass(): string
+    {
+        return MissionData::class;
+    }
 
-            $simpleFacets = [
-                'mission_giver' => [
-                    'expr' => 'game_mission_data.mission_giver',
-                ],
-                'has_combat' => [
-                    'expr' => 'game_mission_data.has_combat',
-                    'cast' => static fn ($value): ?bool => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
-                ],
-                'has_defend_objective' => [
-                    'expr' => 'game_mission_data.has_defend_objective',
-                    'cast' => static fn ($value): ?bool => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
-                ],
-                'rank_index' => [
-                    'expr' => 'game_mission_data.rank_index',
-                    'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                ],
-                'illegal' => [
-                    'expr' => 'game_mission_data.illegal',
-                ],
-                'shareable' => [
-                    'expr' => 'game_mission_data.shareable',
-                ],
-            ];
+    protected function facetBaseQuery(Request $request): QueryBuilder
+    {
+        return QueryBuilder::for(MissionData::class, $request)
+            ->forRequestedOrDefaultVersion($this->gameVersionCode() ?? $this->gameVersion()->code)
+            ->allowedFilters(...$this->allowedFilters());
+    }
 
-            foreach ($simpleFacets as $key => $facet) {
-                $q = $this->buildFiltersBaseQuery($request, $versionCode)
-                    ->allowedFilters(...$this->allowedFilters());
+    protected function facetDefinitions(Request $request): array
+    {
+        return [
+            'mission_giver' => [
+                'expr' => 'game_mission_data.mission_giver',
+            ],
+            'has_combat' => [
+                'expr' => 'game_mission_data.has_combat',
+                'cast' => static fn ($value): ?bool => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+            ],
+            'has_defend_objective' => [
+                'expr' => 'game_mission_data.has_defend_objective',
+                'cast' => static fn ($value): ?bool => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+            ],
+            'rank_index' => [
+                'expr' => 'game_mission_data.rank_index',
+                'cast' => static fn ($value) => $value === null ? null : (int) $value,
+            ],
+            'illegal' => [
+                'expr' => 'game_mission_data.illegal',
+            ],
+            'shareable' => [
+                'expr' => 'game_mission_data.shareable',
+            ],
+            'faction' => [
+                'expr' => 'game_factions.name',
+                'join' => static fn ($q) => $q->leftJoin('game_factions', 'game_mission_data.faction_id', '=', 'game_factions.id'),
+            ],
+            'reward_scope' => [
+                'expr' => 'game_mission_data.reward_scope',
+            ],
+        ];
+    }
 
-                $expr = $facet['expr'];
+    protected function ignoredFacetFilters(): array
+    {
+        return ['grouped'];
+    }
 
-                $rows = $q
-                    ->select([
-                        DB::raw("{$expr} as value"),
-                        DB::raw('count(*) as count'),
-                    ])
-                    ->groupByRaw($expr)
-                    ->orderByRaw("{$expr} IS NULL, {$expr}")
-                    ->get();
+    protected function extraFacets(Request $request): array
+    {
+        $baseQuery = fn () => clone $this->facetBaseQuery($request);
 
-                $out[$key] = FilterValues::fromRows($rows, $facet['cast'] ?? null);
-            }
+        $systemExpr = $this->starSystemExpression();
+        $starSystemRows = $baseQuery()
+            ->select([
+                DB::raw("{$systemExpr} as value"),
+                DB::raw('count(distinct game_mission_data.id) as count'),
+            ])
+            ->fromRaw($this->starSystemFromExpression())
+            ->whereNotNull('game_mission_data.star_systems')
+            ->groupByRaw($systemExpr)
+            ->orderByRaw($systemExpr)
+            ->get();
 
-            $factionQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters())
-                ->leftJoin('game_factions', 'game_mission_data.faction_id', '=', 'game_factions.id');
+        $prereqExpr = 'EXISTS (
+            SELECT 1 FROM game_mission_data_prerequisite_groups pg
+            WHERE pg.mission_data_id = game_mission_data.id
+        )';
+        $prereqRows = $baseQuery()
+            ->select([
+                DB::raw("{$prereqExpr} as value"),
+                DB::raw('count(*) as count'),
+            ])
+            ->groupByRaw($prereqExpr)
+            ->get();
 
-            $factionRows = $factionQuery
-                ->select([
-                    DB::raw('game_factions.name as value'),
-                    DB::raw('count(*) as count'),
-                ])
-                ->groupByRaw('game_factions.name')
-                ->orderByRaw('game_factions.name IS NULL, game_factions.name')
-                ->get();
+        $blueprintExpr = 'EXISTS (
+            SELECT 1 FROM game_mission_data_blueprint mb
+            WHERE mb.mission_data_id = game_mission_data.id
+        )';
+        $blueprintRows = $baseQuery()
+            ->select([
+                DB::raw("{$blueprintExpr} as value"),
+                DB::raw('count(*) as count'),
+            ])
+            ->groupByRaw($blueprintExpr)
+            ->get();
 
-            $out['faction'] = FilterValues::fromRows($factionRows);
+        $blueprintNameRows = $baseQuery()
+            ->join('game_mission_data_blueprint as mdb', 'game_mission_data.id', '=', 'mdb.mission_data_id')
+            ->join('game_blueprint_data as bd', 'mdb.blueprint_data_id', '=', 'bd.id')
+            ->leftJoin('game_items as bi', 'bd.output_item_uuid', '=', 'bi.uuid')
+            ->leftJoin('game_item_data as bid', function (JoinClause $join): void {
+                $join->on('bi.id', '=', 'bid.item_id')
+                    ->on('bid.game_version_id', '=', 'game_mission_data.game_version_id');
+            })
+            ->select([
+                DB::raw('bd.output_name as value'),
+                DB::raw('bid.classification as item_class'),
+                DB::raw('count(distinct game_mission_data.id) as count'),
+            ])
+            ->whereNotNull('bd.output_name')
+            ->groupByRaw('bd.output_name, bid.classification')
+            ->orderByRaw('bid.classification, bd.output_name')
+            ->get()
+            ->map(function (object $row): object {
+                $segments = explode('.', $row->item_class ?? '');
+                $row->item_class = $segments[1] ?? $segments[0] ?? null;
 
-            $starSystemQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters());
+                if ($row->item_class === '' || $row->item_class === null) {
+                    $row->item_class = 'Unknown';
+                }
 
-            $systemExpr = $this->starSystemExpression();
-            $starSystemRows = $starSystemQuery
-                ->select([
-                    DB::raw("{$systemExpr} as value"),
-                    DB::raw('count(distinct game_mission_data.id) as count'),
-                ])
-                ->fromRaw($this->starSystemFromExpression())
-                ->whereNotNull('game_mission_data.star_systems')
-                ->groupByRaw($systemExpr)
-                ->orderByRaw($systemExpr)
-                ->get();
+                return $row;
+            });
 
-            $out['star_system'] = FilterValues::fromRows($starSystemRows);
+        $scopeExpr = $this->reputationScopeExpression();
+        $repScopeRows = $baseQuery()
+            ->select([
+                DB::raw("{$scopeExpr} as value"),
+                DB::raw('count(distinct game_mission_data.id) as count'),
+            ])
+            ->fromRaw($this->reputationScopeFromExpression())
+            ->whereNotNull('game_mission_data.reputation_scopes')
+            ->groupByRaw($scopeExpr)
+            ->orderByRaw($scopeExpr)
+            ->get();
 
-            $prereqQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters());
+        return [
+            'star_system' => FilterValues::fromRows($starSystemRows),
+            'has_prerequisites' => FilterValues::fromRows($prereqRows, static fn ($value) => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)),
+            'has_blueprints' => FilterValues::fromRows($blueprintRows, static fn ($value) => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)),
+            'blueprint_name' => FilterValues::fromRows($blueprintNameRows, groupColumn: 'item_class'),
+            'reputation_scope' => FilterValues::fromRows($repScopeRows),
+        ];
+    }
 
-            $prereqRows = $prereqQuery
-                ->select([
-                    DB::raw('EXISTS (
-                        SELECT 1 FROM game_mission_data_prerequisite_groups pg
-                        WHERE pg.mission_data_id = game_mission_data.id
-                    ) as value'),
-                    DB::raw('count(*) as count'),
-                ])
-                ->groupByRaw('EXISTS (
-                    SELECT 1 FROM game_mission_data_prerequisite_groups pg
-                    WHERE pg.mission_data_id = game_mission_data.id
-                )')
-                ->get();
+    protected function facetCacheNamespace(): string
+    {
+        return FilterCache::NAMESPACE_MISSIONS;
+    }
 
-            $out['has_prerequisites'] = FilterValues::fromRows($prereqRows, static fn ($value) => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE));
-
-            $scopeQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters());
-
-            $scopeRows = $scopeQuery
-                ->select([
-                    DB::raw('game_mission_data.reward_scope as value'),
-                    DB::raw('count(*) as count'),
-                ])
-                ->groupByRaw('game_mission_data.reward_scope')
-                ->orderByRaw('game_mission_data.reward_scope IS NULL, game_mission_data.reward_scope')
-                ->get();
-
-            $out['reward_scope'] = FilterValues::fromRows($scopeRows);
-
-            $blueprintQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters());
-
-            $blueprintRows = $blueprintQuery
-                ->select([
-                    DB::raw('EXISTS (
-                        SELECT 1 FROM game_mission_data_blueprint mb
-                        WHERE mb.mission_data_id = game_mission_data.id
-                    ) as value'),
-                    DB::raw('count(*) as count'),
-                ])
-                ->groupByRaw('EXISTS (
-                    SELECT 1 FROM game_mission_data_blueprint mb
-                    WHERE mb.mission_data_id = game_mission_data.id
-                )')
-                ->get();
-
-            $out['has_blueprints'] = FilterValues::fromRows($blueprintRows, static fn ($value) => $value === null ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE));
-
-            $blueprintNameQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters())
-                ->join('game_mission_data_blueprint as mdb', 'game_mission_data.id', '=', 'mdb.mission_data_id')
-                ->join('game_blueprint_data as bd', 'mdb.blueprint_data_id', '=', 'bd.id')
-                ->leftJoin('game_items as bi', 'bd.output_item_uuid', '=', 'bi.uuid')
-                ->leftJoin('game_item_data as bid', function (JoinClause $join): void {
-                    $join->on('bi.id', '=', 'bid.item_id')
-                        ->on('bid.game_version_id', '=', 'game_mission_data.game_version_id');
-                });
-
-            $blueprintNameRows = $blueprintNameQuery
-                ->select([
-                    DB::raw('bd.output_name as value'),
-                    DB::raw('bid.classification as item_class'),
-                    DB::raw('count(distinct game_mission_data.id) as count'),
-                ])
-                ->whereNotNull('bd.output_name')
-                ->groupByRaw('bd.output_name, bid.classification')
-                ->orderByRaw('bid.classification, bd.output_name')
-                ->get()
-                ->map(function (object $row): object {
-                    $segments = explode('.', $row->item_class ?? '');
-                    $row->item_class = $segments[1] ?? $segments[0] ?? null;
-
-                    if ($row->item_class === '' || $row->item_class === null) {
-                        $row->item_class = 'Unknown';
-                    }
-
-                    return $row;
-                });
-
-            $out['blueprint_name'] = FilterValues::fromRows($blueprintNameRows, groupColumn: 'item_class');
-
-            $repScopeQuery = $this->buildFiltersBaseQuery($request, $versionCode)
-                ->allowedFilters(...$this->allowedFilters());
-
-            $scopeExpr = $this->reputationScopeExpression();
-            $scopeFrom = $this->reputationScopeFromExpression();
-            $repScopeRows = $repScopeQuery
-                ->select([
-                    DB::raw("{$scopeExpr} as value"),
-                    DB::raw('count(distinct game_mission_data.id) as count'),
-                ])
-                ->fromRaw($scopeFrom)
-                ->whereNotNull('game_mission_data.reputation_scopes')
-                ->groupByRaw($scopeExpr)
-                ->orderByRaw($scopeExpr)
-                ->get();
-
-            $out['reputation_scope'] = FilterValues::fromRows($repScopeRows);
-
-            return $out;
-        };
-
-        if (FilterCache::hasEffectiveFilters($request->input('filter', []), ['grouped'])) {
-            $filters = $resolver();
-        } else {
-            $filters = FilterCache::rememberForever(
-                FilterCache::NAMESPACE_MISSIONS,
-                FilterCache::missionsKey($versionCode),
-                $resolver,
-            );
-        }
-
-        return response()->json([
-            'filters' => $filters,
-        ]);
+    protected function facetCacheKey(Request $request): string
+    {
+        return FilterCache::missionsKey($this->gameVersionCode() ?? $this->gameVersion()->code);
     }
 
     private function buildIndexQuery(Request $request, bool $grouped = true): QueryBuilder
@@ -516,12 +471,6 @@ class MissionController extends Controller
             $mission->setAttribute('variant_uuids', $aggregates['variant_uuids'][$mission->id] ?? null);
             $mission->setAttribute('variant_count', $aggregates['variant_counts'][$mission->id] ?? null);
         });
-    }
-
-    private function buildFiltersBaseQuery(Request $request, string $versionCode): QueryBuilder
-    {
-        return QueryBuilder::for(MissionData::class, $request)
-            ->forRequestedOrDefaultVersion($versionCode);
     }
 
     /**
@@ -601,12 +550,10 @@ class MissionController extends Controller
                 $query->where('reward_max', '<=', (int) $value);
             }),
             AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->whereRaw("game_mission_data.title {$like} ?", [sprintf('%%%s%%', (string) $value)]);
+                $query->whereLike('game_mission_data.title', "%{$value}%");
             }),
             AllowedFilter::callback('description', static function (Builder $query, mixed $value): void {
-                $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                $query->whereRaw("game_mission_data.description {$like} ?", [sprintf('%%%s%%', (string) $value)]);
+                $query->whereLike('game_mission_data.description', "%{$value}%");
             }),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
@@ -614,16 +561,12 @@ class MissionController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($value): void {
-                    $like = DB::connection()->getDriverName() === 'pgsql' ? 'ILIKE' : 'LIKE';
-                    $q->whereRaw("game_mission_data.title {$like} ?", ["%{$value}%"])
-                        ->orWhereRaw("game_mission_data.description {$like} ?", ["%{$value}%"])
-                        ->orWhereRaw("game_mission_data.debug_name {$like} ?", ["%{$value}%"]);
+                    $q->whereLike('game_mission_data.title', "%{$value}%")
+                        ->orWhereLike('game_mission_data.description', "%{$value}%")
+                        ->orWhereLike('game_mission_data.debug_name', "%{$value}%");
                 });
             }),
-            AllowedFilter::callback('reward_scope', static function (Builder $query, mixed $value): void {
-                $values = is_array($value) ? $value : [$value];
-                $query->whereIn('game_mission_data.reward_scope', $values);
-            }),
+            AllowedFilter::exact('reward_scope', 'game_mission_data.reward_scope'),
             AllowedFilter::callback('location', static function (Builder $query, mixed $value): void {
                 $query->whereHas('starmapLocations', static function (Builder $q) use ($value): void {
                     $q->where('game_starmap_location_data.location_uuid', $value);
@@ -668,7 +611,7 @@ class MissionController extends Controller
 
         $values = array_map(static fn (mixed $system): string => (string) $system, $values);
         $values = array_map(static fn (string $system): string => preg_replace('/\s+System$/', '', $system) ?? $system, $values)
-                |> (fn ($x) => array_merge($values, $x))
+                |> (static fn ($x) => array_merge($values, $x))
                 |> array_unique(...)
                 |> array_values(...);
 
@@ -692,16 +635,6 @@ class MissionController extends Controller
 
         $values = array_map(static fn (mixed $scope): string => (string) $scope, $values);
 
-        if (DB::connection()->getDriverName() === 'sqlite') {
-            $placeholders = implode(', ', array_fill(0, count($values), '?'));
-            $query->whereRaw(
-                "EXISTS (SELECT 1 FROM json_each(game_mission_data.reputation_scopes) elem WHERE elem.value IN ({$placeholders}))",
-                $values,
-            );
-
-            return;
-        }
-
         $query->where(static function (Builder $q) use ($values): void {
             foreach ($values as $scope) {
                 $q->orWhereJsonContains('game_mission_data.reputation_scopes', $scope);
@@ -716,10 +649,6 @@ class MissionController extends Controller
 
     private function starSystemFromExpression(): string
     {
-        if (DB::connection()->getDriverName() === 'sqlite') {
-            return 'game_mission_data, json_each(game_mission_data.star_systems) system_elem';
-        }
-
         return 'game_mission_data, jsonb_array_elements_text(game_mission_data.star_systems) system_elem(value)';
     }
 
@@ -730,10 +659,6 @@ class MissionController extends Controller
 
     private function reputationScopeFromExpression(): string
     {
-        if (DB::connection()->getDriverName() === 'sqlite') {
-            return 'game_mission_data, json_each(game_mission_data.reputation_scopes) scope_elem';
-        }
-
         return 'game_mission_data, jsonb_array_elements_text(game_mission_data.reputation_scopes) scope_elem(value)';
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Vehicle;
 
-use App\Events\StarCitizen\ShipMatrix\ShipMatrixStructureChanged;
 use App\Services\RsiDownloadClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
@@ -121,9 +120,6 @@ class ImportShipMatrix implements ShouldQueue
             $keys = $diff->keys();
 
             app('Log')::error('Ship Matrix structure changed, aborting job. Missing keys:', $keys->toArray());
-            if (class_exists(ShipMatrixStructureChanged::class)) {
-                ShipMatrixStructureChanged::dispatch();
-            }
 
             throw new RuntimeException('Ship Matrix structure changed. Missing keys: '.$keys->implode(', '));
         }

@@ -41,44 +41,6 @@ class ImageHash extends Model
             return collect();
         }
 
-        if (config('database.default') === 'sqlite') {
-            return static::query()
-                ->with(['image' => static fn ($query) => $query->with([
-                    'commLinks' => fn ($q) => $q->with(['channel', 'category', 'series']),
-                ])])
-                ->whereNotNull('pdq_hash')
-                ->when(
-                    $excludeImageId !== null,
-                    fn ($query) => $query->where('comm_link_image_id', '!=', $excludeImageId)
-                )
-                ->when(
-                    $excludeDerived,
-                    fn ($query) => $query->whereHas(
-                        'image',
-                        fn ($imageQuery) => $imageQuery->whereNull('base_image_id')
-                    )
-                )
-                ->get()
-                ->map(
-                    static function (ImageHash $hash) use ($normalizedHash): ?Image {
-                        $image = $hash->image;
-                        if ($image === null) {
-                            return null;
-                        }
-
-                        $storedHash = self::normalizeBitString((string) $hash->pdq_hash);
-                        if ($storedHash !== $normalizedHash) {
-                            return null;
-                        }
-
-                        return $image;
-                    }
-                )
-                ->filter()
-                ->take($limit)
-                ->values();
-        }
-
         $maxDistance = self::maxDistanceForSimilarity($similarity);
         $distanceExpression = 'bit_count(pdq_hash # ?::bit(256))';
 

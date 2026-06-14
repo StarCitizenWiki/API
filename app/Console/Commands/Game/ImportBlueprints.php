@@ -12,6 +12,7 @@ use App\Services\Game\SlugService;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 
@@ -105,23 +106,46 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
                 );
             }
 
-            $blueprintData = BlueprintData::query()->updateOrCreate(
-                [
-                    'blueprint_id' => $blueprint->id,
-                    'game_version_id' => $gameVersion->id,
-                ],
-                [
-                    'key' => (string) $blueprintPayload['Key'],
-                    'category_uuid' => (string) $blueprintPayload['CategoryUUID'],
-                    'output_item_uuid' => (string) Arr::get($blueprintPayload, 'Output.UUID'),
-                    'output_name' => Arr::get($blueprintPayload, 'Output.Name'),
-                    'output_class' => Arr::get($blueprintPayload, 'Output.Class'),
-                    'craft_time_seconds' => $this->extractCraftTimeSeconds($blueprintPayload),
-                    'is_available_by_default' => (bool) Arr::get($blueprintPayload, 'Availability.Default', false),
-                    'ingredient_resource_type_uuids' => $this->extractIngredientResourceTypeUuids($blueprintPayload),
-                    'data' => $blueprintPayload,
-                ]
+            $values = [
+                'key' => (string) $blueprintPayload['Key'],
+                'category_uuid' => (string) $blueprintPayload['CategoryUUID'],
+                'output_item_uuid' => (string) Arr::get($blueprintPayload, 'Output.UUID'),
+                'output_name' => Arr::get($blueprintPayload, 'Output.Name'),
+                'output_class' => Arr::get($blueprintPayload, 'Output.Class'),
+                'craft_time_seconds' => $this->extractCraftTimeSeconds($blueprintPayload),
+                'is_available_by_default' => (bool) Arr::get($blueprintPayload, 'Availability.Default', false),
+                'ingredient_resource_type_uuids' => $this->extractIngredientResourceTypeUuids($blueprintPayload),
+                'data' => $blueprintPayload,
+            ];
+
+            $updateColumns = $values
+                    |> array_keys(...)
+                    |> (static fn ($x) => array_diff($x, ['blueprint_id', 'game_version_id']))
+                    |> array_values(...);
+
+            $now = now();
+            $upsertRow = array_map(
+                static function (mixed $value): mixed {
+                    return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
+                },
+                $values,
+            ) + [
+                'blueprint_id' => $blueprint->id,
+                'game_version_id' => $gameVersion->id,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+
+            DB::table('game_blueprint_data')->upsert(
+                [$upsertRow],
+                ['blueprint_id', 'game_version_id'],
+                [...$updateColumns, 'updated_at'],
             );
+
+            $blueprintData = BlueprintData::query()
+                ->where('blueprint_id', $blueprint->id)
+                ->where('game_version_id', $gameVersion->id)
+                ->first();
 
             $this->syncIngredients($blueprintData, $blueprintPayload);
             $this->syncDismantleReturns($blueprintData, $blueprintPayload);

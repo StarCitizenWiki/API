@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -10,10 +12,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            return;
-        }
-
         $tables = [
             'game_item_data' => 'game_item_data_version_fk',
             'game_vehicle_data' => 'game_vehicle_data_version_fk',
@@ -22,22 +20,23 @@ return new class extends Migration
         ];
 
         foreach ($tables as $table => $fkName) {
-            DB::statement(
-                "DELETE FROM {$table} WHERE game_version_id IS NOT NULL AND game_version_id NOT IN (SELECT id FROM game_versions)"
-            );
+            // Remove orphaned rows before adding the constraint
+            DB::table($table)
+                ->whereNotNull('game_version_id')
+                ->whereNotIn('game_version_id', DB::table('game_versions')->pluck('id'))
+                ->delete();
 
-            DB::statement(
-                "ALTER TABLE {$table} ADD CONSTRAINT {$fkName} FOREIGN KEY (game_version_id) REFERENCES game_versions(id) ON DELETE CASCADE"
-            );
+            Schema::table($table, function (Blueprint $t) use ($fkName): void {
+                $t->foreign('game_version_id', $fkName)
+                    ->references('id')
+                    ->on('game_versions')
+                    ->cascadeOnDelete();
+            });
         }
     }
 
     public function down(): void
     {
-        if (DB::connection()->getDriverName() !== 'pgsql') {
-            return;
-        }
-
         $tables = [
             'game_item_data' => 'game_item_data_version_fk',
             'game_vehicle_data' => 'game_vehicle_data_version_fk',
@@ -46,7 +45,9 @@ return new class extends Migration
         ];
 
         foreach ($tables as $table => $fkName) {
-            DB::statement("ALTER TABLE {$table} DROP CONSTRAINT {$fkName}");
+            Schema::table($table, function (Blueprint $t) use ($fkName): void {
+                $t->dropForeign($fkName);
+            });
         }
     }
 };

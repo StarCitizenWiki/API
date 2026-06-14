@@ -46,67 +46,34 @@ return new class extends Migration
             $table->string('max_medical_tier', 10)->nullable();
         });
 
-        $driver = DB::connection()->getDriverName();
+        DB::statement("
+            UPDATE game_vehicle_data
+            SET length = (data #>> '{Length}')::double precision,
+                width = (data #>> '{Width}')::double precision,
+                height = (data #>> '{Height}')::double precision
+        ");
 
-        if ($driver === 'sqlite') {
-            DB::statement("
-                UPDATE game_vehicle_data
-                SET length = CAST(json_extract(data, '$.Length') AS REAL),
-                    width = CAST(json_extract(data, '$.Width') AS REAL),
-                    height = CAST(json_extract(data, '$.Height') AS REAL)
-            ");
-
-            DB::statement("
-                UPDATE game_vehicle_data SET
-                    mass_total = CAST(json_extract(data, '$.MassTotal') AS INTEGER),
-                    speed_scm = CAST(json_extract(data, '$.FlightCharacteristics.Speeds.Scm') AS REAL),
-                    speed_max = CAST(json_extract(data, '$.FlightCharacteristics.Speeds.Max') AS INTEGER),
-                    cargo_capacity = CAST(json_extract(data, '$.Cargo') AS REAL),
-                    crew_min = CAST(json_extract(data, '$.Crew') AS INTEGER),
-                    crew_max = CAST(json_extract(data, '$.Crew') AS INTEGER),
-                    health = CAST(json_extract(data, '$.Health') AS INTEGER),
-                    shield_hp = CAST(json_extract(data, '$.ShieldsTotal.Hp') AS INTEGER),
-                    shield_face_type = json_extract(data, '$.ShieldController.FaceType'),
-                    armor_health = CAST(json_extract(data, '$.Armor.Health') AS INTEGER),
-                    vehicle_inventory = CAST(json_extract(data, '$.Stowage') AS REAL),
-                    cross_section_length = CAST(json_extract(data, '$.CrossSection.X') AS INTEGER),
-                    cross_section_width = CAST(json_extract(data, '$.CrossSection.Y') AS INTEGER),
-                    cross_section_height = CAST(json_extract(data, '$.CrossSection.Z') AS INTEGER),
-                    signature_ir_quantum = CAST(json_extract(data, '$.Emission.IrQuantum') AS INTEGER),
-                    signature_ir_shields = CAST(json_extract(data, '$.Emission.IrShields') AS INTEGER),
-                    signature_em_quantum = CAST(json_extract(data, '$.Emission.EmQuantum') AS INTEGER),
-                    signature_em_shields = CAST(json_extract(data, '$.Emission.EmShields') AS INTEGER)
-            ");
-        } else {
-            DB::statement("
-                UPDATE game_vehicle_data
-                SET length = (data #>> '{Length}')::double precision,
-                    width = (data #>> '{Width}')::double precision,
-                    height = (data #>> '{Height}')::double precision
-            ");
-
-            DB::statement("
-                UPDATE game_vehicle_data SET
-                    mass_total = (data #>> '{MassTotal}')::integer,
-                    speed_scm = (data #>> '{FlightCharacteristics,Speeds,Scm}')::double precision,
-                    speed_max = (data #>> '{FlightCharacteristics,Speeds,Max}')::integer,
-                    cargo_capacity = (data #>> '{Cargo}')::double precision,
-                    crew_min = (data #>> '{Crew}')::integer,
-                    crew_max = (data #>> '{Crew}')::integer,
-                    health = (data #>> '{Health}')::integer,
-                    shield_hp = (data #>> '{ShieldsTotal,Hp}')::integer,
-                    shield_face_type = data #>> '{ShieldController,FaceType}',
-                    armor_health = (data #>> '{Armor,Health}')::integer,
-                    vehicle_inventory = (data #>> '{Stowage}')::double precision,
-                    cross_section_length = (data #>> '{CrossSection,X}')::integer,
-                    cross_section_width = (data #>> '{CrossSection,Y}')::integer,
-                    cross_section_height = (data #>> '{CrossSection,Z}')::integer,
-                    signature_ir_quantum = (data #>> '{Emission,IrQuantum}')::integer,
-                    signature_ir_shields = (data #>> '{Emission,IrShields}')::integer,
-                    signature_em_quantum = (data #>> '{Emission,EmQuantum}')::integer,
-                    signature_em_shields = (data #>> '{Emission,EmShields}')::integer
-            ");
-        }
+        DB::statement("
+            UPDATE game_vehicle_data SET
+                mass_total = (data #>> '{MassTotal}')::integer,
+                speed_scm = (data #>> '{FlightCharacteristics,Speeds,Scm}')::double precision,
+                speed_max = (data #>> '{FlightCharacteristics,Speeds,Max}')::integer,
+                cargo_capacity = (data #>> '{Cargo}')::double precision,
+                crew_min = (data #>> '{Crew}')::integer,
+                crew_max = (data #>> '{Crew}')::integer,
+                health = (data #>> '{Health}')::integer,
+                shield_hp = (data #>> '{ShieldsTotal,Hp}')::integer,
+                shield_face_type = data #>> '{ShieldController,FaceType}',
+                armor_health = (data #>> '{Armor,Health}')::integer,
+                vehicle_inventory = (data #>> '{Stowage}')::double precision,
+                cross_section_length = (data #>> '{CrossSection,X}')::integer,
+                cross_section_width = (data #>> '{CrossSection,Y}')::integer,
+                cross_section_height = (data #>> '{CrossSection,Z}')::integer,
+                signature_ir_quantum = (data #>> '{Emission,IrQuantum}')::integer,
+                signature_ir_shields = (data #>> '{Emission,IrShields}')::integer,
+                signature_em_quantum = (data #>> '{Emission,EmQuantum}')::integer,
+                signature_em_shields = (data #>> '{Emission,EmShields}')::integer
+        ");
 
         // Backfill max_medical_tier via PHP (29 vehicles have medical beds)
         VehicleData::whereNotNull('data->Seating->MedicalBeds')
