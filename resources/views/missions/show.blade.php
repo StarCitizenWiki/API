@@ -16,7 +16,8 @@
         $viewBreadcrumbs[$lastIndex]['url'] = null;
     }
 
-    $rewardItems = data_get($resource, 'reward_items') ?? [];
+    $rewardGroups = data_get($resource, 'reward_groups') ?? [];
+    $isSingleRewardGroup = count($rewardGroups) <= 1;
     $blueprints = data_get($resource, 'blueprints');
     $hasBlueprints = ! empty($blueprints);
     $reputationGained = data_get($resource, 'reputation_gained') ?? [];
@@ -101,10 +102,16 @@
                     </div>
 
                     <div class="grid gap-4 lg:grid-cols-2">
-                        @if ($rewardItems !== [])
+                        @if ($rewardGroups !== [])
                             <div class="card card-border bg-base-100 shadow">
                                 <div class="card-body p-5 sm:p-6">
                                     <h3 class="font-semibold uppercase text-subtle mb-3">Reward Items</h3>
+                                    @if (data_get($rewardGroups[0] ?? [], 'award_only_to_mission_owner') === true)
+                                        <p class="text-xs text-subtle mb-3">Awarded only to the mission owner.</p>
+                                    @endif
+                                    @if (! $isSingleRewardGroup)
+                                        <p class="text-xs text-subtle mb-3">One of the following reward bundles is awarded on completion.</p>
+                                    @endif
                                     <div class="overflow-x-auto">
                                         <table class="table table-sm table-zebra">
                                             <thead>
@@ -115,19 +122,30 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            @foreach ($rewardItems as $item)
-                                                <tr>
-                                                    <td>
-                                                        @if (data_get($item, 'web_url'))
-                                                            <a href="{{ data_get($item, 'web_url') }}"
-                                                               class="link link-primary">{{ data_get($item, 'name', '-') }}</a>
-                                                        @else
-                                                            {{ data_get($item, 'name', '-') }}
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ data_get($item, 'amount') ?? '-' }}</td>
-                                                    <td>{{ data_get($item, 'send_to_home') === true ? 'Yes' : '-' }}</td>
-                                                </tr>
+                                            @foreach ($rewardGroups as $groupIndex => $group)
+                                                @if (! $isSingleRewardGroup)
+                                                    <tr>
+                                                        <td colspan="3" class="bg-base-200/50 px-4 py-2">
+                                                            <span class="text-xs font-semibold uppercase text-subtle">
+                                                                Reward Group {{ $groupIndex + 1 }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                                @foreach (data_get($group, 'items', []) as $item)
+                                                    <tr>
+                                                        <td>
+                                                            @if (data_get($item, 'web_url'))
+                                                                <a href="{{ data_get($item, 'web_url') }}"
+                                                                   class="link link-primary">{{ data_get($item, 'name', '-') }}</a>
+                                                            @else
+                                                                {{ data_get($item, 'name', '-') }}
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ data_get($item, 'amount') ?? '-' }}</td>
+                                                        <td>{{ data_get($item, 'send_to_home') === true ? 'Yes' : '-' }}</td>
+                                                    </tr>
+                                                @endforeach
                                             @endforeach
                                             </tbody>
                                         </table>

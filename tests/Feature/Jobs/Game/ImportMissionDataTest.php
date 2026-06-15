@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Jobs\Game\ImportMissionData;
 use App\Models\Game\GameVersion;
+use App\Models\Game\Item;
+use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +15,22 @@ beforeEach(function (): void {
 
     $this->version = GameVersion::factory()->create();
 });
+
+function createMissionRewardItem(string $uuid, string $name, GameVersion $version): Item
+{
+    $item = Item::factory()->create([
+        'uuid' => $uuid,
+        'slug' => str($name)->slug(),
+    ]);
+
+    ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'name' => $name,
+    ]);
+
+    return $item;
+}
 
 function dispatchMissionImport(int $versionId, array $payload, string $file = 'contracts/contract.json'): void
 {
@@ -83,6 +101,83 @@ it('sets a null mission key when there are no blueprints', function (): void {
         ->first();
 
     expect($missionData->mission_key)->toBeNull();
+});
+
+describe('reward items', function (): void {
+    it('imports grouped RewardItems into separate reward groups', function (): void {
+        $weapon = createMissionRewardItem('44444444-4444-4444-4444-444444444444', 'Energy Cell', $this->version);
+        $armor = createMissionRewardItem('55555555-5555-5555-5555-555555555555', 'Combat Armor', $this->version);
+
+        $payload = missionPayload();
+        $payload['RewardItems'] = [
+            [
+                'Weight' => 0.5,
+                'AwardOnlyToMissionOwner' => true,
+                'Items' => [
+                    ['UUID' => $weapon->uuid, 'Amount' => 10, 'SendToHome' => true],
+                ],
+            ],
+            [
+                'Items' => [
+                    ['UUID' => $armor->uuid, 'Amount' => 3, 'SendToHome' => false],
+                ],
+            ],
+        ];
+
+        dispatchMissionImport($this->version->id, $payload);
+
+        $missionData = MissionData::query()
+            ->where('game_version_id', $this->version->id)
+            ->first();
+
+        $groups = $missionData->rewardGroups()->orderBy('group_index')->get();
+
+        expect($groups)->toHaveCount(2)
+            ->and($groups[0]->group_index)->toBe(0)
+            ->and($groups[0]->weight)->toBe(0.5)
+            ->and($groups[0]->award_only_to_mission_owner)->toBeTrue()
+            ->and($groups[1]->group_index)->toBe(1)
+            ->and($groups[1]->weight)->toBeNull()
+            ->and($groups[1]->award_only_to_mission_owner)->toBeNull();
+
+        $firstItems = $groups[0]->items()->get();
+        expect($firstItems)->toHaveCount(1)
+            ->and($firstItems[0]->amount)->toBe(10)
+            ->and($firstItems[0]->send_to_home)->toBeTrue();
+
+        $secondItems = $groups[1]->items()->get();
+        expect($secondItems)->toHaveCount(1)
+            ->and($secondItems[0]->amount)->toBe(3)
+            ->and($secondItems[0]->send_to_home)->toBeFalse();
+
+        // Re-importing must replace, not duplicate, the reward groups.
+        dispatchMissionImport($this->version->id, $payload);
+        expect($missionData->rewardGroups()->count())->toBe(2);
+    });
+
+    it('skips reward items whose item UUID is unknown', function (): void {
+        $known = createMissionRewardItem('77777777-7777-7777-7777-777777777777', 'MedPen', $this->version);
+
+        $payload = missionPayload();
+        $payload['RewardItems'] = [
+            [
+                'Items' => [
+                    ['UUID' => $known->uuid, 'Amount' => 1, 'SendToHome' => false],
+                    ['UUID' => '00000000-0000-0000-0000-000000000000', 'Amount' => 99, 'SendToHome' => false],
+                ],
+            ],
+        ];
+
+        dispatchMissionImport($this->version->id, $payload);
+
+        $missionData = MissionData::query()
+            ->where('game_version_id', $this->version->id)
+            ->first();
+
+        $group = $missionData->rewardGroups()->first();
+        expect($group)->not->toBeNull()
+            ->and($group->items()->count())->toBe(1);
+    });
 });
 
 /**

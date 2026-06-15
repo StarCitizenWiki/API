@@ -219,7 +219,7 @@ class MissionController extends Controller
                 'prerequisiteGroups.missions.linkedMissionData.mission',
                 'prerequisiteGroups.tags',
                 'unlockGroups.missions.linkedMissionData.mission',
-                'rewardItems.item',
+                'rewardGroups.items.itemData.item',
             ])
             ->first();
 
@@ -227,7 +227,7 @@ class MissionController extends Controller
             throw new NotFoundHttpException('No Mission found for the requested game version.');
         }
 
-        return (new MissionResource($missionData))
+        return new MissionResource($missionData)
             ->setValidIncludes([]);
     }
 

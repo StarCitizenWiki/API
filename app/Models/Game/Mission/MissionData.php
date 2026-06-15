@@ -180,11 +180,10 @@ class MissionData extends Model
         return $this->hasMany(MissionUnlockGroupMission::class, 'linked_mission_data_id');
     }
 
-    public function rewardItems(): BelongsToMany
+    public function rewardGroups(): HasMany
     {
-        return $this->belongsToMany(ItemData::class, 'game_mission_data_reward_item', 'mission_data_id', 'item_data_id')
-            ->select(['game_item_data.id', 'game_item_data.item_id', 'game_item_data.name'])
-            ->withPivot(['amount', 'send_to_home']);
+        return $this->hasMany(MissionRewardGroup::class)
+            ->orderBy('group_index');
     }
 
     public function commodities(): BelongsToMany

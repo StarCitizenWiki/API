@@ -70,7 +70,7 @@ class MissionController extends Controller
     public function show(Request $request, string $mission): View
     {
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', 'faction,starmapLocations,blueprints,rewardItems,unlocks,requiredBy,prerequisites');
+        $apiRequest->query->set('include', 'faction,starmapLocations,blueprints,rewardGroups,unlocks,requiredBy,prerequisites');
         $apiRequest->query->set('locale', 'all');
 
         $payload = $this->apiJsonRequest->request(route('missions.show', ['mission' => $mission], false), $apiRequest);

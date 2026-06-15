@@ -12,6 +12,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
+use App\Models\Game\Mission\MissionRewardGroup;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\System\Language;
@@ -105,17 +106,32 @@ class ImportMissionData implements ShouldQueue
         return self::$starmapLocationDataLookup;
     }
 
-    private function itemLookup(): array
+    private function resolveItemId(?string $uuid): ?int
     {
+        if ($uuid === null) {
+            return null;
+        }
+
         if (self::$itemLookup === null) {
             self::$itemLookup = Item::query()->pluck('id', 'uuid')->all();
         }
 
-        return self::$itemLookup;
+        $id = self::$itemLookup[$uuid] ?? null;
+
+        if ($id === null) {
+            self::$itemLookup = Item::query()->pluck('id', 'uuid')->all();
+            $id = self::$itemLookup[$uuid] ?? null;
+        }
+
+        return $id;
     }
 
-    private function itemDataLookup(): array
+    private function resolveItemDataId(?int $itemId): ?int
     {
+        if ($itemId === null) {
+            return null;
+        }
+
         if (self::$itemDataLookup === null) {
             self::$itemDataLookup = ItemData::query()
                 ->where('game_version_id', $this->gameVersionId)
@@ -123,7 +139,18 @@ class ImportMissionData implements ShouldQueue
                 ->all();
         }
 
-        return self::$itemDataLookup;
+        $id = self::$itemDataLookup[$itemId] ?? null;
+
+        if ($id === null) {
+            // Lazy-reload: item data may have been created after the cache was primed (e.g. in tests).
+            self::$itemDataLookup = ItemData::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->pluck('id', 'item_id')
+                ->all();
+            $id = self::$itemDataLookup[$itemId] ?? null;
+        }
+
+        return $id;
     }
 
     private function blueprintLookup(): array
@@ -572,8 +599,8 @@ class ImportMissionData implements ShouldQueue
                 }
 
                 $itemUuid = $this->trimOrNull($content['ItemUUID'] ?? null);
-                $itemId = $itemUuid !== null ? ($this->itemLookup()[$itemUuid] ?? null) : null;
-                $itemDataId = $itemId !== null ? ($this->itemDataLookup()[$itemId] ?? null) : null;
+                $itemId = $this->resolveItemId($itemUuid);
+                $itemDataId = $this->resolveItemDataId($itemId);
 
                 if ($itemDataId === null) {
                     continue;
@@ -740,9 +767,9 @@ class ImportMissionData implements ShouldQueue
 
         $itemDataIds = [];
         foreach ($itemUuids as $uuid) {
-            $itemId = $this->itemLookup()[$uuid] ?? null;
-            if ($itemId !== null && isset($this->itemDataLookup()[$itemId])) {
-                $itemDataIds[] = $this->itemDataLookup()[$itemId];
+            $itemDataId = $this->resolveItemDataId($this->resolveItemId($uuid));
+            if ($itemDataId !== null) {
+                $itemDataIds[] = $itemDataId;
             }
         }
 
@@ -751,68 +778,71 @@ class ImportMissionData implements ShouldQueue
 
     private function syncRewardItems(MissionData $missionData, array $payload): void
     {
-        $items = $payload['Items'] ?? null;
+        // Grouped format: RewardItems = [{ Weight?, AwardOnlyToMissionOwner?, Items: [...] }]
+        $groups = $payload['RewardItems'] ?? null;
 
-        if (! is_array($items) || $items === []) {
-            $missionData->rewardItems()->sync([]);
+        $missionData->rewardGroups()->delete();
 
+        if (! is_array($groups)) {
             return;
         }
 
-        $itemUuids = [];
-
-        foreach ($items as $item) {
-            if (! is_array($item)) {
+        foreach (array_values($groups) as $index => $group) {
+            if (! is_array($group) || ! is_array($group['Items'] ?? null)) {
                 continue;
             }
 
-            $uuid = $this->trimOrNull($item['UUID'] ?? null);
+            $itemRows = [];
 
-            if ($uuid !== null) {
-                $itemUuids[] = $uuid;
+            foreach ($group['Items'] as $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $uuid = $this->trimOrNull($item['UUID'] ?? null);
+
+                if ($uuid === null) {
+                    continue;
+                }
+
+                $itemId = $this->resolveItemId($uuid);
+
+                if ($itemId === null) {
+                    continue;
+                }
+
+                $itemDataId = $this->resolveItemDataId($itemId);
+
+                if ($itemDataId === null) {
+                    continue;
+                }
+
+                $amount = $item['Amount'] ?? null;
+                $sendToHome = $item['SendToHome'] ?? null;
+
+                $itemRows[] = [
+                    'item_data_id' => $itemDataId,
+                    'amount' => is_numeric($amount) ? (int) $amount : null,
+                    'send_to_home' => $sendToHome !== null ? filter_var($sendToHome, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
+                ];
             }
+
+            if ($itemRows === []) {
+                continue;
+            }
+
+            $weight = $group['Weight'] ?? null;
+            $awardOwner = $group['AwardOnlyToMissionOwner'] ?? null;
+
+            /** @var MissionRewardGroup $rewardGroup */
+            $rewardGroup = $missionData->rewardGroups()->create([
+                'group_index' => $index,
+                'weight' => is_numeric($weight) ? (float) $weight : null,
+                'award_only_to_mission_owner' => $awardOwner !== null ? filter_var($awardOwner, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
+            ]);
+
+            $rewardGroup->items()->createMany($itemRows);
         }
-
-        $itemUuids = array_values(array_unique($itemUuids));
-
-        if ($itemUuids === []) {
-            $missionData->rewardItems()->sync([]);
-
-            return;
-        }
-
-        $syncData = [];
-
-        foreach ($items as $item) {
-            if (! is_array($item)) {
-                continue;
-            }
-
-            $uuid = $this->trimOrNull($item['UUID'] ?? null);
-
-            if ($uuid === null) {
-                continue;
-            }
-
-            $itemId = $this->itemLookup()[$uuid] ?? null;
-
-            if ($itemId === null) {
-                continue;
-            }
-
-            $itemDataId = $this->itemDataLookup()[$itemId] ?? null;
-
-            if ($itemDataId === null) {
-                continue;
-            }
-
-            $syncData[$itemDataId] = [
-                'amount' => is_numeric($item['Amount'] ?? null) ? (int) $item['Amount'] : null,
-                'send_to_home' => isset($item['SendToHome']) ? filter_var($item['SendToHome'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
-            ];
-        }
-
-        $missionData->rewardItems()->sync($syncData);
     }
 
     private function extractFirstReputationAmount(array $payload): ?int

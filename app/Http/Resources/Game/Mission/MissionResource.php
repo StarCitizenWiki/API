@@ -82,7 +82,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'reaccept_after_failing', type: 'boolean', nullable: true),
         new OA\Property(property: 'reaccept_after_abandoning', type: 'boolean', nullable: true),
         new OA\Property(property: 'blueprints', ref: '#/components/schemas/mission_blueprints', nullable: true),
-        new OA\Property(property: 'reward_items', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_reward_item'), nullable: true),
+        new OA\Property(property: 'reward_items', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_reward_item'), nullable: true, deprecated: true),
+        new OA\Property(property: 'reward_groups', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_reward_group'), nullable: true),
         new OA\Property(property: 'combat', ref: '#/components/schemas/mission_combat', nullable: true),
         new OA\Property(property: 'completion_tags', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_completion_tag'), nullable: true),
         new OA\Property(property: 'reputation_gained', type: 'array', items: new OA\Items(ref: '#/components/schemas/mission_reputation'), nullable: true),
@@ -234,6 +235,7 @@ use OpenApi\Attributes as OA;
 #[OA\Schema(
     schema: 'mission_reward_item',
     title: 'Mission Reward Item',
+    description: 'Legacy flat representation, prefer reward_groups.',
     properties: [
         new OA\Property(property: 'name', type: 'string', nullable: true),
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid', nullable: true),
@@ -241,6 +243,22 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'send_to_home', type: 'boolean', nullable: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri', nullable: true),
         new OA\Property(property: 'web_url', type: 'string', format: 'uri', nullable: true),
+    ],
+    type: 'object',
+    deprecated: true
+)]
+#[OA\Schema(
+    schema: 'mission_reward_group',
+    title: 'Mission Reward Group',
+    properties: [
+        new OA\Property(property: 'group_index', type: 'integer'),
+        new OA\Property(property: 'weight', description: 'Source weighting (0 = disabled, 1 = active). Future-proofed as a float.', type: 'number', format: 'float', nullable: true),
+        new OA\Property(property: 'award_only_to_mission_owner', type: 'boolean', nullable: true),
+        new OA\Property(
+            property: 'items',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/mission_reward_item')
+        ),
     ],
     type: 'object'
 )]
@@ -363,8 +381,12 @@ class MissionResource extends AbstractBaseResource
             'reaccept_after_abandoning' => $this->parseNullableBool(Arr::get($data, 'ReacceptAfterAbandoning')),
             'blueprints' => $this->mapBlueprints($request),
             'reward_items' => $this->when(
-                $this->resource->relationLoaded('rewardItems'),
-                fn (): ?array => $this->mapRewardItemsFromRelation($request),
+                $this->resource->relationLoaded('rewardGroups'),
+                fn (): ?array => $this->mapRewardItemsFlat($request),
+            ),
+            'reward_groups' => $this->when(
+                $this->resource->relationLoaded('rewardGroups'),
+                fn (): ?array => $this->mapRewardGroups($request),
             ),
             'combat' => (new MissionCombatResource($data))->toArray($request),
             'completion_tags' => $chainResource->mapCompletionTags($data, $request),
@@ -475,29 +497,59 @@ class MissionResource extends AbstractBaseResource
         })->values()->all();
     }
 
-    private function mapRewardItemsFromRelation(Request $request): ?array
+    private function mapRewardGroups(Request $request): ?array
     {
-        $items = $this->resource->rewardItems;
+        $groups = $this->resource->rewardGroups;
 
-        if ($items === null || $items->isEmpty()) {
+        if ($groups === null || $groups->isEmpty()) {
             return null;
         }
 
-        return $items->map(fn ($itemData): array => [
-            'name' => $itemData->name,
-            'uuid' => $itemData->item?->uuid,
-            'amount' => $itemData->pivot->amount,
-            'send_to_home' => $itemData->pivot->send_to_home,
-            'link' => $itemData->item?->uuid !== null
-                ? $this->urlWithVersion(
-                    route('items.show', ['identifier' => $itemData->item->uuid]),
-                    $request,
-                )
-                : null,
-            'web_url' => $itemData->item?->uuid !== null
-                ? $this->urlWithVersion(route('web.items.show', ['item' => $itemData->item->slug ?? $itemData->item->uuid]), $request)
-                : null,
+        return $groups->map(fn ($group): array => [
+            'group_index' => $group->group_index,
+            'weight' => $group->weight,
+            'award_only_to_mission_owner' => $group->award_only_to_mission_owner,
+            'items' => $group->items->map(fn ($itemData): array => $this->mapRewardItem($itemData, $request))->values()->all(),
         ])->values()->all();
+    }
+
+    /**
+     * Legacy flat representation
+     */
+    private function mapRewardItemsFlat(Request $request): ?array
+    {
+        $groups = $this->resource->rewardGroups;
+
+        if ($groups === null || $groups->isEmpty()) {
+            return null;
+        }
+
+        $items = $groups->flatMap(fn ($group) => $group->items);
+
+        if ($items->isEmpty()) {
+            return null;
+        }
+
+        return $items->map(fn ($itemData): array => $this->mapRewardItem($itemData, $request))->values()->all();
+    }
+
+    private function mapRewardItem(mixed $rewardItem, Request $request): array
+    {
+        $item = $rewardItem->itemData?->item;
+        $uuid = $item?->uuid;
+
+        return [
+            'name' => $rewardItem->itemData?->name,
+            'uuid' => $uuid,
+            'amount' => $rewardItem->amount,
+            'send_to_home' => $rewardItem->send_to_home,
+            'link' => $uuid !== null
+                ? $this->urlWithVersion(route('items.show', ['identifier' => $uuid]), $request)
+                : null,
+            'web_url' => $uuid !== null
+                ? $this->urlWithVersion(route('web.items.show', ['item' => $item->slug ?? $uuid]), $request)
+                : null,
+        ];
     }
 
     private function mapReputation($entries): ?array
@@ -565,7 +617,7 @@ class MissionResource extends AbstractBaseResource
             return true;
         }
 
-        if ($this->resource->relationLoaded('rewardItems') && ($this->resource->rewardItems?->isNotEmpty() ?? false)) {
+        if ($this->resource->relationLoaded('rewardGroups') && ($this->resource->rewardGroups?->isNotEmpty() ?? false)) {
             return true;
         }
 
