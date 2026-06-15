@@ -4,7 +4,6 @@
     'portrait' => false,
     'loading' => 'eager',
     'fetchpriority' => 'high',
-    'minWidth' => 'min-w-48',
 ])
 
 @php
@@ -27,12 +26,10 @@
             $srcset = "{$thumbnailUrl} {$thumbWidth}w, {$originalUrl} {$originalWidth}w";
         }
     }
-
-    $objectClass = $portrait ? 'object-contain' : 'object-cover';
 @endphp
 
 @if ($src)
-    <figure class="relative isolate {{ $minWidth }}">
+    <figure class="relative isolate min-w-36">
         <a href="{{ $originalUrl ?? $src }}" target="_blank" rel="noopener noreferrer" class="block size-full">
             <img
                 src="{{ $src }}"
@@ -40,7 +37,7 @@
                 @if (is_numeric($height)) height="{{ (int) $height }}" @endif
                 @if (is_string($srcset)) srcset="{{ $srcset }}" sizes="(min-width: 640px) 24rem, 100vw" @endif
                 alt="{{ $alt }}"
-                class="size-full {{ $objectClass }} max-h-96"
+                class="size-full object-cover"
                 loading="{{ $loading }}"
                 fetchpriority="{{ $fetchpriority }}"
             />
