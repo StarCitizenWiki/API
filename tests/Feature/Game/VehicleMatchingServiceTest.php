@@ -80,8 +80,6 @@ it('finds matches for default manufacturer name permutations', function (
     'manufacturer prefix stripped' => [2, 2, 'F7C Hornet', 'f7c-hornet', 'Anvil F7C Hornet'],
     'fuzzy matching within levenshtein threshold' => [4, 4, 'Gladius', 'gladius', 'Gladios'],
     'slug matching when name uses underscores' => [7, 7, 'Cutlass Black', 'cutlass-black', 'Cutlass_Black'],
-    'wikelo suffix stripping' => [8, 8, 'Sabre Firebird', 'sabre-firebird', 'Anvil Sabre Firebird Wikelo War Special'],
-    'pyam exec suffix stripping' => [9, 9, 'F8C Lightning', 'f8c-lightning', 'F8C Lightning PYAM Exec'],
 ]);
 
 it('uses config overrides for matching', function (): void {
@@ -138,6 +136,37 @@ it('returns null when no match found', function (): void {
     expect($result)->toBeNull();
 });
 
+it('does not fuzzy match across manufacturers when the manufacturer is unknown', function (): void {
+    // "Mule" exists in the ship matrix (Drake), but the game vehicle is an NPC
+    // ship from a manufacturer that is not in the ship matrix (e.g. Vanduul).
+    // "Mauler" is within Levenshtein distance 2 of "Mule", but must NOT match.
+    ShipMatrixVehicle::query()->create([
+        'cig_id' => 99,
+        'name' => 'Mule',
+        'slug' => 'mule',
+        'manufacturer_id' => $this->manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 99,
+    ]);
+
+    $payload = [
+        'UUID' => '5d2bf0b6-d9be-4738-8717-0f455c461d8a',
+        'Name' => 'Vanduul Mauler Destroyer',
+        'ClassName' => 'VNCL_Mauler',
+        'Manufacturer' => [
+            'Name' => 'Vanduul',
+            'Code' => 'VNCL',
+        ],
+    ];
+
+    $result = $this->service->findMatch($payload);
+
+    expect($result)->toBeNull();
+});
+
 it('matches without manufacturer constraint as fallback', function (): void {
     $otherManufacturer = ShipMatrixManufacturer::query()->create([
         'cig_id' => 2,
@@ -171,6 +200,67 @@ it('matches without manufacturer constraint as fallback', function (): void {
     $result = $this->service->findMatch($payload);
 
     // Should still find it without manufacturer constraint
+    expect($result)->toBe($vehicle->id);
+});
+
+it('lets an exact match on one candidate win over a substring match on another', function (): void {
+    // Guards the tiered design: "MOLE" must exact-match "MOLE" (slug "mole"),
+    // not let the candidate "Argo MOLE" substring-match "Argo Mole Carbon Edition".
+    $base = ShipMatrixVehicle::query()->create([
+        'cig_id' => 60,
+        'name' => 'MOLE',
+        'slug' => 'mole',
+        'manufacturer_id' => $this->manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 60,
+    ]);
+    ShipMatrixVehicle::query()->create([
+        'cig_id' => 61,
+        'name' => 'Argo Mole Carbon Edition',
+        'slug' => 'argo-mole-carbon-edition',
+        'manufacturer_id' => $this->manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 61,
+    ]);
+
+    $result = $this->service->findMatch([
+        'UUID' => fake()->uuid(),
+        'Name' => 'Argo MOLE',
+        'ClassName' => 'ARGO_MOLE',
+        'Manufacturer' => ['Name' => $this->manufacturer->name, 'Code' => 'ANV'],
+    ]);
+
+    expect($result)->toBe($base->id);
+});
+
+it('matches a base ship whose name is a prefix of a ship matrix variant', function (): void {
+    // Exercises the substring (contains) tier: "Caterpillar Pirate" is not an
+    // exact ship matrix name, but it is a prefix of "Caterpillar Pirate Edition".
+    $vehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 62,
+        'name' => 'Caterpillar Pirate Edition',
+        'slug' => 'caterpillar-pirate-edition',
+        'manufacturer_id' => $this->manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 62,
+    ]);
+
+    $result = $this->service->findMatch([
+        'UUID' => fake()->uuid(),
+        'Name' => 'Anvil Caterpillar Pirate',
+        'ClassName' => 'ANVL_Caterpillar_Pirate',
+        'Manufacturer' => ['Name' => 'Anvil Aerospace', 'Code' => 'ANV'],
+    ]);
+
     expect($result)->toBe($vehicle->id);
 });
 
@@ -221,7 +311,6 @@ it('matches manufacturer-specific name permutations', function (
     'special abbreviation rsi' => [3, 'Roberts Space Industries', 'RSI', 'roberts-space-industries', 6, 6, 'Aurora', 'aurora', 'RSI Aurora'],
     'best in show year reordering' => [4, 'Aegis Dynamics', 'AEGS', 'aegis-dynamics', 10, 10, 'Hammerhead Best In Show Edition 2949', 'hammerhead-best-in-show-edition-2949', 'Aegis Hammerhead 2949 Best In Show Edition'],
     'color variant suffix stripping' => [5, 'Argo Astronautics', 'ARGO', 'argo-astronautics', 11, 11, 'ATLS GEO', 'atls-geo', 'ATLS Snowland Color'],
-    'teach special suffix stripping' => [6, 'Drake Interplanetary', 'DRAK', 'drake-interplanetary', 13, 13, 'Vulture', 'vulture', "Drake Vulture Teach's Special"],
 ]);
 
 it('uses config override for hornet heartseeker variant', function (): void {
@@ -254,6 +343,72 @@ it('uses config override for hornet heartseeker variant', function (): void {
     $result = $this->service->findMatch($payload);
 
     expect($result)->toBe($vehicle->id);
+});
+
+it('does not match in-game event editions onto their base vehicle', function (string $payloadName): void {
+    // Wikelo/Teach's Special and PYAM Exec are obtainable in-game event ships
+    // with no own ship matrix entry. They must NOT collapse onto the base
+    // vehicle ("Vulture") and inherit its pledge MSRP.
+    ShipMatrixVehicle::query()->create([
+        'cig_id' => 70,
+        'name' => 'Vulture',
+        'slug' => 'vulture',
+        'manufacturer_id' => $this->manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 70,
+    ]);
+
+    $result = $this->service->findMatch([
+        'UUID' => fake()->uuid(),
+        'Name' => $payloadName,
+        'ClassName' => 'DRAK_Vulture_Collector',
+        'Manufacturer' => [
+            'Name' => 'Drake Interplanetary',
+            'Code' => 'DRAK',
+        ],
+    ]);
+
+    expect($result)->toBeNull();
+})->with([
+    'wikelo war special' => 'Drake Vulture Wikelo War Special',
+    'wikelo work special' => 'Drake Vulture Wikelo Work Special',
+    'wikelo special' => 'Drake Vulture Wikelo Special',
+    "teach's special" => "Drake Vulture Teach's Special",
+    'pyam exec' => 'Drake Vulture PYAM Exec',
+]);
+
+it('does not strip the IKTI special-edition suffix onto a base vehicle', function (): void {
+    // IKTI variants are distinct in-game special editions with no own ship
+    // matrix entry. Stripping the suffix would collapse them onto the base
+    // vehicle (e.g. "ATLS IKTI" -> "ATLS") and wrongly inherit its MSRP.
+    ShipMatrixVehicle::query()->create([
+        'cig_id' => 80,
+        'name' => 'ATLS',
+        'slug' => 'atls',
+        'manufacturer_id' => $this->manufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'chassis_id' => 80,
+    ]);
+
+    $payload = [
+        'UUID' => 'test-uuid',
+        'Name' => 'Argo ATLS IKTI',
+        'ClassName' => 'ARGO_ATLS_IKTI',
+        'Manufacturer' => [
+            'Name' => 'Argo Astronautics',
+            'Code' => 'ARGO',
+        ],
+    ];
+
+    $result = $this->service->findMatch($payload);
+
+    expect($result)->toBeNull();
 });
 
 it('falls back to class-name parsing when the vehicle payload has no name', function (): void {

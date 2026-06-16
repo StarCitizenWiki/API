@@ -32,22 +32,29 @@ class VehicleMatchingService
         self::$lowerNameLookup = null;
     }
 
-    /**
-     * Find ship matrix vehicle ID for given game vehicle payload.
-     * Returns shipmatrix_id or null if no match found.
-     */
     public function findMatch(array $payload): ?int
     {
         $manufacturerData = Arr::get($payload, 'Manufacturer', []);
         $manufacturerCode = Arr::get($manufacturerData, 'Code');
         $manufacturerName = Arr::get($manufacturerData, 'Name');
 
-        $shipmatrixManufacturerId = $this->matchManufacturer($manufacturerCode, $manufacturerName);
+        $manufacturerId = $this->matchManufacturer($manufacturerCode, $manufacturerName);
         $candidates = $this->buildCandidateNames($payload, $manufacturerName, $manufacturerCode);
 
-        foreach ($candidates as $candidate) {
-            $match = $this->findVehicle($candidate, $shipmatrixManufacturerId);
-            if ($match !== null) {
+        // Strict tier first over all candidates, so an exact hit on one beats a
+        // loose hit on another ("MOLE" exact wins over "Argo MOLE" substring).
+        $tiers = [
+            $this->matchExact(...),
+            $this->matchContains(...),
+            $this->fuzzyMatch(...),
+        ];
+
+        foreach ($tiers as $tier) {
+            foreach ($candidates as $candidate) {
+                if (! $match = $tier((string) $candidate, $manufacturerId)) {
+                    continue;
+                }
+
                 Log::info('Vehicle matched', [
                     'uuid' => $payload['UUID'] ?? null,
                     'game_name' => $payload['Name'] ?? null,
@@ -59,20 +66,22 @@ class VehicleMatchingService
             }
         }
 
-        if ($shipmatrixManufacturerId !== null) {
+        // Unconstrained exact-only fallback for ships imported under the wrong maker
+        if ($manufacturerId !== null) {
             foreach ($candidates as $candidate) {
-                $match = $this->findVehicle($candidate, null);
-                if ($match !== null) {
-                    Log::warning('Vehicle matched without manufacturer constraint', [
-                        'uuid' => $payload['UUID'] ?? null,
-                        'game_name' => $payload['Name'] ?? null,
-                        'matched_to' => $match->name,
-                        'expected_manufacturer_id' => $shipmatrixManufacturerId,
-                        'actual_manufacturer_id' => $match->manufacturer_id,
-                    ]);
-
-                    return $match->id;
+                if (! $match = $this->matchExact((string) $candidate, null)) {
+                    continue;
                 }
+
+                Log::warning('Vehicle matched without manufacturer constraint', [
+                    'uuid' => $payload['UUID'] ?? null,
+                    'game_name' => $payload['Name'] ?? null,
+                    'matched_to' => $match->name,
+                    'expected_manufacturer_id' => $manufacturerId,
+                    'actual_manufacturer_id' => $match->manufacturer_id,
+                ]);
+
+                return $match->id;
             }
         }
 
@@ -95,6 +104,7 @@ class VehicleMatchingService
                 if ($mfr->name_short !== null) {
                     self::$manufacturerLookup[mb_strtolower($mfr->name_short)] = $mfr->id;
                 }
+
                 if ($mfr->name !== null) {
                     self::$manufacturerLookup[mb_strtolower($mfr->name)] = $mfr->id;
                 }
@@ -121,10 +131,9 @@ class VehicleMatchingService
             $candidates[] = $payloadName;
         }
 
-        $manufacturerShortNames = $this->getManufacturerShortNames($manufacturerName);
-
-        foreach ($manufacturerShortNames as $shortName) {
+        foreach ($this->getManufacturerShortNames($manufacturerName) as $shortName) {
             $stripped = $this->stripManufacturerPrefix($payloadName, $shortName);
+
             if ($stripped !== '' && $stripped !== $payloadName) {
                 $candidates[] = $stripped;
             }
@@ -137,21 +146,14 @@ class VehicleMatchingService
             }
         }
 
-        // Best In Show word reordering
-        $bisVariants = [];
-        foreach ($candidates as $candidate) {
-            $reordered = $this->reorderBestInShowName($candidate);
-            if ($reordered !== null) {
-                $bisVariants[] = $reordered;
-            }
-        }
-        $candidates = array_unique([...$candidates, ...$bisVariants]);
+        $candidates = array_unique([
+            ...$candidates,
+            ...array_filter(array_map($this->reorderBestInShowName(...), $candidates)),
+        ]);
 
-        // ClassName parsing
         $className = Arr::get($payload, 'ClassName');
         if (is_string($className) && $className !== '') {
             $parts = array_filter(explode('_', $className));
-
             if (count($parts) > 1) {
                 array_shift($parts);
             }
@@ -167,119 +169,120 @@ class VehicleMatchingService
             array_unshift($candidates, $overrides[$payloadName]);
         }
 
-        $reversed = [];
-        foreach ($candidates as $candidate) {
-            $parts = preg_split('/\\s+/', $candidate);
-            if ($parts !== false && count($parts) > 1) {
-                $reversed[] = implode(' ', array_reverse($parts));
-            }
-        }
-        $candidates = [...$candidates, ...$reversed];
+        $candidates = array_unique([
+            ...$candidates,
+            ...array_merge(...array_map($this->stripSpecialEditionSuffixes(...), $candidates)),
+        ]);
 
-        $withEditionsStripped = [];
-        foreach ($candidates as $candidate) {
-            $stripped = $this->stripSpecialEditionSuffixes($candidate);
-            $withEditionsStripped = [...$withEditionsStripped, ...$stripped];
-        }
-        $candidates = array_unique([...$candidates, ...$withEditionsStripped]);
-
-        return array_values(array_unique(array_filter($candidates)));
+        return $candidates
+                |> array_filter(...)
+                |> array_unique(...)
+                |> array_values(...);
     }
 
     private function normalizeName(string $name): string
     {
-        $name = str_replace('_', ' ', $name);
-        $name = preg_replace('/\\s+/', ' ', $name ?? '');
-
-        return trim((string) $name);
+        return str_replace('_', ' ', $name)
+                |> (static fn($x) => preg_replace('/\s+/', ' ', $x))
+                |> trim(...);
     }
 
     private function stripManufacturerPrefix(string $name, string $manufacturer): string
     {
         $pattern = sprintf('/^%s\\s+/i', preg_quote($manufacturer, '/'));
 
-        return trim((string) preg_replace($pattern, '', $name));
+        return trim(preg_replace($pattern, '', $name));
     }
 
-    /**
-     * Get possible short names for a manufacturer to use for prefix stripping.
-     *
-     * Returns an array of candidates to try when stripping manufacturer prefixes,
-     * ordered from most specific to least specific.
-     */
     private function getManufacturerShortNames(?string $manufacturerName): array
     {
         if ($manufacturerName === null || $manufacturerName === '') {
             return [];
         }
 
-        $candidates = [];
-
-        $specialCases = [
+        $candidates = [
             'Roberts Space Industries' => ['RSI'],
             'Consolidated Outland' => ['C.O.'],
             'Musashi Industrial & Starflight Concern' => ['MISC'],
-        ];
-
-        if (isset($specialCases[$manufacturerName])) {
-            $candidates = array_merge($candidates, $specialCases[$manufacturerName]);
-        }
+        ][$manufacturerName] ?? [];
 
         $candidates[] = $manufacturerName;
 
-        $parts = explode(' ', $manufacturerName);
-        if (count($parts) > 0 && $parts[0] !== '') {
-            $candidates[] = $parts[0];
+        $firstWord = explode(' ', $manufacturerName)[0];
+        if ($firstWord !== '') {
+            $candidates[] = $firstWord;
         }
 
         return array_unique($candidates);
     }
 
-    private function findVehicle(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
+    private function matchExact(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
     {
         $this->ensureShipMatrixCache();
 
-        $slug = Str::slug($candidate);
-        $lowerCandidate = mb_strtolower($candidate);
-
-        $match = self::$slugLookup[$slug] ?? null;
+        $match = self::$slugLookup[Str::slug($candidate)] ?? null;
         if ($match !== null && ($manufacturerId === null || $match->manufacturer_id === $manufacturerId)) {
             return $match;
         }
 
-        $match = self::$lowerNameLookup[$lowerCandidate] ?? null;
+        $match = self::$lowerNameLookup[mb_strtolower($candidate)] ?? null;
         if ($match !== null && ($manufacturerId === null || $match->manufacturer_id === $manufacturerId)) {
             return $match;
         }
+
+        return null;
+    }
+
+    private function matchContains(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
+    {
+        $this->ensureShipMatrixCache();
 
         $filtered = self::$shipMatrixCache;
         if ($manufacturerId !== null) {
             $filtered = $filtered->where('manufacturer_id', $manufacturerId);
         }
 
-        $match = $filtered->first(fn (ShipMatrixVehicle $v) => str_contains(mb_strtolower($v->name), $lowerCandidate));
+        $lowerCandidate = mb_strtolower($candidate);
 
-        return $match ?? $this->fuzzyMatch($candidate, $manufacturerId);
+        return $filtered->first(fn (ShipMatrixVehicle $v) => str_contains(mb_strtolower($v->name), $lowerCandidate));
+    }
+
+    /**
+     * Manufacturer-gated Levenshtein: without it a loose match can pair an
+     * unrelated ship across makers (e.g. NPC "Mauler" -> pledge "Mule").
+     */
+    private function fuzzyMatch(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
+    {
+        if ($manufacturerId === null) {
+            return null;
+        }
+
+        $this->ensureShipMatrixCache();
+
+        return self::$shipMatrixCache
+            ->where('manufacturer_id', $manufacturerId)
+            ->first(fn (ShipMatrixVehicle $vehicle) => levenshtein(
+                mb_strtolower($candidate),
+                mb_strtolower($vehicle->name),
+            ) <= 2);
     }
 
     private function ensureShipMatrixCache(): void
     {
-        if (self::$shipMatrixCache === null) {
-            self::$shipMatrixCache = ShipMatrixVehicle::with('manufacturer')->get();
+        if (self::$shipMatrixCache !== null) {
+            return;
+        }
 
-            self::$slugLookup = [];
-            self::$lowerNameLookup = [];
-            foreach (self::$shipMatrixCache as $vehicle) {
-                self::$slugLookup[$vehicle->slug] = $vehicle;
-                self::$lowerNameLookup[mb_strtolower($vehicle->name)] = $vehicle;
-            }
+        self::$shipMatrixCache = ShipMatrixVehicle::with('manufacturer')->get();
+
+        self::$slugLookup = [];
+        self::$lowerNameLookup = [];
+        foreach (self::$shipMatrixCache as $vehicle) {
+            self::$slugLookup[$vehicle->slug] = $vehicle;
+            self::$lowerNameLookup[mb_strtolower($vehicle->name)] = $vehicle;
         }
     }
 
-    /**
-     * Reorder Best In Show edition names to handle word order differences
-     * Returns reordered name or null if pattern doesn't match
-     */
     private function reorderBestInShowName(string $name): ?string
     {
         if (preg_match('/^(.+?)\s+(\d{4})\s+(Best\s+In\s+Show\s+Edition)$/i', $name, $matches)) {
@@ -294,37 +297,17 @@ class VehicleMatchingService
     }
 
     /**
-     * Strip known special edition suffixes from vehicle names
-     * Returns multiple candidates with various suffixes removed
+     * Strip suffixes whose base model is what the ship matrix tracks.
+     * Obtainable editions with no own MSRP (Wikelo/Teach's/PYAM/IKTI/Star Kitten/Executive) are intentionally not collapsed onto a base.
      */
     private function stripSpecialEditionSuffixes(string $name): array
     {
         $candidates = [$name];
 
-        // patterns to strip (in order of specificity)
         $patterns = [
-            // Event variants
-            '/\s+Wikelo\s+(War|Sneak|Work|Savior|Speedy|Special)\s+Special$/i',
-            '/\s+Wikelo\s+Special$/i',
-            '/\s+PYAM\s+Exec$/i',
-            '/\s+Teach\'s\s+Special$/i',
-
-            // Best In Show editions (multiple formats)
-            '/\s+\d{4}\s+Best\s+In\s+Show\s+Edition$/i',
             '/\s+\d{4}\s+BIS$/i',
-            '/\s+Best\s+In\s+Show\s+Edition\s+\d{4}$/i', // Also try reversed
-
-            // Color/Gradient variants
             '/\s+(Snowland|Orange\s+Line|Cool\s+Metal)\s+Color$/i',
-            '/\s+Color$/i',
-
-            // Executive editions
-            '/\s+Executive\s+Edition$/i',
-
-            // Simple variant suffixes
             '/\s+Dunlevy$/i',
-            '/\s+IKTI(\s+Rad)?$/i',
-            '/\s+Star\s+Kitten$/i',
         ];
 
         foreach ($patterns as $pattern) {
@@ -335,29 +318,5 @@ class VehicleMatchingService
         }
 
         return array_unique($candidates);
-    }
-
-    /**
-     * Try fuzzy matching using Levenshtein distance
-     * Optimized with caching to avoid loading all vehicles repeatedly
-     */
-    private function fuzzyMatch(string $candidate, ?int $manufacturerId): ?ShipMatrixVehicle
-    {
-        $this->ensureShipMatrixCache();
-
-        $filtered = self::$shipMatrixCache;
-
-        if ($manufacturerId !== null) {
-            $filtered = $filtered->where('manufacturer_id', $manufacturerId);
-        }
-
-        return $filtered->first(function (ShipMatrixVehicle $vehicle) use ($candidate) {
-            $distance = levenshtein(
-                mb_strtolower($candidate),
-                mb_strtolower($vehicle->name)
-            );
-
-            return $distance <= 2;
-        });
     }
 }
