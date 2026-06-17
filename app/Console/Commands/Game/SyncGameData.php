@@ -110,14 +110,14 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
+        if (! $skipStarmap) {
+            $this->dispatchStarmapImport($gameVersion);
+        }
+
         if (! $skipResources && Artisan::call('game:import-resource-data', [
             'version' => $gameVersion->code,
         ]) !== self::SUCCESS) {
             return self::FAILURE;
-        }
-
-        if (! $skipStarmap) {
-            $this->dispatchStarmapImport($gameVersion);
         }
 
         if (! $skipItems) {
