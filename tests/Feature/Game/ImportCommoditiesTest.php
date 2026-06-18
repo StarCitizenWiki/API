@@ -111,7 +111,7 @@ it('does not suffix an existing commodity slug when reimporting the same commodi
     expect(Commodity::query()->where('uuid', $uuid)->value('slug'))->toBe('aslarite');
 });
 
-it('repairs a previously suffixed slug when no real conflict exists', function (): void {
+it('freezes an existing slug even when reimporting would produce a cleaner one', function (): void {
     Storage::fake('scunpacked');
 
     $uuid = fake()->uuid();
@@ -139,7 +139,43 @@ it('repairs a previously suffixed slug when no real conflict exists', function (
     $this->artisan('game:import-commodities')
         ->assertExitCode(Command::SUCCESS);
 
-    expect(Commodity::query()->where('uuid', $uuid)->value('slug'))->toBe('aslarite');
+    // A slug is immutable once assigned: a previously suffixed slug is kept
+    // rather than regenerated, so indexed URLs stay stable.
+    expect(Commodity::query()->where('uuid', $uuid)->value('slug'))->toBe('aslarite-2');
+});
+
+it('keeps the slug when the commodity name changes on reimport', function (): void {
+    Storage::fake('scunpacked');
+
+    $uuid = fake()->uuid();
+
+    Commodity::query()->create([
+        'uuid' => $uuid,
+        'key' => 'Agricium',
+        'name' => 'Agricium',
+        'slug' => 'agricium',
+        'description' => 'Existing description',
+        'refined_version_uuid' => null,
+        'validate_default_cargo_box' => false,
+        'has_default_cargo_containers' => false,
+        'box_sizes_scu' => [],
+        'data' => ['Name' => 'Agricium'],
+    ]);
+
+    Storage::disk('scunpacked')->put('resources/commodities.json', json_encode([[
+        'UUID' => $uuid,
+        'Key' => 'Agricium',
+        'Name' => 'Agricium Renamed',
+        'Description' => 'Updated description',
+    ]], JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-commodities')
+        ->assertExitCode(Command::SUCCESS);
+
+    $commodity = Commodity::query()->where('uuid', $uuid)->first();
+
+    expect($commodity->name)->toBe('Agricium Renamed')
+        ->and($commodity->slug)->toBe('agricium');
 });
 
 it('upserts existing commodities when the payload changes', function (): void {
