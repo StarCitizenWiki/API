@@ -270,6 +270,56 @@ it('uses uuid-specific lookup before name or class_name fallbacks', function ():
         ->assertJsonPath('data.class_name', 'primary_item');
 });
 
+it('resolves an item by slug via an indexed lookup before name or class_name fallbacks', function (): void {
+    $item = Item::factory()->create(['slug' => 'slug-path-item']);
+    $nameDecoy = Item::factory()->create();
+    $classDecoy = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Slug Path Item',
+            'type' => 'Clothing',
+            'class_name' => 'slug_path_item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    // Decoys whose name / class_name collide with the requested slug must not win.
+    ItemData::factory()
+        ->for($nameDecoy)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'slug-path-item',
+            'type' => 'Clothing',
+            'class_name' => 'name_decoy_class',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    ItemData::factory()
+        ->for($classDecoy)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Class Name Decoy',
+            'type' => 'Clothing',
+            'class_name' => 'slug-path-item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson('/api/items/slug-path-item');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $item->uuid)
+        ->assertJsonPath('data.name', 'Slug Path Item')
+        ->assertJsonPath('data.class_name', 'slug_path_item');
+});
+
 it('shows an item by name permutations', function (string $requestPath, string $itemClassName): void {
     $item = Item::factory()->create();
 
