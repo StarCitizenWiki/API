@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Console\Commands\Game;
 
-use App\Actions\Game\SyncItemCraftability;
 use App\Jobs\Game\AddBatchJobs;
 use App\Jobs\Game\ComputeBespokeItems as ComputeBespokeItemsJob;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
@@ -13,6 +12,7 @@ use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportStarmapData;
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
+use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Closure;
 use Illuminate\Console\Command;
@@ -31,18 +31,7 @@ class SyncGameData extends Command
      *
      * @var string
      */
-    protected $signature = 'game:sync-data
-                            {--game-version= : Specific game version code}
-                            {--skip-items : Skip importing item data}
-                            {--skip-vehicles : Skip importing vehicle data}
-                            {--skip-starmap : Skip importing starmap data}
-                            {--skip-resources : Skip importing resource data}
-                            {--skip-compute-item-groups : Skip computing item variant groups and set items}
-                            {--skip-compute-bespoke : Skip computing bespoke item flags}
-                            {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}
-                            {--skip-factions : Skip importing faction data}
-                            {--skip-missions : Skip importing mission data}
-                            {--skip-prices : Skip importing UEX price data}';
+    protected $signature = 'game:sync-data {--game-version= : Specific game version code}';
 
     /**
      * The console command name aliases.
@@ -51,41 +40,29 @@ class SyncGameData extends Command
      */
     protected $aliases = ['game:sync'];
 
-    private const BATCH_SIZE = 1000;
+    private const int BATCH_SIZE = 1000;
 
-    private const LOADER_BATCH_SIZE = 100;
+    private const int LOADER_BATCH_SIZE = 100;
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Sync game labels, manufacturers, entity tags, resource types, and optional game data imports.';
+    protected $description = 'Sync game labels, manufacturers, entity tags, resource types, and game data imports, then import UEX prices.';
 
     /**
      * Execute the console command.
      */
     public function handle(): int
     {
-        $skipItems = (bool) $this->option('skip-items');
-        $skipVehicles = (bool) $this->option('skip-vehicles');
-        $skipStarmap = (bool) $this->option('skip-starmap');
-        $skipResources = (bool) $this->option('skip-resources');
-        $skipComputeItemGroups = (bool) $this->option('skip-compute-item-groups');
-        $skipComputeBespoke = (bool) $this->option('skip-compute-bespoke');
-        $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
-        $skipFactions = (bool) $this->option('skip-factions');
-        $skipMissions = (bool) $this->option('skip-missions');
-        $skipPrices = (bool) $this->option('skip-prices');
-        $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap, $skipResources, $skipMissions);
+        $gameVersion = $this->resolveGameVersion();
 
-        $gameVersion = $this->resolveGameVersion($shouldImportVersionedData);
-
-        if ($gameVersion === null && $shouldImportVersionedData) {
+        if ($gameVersion === null) {
             return self::FAILURE;
         }
 
-        $diskName = $gameVersion?->getStorageDiskName() ?? 'scunpacked';
+        $diskName = $gameVersion->getStorageDiskName();
 
         if (Artisan::call('game:import-labels') !== self::SUCCESS) {
             return self::FAILURE;
@@ -106,70 +83,83 @@ class SyncGameData extends Command
             return self::FAILURE;
         }
 
-        if (! $skipFactions && Artisan::call('game:import-factions', [
-            '--disk' => $diskName,
-        ]) !== self::SUCCESS) {
+        if (Artisan::call('game:import-factions', ['--disk' => $diskName]) !== self::SUCCESS) {
             return self::FAILURE;
         }
 
-        if (! $skipStarmap) {
-            $this->dispatchStarmapImport($gameVersion);
-        }
+        $this->dispatchStarmapImport($gameVersion);
 
-        if (! $skipResources && Artisan::call('game:import-resource-data', [
+        if (Artisan::call('game:import-resource-data', [
             'version' => $gameVersion->code,
         ]) !== self::SUCCESS) {
             return self::FAILURE;
         }
 
-        if (! $skipItems) {
-            $this->dispatchItemImports($gameVersion, $skipComputeItemGroups, ! $skipMissions);
-        }
-
-        if (! $skipVehicles) {
-            $this->dispatchVehicleImports($gameVersion, $skipBackfillShipmatrixIds, $skipComputeBespoke);
-        }
-
-        if ($gameVersion !== null && Artisan::call('game:import-blueprints', [
+        if (Artisan::call('game:import-blueprints', [
             'version' => $gameVersion->code,
         ]) !== self::SUCCESS) {
             return self::FAILURE;
         }
 
-        if (! $skipItems) {
-            app(SyncItemCraftability::class)->execute($gameVersion->id);
+        // Items and vehicles are imported as one batch so they run in parallel,
+        // and finalization only runs once both are fully committed.
+        $jobs = $this->collectItemJobs($gameVersion)->concat($this->collectVehicleJobs($gameVersion));
+
+        if ($jobs->isEmpty()) {
+            $this->finalizeSync($gameVersion);
+
+            return self::SUCCESS;
         }
 
-        if (! $skipMissions && $skipItems && Artisan::call('game:import-missions', [
-            'version' => $gameVersion->code,
-        ]) !== self::SUCCESS) {
-            return self::FAILURE;
-        }
-
-        if ($gameVersion !== null && ! $skipPrices && Artisan::call('game:import-item-prices') !== self::SUCCESS) {
-            return self::FAILURE;
-        }
+        $this->dispatchChunkedBatch($jobs, function () use ($gameVersion): void {
+            $this->finalizeSync($gameVersion);
+        });
 
         return self::SUCCESS;
     }
 
-    private function shouldImportVersionedData(bool $skipItems, bool $skipVehicles, bool $skipStarmap, bool $skipResources, bool $skipMissions): bool
+    /**
+     * Run every step that depends on items and vehicles already being imported.
+     */
+    private function finalizeSync(GameVersion $gameVersion): void
     {
-        if (! $skipItems || ! $skipVehicles || ! $skipStarmap || ! $skipResources || ! $skipMissions) {
-            return true;
-        }
+        ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
+        ComputeItemSetItemsJob::dispatch($gameVersion->id);
 
-        $versionCode = $this->option('game-version');
+        Artisan::call('game:backfill-shipmatrix-ids', ['--game-version' => $gameVersion->code]);
 
-        return is_string($versionCode) && $versionCode !== '';
+        ComputeBespokeItemsJob::dispatch($gameVersion->id);
+
+        $this->syncItemCraftability($gameVersion->id);
+
+        Artisan::call('game:import-missions', ['version' => $gameVersion->code]);
+
+        Artisan::call('game:import-item-prices');
     }
 
-    private function resolveGameVersion(bool $shouldImportVersionedData): ?GameVersion
+    /**
+     * Recompute {@see ItemData::$is_craftable} for the given game version,
+     * writing only rows whose value actually changes.
+     */
+    private function syncItemCraftability(int $gameVersionId): void
     {
-        if (! $shouldImportVersionedData) {
-            return null;
-        }
+        // Flip to true: items that have a blueprint but are currently flagged as not craftable.
+        ItemData::where('game_version_id', $gameVersionId)
+            ->whereHas('craftingBlueprints')
+            ->where('is_craftable', false)
+            ->chunkById(5000, fn ($items) => ItemData::whereIn('id', $items->pluck('id'))
+                ->update(['is_craftable' => true]));
 
+        // Flip to false: items without a blueprint but currently flagged as craftable.
+        ItemData::where('game_version_id', $gameVersionId)
+            ->whereDoesntHave('craftingBlueprints')
+            ->where('is_craftable', true)
+            ->chunkById(5000, fn ($items) => ItemData::whereIn('id', $items->pluck('id'))
+                ->update(['is_craftable' => false]));
+    }
+
+    private function resolveGameVersion(): ?GameVersion
+    {
         $versionCode = $this->option('game-version');
 
         if (! is_string($versionCode) || $versionCode === '') {
@@ -202,7 +192,10 @@ class SyncGameData extends Command
         return $gameVersion;
     }
 
-    private function dispatchItemImports(GameVersion $gameVersion, bool $skipComputeItemGroups, bool $dispatchMissionsAfter = false): void
+    /**
+     * @return Collection<int, ImportItemData>
+     */
+    private function collectItemJobs(GameVersion $gameVersion): Collection
     {
         $itemFiles = collect(Storage::disk($gameVersion->getStorageDiskName())->files('items'))
             ->filter(static fn (string $path): bool => Str::endsWith($path, '.json'))
@@ -211,32 +204,18 @@ class SyncGameData extends Command
         if ($itemFiles->isEmpty()) {
             $this->warn('No item files found in scunpacked-data/items.');
 
-            return;
+            return collect();
         }
 
         $diskName = $gameVersion->getStorageDiskName();
 
-        $jobs = $itemFiles->map(static function (string $path) use ($gameVersion, $diskName): ImportItemData {
-            return new ImportItemData($gameVersion->id, $path, null, $diskName);
-        });
-
-        $hasPostBatchWork = ! $skipComputeItemGroups || $dispatchMissionsAfter;
-
-        $this->dispatchChunkedBatch($jobs, $hasPostBatchWork ? function () use ($gameVersion, $skipComputeItemGroups, $dispatchMissionsAfter): void {
-            if (! $skipComputeItemGroups) {
-                ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
-                ComputeItemSetItemsJob::dispatch($gameVersion->id);
-            }
-
-            if ($dispatchMissionsAfter) {
-                Artisan::call('game:import-missions', [
-                    'version' => $gameVersion->code,
-                ]);
-            }
-        } : null);
+        return $itemFiles->map(static fn (string $path): ImportItemData => new ImportItemData($gameVersion->id, $path, null, $diskName));
     }
 
-    private function dispatchVehicleImports(GameVersion $gameVersion, bool $skipBackfillShipmatrixIds, bool $skipComputeBespoke): void
+    /**
+     * @return Collection<int, ImportVehicleData>
+     */
+    private function collectVehicleJobs(GameVersion $gameVersion): Collection
     {
         $shipFiles = collect(Storage::disk($gameVersion->getStorageDiskName())->files('ships'))
             ->filter(static fn (string $path): bool => Str::endsWith($path, '.json'))
@@ -246,28 +225,12 @@ class SyncGameData extends Command
         if ($shipFiles->isEmpty()) {
             $this->warn('No ship files found in scunpacked-data/ships.');
 
-            return;
+            return collect();
         }
 
         $diskName = $gameVersion->getStorageDiskName();
 
-        $jobs = $shipFiles->map(static function (string $path) use ($gameVersion, $diskName): ImportVehicleData {
-            return new ImportVehicleData($gameVersion->id, $path, $diskName);
-        });
-
-        $hasPostWork = ! $skipBackfillShipmatrixIds || ! $skipComputeBespoke;
-
-        $this->dispatchChunkedBatch($jobs, $hasPostWork ? static function () use ($gameVersion, $skipBackfillShipmatrixIds, $skipComputeBespoke): void {
-            if (! $skipBackfillShipmatrixIds) {
-                Artisan::call('game:backfill-shipmatrix-ids', [
-                    '--game-version' => $gameVersion->code,
-                ]);
-            }
-
-            if (! $skipComputeBespoke) {
-                ComputeBespokeItemsJob::dispatch($gameVersion->id);
-            }
-        } : null);
+        return $shipFiles->map(static fn (string $path): ImportVehicleData => new ImportVehicleData($gameVersion->id, $path, $diskName));
     }
 
     private function dispatchStarmapImport(GameVersion $gameVersion): void
@@ -304,13 +267,7 @@ class SyncGameData extends Command
         $pendingBatch = Bus::batch($firstLoaderChunk->values());
 
         if ($then !== null) {
-            $lastLoaderJob = $loaderJobChunks->isEmpty()
-                ? $firstLoaderChunk->last()
-                : $loaderJobChunks->last()->last();
-
-            if ($lastLoaderJob !== null) {
-                $pendingBatch->then($then);
-            }
+            $pendingBatch->then($then);
         }
 
         $batch = $pendingBatch->dispatch();

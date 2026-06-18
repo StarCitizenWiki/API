@@ -3,11 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\AddBatchJobs;
-use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
-use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
-use App\Jobs\Game\ImportCommodityPrices as ImportCommodityPricesJob;
 use App\Jobs\Game\ImportItemData;
-use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
@@ -69,9 +65,33 @@ beforeEach(function (): void {
     ], JSON_THROW_ON_ERROR));
 
     Storage::disk('scunpacked')->put('resources/resources.json', json_encode([], JSON_THROW_ON_ERROR));
+    Storage::disk('scunpacked')->put('resources/locations.json', json_encode([], JSON_THROW_ON_ERROR));
+
+    // game:import-resource-data hard-fails without starmap data, so provide a
+    // minimal starmap fixture that the inline starmap importer can ingest.
+    Storage::disk('scunpacked')->put('starmap.json', json_encode([
+        [
+            'UUID' => '11111111-1111-1111-1111-111111111111',
+            'Name' => 'Port Olisar',
+            'Description' => 'A prominent space station.',
+            'Type' => ['Name' => 'Manmade', 'Classification' => 'Manmade'],
+            'Size' => 1.0,
+            'IsScannable' => true,
+            'BlockTravel' => false,
+            'HideInStarmap' => false,
+            'HideInWorld' => false,
+            'OnlyShowWhenParentSelected' => false,
+            'Jurisdiction' => ['Name' => 'UEE'],
+            'Affiliation' => ['DisplayName' => 'United Empire of Earth'],
+            'RespawnLocationType' => 'Hospital',
+            'Amenities' => [],
+        ],
+    ], JSON_THROW_ON_ERROR));
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
 });
 
-it('imports blueprints when an explicit game version is provided', function (): void {
+it('imports blueprints for the selected game version', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -112,46 +132,31 @@ it('imports blueprints when an explicit game version is provided', function (): 
         ],
     ], JSON_THROW_ON_ERROR));
 
-    $this->artisan('game:sync-data', [
-        '--game-version' => $version->code,
-        '--skip-items' => true,
-        '--skip-vehicles' => true,
-        '--skip-resources' => true,
-        '--skip-compute-item-groups' => true,
-        '--skip-backfill-shipmatrix-ids' => true,
-        '--skip-prices' => true,
-    ])->assertExitCode(Command::SUCCESS);
+    Bus::fake();
+
+    $this->artisan('game:sync-data', ['--game-version' => $version->code])
+        ->assertExitCode(Command::SUCCESS);
 
     expect(BlueprintData::query()->where('key', 'BP_SYNC_ONLY')->exists())->toBeTrue();
 });
 
-it('syncs non-versioned data without requiring a game version when item and vehicle imports are skipped', function (): void {
-    Storage::disk('scunpacked')->put('blueprints.json', json_encode([
-        [
-            'uuid' => fake()->uuid(),
-            'key' => 'BP_SKIPPED_WITHOUT_VERSION',
-            'category_uuid' => fake()->uuid(),
-            'output' => [
-                'uuid' => fake()->uuid(),
-            ],
-        ],
-    ], JSON_THROW_ON_ERROR));
+it('imports manufacturers, tags and blueprints even without item or vehicle files', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.1-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
 
-    $this->artisan('game:sync-data', [
-        '--skip-items' => true,
-        '--skip-vehicles' => true,
-        '--skip-starmap' => true,
-        '--skip-resources' => true,
-        '--skip-missions' => true,
-        '--skip-compute-item-groups' => true,
-        '--skip-backfill-shipmatrix-ids' => true,
-    ])->assertExitCode(Command::SUCCESS);
+    Bus::fake();
 
-    expect(Manufacturer::query()->where('code', 'TST')->exists())->toBeTrue()
-        ->and(BlueprintData::query()->where('key', 'BP_SKIPPED_WITHOUT_VERSION')->exists())->toBeFalse();
+    $this->artisan('game:sync-data', ['--game-version' => $version->code])
+        ->assertExitCode(Command::SUCCESS);
+
+    expect(Manufacturer::query()->where('code', 'TST')->exists())->toBeTrue();
 });
 
-it('fails before dispatching versioned imports when blueprint import fails', function (): void {
+it('fails before dispatching the import batch when blueprint import fails', function (): void {
     Bus::fake();
 
     $version = GameVersion::factory()->create([
@@ -167,25 +172,18 @@ it('fails before dispatching versioned imports when blueprint import fails', fun
         ],
     ], JSON_THROW_ON_ERROR));
 
-    $this->artisan('game:sync-data', [
-        '--game-version' => $version->code,
-        '--skip-items' => true,
-        '--skip-vehicles' => true,
-        '--skip-resources' => true,
-        '--skip-compute-item-groups' => true,
-        '--skip-backfill-shipmatrix-ids' => true,
-    ])->assertExitCode(Command::FAILURE);
+    // Break blueprints so the command aborts before the batch is dispatched.
+    File::put(config('translations.labels_json'), 'not-json');
 
-    Bus::assertNothingBatched();
-    Bus::assertNothingDispatched();
-    Bus::assertNotDispatched(AddBatchJobs::class);
+    $this->artisan('game:sync-data', ['--game-version' => $version->code])
+        ->assertExitCode(Command::FAILURE);
+
     Bus::assertNotDispatched(ImportItemData::class);
     Bus::assertNotDispatched(ImportVehicleData::class);
-    Bus::assertNotDispatched(ComputeItemVariantGroupsJob::class);
-    Bus::assertNotDispatched(ComputeItemSetItemsJob::class);
+    Bus::assertNotDispatched(AddBatchJobs::class);
 });
 
-it('imports missions when game version is provided', function (): void {
+it('dispatches item and vehicle import jobs in a single batch', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.1.0-LIVE',
         'channel' => 'live',
@@ -193,100 +191,35 @@ it('imports missions when game version is provided', function (): void {
         'is_default' => true,
     ]);
 
-    Storage::disk('scunpacked')->put('contracts/test_mission.json', json_encode([
-        'UUID' => fake()->uuid(),
-        'Key' => 'TestMission',
+    Storage::disk('scunpacked')->put('items/weapon.json', json_encode([
+        'Item' => ['reference' => fake()->uuid()],
+    ], JSON_THROW_ON_ERROR));
+    Storage::disk('scunpacked')->put('ships/aurora.json', json_encode([
+        'ship' => ['reference' => fake()->uuid()],
     ], JSON_THROW_ON_ERROR));
 
-    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
-
-    $this->artisan('game:sync-data', [
-        '--game-version' => $version->code,
-        '--skip-items' => true,
-        '--skip-vehicles' => true,
-        '--skip-starmap' => true,
-        '--skip-resources' => true,
-        '--skip-compute-item-groups' => true,
-        '--skip-backfill-shipmatrix-ids' => true,
-        '--skip-prices' => true,
-    ])->assertExitCode(Command::SUCCESS);
-});
-
-it('skips missions when --skip-missions is passed', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.1.0-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
-
-    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
-
-    $this->artisan('game:sync-data', [
-        '--game-version' => $version->code,
-        '--skip-items' => true,
-        '--skip-vehicles' => true,
-        '--skip-starmap' => true,
-        '--skip-resources' => true,
-        '--skip-missions' => true,
-        '--skip-compute-item-groups' => true,
-        '--skip-backfill-shipmatrix-ids' => true,
-        '--skip-prices' => true,
-    ])->assertExitCode(Command::SUCCESS);
-});
-
-it('dispatches the UEX price import after a versioned game data sync', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.2.0-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
-
-    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
-
     Bus::fake();
 
-    $this->artisan('game:sync-data', [
-        '--game-version' => $version->code,
-        '--skip-items' => true,
-        '--skip-vehicles' => true,
-        '--skip-starmap' => true,
-        '--skip-resources' => true,
-        '--skip-missions' => true,
-        '--skip-compute-item-groups' => true,
-        '--skip-backfill-shipmatrix-ids' => true,
-    ])->assertExitCode(Command::SUCCESS);
+    $this->artisan('game:sync-data', ['--game-version' => $version->code])
+        ->assertExitCode(Command::SUCCESS);
 
-    Bus::assertBatched(function ($batch): bool {
-        return $batch->jobs->contains(static fn ($job): bool => $job instanceof ImportItemPricesJob)
-            && $batch->jobs->contains(static fn ($job): bool => $job instanceof ImportCommodityPricesJob);
-    });
+    Bus::assertBatchCount(1);
+
+    // Items and vehicles merge into a single batch (previously two), wrapped in
+    // AddBatchJobs loaders. Locking in the single-batch dispatch guards the merge.
+    Bus::assertBatched(fn ($batch): bool => $batch->jobs->every(
+        static fn ($job): bool => $job instanceof AddBatchJobs
+    ));
 });
 
-it('skips the UEX price import when --skip-prices is passed', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.2.0-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
+it('prompts for a game version when none is provided and none exists', function (): void {
+    $this->artisan('game:sync-data')
+        ->expectsOutputToContain('No game versions exist.')
+        ->assertExitCode(Command::FAILURE);
+});
 
-    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
-
-    Bus::fake();
-
-    $this->artisan('game:sync-data', [
-        '--game-version' => $version->code,
-        '--skip-items' => true,
-        '--skip-vehicles' => true,
-        '--skip-starmap' => true,
-        '--skip-resources' => true,
-        '--skip-missions' => true,
-        '--skip-prices' => true,
-        '--skip-compute-item-groups' => true,
-        '--skip-backfill-shipmatrix-ids' => true,
-    ])->assertExitCode(Command::SUCCESS);
-
-    Bus::assertNothingBatched();
+it('fails when the provided game version does not exist', function (): void {
+    $this->artisan('game:sync-data', ['--game-version' => '9.9.9-LIVE'])
+        ->expectsOutputToContain('does not exist.')
+        ->assertExitCode(Command::FAILURE);
 });

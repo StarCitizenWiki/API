@@ -55,3 +55,6 @@ Schedule::command('galactapedia:translate')
 Schedule::command('sitemap:generate --only=comm-links,galactapedia')
     ->dailyAt('4:00')
     ->withoutOverlapping();
+
+// Queue: prune old job batches (sync + price imports create them continuously).
+Schedule::command('queue:prune-batches --hours=48 --unfinished=72 --cancelled=72')->daily();
