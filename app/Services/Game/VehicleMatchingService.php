@@ -183,7 +183,7 @@ class VehicleMatchingService
     private function normalizeName(string $name): string
     {
         return str_replace('_', ' ', $name)
-                |> (static fn($x) => preg_replace('/\s+/', ' ', $x))
+                |> (static fn ($x) => preg_replace('/\s+/', ' ', $x))
                 |> trim(...);
     }
 
