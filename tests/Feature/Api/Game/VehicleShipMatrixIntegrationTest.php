@@ -6,6 +6,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use App\Models\StarCitizen\PledgeStore\PledgeStoreSku;
 use App\Models\StarCitizen\ShipMatrix\Manufacturer as ShipMatrixManufacturer;
 use App\Models\StarCitizen\ShipMatrix\ProductionNote;
 use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
@@ -468,6 +469,88 @@ it('includes skus when present', function () {
         ->assertJsonPath('data.skus.0.title', 'Avenger Titan - IAE 2953')
         ->assertJsonPath('data.skus.0.available', true)
         ->assertJsonPath('data.skus.0.price', 50);
+});
+
+it('merges upgrade-api and pledge-store skus with a source discriminator', function () {
+    $shipMatrixVehicle = ShipMatrixVehicle::query()->create([
+        'cig_id' => 77777,
+        'chassis_id' => 77,
+        'name' => 'Merged SKU Ship',
+        'slug' => 'merged-sku-ship',
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
+        'production_status_id' => $this->productionStatus->id,
+        'production_note_id' => $this->productionNote->id,
+        'type_id' => $this->shipType->id,
+        'size_id' => $this->shipSize->id,
+    ]);
+
+    // Upgrade-API SKU (existing flow)
+    $shipMatrixVehicle->skus()->create([
+        'cig_id' => 1001,
+        'title' => 'Standard Edition',
+        'available' => true,
+        'price' => 110,
+    ]);
+
+    // Pledge-store SKU linked via the join table
+    $pledgeSku = PledgeStoreSku::factory()->create([
+        'cig_id' => 2002,
+        'name' => 'Merged SKU Ship',
+        'url' => '/pledge/Standalone-Ships/Merged-SKU-Ship',
+        'native_price' => 11000,
+        'native_discounted' => 9000,
+        'is_warbond' => false,
+        'is_package' => false,
+        'stock_available' => true,
+    ]);
+    $pledgeSku->ships()->sync([$shipMatrixVehicle->id]);
+
+    $vehicle = Vehicle::query()->create([
+        'uuid' => '99999999-9999-9999-9999-999999999999',
+    ]);
+
+    VehicleData::query()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $this->gameVersion->id,
+        'manufacturer_id' => $this->gameManufacturer->id,
+        'shipmatrix_id' => $shipMatrixVehicle->id,
+        'name' => 'Vehicle With Merged SKUs',
+        'class_name' => 'Vehicle_With_Merged_SKUs',
+        'data' => ['test' => 'data'],
+    ]);
+
+    $response = $this->getJson('/api/vehicles/99999999-9999-9999-9999-999999999999');
+
+    $response->assertOk();
+    $response->assertJsonCount(2, 'data.skus');
+
+    $skus = collect($response->json('data.skus'))->keyBy('source');
+
+    // Upgrade-API SKU keeps the legacy minimal shape, pledge-only fields null.
+    expect($skus->get('upgrade_api'))->toMatchArray([
+        'source' => 'upgrade_api',
+        'cig_id' => 1001,
+        'title' => 'Standard Edition',
+        'price' => 110,
+        'available' => true,
+        'url' => null,
+        'discounted_price' => null,
+        'is_warbond' => null,
+        'is_package' => null,
+    ]);
+
+    // Pledge-store SKU converts cents to whole dollars and exposes the URL.
+    expect($skus->get('pledge_store'))->toMatchArray([
+        'source' => 'pledge_store',
+        'cig_id' => 2002,
+        'title' => 'Merged SKU Ship',
+        'price' => 110,
+        'discounted_price' => 90,
+        'url' => 'https://robertsspaceindustries.com/pledge/Standalone-Ships/Merged-SKU-Ship',
+        'is_warbond' => false,
+        'is_package' => false,
+        'available' => true,
+    ]);
 });
 
 it('includes ship-matrix components when requested on the v2 vehicle show route', function () {

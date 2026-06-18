@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\PledgeStore;
 
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\Casts\AsCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -115,6 +117,16 @@ class PledgeStoreSku extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(PledgeStoreProduct::class, 'product_id', 'cig_id');
+    }
+
+    public function ships(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Vehicle::class,
+            'pledge_store_sku_ship',
+            'pledge_store_sku_id',
+            'shipmatrix_vehicle_id',
+        );
     }
 
     public function scopeStandaloneShips($query)

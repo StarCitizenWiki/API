@@ -369,6 +369,7 @@ class VehicleController extends Controller
                         'loaner',
                         ...$this->currentVersionShipMatrixScLoad('loaner.sc'),
                         'skus',
+                        'pledgeSkus',
                     ])
                     ->first();
 
@@ -387,6 +388,7 @@ class VehicleController extends Controller
                 'shipMatrixVehicle.size',
                 ...$this->currentVersionShipMatrixScLoad('shipMatrixVehicle.loaner.sc'),
                 'shipMatrixVehicle.skus',
+                'shipMatrixVehicle.pledgeSkus',
                 'shipMatrixVehicle.manufacturer',
                 'shipMatrixVehicle.components',
             ];
@@ -681,6 +683,7 @@ class VehicleController extends Controller
                 'shipMatrixVehicle.size',
                 ...$this->currentVersionShipMatrixScLoad('shipMatrixVehicle.loaner.sc'),
                 'shipMatrixVehicle.skus',
+                'shipMatrixVehicle.pledgeSkus',
             ]);
     }
 

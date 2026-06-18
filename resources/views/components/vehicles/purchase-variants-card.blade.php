@@ -129,15 +129,30 @@
                                         <tr>
                                             <th>Name</th>
                                             <th>Price</th>
+                                            <th class="hidden sm:table-cell">Type</th>
                                             <th class="hidden sm:table-cell">Imported At</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach ($shipMatrixSkus as $sku)
                                             <tr>
-                                                <td>{{ $sku['title'] ?? '-' }}</td>
+                                                <td>
+                                                    @if (! empty($sku['url']))
+                                                        <a href="{{ $sku['url'] }}" class="link link-primary"
+                                                           target="_blank" rel="noopener">{{ $sku['title'] ?? '-' }}</a>
+                                                    @else
+                                                        {{ $sku['title'] ?? '-' }}
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     {{ Format::valueWithUnit(data_get($sku, 'price'), '$', 0) }}
+                                                </td>
+                                                <td class="hidden sm:table-cell">
+                                                    @if (($sku['source'] ?? null) === 'upgrade_api')
+                                                        CCU
+                                                    @elseif (! empty($sku['is_warbond']))
+                                                        Warbond
+                                                    @endif
                                                 </td>
                                                 <td class="hidden sm:table-cell">
                                                     {{ Carbon::createFromTimeString(data_get($sku, 'imported_at'))->diffForHumans() }}

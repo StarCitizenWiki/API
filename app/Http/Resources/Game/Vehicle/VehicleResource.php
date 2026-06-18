@@ -16,6 +16,7 @@ use App\Http\Resources\Game\Vehicle\Builders\VehicleFlightBuilder;
 use App\Http\Resources\Game\Vehicle\Builders\VehicleWeaponryBuilder;
 use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
+use App\Http\Resources\StarCitizen\Vehicle\PledgeStoreSkuResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleSkuResource;
 use App\Http\Resources\TranslationResolver;
@@ -1275,11 +1276,15 @@ class VehicleResource extends AbstractBaseResource
             return [];
         }
 
-        if (! $shipMatrixVehicle->relationLoaded('skus')) {
-            return [];
-        }
+        $pledgeSkus = $shipMatrixVehicle->relationLoaded('pledgeSkus')
+            ? PledgeStoreSkuResource::collection($shipMatrixVehicle->pledgeSkus)->resolve()
+            : [];
 
-        return VehicleSkuResource::collection($shipMatrixVehicle->skus)->resolve();
+        $upgradeSkus = $shipMatrixVehicle->relationLoaded('skus')
+            ? VehicleSkuResource::collection($shipMatrixVehicle->skus)->resolve()
+            : [];
+
+        return VehicleSkuResource::combine($upgradeSkus, $pledgeSkus);
     }
 
     private function expandVehiclePrices(VehicleData $vehicleData, string $column, string $priceField): array

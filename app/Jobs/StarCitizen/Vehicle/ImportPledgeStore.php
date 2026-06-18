@@ -7,6 +7,7 @@ namespace App\Jobs\StarCitizen\Vehicle;
 use App\Models\StarCitizen\PledgeStore\PledgeStoreProduct;
 use App\Models\StarCitizen\PledgeStore\PledgeStoreSku;
 use App\Models\StarCitizen\PledgeStore\PledgeStoreSkuHistory;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Services\RsiDownloadClient;
 use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Bus\Queueable;
@@ -379,6 +380,8 @@ QUERY;
             ->get()
             ->keyBy('cig_id');
 
+        $vehicleIdMap = $this->buildVehicleIdMap($apiSkus);
+
         $seenCigIds = [];
         $created = 0;
         $updated = 0;
@@ -396,17 +399,17 @@ QUERY;
                 $existing = PledgeStoreSku::query()->create($attributes);
                 $this->recordHistory($existing);
                 $created++;
+            } else {
+                $changed = $this->detectAndApplyChanges($existing, $attributes);
 
-                continue;
+                if ($changed) {
+                    $historyCreated++;
+                }
+
+                $updated++;
             }
 
-            $changed = $this->detectAndApplyChanges($existing, $attributes);
-
-            if ($changed) {
-                $historyCreated++;
-            }
-
-            $updated++;
+            $this->syncShipRelations($existing, $apiSku['ships'] ?? [], $vehicleIdMap);
         }
 
         // Mark delisted SKUs as unavailable
@@ -437,6 +440,53 @@ QUERY;
             'history_entries' => $historyCreated,
             'delisted' => $delisted->count(),
         ]);
+    }
+
+    /**
+     * Build a lookup of shipmatrix vehicle ids indexed by cig_id,
+     *
+     * @param  Collection<int, array<string, mixed>>  $apiSkus
+     * @return array<int, int> ship cig_id => shipmatrix_vehicles.id
+     */
+    private function buildVehicleIdMap(Collection $apiSkus): array
+    {
+        $shipCigIds = $apiSkus
+            ->flatMap(fn (array $sku) => collect($sku['ships'] ?? [])->pluck('id'))
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($shipCigIds === []) {
+            return [];
+        }
+
+        return Vehicle::query()
+            ->whereIn('cig_id', $shipCigIds)
+            ->pluck('id', 'cig_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    /**
+     * Sync the pledge_store_sku_ship join rows for a SKU from its `ships[]` payload.
+     *
+     * @param  array<int, array{id: mixed, ...}>  $ships
+     * @param  array<int, int>  $vehicleIdMap
+     */
+    private function syncShipRelations(PledgeStoreSku $sku, array $ships, array $vehicleIdMap): void
+    {
+        $vehicleIds = collect($ships)
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->map(fn (int $cigId) => $vehicleIdMap[$cigId] ?? null)
+            ->filter()
+            ->all();
+
+        $sku->ships()->sync($vehicleIds);
     }
 
     /**

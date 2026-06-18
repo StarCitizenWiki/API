@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models\StarCitizen\ShipMatrix\Vehicle;
 
 use App\Models\Game\VehicleData;
+use App\Models\StarCitizen\PledgeStore\PledgeStoreSku;
 use App\Models\StarCitizen\ShipMatrix\Manufacturer;
 use App\Models\StarCitizen\ShipMatrix\ProductionNote;
 use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
@@ -112,6 +113,16 @@ class Vehicle extends Model
     public function skus(): HasMany
     {
         return $this->hasMany(VehicleSku::class);
+    }
+
+    public function pledgeSkus(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            PledgeStoreSku::class,
+            'pledge_store_sku_ship',
+            'shipmatrix_vehicle_id',
+            'pledge_store_sku_id',
+        );
     }
 
     public function foci(): BelongsToMany
