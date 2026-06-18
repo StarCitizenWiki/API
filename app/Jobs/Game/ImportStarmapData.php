@@ -65,13 +65,36 @@ class ImportStarmapData implements ShouldQueue
 
         $uuids = array_keys($validEntries);
 
+        // Preserve existing slugs; regenerating them re-rolled suffixes and orphaned URLs.
+        $existingSlugs = StarmapLocation::query()
+            ->whereIn('uuid', $uuids)
+            ->pluck('slug', 'uuid')
+            ->all();
+
         $slugService = app(SlugService::class);
-        $usedSlugs = [];
+        $usedSlugs = array_values(array_filter(
+            $existingSlugs,
+            static fn (?string $slug): bool => $slug !== null && $slug !== '',
+        ));
+
         $slugMap = [];
+
         foreach ($validEntries as $uuid => $entry) {
+            $preserved = $existingSlugs[$uuid] ?? null;
+
+            if ($preserved !== null && $preserved !== '') {
+                $slugMap[$uuid] = $preserved;
+
+                continue;
+            }
+
             $name = $this->extractName($entry);
-            $slug = $slugService->generateUniqueSlugForBatch(Str::slug($name), $usedSlugs, StarmapLocation::class);
-            $slugMap[$uuid] = $slug;
+            $slugMap[$uuid] = $slugService->generateUniqueSlugForBatch(
+                Str::slug($name),
+                $usedSlugs,
+                StarmapLocation::class,
+                ignoredValuesByColumn: ['uuid' => $uuids],
+            );
         }
 
         StarmapLocation::upsert(
