@@ -24,6 +24,8 @@ class ImportMsrp implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    private const string GRAPHQL_URL = 'https://robertsspaceindustries.com/pledge-store/api/upgrade/v2/graphql';
+
     private CookieJar $cookieJar;
 
     /**
@@ -38,31 +40,30 @@ class ImportMsrp implements ShouldQueue
         ]);
 
         $query = <<<'QUERY'
-{
-    ships {
+query initShipUpgrade {
+  ships {
+    id
+    name
+    msrp
+    link
+    skus {
       id
-      name
-      msrp
-      link
-      skus {
-        id
-        title
-        available
-        price
-      }
+      title
+      available
+      price
     }
+  }
 }
 QUERY;
 
         try {
             $client->post('https://robertsspaceindustries.com/api/account/v2/setAuthToken')->throw();
             $client->post('https://robertsspaceindustries.com/api/ship-upgrades/setContextToken')->throw();
-            $response = $client->post(
-                'https://robertsspaceindustries.com/pledge-store/api/upgrade',
-                [
-                    'query' => $query,
-                ]
-            )->throw();
+            $response = $client->post(self::GRAPHQL_URL, [
+                'operationName' => 'initShipUpgrade',
+                'variables' => (object) [],
+                'query' => $query,
+            ])->throw();
         } catch (RequestException $e) {
             app('Log')::critical('Could not connect to RSI Pledge Store API', [
                 'message' => $e->getMessage(),
