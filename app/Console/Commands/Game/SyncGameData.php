@@ -41,7 +41,8 @@ class SyncGameData extends Command
                             {--skip-compute-bespoke : Skip computing bespoke item flags}
                             {--skip-backfill-shipmatrix-ids : Skip backfilling shipmatrix ids}
                             {--skip-factions : Skip importing faction data}
-                            {--skip-missions : Skip importing mission data}';
+                            {--skip-missions : Skip importing mission data}
+                            {--skip-prices : Skip importing UEX price data}';
 
     /**
      * The console command name aliases.
@@ -75,6 +76,7 @@ class SyncGameData extends Command
         $skipBackfillShipmatrixIds = (bool) $this->option('skip-backfill-shipmatrix-ids');
         $skipFactions = (bool) $this->option('skip-factions');
         $skipMissions = (bool) $this->option('skip-missions');
+        $skipPrices = (bool) $this->option('skip-prices');
         $shouldImportVersionedData = $this->shouldImportVersionedData($skipItems, $skipVehicles, $skipStarmap, $skipResources, $skipMissions);
 
         $gameVersion = $this->resolveGameVersion($shouldImportVersionedData);
@@ -141,6 +143,10 @@ class SyncGameData extends Command
         if (! $skipMissions && $skipItems && Artisan::call('game:import-missions', [
             'version' => $gameVersion->code,
         ]) !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
+        if ($gameVersion !== null && ! $skipPrices && Artisan::call('game:import-item-prices') !== self::SUCCESS) {
             return self::FAILURE;
         }
 

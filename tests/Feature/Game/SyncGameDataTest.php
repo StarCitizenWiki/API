@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Jobs\Game\AddBatchJobs;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
+use App\Jobs\Game\ImportCommodityPrices as ImportCommodityPricesJob;
 use App\Jobs\Game\ImportItemData;
+use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
@@ -117,6 +119,7 @@ it('imports blueprints when an explicit game version is provided', function (): 
         '--skip-resources' => true,
         '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
+        '--skip-prices' => true,
     ])->assertExitCode(Command::SUCCESS);
 
     expect(BlueprintData::query()->where('key', 'BP_SYNC_ONLY')->exists())->toBeTrue();
@@ -205,6 +208,7 @@ it('imports missions when game version is provided', function (): void {
         '--skip-resources' => true,
         '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
+        '--skip-prices' => true,
     ])->assertExitCode(Command::SUCCESS);
 });
 
@@ -227,5 +231,62 @@ it('skips missions when --skip-missions is passed', function (): void {
         '--skip-missions' => true,
         '--skip-compute-item-groups' => true,
         '--skip-backfill-shipmatrix-ids' => true,
+        '--skip-prices' => true,
     ])->assertExitCode(Command::SUCCESS);
+});
+
+it('dispatches the UEX price import after a versioned game data sync', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.2.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
+
+    Bus::fake();
+
+    $this->artisan('game:sync-data', [
+        '--game-version' => $version->code,
+        '--skip-items' => true,
+        '--skip-vehicles' => true,
+        '--skip-starmap' => true,
+        '--skip-resources' => true,
+        '--skip-missions' => true,
+        '--skip-compute-item-groups' => true,
+        '--skip-backfill-shipmatrix-ids' => true,
+    ])->assertExitCode(Command::SUCCESS);
+
+    Bus::assertBatched(function ($batch): bool {
+        return $batch->jobs->contains(static fn ($job): bool => $job instanceof ImportItemPricesJob)
+            && $batch->jobs->contains(static fn ($job): bool => $job instanceof ImportCommodityPricesJob);
+    });
+});
+
+it('skips the UEX price import when --skip-prices is passed', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.2.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode([], JSON_THROW_ON_ERROR));
+
+    Bus::fake();
+
+    $this->artisan('game:sync-data', [
+        '--game-version' => $version->code,
+        '--skip-items' => true,
+        '--skip-vehicles' => true,
+        '--skip-starmap' => true,
+        '--skip-resources' => true,
+        '--skip-missions' => true,
+        '--skip-prices' => true,
+        '--skip-compute-item-groups' => true,
+        '--skip-backfill-shipmatrix-ids' => true,
+    ])->assertExitCode(Command::SUCCESS);
+
+    Bus::assertNothingBatched();
 });
