@@ -106,14 +106,12 @@ class SyncGameData extends Command
         $jobs = $this->collectItemJobs($gameVersion)->concat($this->collectVehicleJobs($gameVersion));
 
         if ($jobs->isEmpty()) {
-            $this->finalizeSync($gameVersion);
+            self::finalizeSync($gameVersion);
 
             return self::SUCCESS;
         }
 
-        $this->dispatchChunkedBatch($jobs, function () use ($gameVersion): void {
-            $this->finalizeSync($gameVersion);
-        });
+        $this->dispatchChunkedBatch($jobs, static fn () => self::finalizeSync($gameVersion));
 
         return self::SUCCESS;
     }
@@ -121,7 +119,7 @@ class SyncGameData extends Command
     /**
      * Run every step that depends on items and vehicles already being imported.
      */
-    private function finalizeSync(GameVersion $gameVersion): void
+    private static function finalizeSync(GameVersion $gameVersion): void
     {
         ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
         ComputeItemSetItemsJob::dispatch($gameVersion->id);
@@ -130,7 +128,7 @@ class SyncGameData extends Command
 
         ComputeBespokeItemsJob::dispatch($gameVersion->id);
 
-        $this->syncItemCraftability($gameVersion->id);
+        self::syncItemCraftability($gameVersion->id);
 
         Artisan::call('game:import-missions', ['version' => $gameVersion->code]);
 
@@ -141,7 +139,7 @@ class SyncGameData extends Command
      * Recompute {@see ItemData::$is_craftable} for the given game version,
      * writing only rows whose value actually changes.
      */
-    private function syncItemCraftability(int $gameVersionId): void
+    private static function syncItemCraftability(int $gameVersionId): void
     {
         // Flip to true: items that have a blueprint but are currently flagged as not craftable.
         ItemData::where('game_version_id', $gameVersionId)
