@@ -98,6 +98,36 @@ services:
     networks:
       - internal
 
+  redis_cache:
+    image: valkey/valkey:9-alpine
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - valkey-server
+      - --maxmemory
+      - "200mb"
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+    volumes:
+      - ./var/lib/redis-cache:/data
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    networks:
+      - internal
+
 networks:
   internal:
     driver: bridge

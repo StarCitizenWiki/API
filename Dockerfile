@@ -20,6 +20,7 @@ RUN set -eux; \
         intl \
         pdo_pgsql \
         pdo_mysql \
+        redis \
         zip \
         gd \
         mbstring \
@@ -44,6 +45,9 @@ RUN set -eux; \
     echo 'max_execution_time = 60' > /usr/local/etc/php/conf.d/docker-php-executiontime.ini
 
 COPY ./docker/vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY ./docker/apache-prefork.conf /etc/apache2/conf-available/prefork-tuning.conf
+COPY ./docker/apache-keepalive.conf /etc/apache2/conf-available/keepalive-tuning.conf
+RUN a2enconf prefork-tuning keepalive-tuning
 
 
 # Stage 1: composer deps
