@@ -6,7 +6,6 @@ namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\Game\ItemSpecification\AbstractItemSpecificationResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -156,56 +155,69 @@ class ResourceNetworkResource extends AbstractItemSpecificationResource
 
         $resourceNetwork = $this->extractFromStdItem($this->resource, 'ResourceNetwork');
 
+        $states = $resourceNetwork['States'] ?? [];
+        $repair = $resourceNetwork['Repair'] ?? null;
+        $usage = $resourceNetwork['Usage'] ?? null;
+        $powerUsage = $usage['Power'] ?? null;
+        $coolantUsage = $usage['Coolant'] ?? null;
+        $generation = $resourceNetwork['Generation'] ?? null;
+
         return [
-            'is_networked' => Arr::get($resourceNetwork, 'IsNetworked'),
-            'is_relay' => Arr::get($resourceNetwork, 'IsRelay'),
-            'default_priority' => Arr::get($resourceNetwork, 'DefaultPriority'),
-            'states' => array_map(fn ($state) => [
-                'name' => Arr::get($state, 'Name'),
-                'signature' => [
-                    'em' => Arr::get($state, 'Signature.EM'),
-                    'ir' => Arr::get($state, 'Signature.IR'),
-                ],
-                'deltas' => collect(Arr::get($state, 'Deltas', []))->map(fn ($delta) => [
-                    'type' => Arr::get($delta, 'Type'),
-                    'resource' => Arr::get($delta, 'Resource'),
-                    'rate' => Arr::get($delta, 'Rate'),
-                    'minimum_fraction' => Arr::get($delta, 'MinimumFraction'),
-                    'generated_resource' => Arr::get($delta, 'GeneratedResource'),
-                    'generated_rate' => Arr::get($delta, 'GeneratedRate'),
-                    'discharge' => Arr::get($delta, 'Discharge'),
-                    'no_over_generation' => Arr::get($delta, 'NoOverGeneration'),
-                    'binary_evaluation' => Arr::get($delta, 'BinaryEvaluation'),
-                    'composition' => Arr::get($delta, 'Composition'),
-                ]),
-                'power_ranges' => collect(Arr::get($state, 'PowerRanges', []))->map(fn ($range) => [
-                    'start' => Arr::get($range, 'Start'),
-                    'modifier' => Arr::get($range, 'Modifier'),
-                    'register_range' => Arr::get($range, 'RegisterRange'),
-                ]),
-            ], Arr::get($resourceNetwork, 'States', [])),
+            'is_networked' => $resourceNetwork['IsNetworked'] ?? null,
+            'is_relay' => $resourceNetwork['IsRelay'] ?? null,
+            'default_priority' => $resourceNetwork['DefaultPriority'] ?? null,
+            'states' => array_map(static function (array $state): array {
+                $signature = $state['Signature'] ?? null;
+                $deltas = $state['Deltas'] ?? [];
+                $powerRanges = $state['PowerRanges'] ?? [];
+
+                return [
+                    'name' => $state['Name'] ?? null,
+                    'signature' => [
+                        'em' => $signature['EM'] ?? null,
+                        'ir' => $signature['IR'] ?? null,
+                    ],
+                    'deltas' => array_map(static fn (array $delta): array => [
+                        'type' => $delta['Type'] ?? null,
+                        'resource' => $delta['Resource'] ?? null,
+                        'rate' => $delta['Rate'] ?? null,
+                        'minimum_fraction' => $delta['MinimumFraction'] ?? null,
+                        'generated_resource' => $delta['GeneratedResource'] ?? null,
+                        'generated_rate' => $delta['GeneratedRate'] ?? null,
+                        'discharge' => $delta['Discharge'] ?? null,
+                        'no_over_generation' => $delta['NoOverGeneration'] ?? null,
+                        'binary_evaluation' => $delta['BinaryEvaluation'] ?? null,
+                        'composition' => $delta['Composition'] ?? null,
+                    ], $deltas),
+                    'power_ranges' => array_map(static fn (array $range): array => [
+                        'start' => $range['Start'] ?? null,
+                        'modifier' => $range['Modifier'] ?? null,
+                        'register_range' => $range['RegisterRange'] ?? null,
+                    ], $powerRanges),
+                ];
+            }, $states),
             'repair' => [
-                'max_repair_count' => Arr::get($resourceNetwork, 'Repair.MaxRepairCount'),
-                'time_to_repair' => Arr::get($resourceNetwork, 'Repair.TimeToRepair'),
-                'health_ratio' => Arr::get($resourceNetwork, 'Repair.HealthRatio'),
+                'max_repair_count' => $repair['MaxRepairCount'] ?? null,
+                'time_to_repair' => $repair['TimeToRepair'] ?? null,
+                'health_ratio' => $repair['HealthRatio'] ?? null,
             ],
             'usage' => [
                 'power' => [
-                    'min' => Arr::get($resourceNetwork, 'Usage.Power.Minimum', 0),
-                    'max' => Arr::get($resourceNetwork, 'Usage.Power.Maximum', 0),
-                    'minimum' => Arr::get($resourceNetwork, 'Usage.Power.Minimum', 0),  // deprecated: use min
-                    'maximum' => Arr::get($resourceNetwork, 'Usage.Power.Maximum', 0),  // deprecated: use max
+                    'min' => $powerUsage['Minimum'] ?? 0,
+                    'max' => $powerUsage['Maximum'] ?? 0,
+                    'minimum' => $powerUsage['Minimum'] ?? 0,
+                    'maximum' => $powerUsage['Maximum'] ?? 0,
                 ],
                 'coolant' => [
-                    'min' => Arr::get($resourceNetwork, 'Usage.Coolant.Minimum'),
-                    'max' => Arr::get($resourceNetwork, 'Usage.Coolant.Maximum'),
-                    'minimum' => Arr::get($resourceNetwork, 'Usage.Coolant.Minimum'),  // deprecated: use min
-                    'maximum' => Arr::get($resourceNetwork, 'Usage.Coolant.Maximum'),  // deprecated: use max
+                    'min' => $coolantUsage['Minimum'] ?? null,
+                    'max' => $coolantUsage['Maximum'] ?? null,
+                    'minimum' => $coolantUsage['Minimum'] ?? null,
+                    'maximum' => $coolantUsage['Maximum'] ?? null,
                 ],
             ],
             'generation' => [
-                'coolant' => Arr::get($resourceNetwork, 'Generation.Coolant'),
-                'power' => Arr::get($resourceNetwork, 'Generation.Power'),
+                'coolant' => $generation['Coolant'] ?? null,
+                'power' => $generation['Power'] ?? null,
             ],
         ];
     }

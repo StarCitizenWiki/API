@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Game;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class WeaponSnapshotService
@@ -83,7 +82,7 @@ class WeaponSnapshotService
                 $counts['countermeasures_count']++;
             }
 
-            $childLoadout = Arr::get($port, 'Loadout', []);
+            $childLoadout = $port['Loadout'] ?? [];
             if (is_array($childLoadout) && count($childLoadout) > 0) {
                 $this->traversePorts($childLoadout, $currentAncestors, $counts);
             }
@@ -95,8 +94,8 @@ class WeaponSnapshotService
      */
     private function isGimbal(array $port): bool
     {
-        $hardpointName = Arr::get($port, 'HardpointName', '');
-        $className = Arr::get($port, 'ClassName', '');
+        $hardpointName = $port['HardpointName'] ?? '';
+        $className = $port['ClassName'] ?? '';
         $subtype = $this->extractSubtype($port);
 
         return Str::contains(Str::lower($hardpointName), ['gimbal', 'mount_gimbal'])
@@ -110,7 +109,7 @@ class WeaponSnapshotService
     private function isMannedTurret(array $port): bool
     {
         $type = $this->extractType($port);
-        $className = Arr::get($port, 'ClassName', '');
+        $className = $port['ClassName'] ?? '';
         $subtype = $this->extractSubtype($port);
 
         $isTurretType = in_array($type, ['Turret', 'TurretBase', 'UtilityTurret'], true);
@@ -127,7 +126,7 @@ class WeaponSnapshotService
     private function isRemoteTurret(array $port): bool
     {
         $type = $this->extractType($port);
-        $className = Arr::get($port, 'ClassName', '');
+        $className = $port['ClassName'] ?? '';
 
         $isTurretType = in_array($type, ['Turret', 'TurretBase', 'UtilityTurret'], true);
 
@@ -159,7 +158,7 @@ class WeaponSnapshotService
      */
     private function extractType(array $port): string
     {
-        $typeField = Arr::get($port, 'Type', '');
+        $typeField = $port['Type'] ?? '';
         if (! is_string($typeField)) {
             return '';
         }
@@ -174,7 +173,7 @@ class WeaponSnapshotService
      */
     private function extractSubtype(array $port): string
     {
-        $typeField = Arr::get($port, 'Type', '');
+        $typeField = $port['Type'] ?? '';
         if (! is_string($typeField)) {
             return '';
         }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Vehicle\Builders;
 
-use Illuminate\Support\Arr;
-
 /**
  * @internal
  *
@@ -20,49 +18,50 @@ final class VehicleWeaponryBuilder
      */
     public function buildWeaponry(array $payload): array
     {
-        $weaponry = Arr::get($payload, 'Weaponry', []);
+        $weaponry = $payload['Weaponry'] ?? [];
 
         $result = array_filter([
-            'pilot_dps' => Arr::get($weaponry, 'PilotDps'),
-            'pilot_alpha' => Arr::get($weaponry, 'PilotAlpha'),
-            'pilot_sustained_dps' => Arr::get($weaponry, 'PilotSustainedDps'),
-            'turret_dps' => Arr::get($weaponry, 'TurretDps'),
-            'turret_alpha' => Arr::get($weaponry, 'TurretAlpha'),
-            'turret_sustained_dps' => Arr::get($weaponry, 'TurretSustainedDps'),
+            'pilot_dps' => $weaponry['PilotDps'] ?? null,
+            'pilot_alpha' => $weaponry['PilotAlpha'] ?? null,
+            'pilot_sustained_dps' => $weaponry['PilotSustainedDps'] ?? null,
+            'turret_dps' => $weaponry['TurretDps'] ?? null,
+            'turret_alpha' => $weaponry['TurretAlpha'] ?? null,
+            'turret_sustained_dps' => $weaponry['TurretSustainedDps'] ?? null,
         ], static fn (mixed $value): bool => $value !== null);
 
-        $fixedWeapons = Arr::get($weaponry, 'FixedWeapons');
+        $fixedWeapons = $weaponry['FixedWeapons'] ?? null;
         if (is_array($fixedWeapons)) {
             $result['fixed_weapons'] = [
-                'dps_total' => Arr::get($fixedWeapons, 'DpsTotal'),
-                'sustained_dps_total' => Arr::get($fixedWeapons, 'SustainedDpsTotal'),
-                'alpha_total' => Arr::get($fixedWeapons, 'AlphaTotal'),
+                'dps_total' => $fixedWeapons['DpsTotal'] ?? null,
+                'sustained_dps_total' => $fixedWeapons['SustainedDpsTotal'] ?? null,
+                'alpha_total' => $fixedWeapons['AlphaTotal'] ?? null,
                 'weapons' => array_map(static fn (array $weapon): array => [
-                    'name' => Arr::get($weapon, 'Name'),
-                    'dps' => Arr::get($weapon, 'Dps'),
-                    'sustained_dps' => Arr::get($weapon, 'SustainedDps'),
-                    'alpha' => Arr::get($weapon, 'Alpha'),
-                ], Arr::get($fixedWeapons, 'Weapons', [])),
+                    'name' => $weapon['Name'] ?? null,
+                    'dps' => $weapon['Dps'] ?? null,
+                    'sustained_dps' => $weapon['SustainedDps'] ?? null,
+                    'alpha' => $weapon['Alpha'] ?? null,
+                ], $fixedWeapons['Weapons'] ?? []),
             ];
         }
 
-        $missiles = Arr::get($weaponry, 'Missiles');
+        $missiles = $weaponry['Missiles'] ?? null;
         if (is_array($missiles)) {
+            $missileDmg = $missiles['Damage'] ?? [];
             $result['missiles'] = [
-                'count' => Arr::get($missiles, 'Count'),
+                'count' => $missiles['Count'] ?? null,
                 'damage' => [
-                    'physical' => Arr::get($missiles, 'Damage.Physical'),
-                    'energy' => Arr::get($missiles, 'Damage.Energy'),
-                    'distortion' => Arr::get($missiles, 'Damage.Distortion'),
-                    'thermal' => Arr::get($missiles, 'Damage.Thermal'),
-                    'biochemical' => Arr::get($missiles, 'Damage.Biochemical'),
-                    'stun' => Arr::get($missiles, 'Damage.Stun'),
-                    'total' => Arr::get($missiles, 'Damage.Total'),
+                    'physical' => $missileDmg['Physical'] ?? null,
+                    'energy' => $missileDmg['Energy'] ?? null,
+                    'distortion' => $missileDmg['Distortion'] ?? null,
+                    'thermal' => $missileDmg['Thermal'] ?? null,
+                    'biochemical' => $missileDmg['Biochemical'] ?? null,
+                    'stun' => $missileDmg['Stun'] ?? null,
+                    'total' => $missileDmg['Total'] ?? null,
                 ],
             ];
         }
 
-        $totalMissiles = Arr::get($weaponry, 'TotalMissiles');
+        $totalMissiles = $weaponry['TotalMissiles'] ?? null;
         if ($totalMissiles !== null) {
             $result['total_missile_damage'] = $totalMissiles;
         }
@@ -81,14 +80,19 @@ final class VehicleWeaponryBuilder
     {
         $damageTypes = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
 
-        $parent = Arr::get($payload, $path, []);
+        $parent = $payload;
+        if ($path !== '') {
+            foreach (explode('.', $path) as $segment) {
+                $parent = is_array($parent) && array_key_exists($segment, $parent) ? $parent[$segment] : [];
+            }
+        }
 
         $result = [];
         foreach ($damageTypes as $type) {
-            $entry = Arr::get($parent, $type);
+            $entry = $parent[$type] ?? null;
             $result[strtolower($type)] = [
-                'minimum' => Arr::get($entry, 'Minimum'),
-                'maximum' => Arr::get($entry, 'Maximum'),
+                'minimum' => $entry['Minimum'] ?? null,
+                'maximum' => $entry['Maximum'] ?? null,
             ];
         }
 
@@ -101,12 +105,12 @@ final class VehicleWeaponryBuilder
      */
     public function buildPowerPools(array $payload): array
     {
-        $powerPools = Arr::get($payload, 'PowerPools', []);
+        $powerPools = $payload['PowerPools'] ?? [];
 
         return array_map(static fn (array $poolData) => [
-            'type' => Arr::get($poolData, 'Type'),
-            'item_type' => Arr::get($poolData, 'ItemType'),
-            'size' => Arr::get($poolData, 'Size'),
+            'type' => $poolData['Type'] ?? null,
+            'item_type' => $poolData['ItemType'] ?? null,
+            'size' => $poolData['Size'] ?? null,
         ], $powerPools);
     }
 

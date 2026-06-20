@@ -7,7 +7,6 @@ namespace App\Http\Resources\Game\Item;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -46,9 +45,10 @@ class PortItemSummaryResource extends AbstractBaseResource
      */
     public function toArray(Request $request): array
     {
-        $uuid = Arr::get($this->resource, 'UUID');
-        $type = Arr::get($this->resource, 'Type', '.');
-        $manufacturerName = Arr::get($this->resource, 'ManufacturerName');
+        $res = $this->resource;
+        $uuid = $res['UUID'] ?? null;
+        $type = $res['Type'] ?? '.';
+        $manufacturerName = $res['ManufacturerName'] ?? null;
 
         // Strip NOITEM_ prefix and split type.subtype
         $cleanType = str_replace('NOITEM_', '', $type);
@@ -56,12 +56,12 @@ class PortItemSummaryResource extends AbstractBaseResource
 
         return [
             'uuid' => $uuid,
-            'name' => Arr::get($this->resource, 'Name'),
-            'class_name' => Arr::get($this->resource, 'ClassName'),
+            'name' => $res['Name'] ?? null,
+            'class_name' => $res['ClassName'] ?? null,
             'type' => $typePart !== '' ? $typePart : null,
             'sub_type' => $subTypePart,
-            'size' => Arr::get($this->resource, 'MaxSize'),
-            'grade' => Arr::get($this->resource, 'Grade'),
+            'size' => $res['MaxSize'] ?? null,
+            'grade' => $res['Grade'] ?? null,
             'manufacturer' => ($manufacturerName !== null && $manufacturerName !== 'Unknown Manufacturer')
                 ? ['name' => $manufacturerName]
                 : null,

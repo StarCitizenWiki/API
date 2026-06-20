@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\ItemSpecification;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -190,84 +189,108 @@ class ArmorResource extends AbstractItemSpecificationResource
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
 
         $stdItem = $this->extractStdItem($data);
-        $armor = Arr::get($stdItem, 'Armor', []);
-        $signalMultipliers = Arr::get($armor, 'SignalMultipliers', []);
-        $damageMultipliers = Arr::get($armor, 'DamageMultipliers', []);
+        $armor = $stdItem['Armor'] ?? [];
+        $signalMultipliers = $armor['SignalMultipliers'] ?? [];
+        $damageMultipliers = $armor['DamageMultipliers'] ?? [];
+        $penetration = $armor['PenetrationResistance'] ?? [];
+        $deflection = $armor['Deflection'] ?? [];
+        $durability = $stdItem['Durability'] ?? [];
+        $resistance = $durability['Resistance'] ?? [];
+
+        // Compute each multiplier once: the _change fields reuse the same value,
+        // halving the number of nested-array reads for signal/damage/resistance.
+        $sigCs = $signalMultipliers['CrossSection'] ?? null;
+        $sigIr = $signalMultipliers['Infrared'] ?? null;
+        $sigEm = $signalMultipliers['Electromagnetic'] ?? null;
+
+        $dmgPhys = $damageMultipliers['Physical'] ?? null;
+        $dmgEnergy = $damageMultipliers['Energy'] ?? null;
+        $dmgDist = $damageMultipliers['Distortion'] ?? null;
+        $dmgTherm = $damageMultipliers['Thermal'] ?? null;
+        $dmgBio = $damageMultipliers['Biochemical'] ?? null;
+        $dmgStun = $damageMultipliers['Stun'] ?? null;
+
+        $resPhys = $resistance['Physical']['Multiplier'] ?? null;
+        $resEnergy = $resistance['Energy']['Multiplier'] ?? null;
+        $resDist = $resistance['Distortion']['Multiplier'] ?? null;
+        $resTherm = $resistance['Thermal']['Multiplier'] ?? null;
+        $resBio = $resistance['Biochemical']['Multiplier'] ?? null;
+        $resStun = $resistance['Stun']['Multiplier'] ?? null;
 
         return [
             'uuid' => $this->resource->item?->uuid,
-            'health' => Arr::get($stdItem, 'Durability.Health'),
+            'health' => $durability['Health'] ?? null,
 
-            'signal_infrared' => Arr::get($signalMultipliers, 'Infrared'),
-            'signal_electromagnetic' => Arr::get($signalMultipliers, 'Electromagnetic'),
-            'signal_cross_section' => Arr::get($signalMultipliers, 'CrossSection'),
-            'damage_physical' => Arr::get($damageMultipliers, 'Physical'),
-            'damage_energy' => Arr::get($damageMultipliers, 'Energy'),
-            'damage_distortion' => Arr::get($damageMultipliers, 'Distortion'),
-            'damage_thermal' => Arr::get($damageMultipliers, 'Thermal'),
-            'damage_biochemical' => Arr::get($damageMultipliers, 'Biochemical'),
-            'damage_stun' => Arr::get($damageMultipliers, 'Stun'),
+            'signal_infrared' => $sigIr,
+            'signal_electromagnetic' => $sigEm,
+            'signal_cross_section' => $sigCs,
+            'damage_physical' => $dmgPhys,
+            'damage_energy' => $dmgEnergy,
+            'damage_distortion' => $dmgDist,
+            'damage_thermal' => $dmgTherm,
+            'damage_biochemical' => $dmgBio,
+            'damage_stun' => $dmgStun,
 
             'signal_multiplier' => [
-                'cross_section' => Arr::get($armor, 'SignalMultipliers.CrossSection'),
-                'cross_section_change' => round(Arr::get($armor, 'SignalMultipliers.CrossSection') - 1, 2),
+                'cross_section' => $sigCs,
+                'cross_section_change' => round($sigCs - 1, 2),
 
-                'infrared' => Arr::get($armor, 'SignalMultipliers.Infrared'),
-                'infrared_change' => round(Arr::get($armor, 'SignalMultipliers.Infrared') - 1, 2),
+                'infrared' => $sigIr,
+                'infrared_change' => round($sigIr - 1, 2),
 
-                'electromagnetic' => Arr::get($armor, 'SignalMultipliers.Electromagnetic'),
-                'electromagnetic_change' => round(Arr::get($armor, 'SignalMultipliers.Electromagnetic') - 1, 2),
+                'electromagnetic' => $sigEm,
+                'electromagnetic_change' => round($sigEm - 1, 2),
             ],
             'damage_multiplier' => [
-                'physical' => Arr::get($armor, 'DamageMultipliers.Physical'),
-                'physical_change' => round(Arr::get($armor, 'DamageMultipliers.Physical') - 1, 2),
+                'physical' => $dmgPhys,
+                'physical_change' => round($dmgPhys - 1, 2),
 
-                'energy' => Arr::get($armor, 'DamageMultipliers.Energy'),
-                'energy_change' => round(Arr::get($armor, 'DamageMultipliers.Energy') - 1, 2),
+                'energy' => $dmgEnergy,
+                'energy_change' => round($dmgEnergy - 1, 2),
 
-                'distortion' => Arr::get($armor, 'DamageMultipliers.Distortion'),
-                'distortion_change' => round(Arr::get($armor, 'DamageMultipliers.Distortion') - 1, 2),
+                'distortion' => $dmgDist,
+                'distortion_change' => round($dmgDist - 1, 2),
 
-                'thermal' => Arr::get($armor, 'DamageMultipliers.Thermal'),
-                'thermal_change' => round(Arr::get($armor, 'DamageMultipliers.Thermal') - 1, 2),
+                'thermal' => $dmgTherm,
+                'thermal_change' => round($dmgTherm - 1, 2),
 
-                'biochemical' => Arr::get($armor, 'DamageMultipliers.Biochemical'),
-                'biochemical_change' => round(Arr::get($armor, 'DamageMultipliers.Biochemical') - 1, 2),
+                'biochemical' => $dmgBio,
+                'biochemical_change' => round($dmgBio - 1, 2),
 
-                'stun' => Arr::get($armor, 'DamageMultipliers.Stun'),
-                'stun_change' => round(Arr::get($armor, 'DamageMultipliers.Stun') - 1, 2),
+                'stun' => $dmgStun,
+                'stun_change' => round($dmgStun - 1, 2),
             ],
             'resistance_multiplier' => [
-                'physical' => Arr::get($stdItem, 'Durability.Resistance.Physical.Multiplier'),
-                'physical_change' => round(Arr::get($stdItem, 'Durability.Resistance.Physical.Multiplier') - 1, 2),
+                'physical' => $resPhys,
+                'physical_change' => round($resPhys - 1, 2),
 
-                'energy' => Arr::get($stdItem, 'Durability.Resistance.Energy.Multiplier'),
-                'energy_change' => round(Arr::get($stdItem, 'Durability.Resistance.Energy.Multiplier') - 1, 2),
-                'distortion' => Arr::get($stdItem, 'Durability.Resistance.Distortion.Multiplier'),
-                'distortion_change' => round(Arr::get($stdItem, 'Durability.Resistance.Distortion.Multiplier') - 1, 2),
-                'thermal' => Arr::get($stdItem, 'Durability.Resistance.Thermal.Multiplier'),
-                'thermal_change' => round(Arr::get($stdItem, 'Durability.Resistance.Thermal.Multiplier') - 1, 2),
-                'biochemical' => Arr::get($stdItem, 'Durability.Resistance.Biochemical.Multiplier'),
-                'biochemical_change' => round(Arr::get($stdItem, 'Durability.Resistance.Biochemical.Multiplier') - 1, 2),
-                'stun' => Arr::get($stdItem, 'Durability.Resistance.Stun.Multiplier'),
-                'stun_change' => round(Arr::get($stdItem, 'Durability.Resistance.Stun.Multiplier') - 1, 2),
+                'energy' => $resEnergy,
+                'energy_change' => round($resEnergy - 1, 2),
+                'distortion' => $resDist,
+                'distortion_change' => round($resDist - 1, 2),
+                'thermal' => $resTherm,
+                'thermal_change' => round($resTherm - 1, 2),
+                'biochemical' => $resBio,
+                'biochemical_change' => round($resBio - 1, 2),
+                'stun' => $resStun,
+                'stun_change' => round($resStun - 1, 2),
             ],
             'penetration_resistance' => [
-                'base' => Arr::get($armor, 'PenetrationResistance.Base'),
-                'physical' => Arr::get($armor, 'PenetrationResistance.Physical'),
-                'energy' => Arr::get($armor, 'PenetrationResistance.Energy'),
-                'distortion' => Arr::get($armor, 'PenetrationResistance.Distortion'),
-                'thermal' => Arr::get($armor, 'PenetrationResistance.Thermal'),
-                'biochemical' => Arr::get($armor, 'PenetrationResistance.Biochemical'),
-                'stun' => Arr::get($armor, 'PenetrationResistance.Stun'),
+                'base' => $penetration['Base'] ?? null,
+                'physical' => $penetration['Physical'] ?? null,
+                'energy' => $penetration['Energy'] ?? null,
+                'distortion' => $penetration['Distortion'] ?? null,
+                'thermal' => $penetration['Thermal'] ?? null,
+                'biochemical' => $penetration['Biochemical'] ?? null,
+                'stun' => $penetration['Stun'] ?? null,
             ],
             'deflection' => [
-                'physical' => Arr::get($armor, 'Deflection.Physical'),
-                'energy' => Arr::get($armor, 'Deflection.Energy'),
-                'distortion' => Arr::get($armor, 'Deflection.Distortion'),
-                'thermal' => Arr::get($armor, 'Deflection.Thermal'),
-                'biochemical' => Arr::get($armor, 'Deflection.Biochemical'),
-                'stun' => Arr::get($armor, 'Deflection.Stun'),
+                'physical' => $deflection['Physical'] ?? null,
+                'energy' => $deflection['Energy'] ?? null,
+                'distortion' => $deflection['Distortion'] ?? null,
+                'thermal' => $deflection['Thermal'] ?? null,
+                'biochemical' => $deflection['Biochemical'] ?? null,
+                'stun' => $deflection['Stun'] ?? null,
             ],
         ];
     }

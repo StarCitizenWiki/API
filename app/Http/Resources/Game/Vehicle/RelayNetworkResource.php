@@ -6,7 +6,6 @@ namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -42,15 +41,15 @@ class RelayNetworkResource extends AbstractBaseResource
 {
     public function toArray(Request $request): array
     {
+        $res = $this->resource;
+
         return [
-            'total_fuses' => Arr::get($this->resource, 'TotalFuses'),
-            'relays' => RelayEntryResource::collection(Arr::get($this->resource, 'Relays', [])),
-            'links' => collect(Arr::get($this->resource, 'Links', []))
-                ->map(fn (array $link) => [
-                    'from' => Arr::get($link, 'From'),
-                    'to' => Arr::get($link, 'To'),
-                ])
-                ->all(),
+            'total_fuses' => $res['TotalFuses'] ?? null,
+            'relays' => RelayEntryResource::collection($res['Relays'] ?? []),
+            'links' => array_map(static fn (array $link) => [
+                'from' => $link['From'] ?? null,
+                'to' => $link['To'] ?? null,
+            ], $res['Links'] ?? []),
         ];
     }
 }

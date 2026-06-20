@@ -6,7 +6,6 @@ namespace App\Http\Resources\Game\Vehicle\Concerns;
 
 use App\Http\Resources\Game\Concerns\NormalizesValues;
 use App\Models\Game\Item;
-use Illuminate\Support\Arr;
 
 trait ProcessesHardpointData
 {
@@ -14,13 +13,7 @@ trait ProcessesHardpointData
 
     protected function loadEquippedItem(): ?Item
     {
-        $hasEquippedItem = Arr::has($this->resource, 'UUID');
-
-        if (! $hasEquippedItem) {
-            return null;
-        }
-
-        $uuid = Arr::get($this->resource, 'UUID', []);
+        $uuid = $this->resource['UUID'] ?? null;
 
         if (! is_string($uuid) || $uuid === '') {
             return null;
@@ -35,42 +28,43 @@ trait ProcessesHardpointData
             return null;
         }
 
-        return $this->extractFromStdItem($resolvedItem->data?->first(), 'Durability.Health');
+        // Per-port hot path: inline to skip the dotted-path walker.
+        return $resolvedItem->data?->first()?->data['stdItem']['Durability']['Health'] ?? null;
     }
 
     protected function buildCompatibleTypes(): array
     {
         // Pre 4.8 ScDataDumper format
-        $source = Arr::get($this->resource, 'CompatibleTypes') ?? Arr::get($this->resource, 'ItemTypes', []);
+        $source = $this->resource['CompatibleTypes'] ?? $this->resource['ItemTypes'] ?? [];
 
         if ($source === null || $source === []) {
             return [];
         }
 
-        return array_map(static fn ($type) => [
-            'type' => Arr::get($type, 'Type'),
-            'sub_types' => Arr::get($type, 'SubTypes', []),
+        return array_map(static fn (array $type): array => [
+            'type' => $type['Type'] ?? null,
+            'sub_types' => $type['SubTypes'] ?? [],
         ], $source);
     }
 
     protected function shouldIncludeChildren(): bool
     {
-        return Arr::has($this->resource, 'Loadout');
+        return isset($this->resource['Loadout']);
     }
 
     protected function getChildrenArray(): array
     {
-        return Arr::get($this->resource, 'Loadout', []);
+        return $this->resource['Loadout'] ?? [];
     }
 
     protected function buildPortTags(): ?array
     {
-        return self::normalizeTagList(Arr::get($this->resource, 'PortTags'));
+        return self::normalizeTagList($this->resource['PortTags'] ?? null);
     }
 
     protected function extractTypeAndSubtype(): array
     {
-        [$type, $subtype] = explode('.', Arr::get($this->resource, 'Type', '.'));
+        [$type, $subtype] = explode('.', $this->resource['Type'] ?? '.');
 
         return [$type, $subtype];
     }

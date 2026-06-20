@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\ItemSpecification;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
@@ -214,25 +213,29 @@ class AmmunitionResource extends AbstractItemSpecificationResource
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
         $stdItem = $this->extractStdItem($data);
-        $ammunition = Arr::get($stdItem, 'Ammunition', []);
+        $ammunition = $stdItem['Ammunition'] ?? [];
 
-        $impactDamage = $this->buildDamageArray(Arr::get($ammunition, 'ImpactDamage', []), 'ImpactDamage');
-        $detonationDamage = $this->buildDamageArray(Arr::get($ammunition, 'DetonationDamage', []), 'DetonationDamage');
+        $impactDamage = $this->buildDamageArray($ammunition['ImpactDamage'] ?? [], 'ImpactDamage');
+        $detonationDamage = $this->buildDamageArray($ammunition['DetonationDamage'] ?? [], 'DetonationDamage');
 
-        $legacyDamageDropMinDistance = $this->legacyDamageFalloff(Arr::get($ammunition, 'DamageDropMinDistance', []));
-        $legacyDamageDropPerMeter = $this->legacyDamageFalloff(Arr::get($ammunition, 'DamageDropPerMeter', []));
-        $legacyDamageDropMinDamage = $this->legacyDamageFalloff(Arr::get($ammunition, 'DamageDropMinDamage', []));
+        $legacyDamageDropMinDistance = $this->legacyDamageFalloff($ammunition['DamageDropMinDistance'] ?? []);
+        $legacyDamageDropPerMeter = $this->legacyDamageFalloff($ammunition['DamageDropPerMeter'] ?? []);
+        $legacyDamageDropMinDamage = $this->legacyDamageFalloff($ammunition['DamageDropMinDamage'] ?? []);
 
         $damageDropMinDistance = $this->damageDropMap($legacyDamageDropMinDistance);
         $damageDropPerMeter = $this->damageDropMap($legacyDamageDropPerMeter);
         $damageDropMinDamage = $this->damageDropMap($legacyDamageDropMinDamage);
 
-        $penetration = Arr::get($ammunition, 'Penetration');
+        $penetration = $ammunition['Penetration'] ?? null;
 
-        $bulletImpulseFalloff = [
-            'min_distance' => Arr::get($ammunition, 'BulletImpulseFalloff.MinDistance'),
-            'drop_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.DropFalloff'),
-            'max_falloff' => Arr::get($ammunition, 'BulletImpulseFalloff.MaxFalloff'),
+        $bulletImpulseFalloff = $ammunition['BulletImpulseFalloff'] ?? null;
+        $bulletElectron = $ammunition['BulletElectron'] ?? null;
+        $explosionRadius = $ammunition['ExplosionRadius'] ?? null;
+
+        $bulletImpulseFalloffMap = [
+            'min_distance' => $bulletImpulseFalloff['MinDistance'] ?? null,
+            'drop_falloff' => $bulletImpulseFalloff['DropFalloff'] ?? null,
+            'max_falloff' => $bulletImpulseFalloff['MaxFalloff'] ?? null,
         ];
 
         $damageFalloffs = [
@@ -242,25 +245,25 @@ class AmmunitionResource extends AbstractItemSpecificationResource
         ];
 
         return [
-            'uuid' => Arr::get($ammunition, 'UUID'),
-            'size' => Arr::get($ammunition, 'Size'),
-            'lifetime' => Arr::get($ammunition, 'Lifetime'),
-            'speed' => Arr::get($ammunition, 'Speed'),
-            'range' => Arr::get($ammunition, 'Range'),
+            'uuid' => $ammunition['UUID'] ?? null,
+            'size' => $ammunition['Size'] ?? null,
+            'lifetime' => $ammunition['Lifetime'] ?? null,
+            'speed' => $ammunition['Speed'] ?? null,
+            'range' => $ammunition['Range'] ?? null,
 
-            'capacity' => Arr::get($ammunition, 'Capacity'),
-            'initial_capacity' => Arr::get($ammunition, 'InitialCapacity'),
+            'capacity' => $ammunition['Capacity'] ?? null,
+            'initial_capacity' => $ammunition['InitialCapacity'] ?? null,
 
-            'damage_falloff_level_1' => Arr::get($ammunition, 'DamageFalloffLevel1'),
-            'damage_falloff_level_2' => Arr::get($ammunition, 'DamageFalloffLevel2'),
-            'damage_falloff_level_3' => Arr::get($ammunition, 'DamageFalloffLevel3'),
-            'max_penetration_thickness' => Arr::get($ammunition, 'MaxPenetrationThickness'),
+            'damage_falloff_level_1' => $ammunition['DamageFalloffLevel1'] ?? null,
+            'damage_falloff_level_2' => $ammunition['DamageFalloffLevel2'] ?? null,
+            'damage_falloff_level_3' => $ammunition['DamageFalloffLevel3'] ?? null,
+            'max_penetration_thickness' => $ammunition['MaxPenetrationThickness'] ?? null,
 
             'penetration' => is_array($penetration) ? [
-                'base_distance' => Arr::get($penetration, 'BasePenetrationDistance'),
-                'near_radius' => Arr::get($penetration, 'NearRadius'),
-                'far_radius' => Arr::get($penetration, 'FarRadius'),
-                'angle' => Arr::get($penetration, 'Angle'),
+                'base_distance' => $penetration['BasePenetrationDistance'] ?? null,
+                'near_radius' => $penetration['NearRadius'] ?? null,
+                'far_radius' => $penetration['FarRadius'] ?? null,
+                'angle' => $penetration['Angle'] ?? null,
             ] : null,
 
             $this->mergeWhen(! empty($impactDamage), [
@@ -273,10 +276,10 @@ class AmmunitionResource extends AbstractItemSpecificationResource
                 'detonation_damage_map' => collect($detonationDamage)->mapWithKeys(static fn ($entry) => [Str::snake($entry['name']) => $entry['damage']])->toArray(),
             ]),
 
-            $this->mergeWhen(Arr::get($ammunition, 'ExplosionRadius') !== null, [
+            $this->mergeWhen($explosionRadius !== null, [
                 'explosion_radius' => [
-                    'min' => Arr::get($ammunition, 'ExplosionRadius.Minimum'),
-                    'max' => Arr::get($ammunition, 'ExplosionRadius.Maximum'),
+                    'min' => $explosionRadius['Minimum'] ?? null,
+                    'max' => $explosionRadius['Maximum'] ?? null,
                 ],
             ]),
 
@@ -290,22 +293,22 @@ class AmmunitionResource extends AbstractItemSpecificationResource
                 'damage_drop_min_damage' => $damageDropMinDamage,
             ]),
 
-            $this->mergeWhen(collect($bulletImpulseFalloff)->filter()->isNotEmpty(), [
-                'bullet_impulse_falloff' => $bulletImpulseFalloff,
+            $this->mergeWhen(collect($bulletImpulseFalloffMap)->filter()->isNotEmpty(), [
+                'bullet_impulse_falloff' => $bulletImpulseFalloffMap,
             ]),
 
-            $this->mergeWhen(Arr::get($ammunition, 'BulletElectron') !== null, [
+            $this->mergeWhen($bulletElectron !== null, [
                 'bullet_electron' => [
-                    'jump_range' => Arr::get($ammunition, 'BulletElectron.JumpRange'),
-                    'maximum_jumps' => Arr::get($ammunition, 'BulletElectron.MaximumJumps'),
-                    'residual_charge_multiplier' => Arr::get($ammunition, 'BulletElectron.ResidualChargeMultiplier'),
+                    'jump_range' => $bulletElectron['JumpRange'] ?? null,
+                    'maximum_jumps' => $bulletElectron['MaximumJumps'] ?? null,
+                    'residual_charge_multiplier' => $bulletElectron['ResidualChargeMultiplier'] ?? null,
                 ],
             ]),
 
-            'conversion_rate' => Arr::get($ammunition, 'ConversionRateMicroScu'),
+            'conversion_rate' => $ammunition['ConversionRateMicroScu'] ?? null,
 
-            'impulse_scale' => Arr::get($ammunition, 'ImpulseScale'),
-            'bullet_type' => Arr::get($ammunition, 'BulletType'),
+            'impulse_scale' => $ammunition['ImpulseScale'] ?? null,
+            'bullet_type' => $ammunition['BulletType'] ?? null,
 
             $this->mergeWhen(collect($damageFalloffs)->filter()->isNotEmpty(), [
                 'damage_falloffs' => $damageFalloffs,

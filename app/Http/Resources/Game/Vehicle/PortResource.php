@@ -15,7 +15,6 @@ use App\Http\Resources\Game\Vehicle\Concerns\ProcessesHardpointData;
 use App\Models\Game\Item;
 use App\Models\Game\Vehicle;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -115,16 +114,16 @@ class PortResource extends AbstractBaseResource
         [$type, $subtype] = $this->extractTypeAndSubtype();
         $compatibleTypes = $this->buildCompatibleTypes();
 
-        $minSize = Arr::get($this, 'MinSize');
-        $maxSize = Arr::get($this, 'MaxSize');
+        $minSize = $this->resource['MinSize'] ?? null;
+        $maxSize = $this->resource['MaxSize'] ?? null;
 
         return [
-            'name' => Arr::get($this, 'HardpointName'),
-            'position' => Arr::get($this, 'Position'),
-            'class_name' => Arr::get($this, 'ClassName'),
-            'editable' => Arr::get($this, 'Editable'),
-            'editable_children' => Arr::get($this, 'EditableChildren'),
-            'equipped_item_uuid' => Arr::get($this->resource, 'UUID'),
+            'name' => $this->resource['HardpointName'] ?? null,
+            'position' => $this->resource['Position'] ?? null,
+            'class_name' => $this->resource['ClassName'] ?? null,
+            'editable' => $this->resource['Editable'] ?? null,
+            'editable_children' => $this->resource['EditableChildren'] ?? null,
+            'equipped_item_uuid' => $this->resource['UUID'] ?? null,
             'type' => $type,
             'sub_type' => $subtype,
             'subtype' => $subtype,
@@ -138,7 +137,7 @@ class PortResource extends AbstractBaseResource
             'attached_vehicle' => $attachedVehicle,
             'ports' => $isShowRoute && $this->shouldIncludeChildren() ? self::collection(collect($this->getChildrenArray())->map(fn ($port) => new self($port, isChild: true))) : null,
             'category_label' => ! $this->isChild ? $this->categorizePort() : null,
-            'required_tags' => self::normalizeTagList(Arr::get($this, 'RequiredTags')),
+            'required_tags' => self::normalizeTagList($this->resource['RequiredTags'] ?? null),
             'port_tags' => $this->buildPortTags(),
             'version' => $this->gameVersionCode(),
         ];
@@ -153,7 +152,7 @@ class PortResource extends AbstractBaseResource
             return $resolvedItem !== null ? new PortItemResource($resolvedItem) : null;
         }
 
-        $uuid = Arr::get($this->resource, 'UUID');
+        $uuid = $this->resource['UUID'] ?? null;
 
         if (! is_string($uuid) || $uuid === '') {
             return null;
@@ -179,11 +178,11 @@ class PortResource extends AbstractBaseResource
      */
     private function isNoItemVehicle(array $port): bool
     {
-        $type = Arr::get($port, 'Type', '');
-        $compatibleTypes = Arr::get($port, 'CompatibleTypes') ?? Arr::get($port, 'ItemTypes', []);
+        $type = $port['Type'] ?? '';
+        $compatibleTypes = $port['CompatibleTypes'] ?? $port['ItemTypes'] ?? [];
 
         return str_starts_with($type, 'NOITEM_Vehicle')
-            || collect($compatibleTypes)->contains(fn (array $it): bool => ($it['Type'] ?? '') === 'NOITEM_Vehicle');
+            || array_any($compatibleTypes, fn (array $it): bool => ($it['Type'] ?? '') === 'NOITEM_Vehicle');
     }
 
     /**
@@ -214,7 +213,7 @@ class PortResource extends AbstractBaseResource
     private function resolveAttachedVehicleUuid(): ?string
     {
         if ($this->isNoItemVehicle($this->resource)) {
-            $uuid = Arr::get($this->resource, 'UUID');
+            $uuid = $this->resource['UUID'] ?? null;
 
             if (is_string($uuid) && $uuid !== '') {
                 return $uuid;
@@ -222,7 +221,7 @@ class PortResource extends AbstractBaseResource
         }
 
         $child = $this->findAttachedVehicleChild();
-        $uuid = Arr::get($child, 'UUID');
+        $uuid = $child['UUID'] ?? null;
 
         if (is_string($uuid) && $uuid !== '') {
             return $uuid;
@@ -242,9 +241,9 @@ class PortResource extends AbstractBaseResource
             return $this->attachedVehicleChildCache;
         }
 
-        $children = Arr::get($this->resource, 'Loadout', []);
+        $children = $this->resource['Loadout'] ?? [];
 
-        return $this->attachedVehicleChildCache = array_find($children, fn ($child) => $this->isNoItemVehicle($child) && is_string($uuid = Arr::get($child, 'UUID')) && $uuid !== '');
+        return $this->attachedVehicleChildCache = array_find($children, fn ($child) => $this->isNoItemVehicle($child) && is_string($uuid = $child['UUID'] ?? null) && $uuid !== '');
     }
 
     /**

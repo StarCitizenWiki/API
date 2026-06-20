@@ -25,7 +25,6 @@ use App\Services\Game\WeaponSnapshotService;
 use App\Support\Game\HardpointCategory;
 use App\Support\ScuBox;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -800,14 +799,14 @@ class VehicleResource extends AbstractBaseResource
 
         $portKey = $apiVersion === 'v2' ? 'hardpoints' : 'ports';
 
-        $cargoGridPayload = Arr::get($payload, 'CargoGrids', []);
+        $cargoGridPayload = $payload['CargoGrids'] ?? [];
         $cargoLimits = $this->calculateCargoGridSizeLimits($cargoGridPayload);
 
-        $weaponSnapshotLoadout = Arr::get($payload, 'Loadout', []);
+        $weaponSnapshotLoadout = $payload['Loadout'] ?? [];
 
-        $mannedTurrets = $this->weaponryBuilder->decorateTurretEntries(Arr::get($payload, 'MannedTurrets', []), 'manned');
-        $remoteTurrets = $this->weaponryBuilder->decorateTurretEntries(Arr::get($payload, 'RemoteTurrets', []), 'remote');
-        $pdcTurrets = $this->weaponryBuilder->decorateTurretEntries(Arr::get($payload, 'PdcTurrets', []), 'pdc');
+        $mannedTurrets = $this->weaponryBuilder->decorateTurretEntries($payload['MannedTurrets'] ?? [], 'manned');
+        $remoteTurrets = $this->weaponryBuilder->decorateTurretEntries($payload['RemoteTurrets'] ?? [], 'remote');
+        $pdcTurrets = $this->weaponryBuilder->decorateTurretEntries($payload['PdcTurrets'] ?? [], 'pdc');
 
         $this->addMetadata('deprecated_fields', [
             'sizes' => 'Use length, width, and height properties from dimension instead',
@@ -840,17 +839,17 @@ class VehicleResource extends AbstractBaseResource
             'game_name' => $vehicleData->name,
             'slug' => $this->vehicle->slug,
             'class_name' => $vehicleData->class_name,
-            'port_tags' => self::PORT_TAGS_OVERRIDES[$vehicleData->class_name] ?? Arr::get($payload, 'PortTags', []),
+            'port_tags' => self::PORT_TAGS_OVERRIDES[$vehicleData->class_name] ?? ($payload['PortTags'] ?? []),
 
             'sizes' => [
-                'length' => $vehicleData->length ?? Arr::get($payload, 'Length'),
-                'beam' => $vehicleData->width ?? Arr::get($payload, 'Width'),
-                'height' => $vehicleData->height ?? Arr::get($payload, 'Height'),
+                'length' => $vehicleData->length ?? ($payload['Length'] ?? null),
+                'beam' => $vehicleData->width ?? ($payload['Width'] ?? null),
+                'height' => $vehicleData->height ?? ($payload['Height'] ?? null),
             ],
             'dimension' => [
-                'length' => Arr::get($payload, 'Length'),
-                'width' => Arr::get($payload, 'Width'),
-                'height' => Arr::get($payload, 'Height'),
+                'length' => $payload['Length'] ?? null,
+                'width' => $payload['Width'] ?? null,
+                'height' => $payload['Height'] ?? null,
             ],
             'emission' => [
                 'ir' => $emission['IrShields'] ?? null,
@@ -858,36 +857,36 @@ class VehicleResource extends AbstractBaseResource
                 'em_max' => $emission['EmQuantum'] ?? null,
             ],
 
-            'mass' => $vehicleData->mass ?? Arr::get($payload, 'Mass'),
+            'mass' => $vehicleData->mass ?? ($payload['Mass'] ?? null),
 
-            'mass_hull' => $vehicleData->mass_vehicle ?? Arr::get($payload, 'Mass'),
-            'mass_loadout' => $vehicleData->mass_loadout ?? Arr::get($payload, 'MassLoadout'),
-            'mass_total' => $vehicleData->mass_total ?? Arr::get($payload, 'MassTotal'),
+            'mass_hull' => $vehicleData->mass_vehicle ?? ($payload['Mass'] ?? null),
+            'mass_loadout' => $vehicleData->mass_loadout ?? ($payload['MassLoadout'] ?? null),
+            'mass_total' => $vehicleData->mass_total ?? ($payload['MassTotal'] ?? null),
 
-            'cargo_capacity' => $vehicleData->cargo_capacity ?? Arr::get($payload, 'Cargo'),
-            'ore_capacity' => Arr::get($payload, 'OreCapacity'),
-            'cargo_grids' => ItemInventoryResource::collection(Arr::get($payload, 'CargoGrids', [])),
+            'cargo_capacity' => $vehicleData->cargo_capacity ?? ($payload['Cargo'] ?? null),
+            'ore_capacity' => $payload['OreCapacity'] ?? null,
+            'cargo_grids' => ItemInventoryResource::collection($payload['CargoGrids'] ?? []),
             $this->mergeWhen(
                 ! empty($cargoLimits),
                 fn () => ['cargo_limits' => $cargoLimits]
             ),
             'vehicle_inventory' => ($vehicleData->vehicle_inventory ?? 0) * (10 ** 6),
-            'inventory_containers' => ItemInventoryResource::collection(Arr::get($payload, 'InventoryContainers', [])),
+            'inventory_containers' => ItemInventoryResource::collection($payload['InventoryContainers'] ?? []),
 
             $this->mergeWhen(
-                is_array($ws = Arr::get($payload, 'WeaponStorage')) && (int) Arr::get($ws, 'Lockers', 0) > 0,
+                is_array($ws = $payload['WeaponStorage'] ?? null) && (int) ($ws['Lockers'] ?? 0) > 0,
                 fn () => ['weapon_storage' => new WeaponStorageResource($ws)]
             ),
 
             $this->mergeWhen(
-                is_array($ss = Arr::get($payload, 'SuitStorage')) && (int) Arr::get($ss, 'Lockers', 0) > 0,
+                is_array($ss = $payload['SuitStorage'] ?? null) && (int) ($ss['Lockers'] ?? 0) > 0,
                 fn () => ['suit_storage' => new SuitStorageResource($ss)]
             ),
 
             'crew' => [
                 'min' => $vehicleData->crew_min,
-                'max' => $vehicleData->crew_max ?? Arr::get($payload, 'Crew'),
-                'weapon' => Arr::get($payload, 'WeaponCrew'),
+                'max' => $vehicleData->crew_max ?? ($payload['Crew'] ?? null),
+                'weapon' => $payload['WeaponCrew'] ?? null,
                 'operation' => null,
             ],
 
@@ -930,25 +929,30 @@ class VehicleResource extends AbstractBaseResource
 
             'speed' => $this->flightBuilder->buildSpeed($flight),
 
-            'afterburner' => [
-                'pitch_boost_multiplier' => Arr::get($flight, 'Afterburner.AngularAccelerationMultiplier.Pitch'),
-                'roll_boost_multiplier' => Arr::get($flight, 'Afterburner.AngularAccelerationMultiplier.Roll'),
-                'yaw_boost_multiplier' => Arr::get($flight, 'Afterburner.AngularAccelerationMultiplier.Yaw'),
+            'afterburner' => (function () use ($flight) {
+                $ab = $flight['Afterburner'] ?? [];
+                $ang = $ab['AngularAccelerationMultiplier'] ?? [];
 
-                'capacitor' => Arr::get($flight, 'Afterburner.CapacitorMax'),
-                'idle_cost' => Arr::get($flight, 'Afterburner.CapacitorAfterburnerIdleCost'),
-                'linear_cost' => Arr::get($flight, 'Afterburner.CapacitorAfterburnerLinearCost'),
-                'angular_cost' => Arr::get($flight, 'Afterburner.CapacitorAfterburnerAngularCost'),
-                'regen_per_second' => Arr::get($flight, 'Afterburner.CapacitorRegenPerSec'),
-                'regen_delay_after_use' => Arr::get($flight, 'Afterburner.CapacitorRegenDelayAfterUse'),
-                'pre_delay_time' => Arr::get($flight, 'Afterburner.AfterburnerPreDelayTime'),
-                'ramp_up_time' => Arr::get($flight, 'Afterburner.AfterburnerRampUpTime'),
-                'ramp_down_time' => Arr::get($flight, 'Afterburner.AfterburnerRampDownTime'),
-                'regen_time' => Arr::get($flight, 'Afterburner.RegenTime'),
-                'regen_delay' => Arr::get($flight, 'Afterburner.CapacitorRegenDelayAfterUse'),
-            ],
+                return [
+                    'pitch_boost_multiplier' => $ang['Pitch'] ?? null,
+                    'roll_boost_multiplier' => $ang['Roll'] ?? null,
+                    'yaw_boost_multiplier' => $ang['Yaw'] ?? null,
 
-            'fuel' => $this->flightBuilder->buildFuel($propulsion = Arr::get($payload, 'Propulsion', [])),
+                    'capacitor' => $ab['CapacitorMax'] ?? null,
+                    'idle_cost' => $ab['CapacitorAfterburnerIdleCost'] ?? null,
+                    'linear_cost' => $ab['CapacitorAfterburnerLinearCost'] ?? null,
+                    'angular_cost' => $ab['CapacitorAfterburnerAngularCost'] ?? null,
+                    'regen_per_second' => $ab['CapacitorRegenPerSec'] ?? null,
+                    'regen_delay_after_use' => $ab['CapacitorRegenDelayAfterUse'] ?? null,
+                    'pre_delay_time' => $ab['AfterburnerPreDelayTime'] ?? null,
+                    'ramp_up_time' => $ab['AfterburnerRampUpTime'] ?? null,
+                    'ramp_down_time' => $ab['AfterburnerRampDownTime'] ?? null,
+                    'regen_time' => $ab['RegenTime'] ?? null,
+                    'regen_delay' => $ab['CapacitorRegenDelayAfterUse'] ?? null,
+                ];
+            })(),
+
+            'fuel' => $this->flightBuilder->buildFuel($propulsion = $payload['Propulsion'] ?? []),
             'propulsion' => $this->flightBuilder->buildPropulsion($propulsion),
             'quantum' => $this->flightBuilder->buildQuantum($payload),
 
@@ -974,7 +978,7 @@ class VehicleResource extends AbstractBaseResource
             'manufacturer' => $vehicleData->relationLoaded('manufacturer')
                 ? new ManufacturerLinkResource($vehicleData->manufacturer)
                 : null,
-            'size_class' => $vehicleData->size ?? Arr::get($payload, 'Size'),
+            'size_class' => $vehicleData->size ?? ($payload['Size'] ?? null),
 
             'cross_section' => [
                 'length' => $crossSection['X'] ?? null,
@@ -987,9 +991,9 @@ class VehicleResource extends AbstractBaseResource
                 $crossSection['Z'] ?? 0,
             ) ?: null,
 
-            'is_vehicle' => Arr::get($payload, 'IsVehicle'),
-            'is_gravlev' => Arr::get($payload, 'IsGravlev'),
-            'is_spaceship' => Arr::get($payload, 'IsSpaceship'),
+            'is_vehicle' => $payload['IsVehicle'] ?? null,
+            'is_gravlev' => $payload['IsGravlev'] ?? null,
+            'is_spaceship' => $payload['IsSpaceship'] ?? null,
 
             'signature' => [
                 'ir_quantum' => $emission['IrQuantum'] ?? null,
@@ -1027,7 +1031,7 @@ class VehicleResource extends AbstractBaseResource
             ],
 
             $this->mergeWhen(
-                ! empty(Arr::get($payload, 'PowerPools')),
+                ! empty($payload['PowerPools'] ?? null),
                 fn () => ['power_pools' => $this->weaponryBuilder->buildPowerPools($payload)]
             ),
 
@@ -1037,8 +1041,8 @@ class VehicleResource extends AbstractBaseResource
             ],
 
             $this->mergeWhen(
-                ! empty(Arr::get($payload, 'RelayNetwork')),
-                fn () => ['relay_network' => new RelayNetworkResource(Arr::get($payload, 'RelayNetwork'))]
+                ! empty($payload['RelayNetwork'] ?? null),
+                fn () => ['relay_network' => new RelayNetworkResource($payload['RelayNetwork'] ?? null)]
             ),
 
             'insurance' => [
@@ -1047,13 +1051,13 @@ class VehicleResource extends AbstractBaseResource
                 'expedite_cost' => $insurance['ExpeditedCost'] ?? null,
             ],
             'damage_limits' => [
-                'before_destruction' => Arr::get($payload, 'DamageBeforeDestruction'),
-                'before_detach' => Arr::get($payload, 'DamageBeforeDetach'),
+                'before_destruction' => $payload['DamageBeforeDestruction'] ?? null,
+                'before_detach' => $payload['DamageBeforeDetach'] ?? null,
             ],
             $this->mergeWhen(
                 $this->isVehicleShowRoute($request),
                 function () use ($payload, $apiVersion, $portKey) {
-                    $loadout = Arr::get($payload, 'Loadout', []);
+                    $loadout = $payload['Loadout'] ?? [];
                     $hardpoints = $apiVersion === 'v2'
                         ? HardpointResource::collection($loadout)
                         : PortResource::collection($loadout);
@@ -1068,7 +1072,7 @@ class VehicleResource extends AbstractBaseResource
             'parts' => (function () use ($payload) {
                 PartResource::setDamageLimitsLookup($this->buildDamageLimitsLookup($payload));
 
-                return PartResource::collection(Arr::get($payload, 'Parts', []));
+                return PartResource::collection($payload['Parts'] ?? []);
             })(),
             'turrets' => [
                 'manned' => TurretSummaryResource::collection($mannedTurrets),
@@ -1076,8 +1080,8 @@ class VehicleResource extends AbstractBaseResource
                 'pdc' => TurretSummaryResource::collection($pdcTurrets),
             ],
 
-            'career' => $vehicleData->career ?? Arr::get($payload, 'Career'),
-            'role' => $vehicleData->role ?? Arr::get($payload, 'Role'),
+            'career' => $vehicleData->career ?? ($payload['Career'] ?? null),
+            'role' => $vehicleData->role ?? ($payload['Role'] ?? null),
 
             'game_description' => $this->resolveGameDescription($vehicleData, $request),
 
@@ -1235,7 +1239,7 @@ class VehicleResource extends AbstractBaseResource
     {
         $primaryCategories = HardpointCategory::primary();
         $primaryKeys = array_flip($primaryCategories);
-        $loadout = Arr::get($payload, 'Loadout', []);
+        $loadout = $payload['Loadout'] ?? [];
 
         $filtered = array_filter(
             $loadout,
@@ -1309,9 +1313,9 @@ class VehicleResource extends AbstractBaseResource
         // Compute per-grid max_scu_box (constrained by both interior & max_size), take the largest
         $maxScuBox = collect($cargoGrids)
             ->map(function (array $grid) {
-                $x = Arr::get($grid, 'X');
-                $y = Arr::get($grid, 'Y');
-                $z = Arr::get($grid, 'Z');
+                $x = $grid['X'] ?? null;
+                $y = $grid['Y'] ?? null;
+                $z = $grid['Z'] ?? null;
                 $maxSize = $this->extractSizeBlock($grid, 'MaxSize', 'max_size');
 
                 if ($maxSize === null) {
@@ -1345,19 +1349,19 @@ class VehicleResource extends AbstractBaseResource
      */
     private function extractSizeBlock(array $grid, string $key, string $fallbackKey): ?array
     {
-        $data = Arr::get($grid, $key);
+        $data = $grid[$key] ?? null;
 
         if (! is_array($data)) {
-            $data = Arr::get($grid, $fallbackKey);
+            $data = $grid[$fallbackKey] ?? null;
         }
 
         if (! is_array($data)) {
             return null;
         }
 
-        $x = Arr::get($data, 'X', Arr::get($data, 'x'));
-        $y = Arr::get($data, 'Y', Arr::get($data, 'y'));
-        $z = Arr::get($data, 'Z', Arr::get($data, 'z'));
+        $x = $data['X'] ?? ($data['x'] ?? null);
+        $y = $data['Y'] ?? ($data['y'] ?? null);
+        $z = $data['Z'] ?? ($data['z'] ?? null);
 
         if ($x === null || $y === null || $z === null) {
             return null;
@@ -1400,13 +1404,13 @@ class VehicleResource extends AbstractBaseResource
     {
         $lookup = [];
 
-        foreach (Arr::get($payload, 'DamageBeforeDestruction', []) as $entry) {
-            $lookup[Arr::get($entry, 'Name')] = ['destruction_damage' => Arr::get($entry, 'DestructionDamage')];
+        foreach ($payload['DamageBeforeDestruction'] ?? [] as $entry) {
+            $lookup[$entry['Name'] ?? null] = ['destruction_damage' => $entry['DestructionDamage'] ?? null];
         }
 
-        foreach (Arr::get($payload, 'DamageBeforeDetach', []) as $entry) {
-            $name = Arr::get($entry, 'Name');
-            $lookup[$name] = array_merge($lookup[$name] ?? [], ['detach_damage' => Arr::get($entry, 'DetachDamage')]);
+        foreach ($payload['DamageBeforeDetach'] ?? [] as $entry) {
+            $name = $entry['Name'] ?? null;
+            $lookup[$name] = array_merge($lookup[$name] ?? [], ['detach_damage' => $entry['DetachDamage'] ?? null]);
         }
 
         return $lookup;
@@ -1420,17 +1424,17 @@ class VehicleResource extends AbstractBaseResource
      */
     private function buildNoFuelParams(array $flight): ?array
     {
-        $noFuelParams = Arr::get($flight, 'IFCS.NoFuelParams');
+        $noFuelParams = $flight['IFCS']['NoFuelParams'] ?? null;
 
         if ($noFuelParams === null) {
             return null;
         }
 
         return [
-            'linear_acceleration_modifier' => Arr::get($noFuelParams, 'LinearAccelerationModifier'),
-            'angular_acceleration_modifier' => Arr::get($noFuelParams, 'AngularAccelerationModifier'),
-            'angular_velocity_modifier' => Arr::get($noFuelParams, 'AngularVelocityModifier'),
-            'legacy_max_speed' => Arr::get($noFuelParams, 'LegacyMaxSpeed'),
+            'linear_acceleration_modifier' => $noFuelParams['LinearAccelerationModifier'] ?? null,
+            'angular_acceleration_modifier' => $noFuelParams['AngularAccelerationModifier'] ?? null,
+            'angular_velocity_modifier' => $noFuelParams['AngularVelocityModifier'] ?? null,
+            'legacy_max_speed' => $noFuelParams['LegacyMaxSpeed'] ?? null,
         ];
     }
 }

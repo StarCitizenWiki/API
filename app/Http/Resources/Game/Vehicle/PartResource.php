@@ -7,7 +7,6 @@ namespace App\Http\Resources\Game\Vehicle;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
@@ -58,21 +57,22 @@ class PartResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $name = Arr::get($this->resource, 'Name');
+        $res = $this->resource;
+        $name = $res['Name'] ?? null;
         $limitEntry = $name !== null ? (static::$damageLimitsLookup[$name] ?? []) : [];
 
         return [
             'name' => $name,
             'display_name' => $this->generateDisplayName($name),
-            'damage_max' => Arr::get($this->resource, 'DamageMax'),
+            'damage_max' => $res['DamageMax'] ?? null,
             $this->mergeWhen(array_key_exists('destruction_damage', $limitEntry), fn () => [
                 'destruction_damage' => $limitEntry['destruction_damage'],
             ]),
             $this->mergeWhen(array_key_exists('detach_damage', $limitEntry), fn () => [
                 'detach_damage' => $limitEntry['detach_damage'],
             ]),
-            $this->mergeWhen(Arr::has($this->resource, 'Children'), [
-                'children' => self::collection(Arr::get($this->resource, 'Children', [])),
+            $this->mergeWhen(array_key_exists('Children', $res), [
+                'children' => self::collection($res['Children'] ?? []),
             ]),
             'version' => $this->gameVersionCode(),
         ];
@@ -105,7 +105,11 @@ class PartResource extends AbstractBaseResource
         );
 
         if (isset($matches[0]) && $matches[0] !== strtolower($name)) {
-            $partName = trim(str_replace('_', ' ', str_replace($matches[0], '', strtolower($name))));
+            $partName = $name
+                    |> strtolower(...)
+                    |> (static fn ($x) => str_replace($matches[0], '', $x))
+                    |> (static fn ($x) => str_replace('_', ' ', $x))
+                    |> trim(...);
             $position = trim(str_replace('_', ' ', $matches[0]));
 
             return Str::ucfirst(sprintf('%s (%s)', $partName, $position));

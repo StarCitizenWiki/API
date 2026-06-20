@@ -8,7 +8,6 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Starmap\StarmapLocationLinkResource;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -40,21 +39,22 @@ class UexPriceResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $locationUuid = Arr::get($this->resource, 'starmap_location_uuid');
+        $res = $this->resource;
+        $locationUuid = $res['starmap_location_uuid'] ?? null;
 
         return [
-            'price_buy' => Arr::get($this->resource, 'price_buy'),
-            'price_sell' => Arr::get($this->resource, 'price_sell'),
-            'price_rent' => Arr::get($this->resource, 'price_rent'),
-            'terminal_id' => Arr::get($this->resource, 'terminal_id'),
-            'terminal_code' => Arr::get($this->resource, 'terminal_code'),
-            'terminal_name' => Arr::get($this->resource, 'terminal_name'),
+            'price_buy' => $res['price_buy'] ?? null,
+            'price_sell' => $res['price_sell'] ?? null,
+            'price_rent' => $res['price_rent'] ?? null,
+            'terminal_id' => $res['terminal_id'] ?? null,
+            'terminal_code' => $res['terminal_code'] ?? null,
+            'terminal_name' => $res['terminal_name'] ?? null,
             'starmap_location' => $this->locationData !== null
                 ? new StarmapLocationLinkResource($this->locationData, $locationUuid)->resolve($request)
                 : null,
-            'date_updated' => Arr::get($this->resource, 'date_updated'),
-            'game_version' => Arr::get($this->resource, 'game_version'),
-            'uex_link' => Arr::get($this->resource, 'uex_link'),
+            'date_updated' => $res['date_updated'] ?? null,
+            'game_version' => $res['game_version'] ?? null,
+            'uex_link' => $res['uex_link'] ?? null,
         ];
     }
 }

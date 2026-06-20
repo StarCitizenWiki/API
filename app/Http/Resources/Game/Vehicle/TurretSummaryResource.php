@@ -7,7 +7,6 @@ namespace App\Http\Resources\Game\Vehicle;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -82,31 +81,38 @@ class TurretSummaryResource extends AbstractBaseResource
 {
     use ResolvesGameVersion;
 
+    /**
+     * Memo for rawMounts(): declared as unset rather than null so null stays
+     * a valid (if unlikely) filtered result. See rawMounts().
+     */
+    private array $rawMountsMemo;
+
     public function toArray(Request $request): array
     {
+        $res = $this->resource;
         $mounts = $this->mountRows();
 
         return [
-            'category' => Arr::get($this->resource, 'Category'),
-            'display_name' => Arr::get($this->resource, 'DisplayName', Arr::get($this->resource, 'Name')),
-            'hardpoint_name' => Arr::get($this->resource, 'HardpointName'),
-            'part_name' => Arr::get($this->resource, 'PartName'),
-            'turret_type' => Arr::get($this->resource, 'TurretType', Arr::get($this->resource, 'Type')),
-            'class_name' => Arr::get($this->resource, 'TurretClassName', Arr::get($this->resource, 'ClassName')),
-            'size' => Arr::get($this->resource, 'Size', Arr::get($this->resource, 'MaxSize', Arr::get($this->resource, 'MinSize'))),
-            'turret' => Arr::get($this->resource, 'Turret'),
-            'gimballed' => Arr::get($this->resource, 'Gimballed'),
-            'fixed' => Arr::get($this->resource, 'Fixed'),
-            'mount_count' => Arr::get($this->resource, 'MountCount', $mounts === [] ? null : count($mounts)),
-            'weapon_sizes' => Arr::get($this->resource, 'WeaponSizes', $this->aggregateRawMountValues('WeaponSizes')),
-            'payload_sizes' => Arr::get($this->resource, 'PayloadSizes', $this->aggregateRawMountValues('PayloadSizes')),
-            'payload_types' => Arr::get($this->resource, 'PayloadTypes', $this->aggregateRawMountValues('PayloadTypes')),
-            'payload_class_names' => Arr::get($this->resource, 'PayloadClassNames', $this->aggregateRawMountValues('PayloadClassNames')),
+            'category' => $res['Category'] ?? null,
+            'display_name' => $res['DisplayName'] ?? ($res['Name'] ?? null),
+            'hardpoint_name' => $res['HardpointName'] ?? null,
+            'part_name' => $res['PartName'] ?? null,
+            'turret_type' => $res['TurretType'] ?? ($res['Type'] ?? null),
+            'class_name' => $res['TurretClassName'] ?? ($res['ClassName'] ?? null),
+            'size' => $res['Size'] ?? ($res['MaxSize'] ?? ($res['MinSize'] ?? null)),
+            'turret' => $res['Turret'] ?? null,
+            'gimballed' => $res['Gimballed'] ?? null,
+            'fixed' => $res['Fixed'] ?? null,
+            'mount_count' => $res['MountCount'] ?? ($mounts === [] ? null : count($mounts)),
+            'weapon_sizes' => $res['WeaponSizes'] ?? $this->aggregateRawMountValues('WeaponSizes'),
+            'payload_sizes' => $res['PayloadSizes'] ?? $this->aggregateRawMountValues('PayloadSizes'),
+            'payload_types' => $res['PayloadTypes'] ?? $this->aggregateRawMountValues('PayloadTypes'),
+            'payload_class_names' => $res['PayloadClassNames'] ?? $this->aggregateRawMountValues('PayloadClassNames'),
             'mounts' => $mounts,
-            'dps_total' => Arr::get($this->resource, 'DpsTotal'),
-            'sustained_dps_total' => Arr::get($this->resource, 'SustainedDpsTotal'),
-            'alpha_total' => Arr::get($this->resource, 'AlphaTotal'),
-            'is_pilot_slaveable' => Arr::get($this->resource, 'IsPilotSlaveable'),
+            'dps_total' => $res['DpsTotal'] ?? null,
+            'sustained_dps_total' => $res['SustainedDpsTotal'] ?? null,
+            'alpha_total' => $res['AlphaTotal'] ?? null,
+            'is_pilot_slaveable' => $res['IsPilotSlaveable'] ?? null,
             'weapons' => $this->weaponRows($request),
             'version' => $this->gameVersionCode(),
         ];
@@ -117,32 +123,38 @@ class TurretSummaryResource extends AbstractBaseResource
      */
     private function mountRows(): array
     {
-        return collect($this->rawMounts())
-            ->map(static fn (array $mount): array => [
-                'display_name' => Arr::get($mount, 'DisplayName', Arr::get($mount, 'Name')),
-                'hardpoint_name' => Arr::get($mount, 'HardpointName'),
-                'mount_type' => Arr::get($mount, 'MountType', Arr::get($mount, 'Type')),
-                'class_name' => Arr::get($mount, 'MountClassName', Arr::get($mount, 'ClassName')),
-                'size' => Arr::get($mount, 'Size', Arr::get($mount, 'MaxSize', Arr::get($mount, 'MinSize'))),
-                'weapon_sizes' => Arr::get($mount, 'WeaponSizes'),
-                'payload_sizes' => Arr::get($mount, 'PayloadSizes'),
-                'payload_types' => Arr::get($mount, 'PayloadTypes'),
-                'payload_class_names' => Arr::get($mount, 'PayloadClassNames'),
-            ])
-            ->filter(static fn (array $mount): bool => $mount !== [])
-            ->values()
-            ->all();
+        $rows = array_map(static fn (array $mount): array => [
+            'display_name' => $mount['DisplayName'] ?? ($mount['Name'] ?? null),
+            'hardpoint_name' => $mount['HardpointName'] ?? null,
+            'mount_type' => $mount['MountType'] ?? ($mount['Type'] ?? null),
+            'class_name' => $mount['MountClassName'] ?? ($mount['ClassName'] ?? null),
+            'size' => $mount['Size'] ?? ($mount['MaxSize'] ?? ($mount['MinSize'] ?? null)),
+            'weapon_sizes' => $mount['WeaponSizes'] ?? null,
+            'payload_sizes' => $mount['PayloadSizes'] ?? null,
+            'payload_types' => $mount['PayloadTypes'] ?? null,
+            'payload_class_names' => $mount['PayloadClassNames'] ?? null,
+        ], $this->rawMounts());
+
+        return array_values(array_filter($rows, static fn (array $mount): bool => $mount !== []));
     }
 
     /**
+     * Filtered mounts, memoized: toArray() pulls this via mountRows() once
+     * and via aggregateRawMountValues() up to four times (per aggregation
+     * key), so computing it once avoids four repeated Collection builds.
+     *
      * @return array<int, array<string, mixed>>
      */
     private function rawMounts(): array
     {
-        return collect(Arr::get($this->resource, 'Mounts', []))
-            ->filter(static fn (mixed $mount): bool => is_array($mount))
-            ->values()
-            ->all();
+        if (! isset($this->rawMountsMemo)) {
+            $this->rawMountsMemo = array_values(array_filter(
+                $this->resource['Mounts'] ?? [],
+                static fn (mixed $mount): bool => is_array($mount),
+            ));
+        }
+
+        return $this->rawMountsMemo;
     }
 
     /**
@@ -150,14 +162,21 @@ class TurretSummaryResource extends AbstractBaseResource
      */
     private function aggregateRawMountValues(string $key): array
     {
-        return collect($this->rawMounts())
-            ->flatMap(static fn (array $mount): array => array_values(array_filter(
-                Arr::wrap(Arr::get($mount, $key, [])),
+        $seen = [];
+        $result = [];
+        foreach ($this->rawMounts() as $mount) {
+            foreach (array_filter(
+                (array) ($mount[$key] ?? []),
                 static fn (mixed $value): bool => is_int($value) || is_string($value)
-            )))
-            ->uniqueStrict()
-            ->values()
-            ->all();
+            ) as $value) {
+                if (! in_array($value, $seen, true)) {
+                    $seen[] = $value;
+                    $result[] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -165,29 +184,29 @@ class TurretSummaryResource extends AbstractBaseResource
      */
     private function weaponRows(Request $request): array
     {
-        return collect(Arr::get($this->resource, 'Weapons', []))
-            ->filter(static fn (mixed $weapon): bool => is_array($weapon))
-            ->map(function (array $weapon) use ($request): array {
-                $uuid = Arr::get($weapon, 'UUID');
+        $rows = array_map(function (array $weapon) use ($request): array {
+            $uuid = $weapon['UUID'] ?? null;
 
-                return [
-                    'uuid' => $uuid,
-                    'class_name' => Arr::get($weapon, 'ClassName'),
-                    'name' => Arr::get($weapon, 'Name'),
-                    'link' => $uuid !== null
-                        ? route('items.show', ['identifier' => $uuid])
-                        : null,
-                    'web_url' => $uuid !== null
-                        ? $this->urlWithVersion(route('web.items.show', ['item' => $uuid]), $request)
-                        : null,
-                    'dps' => Arr::get($weapon, 'Dps'),
-                    'sustained_dps' => Arr::get($weapon, 'SustainedDps'),
-                    'alpha' => Arr::get($weapon, 'Alpha'),
-                    'is_pilot_slaveable' => Arr::get($weapon, 'IsPilotSlaveable'),
-                ];
-            })
-            ->filter(static fn (array $weapon): bool => $weapon !== [])
-            ->values()
-            ->all();
+            return [
+                'uuid' => $uuid,
+                'class_name' => $weapon['ClassName'] ?? null,
+                'name' => $weapon['Name'] ?? null,
+                'link' => $uuid !== null
+                    ? route('items.show', ['identifier' => $uuid])
+                    : null,
+                'web_url' => $uuid !== null
+                    ? $this->urlWithVersion(route('web.items.show', ['item' => $uuid]), $request)
+                    : null,
+                'dps' => $weapon['Dps'] ?? null,
+                'sustained_dps' => $weapon['SustainedDps'] ?? null,
+                'alpha' => $weapon['Alpha'] ?? null,
+                'is_pilot_slaveable' => $weapon['IsPilotSlaveable'] ?? null,
+            ];
+        }, array_filter(
+            $this->resource['Weapons'] ?? [],
+            static fn (mixed $weapon): bool => is_array($weapon),
+        ));
+
+        return array_values(array_filter($rows, static fn (array $weapon): bool => $weapon !== []));
     }
 }

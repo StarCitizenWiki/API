@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Vehicle\Builders;
 
-use Illuminate\Support\Arr;
-
 /**
  * @internal
  *
@@ -20,15 +18,18 @@ final class VehicleFlightBuilder
      */
     public function buildSpeed(array $flight): array
     {
+        $speeds = $flight['Speeds'] ?? [];
+        $timing = $flight['Timing'] ?? [];
+
         return [
-            'scm' => Arr::get($flight, 'Speeds.Scm'),
-            'max' => Arr::get($flight, 'Speeds.Max'),
-            'boost_forward' => Arr::get($flight, 'Speeds.BoostForward'),
-            'boost_backward' => Arr::get($flight, 'Speeds.BoostBackward'),
-            'zero_to_scm' => Arr::get($flight, 'Timing.ZeroToScm'),
-            'zero_to_max' => Arr::get($flight, 'Timing.ZeroToMax'),
-            'scm_to_zero' => Arr::get($flight, 'Timing.ScmToZero'),
-            'max_to_zero' => Arr::get($flight, 'Timing.MaxToZero'),
+            'scm' => $speeds['Scm'] ?? null,
+            'max' => $speeds['Max'] ?? null,
+            'boost_forward' => $speeds['BoostForward'] ?? null,
+            'boost_backward' => $speeds['BoostBackward'] ?? null,
+            'zero_to_scm' => $timing['ZeroToScm'] ?? null,
+            'zero_to_max' => $timing['ZeroToMax'] ?? null,
+            'scm_to_zero' => $timing['ScmToZero'] ?? null,
+            'max_to_zero' => $timing['MaxToZero'] ?? null,
         ];
     }
 
@@ -38,24 +39,29 @@ final class VehicleFlightBuilder
      */
     public function buildAgility(array $flight): array
     {
+        $rates = $flight['AngularRates'] ?? [];
+        $ratesBoosted = $flight['AngularRatesBoosted'] ?? [];
+        $accRaw = $flight['Acceleration']['Raw'] ?? [];
+        $accRawG = $flight['Acceleration']['RawG'] ?? [];
+
         return [
-            'pitch' => Arr::get($flight, 'AngularRates.Pitch'),
-            'yaw' => Arr::get($flight, 'AngularRates.Yaw'),
-            'roll' => Arr::get($flight, 'AngularRates.Roll'),
-            'pitch_boosted' => Arr::get($flight, 'AngularRatesBoosted.Pitch'),
-            'yaw_boosted' => Arr::get($flight, 'AngularRatesBoosted.Yaw'),
-            'roll_boosted' => Arr::get($flight, 'AngularRatesBoosted.Roll'),
+            'pitch' => $rates['Pitch'] ?? null,
+            'yaw' => $rates['Yaw'] ?? null,
+            'roll' => $rates['Roll'] ?? null,
+            'pitch_boosted' => $ratesBoosted['Pitch'] ?? null,
+            'yaw_boosted' => $ratesBoosted['Yaw'] ?? null,
+            'roll_boosted' => $ratesBoosted['Roll'] ?? null,
 
             'acceleration' => array_filter([
-                'main' => Arr::get($flight, 'Acceleration.Raw.Forward'),
-                'retro' => Arr::get($flight, 'Acceleration.Raw.Backward'),
-                'vtol' => Arr::get($flight, 'Acceleration.Raw.Vtol'),
-                'maneuvering' => Arr::get($flight, 'Acceleration.Raw.Maneuvering'),
+                'main' => $accRaw['Forward'] ?? null,
+                'retro' => $accRaw['Backward'] ?? null,
+                'vtol' => $accRaw['Vtol'] ?? null,
+                'maneuvering' => $accRaw['Maneuvering'] ?? null,
 
-                'main_g' => Arr::get($flight, 'Acceleration.RawG.Forward'),
-                'retro_g' => Arr::get($flight, 'Acceleration.RawG.Backward'),
-                'vtol_g' => Arr::get($flight, 'Acceleration.RawG.Vtol'),
-                'maneuvering_g' => Arr::get($flight, 'Acceleration.RawG.Maneuvering'),
+                'main_g' => $accRawG['Forward'] ?? null,
+                'retro_g' => $accRawG['Backward'] ?? null,
+                'vtol_g' => $accRawG['Vtol'] ?? null,
+                'maneuvering_g' => $accRawG['Maneuvering'] ?? null,
             ], static fn ($value) => $value !== null),
         ];
     }
@@ -66,16 +72,16 @@ final class VehicleFlightBuilder
      */
     public function buildFuel(array $propulsion): array
     {
-        $usage = Arr::get($propulsion, 'FuelUsage', []);
+        $usage = $propulsion['FuelUsage'] ?? [];
 
         return [
-            'capacity' => (float) (Arr::get($propulsion, 'FuelCapacity', 0)) / 1000,
-            'intake_rate' => Arr::get($propulsion, 'FuelIntakeRate'),
+            'capacity' => (float) ($propulsion['FuelCapacity'] ?? 0) / 1000,
+            'intake_rate' => $propulsion['FuelIntakeRate'] ?? null,
             'usage' => [
-                'main' => Arr::get($usage, 'Main'),
-                'retro' => Arr::get($usage, 'Retro'),
-                'vtol' => Arr::get($usage, 'Vtol'),
-                'maneuvering' => Arr::get($usage, 'Maneuvering'),
+                'main' => $usage['Main'] ?? null,
+                'retro' => $usage['Retro'] ?? null,
+                'vtol' => $usage['Vtol'] ?? null,
+                'maneuvering' => $usage['Maneuvering'] ?? null,
             ],
         ];
     }
@@ -86,16 +92,16 @@ final class VehicleFlightBuilder
      */
     public function buildPropulsion(array $propulsion): array
     {
-        $thrusters = Arr::get($propulsion, 'Thrusters', []);
+        $thrusters = $propulsion['Thrusters'] ?? [];
         $thrusters = is_array($thrusters) ? $thrusters : [];
-        $thrustCapacityRaw = Arr::get($propulsion, 'ThrustCapacity');
+        $thrustCapacityRaw = $propulsion['ThrustCapacity'] ?? null;
         $thrustCapacity = null;
         if (is_array($thrustCapacityRaw)) {
             $thrustCapacity = array_filter([
-                'main' => Arr::get($thrustCapacityRaw, 'Main'),
-                'retro' => Arr::get($thrustCapacityRaw, 'Retro'),
-                'vtol' => Arr::get($thrustCapacityRaw, 'Vtol'),
-                'maneuvering' => Arr::get($thrustCapacityRaw, 'Maneuvering'),
+                'main' => $thrustCapacityRaw['Main'] ?? null,
+                'retro' => $thrustCapacityRaw['Retro'] ?? null,
+                'vtol' => $thrustCapacityRaw['Vtol'] ?? null,
+                'maneuvering' => $thrustCapacityRaw['Maneuvering'] ?? null,
             ], static fn (mixed $value): bool => $value !== null);
 
             if ($thrustCapacity === []) {
@@ -105,10 +111,10 @@ final class VehicleFlightBuilder
 
         return [
             'thrusters' => array_map(static fn (array $thruster): array => [
-                'type' => Arr::get($thruster, 'Type'),
-                'count' => Arr::get($thruster, 'Count'),
-                'capacity' => Arr::get($thruster, 'Capacity'),
-                'g' => Arr::get($thruster, 'G'),
+                'type' => $thruster['Type'] ?? null,
+                'count' => $thruster['Count'] ?? null,
+                'capacity' => $thruster['Capacity'] ?? null,
+                'g' => $thruster['G'] ?? null,
             ], $thrusters),
             'thrust_capacity' => $thrustCapacity,
         ];
@@ -120,15 +126,15 @@ final class VehicleFlightBuilder
      */
     public function buildQuantum(array $payload): array
     {
-        $qt = Arr::get($payload, 'QuantumTravel', []);
+        $qt = $payload['QuantumTravel'] ?? [];
 
         return [
-            'quantum_speed' => Arr::get($qt, 'Speed'),
-            'quantum_spool_time' => Arr::get($qt, 'SpoolTime'),
-            'quantum_fuel_capacity' => (float) (Arr::get($qt, 'FuelCapacity', 0)) / 1000,
-            'quantum_range' => Arr::get($qt, 'Range'),
-            'port_olisar_to_arccorp_time' => Arr::get($qt, 'PortOlisarToArcCorpTime'),
-            'port_olisar_to_arccorp_fuel' => Arr::get($qt, 'PortOlisarToArcCorpFuel'),
+            'quantum_speed' => $qt['Speed'] ?? null,
+            'quantum_spool_time' => $qt['SpoolTime'] ?? null,
+            'quantum_fuel_capacity' => (float) ($qt['FuelCapacity'] ?? 0) / 1000,
+            'quantum_range' => $qt['Range'] ?? null,
+            'port_olisar_to_arccorp_time' => $qt['PortOlisarToArcCorpTime'] ?? null,
+            'port_olisar_to_arccorp_fuel' => $qt['PortOlisarToArcCorpFuel'] ?? null,
         ];
     }
 }

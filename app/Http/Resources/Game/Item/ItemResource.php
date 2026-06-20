@@ -19,7 +19,6 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -516,8 +515,8 @@ class ItemResource extends AbstractBaseResource
 
             'dimension' => new ItemDimensionResource($itemData),
 
-            $this->mergeWhen($this->hasInStdItem($itemData, 'InventoryContainer'), [
-                'inventory' => new ItemInventoryResource($this->extractFromStdItem($itemData, 'InventoryContainer')),
+            $this->mergeFromStdItem($itemData, 'InventoryContainer', fn (array $spec) => [
+                'inventory' => new ItemInventoryResource($spec),
             ]),
 
             'tags' => $this->extractArray($itemData, 'Tags'),
@@ -533,41 +532,46 @@ class ItemResource extends AbstractBaseResource
                 : [],
             'interactions' => $this->extractArray($itemData, 'Interactions'),
             'ports' => ItemPortResource::collection($this->when($this->hasInStdItem($itemData, 'Ports'), $this->extractPorts($itemData))),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceContainer'), [
+            $this->mergeFromStdItem($itemData, 'ResourceContainer', fn (array $spec) => [
                 'resource_container' => new ResourceContainerResource(
-                    $this->extractFromStdItem($itemData, 'ResourceContainer'),
+                    $spec,
                     $itemData->relationLoaded('commodities') ? $itemData->commodities->keyBy('uuid') : null,
                 ),
             ]),
 
-            $this->mergeWhen($this->hasInStdItem($itemData, 'RadiationResistance'), [
-                'radiation_resistance' => new RadiationResistanceResource($this->extractFromStdItem($itemData, 'RadiationResistance')),
+            $this->mergeFromStdItem($itemData, 'RadiationResistance', fn (array $spec) => [
+                'radiation_resistance' => new RadiationResistanceResource($spec),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'TemperatureResistance'), [
-                'temperature_resistance' => new TemperatureResistanceResource($this->extractFromStdItem($itemData, 'TemperatureResistance')),
+            $this->mergeFromStdItem($itemData, 'TemperatureResistance', fn (array $spec) => [
+                'temperature_resistance' => new TemperatureResistanceResource($spec),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'GForceResistance'), [
-                'gforce_resistance' => Arr::get($this->extractFromStdItem($itemData, 'GForceResistance'), 'Value'),
+            $this->mergeFromStdItem($itemData, 'GForceResistance', fn (array $spec) => [
+                'gforce_resistance' => $spec['Value'] ?? null,
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'HeatConnection'), [
-                'heat' => new ItemHeatConnectionResource($this->extractFromStdItem($itemData, 'HeatConnection')),
+            $this->mergeFromStdItem($itemData, 'HeatConnection', fn (array $spec) => [
+                'heat' => new ItemHeatConnectionResource($spec),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'Temperature'), [
-                'temperature' => new ItemTemperatureResource($this->extractFromStdItem($itemData, 'Temperature')),
+            $this->mergeFromStdItem($itemData, 'Temperature', fn (array $spec) => [
+                'temperature' => new ItemTemperatureResource($spec),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'PowerConnection'), [
-                'power' => new ItemPowerConnectionResource($this->extractFromStdItem($itemData, 'PowerConnection')),
+            $this->mergeFromStdItem($itemData, 'PowerConnection', fn (array $spec) => [
+                'power' => new ItemPowerConnectionResource($spec),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'Durability') && $this->extractFromStdItem($itemData, 'Durability.Health', 0) > 0, [
-                'durability' => new ItemDurabilityResource($this->extractFromStdItem($itemData, 'Durability')),
+            $this->mergeFromStdItem(
+                $itemData,
+                'Durability',
+                fn (array $spec) => ['durability' => new ItemDurabilityResource($spec)],
+                fn (array $spec) => ($spec['Health'] ?? 0) > 0,
+            ),
+            $this->mergeFromStdItem($itemData, 'Distortion', fn (array $spec) => [
+                'distortion' => new ItemDistortionResource($spec),
             ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'Distortion'), [
-                'distortion' => new ItemDistortionResource($this->extractFromStdItem($itemData, 'Distortion')),
-            ]),
-            $this->mergeWhen($this->hasInStdItem($itemData, 'ResourceNetwork'), [
-                'resource_network' => new ResourceNetworkResource($itemData),
-                'emission' => new ItemEmissionResource($this->extractFromStdItem($itemData, 'Emission')),
-            ]),
+            $this->mergeFromStdItem($itemData, 'ResourceNetwork', function () use ($itemData) {
+                return [
+                    'resource_network' => new ResourceNetworkResource($itemData),
+                    'emission' => new ItemEmissionResource($this->extractFromStdItem($itemData, 'Emission')),
+                ];
+            }),
 
             'shops' => [],
             'images' => $this->item->images ?? [],

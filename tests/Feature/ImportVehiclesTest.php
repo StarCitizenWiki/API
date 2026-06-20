@@ -171,7 +171,11 @@ it('imports vehicle data and upserts when re-run', function (): void {
 
     (new ImportVehicleData($version->id, 'ships/test.json'))->handle();
 
-    $data->refresh();
+    $data = VehicleData::query()
+        ->where('vehicle_id', $vehicle->id)
+        ->where('game_version_id', $version->id)
+        ->first();
+
     expect(data_get($data->data, 'Mass'))->toBe(999)
         ->and(VehicleData::query()->where('vehicle_id', $vehicle->id)->where('game_version_id', $version->id)->count())->toBe(1);
 });

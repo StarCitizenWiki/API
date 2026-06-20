@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\ItemSpecification;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -308,211 +307,207 @@ class VehicleWeaponResource extends AbstractItemSpecificationResource
     {
         $ammo = $this->extractFromStdItem($this->resource, 'Ammunition');
         $weapon = $this->extractFromStdItem($this->resource, 'Weapon');
-        $mode = Arr::get($weapon, 'Modes.0');
-        $heat = Arr::get($weapon, 'Heat');
+        $mode = $weapon['Modes'][0] ?? null;
+        $heat = $weapon['Heat'] ?? null;
+
+        $impactDamage = $ammo['ImpactDamage'] ?? null;
+        $detonationDamage = $ammo['DetonationDamage'] ?? null;
 
         $damages = array_filter([
-            ['type' => 'impact', 'name' => 'physical', 'damage' => Arr::get($ammo, 'ImpactDamage.Physical')],
-            ['type' => 'impact', 'name' => 'energy', 'damage' => Arr::get($ammo, 'ImpactDamage.Energy')],
-            ['type' => 'impact', 'name' => 'distortion', 'damage' => Arr::get($ammo, 'ImpactDamage.Distortion')],
-            ['type' => 'impact', 'name' => 'thermal', 'damage' => Arr::get($ammo, 'ImpactDamage.Thermal')],
-            ['type' => 'impact', 'name' => 'biochemical', 'damage' => Arr::get($ammo, 'ImpactDamage.Biochemical')],
-            ['type' => 'impact', 'name' => 'stun', 'damage' => Arr::get($ammo, 'ImpactDamage.Stun')],
+            ['type' => 'impact', 'name' => 'physical', 'damage' => $impactDamage['Physical'] ?? null],
+            ['type' => 'impact', 'name' => 'energy', 'damage' => $impactDamage['Energy'] ?? null],
+            ['type' => 'impact', 'name' => 'distortion', 'damage' => $impactDamage['Distortion'] ?? null],
+            ['type' => 'impact', 'name' => 'thermal', 'damage' => $impactDamage['Thermal'] ?? null],
+            ['type' => 'impact', 'name' => 'biochemical', 'damage' => $impactDamage['Biochemical'] ?? null],
+            ['type' => 'impact', 'name' => 'stun', 'damage' => $impactDamage['Stun'] ?? null],
 
-            ['type' => 'detonation', 'name' => 'physical', 'damage' => Arr::get($ammo, 'DetonationDamage.Physical')],
-            ['type' => 'detonation', 'name' => 'energy', 'damage' => Arr::get($ammo, 'DetonationDamage.Energy')],
-            ['type' => 'detonation', 'name' => 'distortion', 'damage' => Arr::get($ammo, 'DetonationDamage.Distortion')],
-            ['type' => 'detonation', 'name' => 'thermal', 'damage' => Arr::get($ammo, 'DetonationDamage.Thermal')],
-            ['type' => 'detonation', 'name' => 'biochemical', 'damage' => Arr::get($ammo, 'DetonationDamage.Biochemical')],
-            ['type' => 'detonation', 'name' => 'stun', 'damage' => Arr::get($ammo, 'DetonationDamage.Stun')],
+            ['type' => 'detonation', 'name' => 'physical', 'damage' => $detonationDamage['Physical'] ?? null],
+            ['type' => 'detonation', 'name' => 'energy', 'damage' => $detonationDamage['Energy'] ?? null],
+            ['type' => 'detonation', 'name' => 'distortion', 'damage' => $detonationDamage['Distortion'] ?? null],
+            ['type' => 'detonation', 'name' => 'thermal', 'damage' => $detonationDamage['Thermal'] ?? null],
+            ['type' => 'detonation', 'name' => 'biochemical', 'damage' => $detonationDamage['Biochemical'] ?? null],
+            ['type' => 'detonation', 'name' => 'stun', 'damage' => $detonationDamage['Stun'] ?? null],
         ], static fn (array $entry) => $entry !== [] && ! empty($entry['damage']));
 
-        $modes = collect(Arr::get($weapon, 'Modes', []))
-            ->map(static fn (mixed $mode): array => [
-                'mode' => Arr::get($mode, 'Name'),
-                'localised' => Arr::get($mode, 'LocalisedName'),
-                'type' => Arr::get($mode, 'FireType'),
-                'rpm' => Arr::get($mode, 'RoundsPerMinute'),
-                'rounds_per_minute' => Arr::get($mode, 'RoundsPerMinute'),  // deprecated: use rpm
-                'ammo_per_shot' => Arr::get($mode, 'AmmoPerShot'),
-                'pellets_per_shot' => Arr::get($mode, 'PelletsPerShot'),
-                'damage_per_second' => Arr::get($mode, 'DamagePerSecond'),
+        $modes = array_map(static function (array $mode): array {
+            $charge = $mode['Charge'] ?? null;
 
-                // Heat / wear (projectile)
-                'heat_per_shot' => Arr::get($mode, 'HeatPerShot'),
-                'wear_per_shot' => Arr::get($mode, 'WearPerShot'),
+            return [
+                'mode' => $mode['Name'] ?? null,
+                'localised' => $mode['LocalisedName'] ?? null,
+                'type' => $mode['FireType'] ?? null,
+                'rpm' => $mode['RoundsPerMinute'] ?? null,
+                'rounds_per_minute' => $mode['RoundsPerMinute'] ?? null,
+                'ammo_per_shot' => $mode['AmmoPerShot'] ?? null,
+                'pellets_per_shot' => $mode['PelletsPerShot'] ?? null,
+                'damage_per_second' => $mode['DamagePerSecond'] ?? null,
 
-                // Heat / wear (continuous / beam)
-                'heat_per_second' => Arr::get($mode, 'HeatPerSecond'),
-                'wear_per_second' => Arr::get($mode, 'WearPerSecond'),
+                'heat_per_shot' => $mode['HeatPerShot'] ?? null,
+                'wear_per_shot' => $mode['WearPerShot'] ?? null,
 
-                // Rapid
-                'fire_during_spin_up' => Arr::get($mode, 'FireDuringSpinUp'),
+                'heat_per_second' => $mode['HeatPerSecond'] ?? null,
+                'wear_per_second' => $mode['WearPerSecond'] ?? null,
 
-                // Burst
-                'shot_count' => Arr::get($mode, 'ShotCount'),
-                'cooldown_time' => Arr::get($mode, 'CooldownTime'),
+                'fire_during_spin_up' => $mode['FireDuringSpinUp'] ?? null,
 
-                // Sequence
-                'sequence_mode' => Arr::get($mode, 'SequenceMode'),
+                'shot_count' => $mode['ShotCount'] ?? null,
+                'cooldown_time' => $mode['CooldownTime'] ?? null,
 
-                // Beam (combat)
-                'charge_up_time' => Arr::get($mode, 'ChargeUpTime'),
-                'charge_down_time' => Arr::get($mode, 'ChargeDownTime'),
-                'full_damage_range' => Arr::get($mode, 'FullDamageRange'),
-                'zero_damage_range' => Arr::get($mode, 'ZeroDamageRange'),
-                'hit_type' => Arr::get($mode, 'HitType'),
-                'hit_radius' => Arr::get($mode, 'HitRadius'),
-                'min_energy_draw' => Arr::get($mode, 'MinEnergyDraw'),
-                'max_energy_draw' => Arr::get($mode, 'MaxEnergyDraw'),
+                'sequence_mode' => $mode['SequenceMode'] ?? null,
 
-                // Healing beam
-                'healing_mode' => Arr::get($mode, 'HealingMode'),
-                'healing_per_second' => Arr::get($mode, 'HealingPerSecond'),
-                'ammo_per_mscu' => Arr::get($mode, 'AmmoPerMSCU'),
-                'medical_ammo_type' => Arr::get($mode, 'MedicalAmmoType'),
-                'external_healing' => Arr::get($mode, 'ExternalHealing'),
-                'toggle' => Arr::get($mode, 'Toggle'),
-                'max_distance' => Arr::get($mode, 'MaxDistance'),
-                'max_sensor_distance' => Arr::get($mode, 'MaxSensorDistance'),
-                'auto_dosage_modifier' => Arr::get($mode, 'AutoDosageModifier'),
-                'healing_break_time' => Arr::get($mode, 'HealingBreakTime'),
-                'max_dose_for_auto_adjustment' => Arr::get($mode, 'MaxDoseForAutoAdjustment'),
-                'battery_drain_per_second' => Arr::get($mode, 'BatteryDrainPerSecond'),
+                'charge_up_time' => $charge['ChargeUpTime'] ?? null,
+                'charge_down_time' => $charge['ChargeDownTime'] ?? null,
+                'full_damage_range' => $charge['FullDamageRange'] ?? null,
+                'zero_damage_range' => $charge['ZeroDamageRange'] ?? null,
+                'hit_type' => $charge['HitType'] ?? null,
+                'hit_radius' => $charge['HitRadius'] ?? null,
+                'min_energy_draw' => $charge['MinEnergyDraw'] ?? null,
+                'max_energy_draw' => $charge['MaxEnergyDraw'] ?? null,
 
-                // Salvage / Repair
-                'material_efficiency' => Arr::get($mode, 'MaterialEfficiency'),
-                'max_health_repair_rate' => Arr::get($mode, 'MaxHealthRepairRate'),
-                'max_damage_map_repair_rate' => Arr::get($mode, 'MaxDamageMapRepairRate'),
-                'health_to_ammo_ratio' => Arr::get($mode, 'HealthToAmmoRatio'),
-                'ramp_up_time' => Arr::get($mode, 'RampUpTime'),
-                'ramp_down_time' => Arr::get($mode, 'RampDownTime'),
-                'max_vehicle_damage_ratio' => Arr::get($mode, 'MaxVehicleDamageRatio'),
-                'repaired_material_ratio' => Arr::get($mode, 'RepairedMaterialRatio'),
-                'salvage_can_fire_on_full' => Arr::get($mode, 'SalvageCanFireOnFull'),
-                'damage_threshold' => Arr::get($mode, 'DamageThreshold'),
+                'healing_mode' => $mode['HealingMode'] ?? null,
+                'healing_per_second' => $mode['HealingPerSecond'] ?? null,
+                'ammo_per_mscu' => $mode['AmmoPerMSCU'] ?? null,
+                'medical_ammo_type' => $mode['MedicalAmmoType'] ?? null,
+                'external_healing' => $mode['ExternalHealing'] ?? null,
+                'toggle' => $mode['Toggle'] ?? null,
+                'max_distance' => $mode['MaxDistance'] ?? null,
+                'max_sensor_distance' => $mode['MaxSensorDistance'] ?? null,
+                'auto_dosage_modifier' => $mode['AutoDosageModifier'] ?? null,
+                'healing_break_time' => $mode['HealingBreakTime'] ?? null,
+                'max_dose_for_auto_adjustment' => $mode['MaxDoseForAutoAdjustment'] ?? null,
+                'battery_drain_per_second' => $mode['BatteryDrainPerSecond'] ?? null,
 
-                // Collection beam (mining)
-                'minimum_distance' => Arr::get($mode, 'MinimumDistance'),
-                'maximum_distance' => Arr::get($mode, 'MaximumDistance'),
-                'beam_radius' => Arr::get($mode, 'BeamRadius'),
-                'collection_rate' => Arr::get($mode, 'CollectionRate'),
-                'energy_draw' => Arr::get($mode, 'EnergyDraw'),
-                'mining_extractor_tag' => Arr::get($mode, 'MiningExtractorTag'),
+                'material_efficiency' => $mode['MaterialEfficiency'] ?? null,
+                'max_health_repair_rate' => $mode['MaxHealthRepairRate'] ?? null,
+                'max_damage_map_repair_rate' => $mode['MaxDamageMapRepairRate'] ?? null,
+                'health_to_ammo_ratio' => $mode['HealthToAmmoRatio'] ?? null,
+                'ramp_up_time' => $mode['RampUpTime'] ?? null,
+                'ramp_down_time' => $mode['RampDownTime'] ?? null,
+                'max_vehicle_damage_ratio' => $mode['MaxVehicleDamageRatio'] ?? null,
+                'repaired_material_ratio' => $mode['RepairedMaterialRatio'] ?? null,
+                'salvage_can_fire_on_full' => $mode['SalvageCanFireOnFull'] ?? null,
+                'damage_threshold' => $mode['DamageThreshold'] ?? null,
 
-                // Tractor beam
-                'toggle_mode' => Arr::get($mode, 'ToggleMode'),
-            ])
-            ->values()
-            ->toArray();
+                'minimum_distance' => $mode['MinimumDistance'] ?? null,
+                'maximum_distance' => $mode['MaximumDistance'] ?? null,
+                'beam_radius' => $mode['BeamRadius'] ?? null,
+                'collection_rate' => $mode['CollectionRate'] ?? null,
+                'energy_draw' => $mode['EnergyDraw'] ?? null,
+                'mining_extractor_tag' => $mode['MiningExtractorTag'] ?? null,
+
+                'toggle_mode' => $mode['ToggleMode'] ?? null,
+            ];
+        }, $weapon['Modes'] ?? []);
+
+        $weaponDamage = $weapon['Damage'] ?? null;
+        $capacitor = $weapon['Capacitor'] ?? null;
 
         $result = [
-            'class' => Arr::get($weapon, 'WeaponClass'),
+            'class' => $weapon['WeaponClass'] ?? null,
             'type' => $this->extractFromStdItem($this->resource, 'DescriptionData.Item Type'),
-            'capacity' => Arr::get($ammo, 'Capacity'),
-            'range' => Arr::get($weapon, 'EffectiveRange'),
+            'capacity' => $ammo['Capacity'] ?? null,
+            'range' => $weapon['EffectiveRange'] ?? null,
 
-            // deprecated
-            'damage_per_shot' => Arr::get($mode, 'Alpha'),
-            'regeneration' => Arr::get($weapon, 'Capacitor.MaxRegenPerSec'),
+            'damage_per_shot' => $mode['Alpha'] ?? null,
+            'regeneration' => $capacitor['MaxRegenPerSec'] ?? null,
 
-            'rpm' => Arr::get($mode, 'RoundsPerMinute'),
+            'rpm' => $mode['RoundsPerMinute'] ?? null,
 
             'damages' => $damages,
             'modes' => $modes,
 
             'damage' => [
-                'sustained_60s' => Arr::get($weapon, 'Damage.Sustained60s') ?? Arr::get($weapon, 'Damage.Sustained'),
-                'burst' => Arr::get($weapon, 'Damage.Burst'),
-                'alpha_total' => Arr::get($weapon, 'Damage.AlphaTotal'),
-                'max' => Arr::get($weapon, 'Damage.Maximum'),
-                'maximum' => Arr::get($weapon, 'Damage.Maximum'),  // deprecated: use max
+                'sustained_60s' => $weaponDamage['Sustained60s'] ?? $weaponDamage['Sustained'] ?? null,
+                'burst' => $weaponDamage['Burst'] ?? null,
+                'alpha_total' => $weaponDamage['AlphaTotal'] ?? null,
+                'max' => $weaponDamage['Maximum'] ?? null,
+                'maximum' => $weaponDamage['Maximum'] ?? null,
                 'dps' => [
-                    'physical' => Arr::get($mode, 'DpsPhysical'),
-                    'energy' => Arr::get($mode, 'DpsEnergy'),
-                    'distortion' => Arr::get($mode, 'DpsDistortion'),
-                    'thermal' => Arr::get($mode, 'DpsThermal'),
-                    'biochemical' => Arr::get($mode, 'DpsBiochemical'),
-                    'stun' => Arr::get($mode, 'DpsStun'),
+                    'physical' => $mode['DpsPhysical'] ?? null,
+                    'energy' => $mode['DpsEnergy'] ?? null,
+                    'distortion' => $mode['DpsDistortion'] ?? null,
+                    'thermal' => $mode['DpsThermal'] ?? null,
+                    'biochemical' => $mode['DpsBiochemical'] ?? null,
+                    'stun' => $mode['DpsStun'] ?? null,
                 ],
                 'alpha' => [
-                    'physical' => Arr::get($mode, 'AlphaPhysical'),
-                    'energy' => Arr::get($mode, 'AlphaEnergy'),
-                    'distortion' => Arr::get($mode, 'AlphaDistortion'),
-                    'thermal' => Arr::get($mode, 'AlphaThermal'),
-                    'biochemical' => Arr::get($mode, 'AlphaBiochemical'),
-                    'stun' => Arr::get($mode, 'AlphaStun'),
+                    'physical' => $mode['AlphaPhysical'] ?? null,
+                    'energy' => $mode['AlphaEnergy'] ?? null,
+                    'distortion' => $mode['AlphaDistortion'] ?? null,
+                    'thermal' => $mode['AlphaThermal'] ?? null,
+                    'biochemical' => $mode['AlphaBiochemical'] ?? null,
+                    'stun' => $mode['AlphaStun'] ?? null,
                 ],
             ],
 
-            $this->mergeWhen(Arr::get($mode, 'Spread') !== null, [
+            $this->mergeWhen(isset($mode['Spread']), [
                 'spread' => [
-                    'min' => Arr::get($mode, 'Spread.Minimum'),
-                    'max' => Arr::get($mode, 'Spread.Maximum'),
-                    'minimum' => Arr::get($mode, 'Spread.Minimum'),  // deprecated: use min
-                    'maximum' => Arr::get($mode, 'Spread.Maximum'),  // deprecated: use max
-                    'first_attack' => Arr::get($mode, 'Spread.FirstAttack'),
-                    'per_attack' => Arr::get($mode, 'Spread.Attack'),
-                    'decay' => Arr::get($mode, 'Spread.Decay'),
+                    'min' => $mode['Spread']['Minimum'] ?? null,
+                    'max' => $mode['Spread']['Maximum'] ?? null,
+                    'minimum' => $mode['Spread']['Minimum'] ?? null,
+                    'maximum' => $mode['Spread']['Maximum'] ?? null,
+                    'first_attack' => $mode['Spread']['FirstAttack'] ?? null,
+                    'per_attack' => $mode['Spread']['Attack'] ?? null,
+                    'decay' => $mode['Spread']['Decay'] ?? null,
                 ],
             ]),
 
-            $this->mergeWhen(Arr::get($mode, 'BarrelSpinTime') !== null, [
+            $this->mergeWhen(isset($mode['BarrelSpinTime']), [
                 'barrel_spin_time' => [
-                    'up' => Arr::get($mode, 'BarrelSpinTime.Up'),
-                    'down' => Arr::get($mode, 'BarrelSpinTime.Down'),
+                    'up' => $mode['BarrelSpinTime']['Up'] ?? null,
+                    'down' => $mode['BarrelSpinTime']['Down'] ?? null,
                 ],
             ]),
 
             $this->mergeWhen(! empty($heat), [
                 'heat' => [
-                    'per_shot' => Arr::get($heat, 'HeatPerShot'),
-                    'cooling_delay' => Arr::get($heat, 'CoolingDelay'),
-                    'cooling_per_second' => Arr::get($heat, 'CoolingPerSecond'),
-                    'overheat_max_shots' => Arr::get($heat, 'ShotsToOverheat'),
-                    'overheat_max_time' => Arr::get($heat, 'TimeToOverheat'),
-                    'overheat_cooldown' => Arr::get($heat, 'OverheatFixTime'),
+                    'per_shot' => $heat['HeatPerShot'] ?? null,
+                    'cooling_delay' => $heat['CoolingDelay'] ?? null,
+                    'cooling_per_second' => $heat['CoolingPerSecond'] ?? null,
+                    'overheat_max_shots' => $heat['ShotsToOverheat'] ?? null,
+                    'overheat_max_time' => $heat['TimeToOverheat'] ?? null,
+                    'overheat_cooldown' => $heat['OverheatFixTime'] ?? null,
                 ],
             ]),
 
-            $this->mergeWhen(Arr::get($weapon, 'Capacitor.MaxAmmoLoad') !== null, [
+            $this->mergeWhen(isset($capacitor['MaxAmmoLoad']), [
                 'capacitor' => [
-                    'max_ammo_load' => Arr::get($weapon, 'Capacitor.MaxAmmoLoad'),
-                    'regen_per_second' => Arr::get($weapon, 'Capacitor.MaxRegenPerSec'),
-                    'cooldown' => Arr::get($weapon, 'Capacitor.Cooldown'),
+                    'max_ammo_load' => $capacitor['MaxAmmoLoad'] ?? null,
+                    'regen_per_second' => $capacitor['MaxRegenPerSec'] ?? null,
+                    'cooldown' => $capacitor['Cooldown'] ?? null,
 
-                    'requested_ammo_load' => Arr::get($weapon, 'Capacitor.RequestedAmmoLoad'),
-                    'costs_per_shot' => Arr::get($weapon, 'Capacitor.CostPerBullet'),
+                    'requested_ammo_load' => $capacitor['RequestedAmmoLoad'] ?? null,
+                    'costs_per_shot' => $capacitor['CostPerBullet'] ?? null,
                 ],
             ]),
 
-            $this->mergeWhen(Arr::get($mode, 'Charge') !== null, [
+            $this->mergeWhen(isset($mode['Charge']), [
                 'charge' => [
-                    'time' => Arr::get($mode, 'Charge.ChargeTime'),
-                    'overcharge_time' => Arr::get($mode, 'Charge.OverchargeTime'),
-                    'overcharged_time' => Arr::get($mode, 'Charge.OverchargedTime'),
-                    'cooldown_time' => Arr::get($mode, 'Charge.CooldownTime'),
-                    'auto_fire' => Arr::get($mode, 'Charge.AutoFire'),
-                    'require_full_charge' => Arr::get($mode, 'Charge.RequireFullCharge'),
-                    'auto_charge' => Arr::get($mode, 'Charge.AutoCharge'),
-                    'interpolate_bonus' => Arr::get($mode, 'Charge.InterpolateBonus'),
+                    'time' => $mode['Charge']['ChargeTime'] ?? null,
+                    'overcharge_time' => $mode['Charge']['OverchargeTime'] ?? null,
+                    'overcharged_time' => $mode['Charge']['OverchargedTime'] ?? null,
+                    'cooldown_time' => $mode['Charge']['CooldownTime'] ?? null,
+                    'auto_fire' => $mode['Charge']['AutoFire'] ?? null,
+                    'require_full_charge' => $mode['Charge']['RequireFullCharge'] ?? null,
+                    'auto_charge' => $mode['Charge']['AutoCharge'] ?? null,
+                    'interpolate_bonus' => $mode['Charge']['InterpolateBonus'] ?? null,
                 ],
                 'charge_modifier' => [
-                    'damage' => Arr::get($mode, 'ChargeModifier.Damage'),
-                    'fire_rate' => Arr::get($mode, 'ChargeModifier.FireRate'),
-                    'ammo_speed' => Arr::get($mode, 'ChargeModifier.AmmoSpeed'),
-                    'fire_rate_override' => Arr::get($mode, 'ChargeModifier.FireRateOverride'),
-                    'pellets_override' => Arr::get($mode, 'ChargeModifier.PelletsOverride'),
-                    'burst_shots_override' => Arr::get($mode, 'ChargeModifier.BurstShotsOverride'),
-                    'heat_multiplier' => Arr::get($mode, 'ChargeModifier.HeatMultiplier'),
+                    'damage' => $mode['ChargeModifier']['Damage'] ?? null,
+                    'fire_rate' => $mode['ChargeModifier']['FireRate'] ?? null,
+                    'ammo_speed' => $mode['ChargeModifier']['AmmoSpeed'] ?? null,
+                    'fire_rate_override' => $mode['ChargeModifier']['FireRateOverride'] ?? null,
+                    'pellets_override' => $mode['ChargeModifier']['PelletsOverride'] ?? null,
+                    'burst_shots_override' => $mode['ChargeModifier']['BurstShotsOverride'] ?? null,
+                    'heat_multiplier' => $mode['ChargeModifier']['HeatMultiplier'] ?? null,
                 ],
             ]),
 
             'ammunition' => new AmmunitionResource($this->resource),
         ];
 
-        $capacity = Arr::get($ammo, 'Capacity');
-        $conversionRate = Arr::get($ammo, 'ConversionRateMicroScu');
+        $capacity = $ammo['Capacity'] ?? null;
+        $conversionRate = $ammo['ConversionRateMicroScu'] ?? null;
 
         if ($capacity !== null && $conversionRate !== null) {
             $totalMicroScu = (int) $capacity * (int) $conversionRate;

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Vehicle\Concerns;
 
-use Illuminate\Support\Arr;
-
 /**
  * Maps equipment Type values to canonical display categories
  */
@@ -140,16 +138,16 @@ trait CategorizesEquipmentType
      */
     public function categorizeRawPort(array $item): string
     {
-        [$type, $subtype] = explode('.', Arr::get($item, 'Type', '.'));
+        [$type, $subtype] = explode('.', $item['Type'] ?? '.');
 
         $category = $this->categorizeEquipmentType(
             $type,
             $subtype,
-            Arr::get($item, 'ClassName'),
+            $item['ClassName'] ?? null,
         );
 
         if ($category === 'Other' && ($type === '' || $type === null)) {
-            $hardpoint = Arr::get($item, 'HardpointName');
+            $hardpoint = $item['HardpointName'] ?? null;
 
             if ($hardpoint !== null) {
                 $fallback = $this->categorizeByHardpointName($hardpoint);
@@ -160,7 +158,7 @@ trait CategorizesEquipmentType
             }
         }
 
-        if ($category === 'Docking' && array_any(Arr::get($item, 'Loadout') ?? [], fn ($child) => $this->isAttachedVehiclePort($child) && is_string($uuid = Arr::get($child, 'UUID')) && $uuid !== '')) {
+        if ($category === 'Docking' && array_any($item['Loadout'] ?? [], fn ($child) => $this->isAttachedVehiclePort($child) && is_string($uuid = $child['UUID'] ?? null) && $uuid !== '')) {
             return 'Docked Vehicles';
         }
 
@@ -174,11 +172,11 @@ trait CategorizesEquipmentType
      */
     protected function isAttachedVehiclePort(array $port): bool
     {
-        $type = Arr::get($port, 'Type', '');
-        $compatibleTypes = Arr::get($port, 'CompatibleTypes') ?? Arr::get($port, 'ItemTypes', []);
+        $type = $port['Type'] ?? '';
+        $compatibleTypes = $port['CompatibleTypes'] ?? $port['ItemTypes'] ?? [];
 
         return str_starts_with($type, 'NOITEM_Vehicle')
-            || collect($compatibleTypes)->contains(fn (array $compatibleType): bool => ($compatibleType['Type'] ?? '') === 'NOITEM_Vehicle');
+            || array_any($compatibleTypes, fn (array $compatibleType): bool => ($compatibleType['Type'] ?? '') === 'NOITEM_Vehicle');
     }
 
     /**

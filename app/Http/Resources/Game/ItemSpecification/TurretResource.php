@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\ItemSpecification;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -102,38 +101,42 @@ class TurretResource extends AbstractItemSpecificationResource
     {
         $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
 
-        $turret = Arr::get($data, 'stdItem.Turret', []);
+        $turret = $data['stdItem']['Turret'] ?? [];
+        $movementList = $turret['MovementList'] ?? [];
 
-        $yaw = collect(Arr::get($turret, 'MovementList', []))->firstWhere('JointName', 'yaw_part') ?? [];
-        $pitch = collect(Arr::get($turret, 'MovementList', []))->firstWhere('JointName', 'pitch_part') ?? [];
+        $yaw = collect($movementList)->firstWhere('JointName', 'yaw_part') ?? [];
+        $pitch = collect($movementList)->firstWhere('JointName', 'pitch_part') ?? [];
+
+        $yawAxis = $yaw['YawAxis'] ?? null;
+        $pitchAxis = $pitch['PitchAxis'] ?? null;
 
         $ports = collect($this->extractPorts($this->resource));
 
         return [
-            'rotation_style' => Arr::get($turret, 'RotationStyle'),
+            'rotation_style' => $turret['RotationStyle'] ?? null,
 
             'mounts' => $ports->count(),
             'min_size' => $ports->min('MinSize') ?? $ports->min('min_size'),
             'max_size' => $ports->max('MaxSize') ?? $ports->max('max_size'),
 
             'yaw_axis' => [
-                'slaved_only' => Arr::get($yaw, 'YawAxis.SlavedOnly') === 1,
-                'speed' => Arr::get($yaw, 'YawAxis.Speed'),
-                'time_to_full_speed' => Arr::get($yaw, 'YawAxis.AccelerationTimeToFullSpeed'),
-                'acceleration_decay' => Arr::get($yaw, 'YawAxis.AccelerationDecay'),
-                $this->mergeWhen(Arr::get($yaw, 'YawAxis.RestrictTargetAngles') === 1, [
-                    'angle_limit_min' => Arr::get($yaw, 'YawAxis.AngleLimits.0.LowestAngle'),
-                    'angle_limit_max' => Arr::get($yaw, 'YawAxis.AngleLimits.0.HighestAngle'),
+                'slaved_only' => ($yawAxis['SlavedOnly'] ?? null) === 1,
+                'speed' => $yawAxis['Speed'] ?? null,
+                'time_to_full_speed' => $yawAxis['AccelerationTimeToFullSpeed'] ?? null,
+                'acceleration_decay' => $yawAxis['AccelerationDecay'] ?? null,
+                $this->mergeWhen(($yawAxis['RestrictTargetAngles'] ?? null) === 1, [
+                    'angle_limit_min' => $yawAxis['AngleLimits'][0]['LowestAngle'] ?? null,
+                    'angle_limit_max' => $yawAxis['AngleLimits'][0]['HighestAngle'] ?? null,
                 ]),
             ],
             'pitch_axis' => [
-                'slaved_only' => Arr::get($pitch, 'PitchAxis.SlavedOnly') === 1,
-                'speed' => Arr::get($pitch, 'PitchAxis.Speed'),
-                'time_to_full_speed' => Arr::get($pitch, 'PitchAxis.AccelerationTimeToFullSpeed'),
-                'acceleration_decay' => Arr::get($pitch, 'PitchAxis.AccelerationDecay'),
-                $this->mergeWhen(Arr::get($pitch, 'PitchAxis.RestrictTargetAngles') === 1, [
-                    'angle_limit_min' => Arr::get($pitch, 'PitchAxis.AngleLimits.0.LowestAngle'),
-                    'angle_limit_max' => Arr::get($pitch, 'PitchAxis.AngleLimits.0.HighestAngle'),
+                'slaved_only' => ($pitchAxis['SlavedOnly'] ?? null) === 1,
+                'speed' => $pitchAxis['Speed'] ?? null,
+                'time_to_full_speed' => $pitchAxis['AccelerationTimeToFullSpeed'] ?? null,
+                'acceleration_decay' => $pitchAxis['AccelerationDecay'] ?? null,
+                $this->mergeWhen(($pitchAxis['RestrictTargetAngles'] ?? null) === 1, [
+                    'angle_limit_min' => $pitchAxis['AngleLimits'][0]['LowestAngle'] ?? null,
+                    'angle_limit_max' => $pitchAxis['AngleLimits'][0]['HighestAngle'] ?? null,
                 ]),
             ],
         ];

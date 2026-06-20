@@ -7,7 +7,6 @@ namespace App\Http\Resources\Game\Vehicle;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
@@ -60,13 +59,14 @@ class RelayEntryResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $connected = Arr::get($this->resource, 'ConnectedHardpoints', []);
+        $res = $this->resource;
+        $connected = $res['ConnectedHardpoints'] ?? [];
 
         return [
-            'hardpoint' => Arr::get($this->resource, 'HardpointName'),
-            'class_name' => Arr::get($this->resource, 'ClassName'),
-            'fuse_slots' => Arr::get($this->resource, 'FuseSlots', 0),
-            'room' => Arr::get($this->resource, 'Room'),
+            'hardpoint' => $res['HardpointName'] ?? null,
+            'class_name' => $res['ClassName'] ?? null,
+            'fuse_slots' => $res['FuseSlots'] ?? 0,
+            'room' => $res['Room'] ?? null,
             'connection_count' => count($connected),
             'connected_hardpoints' => $this->buildGroupedHardpoints($connected),
         ];
@@ -77,17 +77,29 @@ class RelayEntryResource extends AbstractBaseResource
      */
     private function buildGroupedHardpoints(array $connected): array
     {
-        return collect($connected)
-            ->map(fn (array|string $hp) => $this->normalizeHardpoint($hp))
-            ->filter()
-            ->groupBy(fn (array $hp) => $this->categorizeHardpoint($hp))
-            ->map(fn ($items, string $category) => [
+        $groups = [];
+
+        foreach ($connected as $hp) {
+            $normalized = $this->normalizeHardpoint($hp);
+
+            if ($normalized === null) {
+                continue;
+            }
+
+            $groups[$this->categorizeHardpoint($normalized)][] = $normalized;
+        }
+
+        $result = [];
+
+        foreach ($groups as $category => $items) {
+            $result[] = [
                 'category' => $category,
-                'count' => $items->count(),
-                'items' => $items->values()->all(),
-            ])
-            ->values()
-            ->all();
+                'count' => count($items),
+                'items' => array_values($items),
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -99,21 +111,21 @@ class RelayEntryResource extends AbstractBaseResource
             return ['hardpoint' => $hp];
         }
 
-        $hardpointName = Arr::get($hp, 'HardpointName');
+        $hardpointName = $hp['HardpointName'] ?? null;
 
         if ($hardpointName === null) {
             return null;
         }
 
-        $type = Arr::get($hp, 'Type');
+        $type = $hp['Type'] ?? null;
         $primaryType = $type !== null ? Str::before($type, '.') : null;
 
         return [
             'hardpoint' => $hardpointName,
-            'item_name' => Arr::get($hp, 'ItemName'),
-            'class_name' => Arr::get($hp, 'ClassName'),
+            'item_name' => $hp['ItemName'] ?? null,
+            'class_name' => $hp['ClassName'] ?? null,
             'type' => $primaryType,
-            'uuid' => Arr::get($hp, 'UUID'),
+            'uuid' => $hp['UUID'] ?? null,
         ];
     }
 
@@ -122,12 +134,12 @@ class RelayEntryResource extends AbstractBaseResource
      */
     private function categorizeHardpoint(array $hp): string
     {
-        $type = Arr::get($hp, 'type');
+        $type = $hp['type'] ?? null;
 
         if ($type !== null) {
             return $this->categorizeEquipmentType($type);
         }
 
-        return $this->categorizeByHardpointName(Arr::get($hp, 'hardpoint'));
+        return $this->categorizeByHardpointName($hp['hardpoint']);
     }
 }

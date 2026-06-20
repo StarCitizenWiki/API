@@ -16,6 +16,11 @@ class VehicleData extends Model
     use HasFactory;
     use HasGameVersion;
 
+    /**
+     * Decode the JSON `data` blob once per instance and cache the result.
+     */
+    private mixed $dataMemo = null;
+
     protected $table = 'game_vehicle_data';
 
     protected $fillable = [
@@ -68,40 +73,6 @@ class VehicleData extends Model
     ];
 
     protected $casts = [
-        'vehicle_id' => 'integer',
-        'game_version_id' => 'integer',
-        'manufacturer_id' => 'integer',
-        'shipmatrix_id' => 'integer',
-
-        'is_vehicle' => 'boolean',
-        'is_gravlev' => 'boolean',
-        'is_spaceship' => 'boolean',
-
-        'is_player_relevant' => 'boolean',
-
-        'size' => 'integer',
-
-        'length' => 'double',
-        'width' => 'double',
-        'height' => 'double',
-        'mass_total' => 'integer',
-        'speed_scm' => 'double',
-        'speed_max' => 'integer',
-        'cargo_capacity' => 'double',
-        'crew_min' => 'integer',
-        'crew_max' => 'integer',
-        'health' => 'integer',
-        'shield_hp' => 'integer',
-        'armor_health' => 'integer',
-        'vehicle_inventory' => 'double',
-        'cross_section_length' => 'integer',
-        'cross_section_width' => 'integer',
-        'cross_section_height' => 'integer',
-        'signature_ir_quantum' => 'integer',
-        'signature_ir_shields' => 'integer',
-        'signature_em_quantum' => 'integer',
-        'signature_em_shields' => 'integer',
-
         'data' => 'array',
 
         'uex_purchase_prices' => 'array',
@@ -111,6 +82,21 @@ class VehicleData extends Model
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class);
+    }
+
+    public function getDataAttribute(mixed $value): mixed
+    {
+        if ($this->dataMemo === null) {
+            $this->dataMemo = is_string($value) ? json_decode($value, true) : $value;
+        }
+
+        return $this->dataMemo;
+    }
+
+    public function setDataAttribute(mixed $value): void
+    {
+        $this->attributes['data'] = is_array($value) ? json_encode($value) : $value;
+        $this->dataMemo = is_array($value) ? $value : null;
     }
 
     public function manufacturer(): BelongsTo

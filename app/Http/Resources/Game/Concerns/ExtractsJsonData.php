@@ -6,6 +6,9 @@ namespace App\Http\Resources\Game\Concerns;
 
 use App\Models\Game\ItemData;
 use App\Models\Game\VehicleData;
+use Closure;
+use Illuminate\Http\Resources\MergeValue;
+use Illuminate\Http\Resources\MissingValue;
 use Illuminate\Support\Arr;
 
 /**
@@ -22,7 +25,14 @@ trait ExtractsJsonData
      */
     protected function extractFromStdItem(ItemData $itemData, string $path, mixed $default = null): mixed
     {
-        return Arr::get($itemData->data, "stdItem.{$path}", $default);
+        // Hoist stdItem so single-key lookups take Arr::get's no-dot fast path.
+        $stdItem = $itemData->data['stdItem'] ?? null;
+
+        if (! is_array($stdItem)) {
+            return $default;
+        }
+
+        return Arr::get($stdItem, $path, $default);
     }
 
     /**
@@ -62,7 +72,7 @@ trait ExtractsJsonData
      */
     protected function extractSpecification(ItemData $itemData, string $type): ?array
     {
-        $spec = Arr::get($itemData->data, "stdItem.{$type}");
+        $spec = $itemData->data['stdItem'][$type] ?? null;
 
         if (! is_array($spec) || $spec === []) {
             return null;
@@ -76,7 +86,7 @@ trait ExtractsJsonData
      */
     protected function extractEntityTags(ItemData $itemData): array
     {
-        $tags = Arr::get($itemData->data, 'entity_tags', []);
+        $tags = $itemData->data['entity_tags'] ?? [];
 
         return is_array($tags) ? $tags : [];
     }
@@ -86,7 +96,7 @@ trait ExtractsJsonData
      */
     protected function extractPorts(ItemData $itemData): array
     {
-        $ports = Arr::get($itemData->data, 'stdItem.Ports', []);
+        $ports = $itemData->data['stdItem']['Ports'] ?? [];
 
         return is_array($ports) ? $ports : [];
     }
@@ -96,7 +106,7 @@ trait ExtractsJsonData
      */
     protected function extractNumeric(ItemData $itemData, string $path, ?float $default = null): ?float
     {
-        $value = Arr::get($itemData->data, "stdItem.{$path}", $default);
+        $value = $this->extractFromStdItem($itemData, $path, $default);
 
         if ($value === null) {
             return null;
@@ -110,7 +120,7 @@ trait ExtractsJsonData
      */
     protected function extractInteger(ItemData $itemData, string $path, ?int $default = null): ?int
     {
-        $value = Arr::get($itemData->data, "stdItem.{$path}", $default);
+        $value = $this->extractFromStdItem($itemData, $path, $default);
 
         if ($value === null) {
             return null;
@@ -124,7 +134,7 @@ trait ExtractsJsonData
      */
     protected function extractString(ItemData $itemData, string $path, ?string $default = null): ?string
     {
-        $value = Arr::get($itemData->data, "stdItem.{$path}", $default);
+        $value = $this->extractFromStdItem($itemData, $path, $default);
 
         if ($value === null) {
             return null;
@@ -138,7 +148,7 @@ trait ExtractsJsonData
      */
     protected function extractBoolean(ItemData $itemData, string $path, ?bool $default = null): ?bool
     {
-        $value = Arr::get($itemData->data, "stdItem.{$path}", $default);
+        $value = $this->extractFromStdItem($itemData, $path, $default);
 
         if ($value === null) {
             return null;
@@ -154,7 +164,13 @@ trait ExtractsJsonData
      */
     protected function extractFromRaw(ItemData $itemData, string $path, mixed $default = null): mixed
     {
-        return Arr::get($itemData->data, "Raw.{$path}", $default);
+        $raw = $itemData->data['Raw'] ?? null;
+
+        if (! is_array($raw)) {
+            return $default;
+        }
+
+        return Arr::get($raw, $path, $default);
     }
 
     /**
@@ -162,7 +178,43 @@ trait ExtractsJsonData
      */
     protected function hasInStdItem(ItemData $itemData, string $path): bool
     {
-        return Arr::has($itemData->data, "stdItem.{$path}");
+        $stdItem = $itemData->data['stdItem'] ?? null;
+
+        return is_array($stdItem) && Arr::has($stdItem, $path);
+    }
+
+    /**
+     * Merge a stdItem sub-structure when present.
+     *
+     * One walk replaces the hasInStdItem + extractFromStdItem pair, and the
+     * builder closure skips the eager Resource construction that array-literal
+     * mergeWhen values pay on missing fields.
+     *
+     * @param  callable(mixed): array  $builder  Receives the value at $path; returns the array to merge.
+     * @param  callable(mixed): bool|null  $predicate  Extra filter on the resolved value.
+     */
+    protected function mergeFromStdItem(
+        ItemData $itemData,
+        string $path,
+        Closure $builder,
+        ?Closure $predicate = null,
+    ): MergeValue|MissingValue {
+        $value = $itemData->data['stdItem'] ?? null;
+
+        if (is_array($value)) {
+            foreach (explode('.', $path) as $segment) {
+                if (! is_array($value) || ! array_key_exists($segment, $value)) {
+                    return new MissingValue;
+                }
+                $value = $value[$segment];
+            }
+
+            if ($predicate === null || $predicate($value)) {
+                return new MergeValue($builder($value));
+            }
+        }
+
+        return new MissingValue;
     }
 
     /**
@@ -172,7 +224,7 @@ trait ExtractsJsonData
      */
     protected function extractArray(ItemData $itemData, string $path, bool $filterNulls = false): array
     {
-        $value = Arr::get($itemData->data, "stdItem.{$path}", []);
+        $value = $this->extractFromStdItem($itemData, $path, []);
 
         if (! is_array($value)) {
             return [];

@@ -8,7 +8,6 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\ItemData;
 use App\Support\ScuBox;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -69,9 +68,8 @@ class ItemInventoryResource extends AbstractBaseResource
     {
         if ($this->resource instanceof ItemData) {
             $data = $this->resource->data;
-            $container = Arr::get($data, 'Item.stdItem.InventoryContainer')
-                ?? Arr::get($data, 'stdItem.InventoryContainer')
-                ?? [];
+            $stdItem = $data['Item']['stdItem'] ?? $data['stdItem'] ?? [];
+            $container = $stdItem['InventoryContainer'] ?? [];
 
             return $this->formatContainer($container);
         }
@@ -83,27 +81,33 @@ class ItemInventoryResource extends AbstractBaseResource
 
     private function formatContainer(array $container): array
     {
+        $x = $container['X'] ?? null;
+        $y = $container['Y'] ?? null;
+        $z = $container['Z'] ?? null;
+        $scu = $container['SCU'] ?? null;
+        $unit = $container['Unit'] ?? null;
+
         return [
-            'uuid' => Arr::get($container, 'UUID'),
-            'width' => Arr::get($container, 'X'),
-            'height' => Arr::get($container, 'Z'),
-            'length' => Arr::get($container, 'Y'),
-            'volume' => Arr::has($container, ['X', 'Z', 'Y'])
-                ? round(Arr::get($container, 'X') * Arr::get($container, 'Z') * Arr::get($container, 'Y'), 4)
+            'uuid' => $container['UUID'] ?? null,
+            'width' => $x,
+            'height' => $z,
+            'length' => $y,
+            'volume' => (array_key_exists('X', $container) && array_key_exists('Y', $container) && array_key_exists('Z', $container))
+                ? round($x * $z * $y, 4)
                 : null,
-            'scu' => Arr::get($container, 'SCU'),
-            'scu_converted' => Arr::has($container, ['SCU', 'Unit'])
-                ? Arr::get($container, 'SCU') * (10 ** Arr::get($container, 'Unit'))
+            'scu' => $scu,
+            'scu_converted' => (array_key_exists('SCU', $container) && array_key_exists('Unit', $container))
+                ? $scu * (10 ** $unit)
                 : null,
-            'unit' => Arr::get($container, 'UnitName'),
-            $this->mergeWhen(Arr::get($container, 'Unit') === 0, fn () => [
-                'micro_scu' => Arr::get($container, 'SCU') * (10 ** 6),
+            'unit' => $container['UnitName'] ?? null,
+            $this->mergeWhen($unit === 0, fn () => [
+                'micro_scu' => $scu * (10 ** 6),
             ]),
-            'open' => Arr::get($container, 'IsOpenContainer'),
-            'external' => Arr::get($container, 'IsExternalContainer'),
-            'closed' => Arr::get($container, 'IsClosedContainer'),
-            $this->mergeWhen(Arr::has($container, 'MinSize'), function () use ($container) {
-                $minSize = $this->formatSizeBlock(Arr::get($container, 'MinSize'));
+            'open' => $container['IsOpenContainer'] ?? null,
+            'external' => $container['IsExternalContainer'] ?? null,
+            'closed' => $container['IsClosedContainer'] ?? null,
+            $this->mergeWhen(array_key_exists('MinSize', $container), function () use ($container) {
+                $minSize = $this->formatSizeBlock($container['MinSize'] ?? null);
                 $minScuBox = $minSize !== null ? ScuBox::smallestThatFits($minSize) : null;
 
                 return [
@@ -111,11 +115,11 @@ class ItemInventoryResource extends AbstractBaseResource
                     ...($minScuBox !== null && $minScuBox !== 1 ? ['min_scu_box' => $minScuBox] : []),
                 ];
             }),
-            $this->mergeWhen(Arr::has($container, 'MaxSize'), function () use ($container) {
-                $maxSize = $this->formatSizeBlock(Arr::get($container, 'MaxSize'));
+            $this->mergeWhen(array_key_exists('MaxSize', $container), function () use ($container, $x, $y, $z) {
+                $maxSize = $this->formatSizeBlock($container['MaxSize'] ?? null);
 
-                $interior = Arr::has($container, ['X', 'Y', 'Z'])
-                    ? ['x' => Arr::get($container, 'X'), 'y' => Arr::get($container, 'Y'), 'z' => Arr::get($container, 'Z')]
+                $interior = (array_key_exists('X', $container) && array_key_exists('Y', $container) && array_key_exists('Z', $container))
+                    ? ['x' => $x, 'y' => $y, 'z' => $z]
                     : null;
 
                 $maxScuBox = match (true) {
@@ -141,9 +145,9 @@ class ItemInventoryResource extends AbstractBaseResource
             return null;
         }
 
-        $x = Arr::get($block, 'X', Arr::get($block, 'x'));
-        $y = Arr::get($block, 'Y', Arr::get($block, 'y'));
-        $z = Arr::get($block, 'Z', Arr::get($block, 'z'));
+        $x = $block['X'] ?? ($block['x'] ?? null);
+        $y = $block['Y'] ?? ($block['y'] ?? null);
+        $z = $block['Z'] ?? ($block['z'] ?? null);
 
         if ($x === null || $y === null || $z === null) {
             return null;
