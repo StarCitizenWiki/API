@@ -80,31 +80,8 @@ class MissionData extends Model
     ];
 
     protected $casts = [
-        'mission_id' => 'integer',
-        'game_version_id' => 'integer',
-        'faction_id' => 'integer',
-        'illegal' => 'boolean',
-        'shareable' => 'boolean',
-        'once_only' => 'boolean',
-        'available_in_prison' => 'boolean',
-        'not_for_release' => 'boolean',
-        'work_in_progress' => 'boolean',
-        'calculated_reward' => 'boolean',
-        'rank_index' => 'integer',
-        'min_crime_stat' => 'integer',
-        'max_crime_stat' => 'integer',
-        'time_to_complete_minutes' => 'float',
-        'reward_min' => 'integer',
-        'reward_max' => 'integer',
-        'has_combat' => 'boolean',
-        'has_defend_objective' => 'boolean',
-        'enemy_count_min' => 'integer',
-        'enemy_count_max' => 'integer',
         'star_systems' => 'array',
         'reputation_scopes' => 'array',
-        'mission_key' => 'string',
-        'max_players_per_instance' => 'integer',
-        'reputation_amount' => 'integer',
         'data' => 'array',
     ];
 
