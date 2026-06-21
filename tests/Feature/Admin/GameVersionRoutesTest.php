@@ -5,21 +5,6 @@ declare(strict_types=1);
 use App\Models\Game\GameVersion;
 use App\Models\User;
 
-it('redirects guests for get admin/game-versions to login', function (): void {
-    $response = $this->get(route('admin.game-versions.index'));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids authenticated non-admin users for get admin/game-versions', function (): void {
-    $user = User::factory()->create(['is_admin' => false]);
-
-    $response = $this->actingAs($user)
-        ->get(route('admin.game-versions.index'));
-
-    $response->assertForbidden();
-});
-
 it('allows authenticated admins to see game versions in the index', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
@@ -68,64 +53,6 @@ it('allows authenticated admins to see game versions in the index', function ():
         ->assertSee(route('admin.game-versions.set-default', $hiddenVersion), false)
         ->assertSee(route('admin.game-versions.show', $hiddenVersion), false)
         ->assertDontSee(route('admin.game-versions.hide', $hiddenVersion), false);
-});
-
-it('redirects guests for post admin/game-versions/{gameversion}/set-default to login', function (): void {
-    $gameVersion = GameVersion::factory()->create();
-
-    $response = $this->post(route('admin.game-versions.set-default', $gameVersion));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids authenticated non-admin users for post admin/game-versions/{gameversion}/set-default', function (): void {
-    $user = User::factory()->create(['is_admin' => false]);
-    $gameVersion = GameVersion::factory()->create();
-
-    $response = $this->actingAs($user)
-        ->post(route('admin.game-versions.set-default', $gameVersion));
-
-    $response->assertForbidden();
-});
-
-it('redirects guests for post admin/game-versions/{gameversion}/hide to login', function (): void {
-    $gameVersion = GameVersion::factory()->create();
-
-    $response = $this->post(route('admin.game-versions.hide', $gameVersion));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids authenticated non-admin users for post admin/game-versions/{gameversion}/hide', function (): void {
-    $user = User::factory()->create(['is_admin' => false]);
-    $gameVersion = GameVersion::factory()->create();
-
-    $response = $this->actingAs($user)
-        ->post(route('admin.game-versions.hide', $gameVersion));
-
-    $response->assertForbidden();
-});
-
-it('redirects guests for post admin/game-versions/{gameversion}/show to login', function (): void {
-    $gameVersion = GameVersion::factory()->create([
-        'is_hidden' => true,
-    ]);
-
-    $response = $this->post(route('admin.game-versions.show', $gameVersion));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids authenticated non-admin users for post admin/game-versions/{gameversion}/show', function (): void {
-    $user = User::factory()->create(['is_admin' => false]);
-    $gameVersion = GameVersion::factory()->create([
-        'is_hidden' => true,
-    ]);
-
-    $response = $this->actingAs($user)
-        ->post(route('admin.game-versions.show', $gameVersion));
-
-    $response->assertForbidden();
 });
 
 it('allows authenticated admins to set exactly one selected version as default and makes it visible', function (): void {

@@ -50,7 +50,7 @@ it('creates blueprint data on first import', function (): void {
         ->and($blueprintData->data)->toBeArray();
 });
 
-it('rewrites the row only when data actually changes', function (): void {
+it('persists the row when source data changes', function (): void {
     $payload = [blueprintPayload($this->resource->uuid)];
 
     runBlueprintImport($this->version->code, $payload);

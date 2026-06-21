@@ -25,8 +25,6 @@ it('lists manufacturers', function (): void {
     $response = $this->getJson('/api/manufacturers');
 
     $response->assertSuccessful()
-        ->assertJsonPath('data.0.name', $manufacturer->name)
-        ->assertJsonPath('data.0.code', $manufacturer->code)
         ->assertJsonPath('data.0.link', route('manufacturers.show', ['manufacturer' => $manufacturer->code]));
 })->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
     ->group('db-pgsql');

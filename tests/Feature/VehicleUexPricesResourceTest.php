@@ -9,6 +9,38 @@ use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 
+function starmapLocationChain(GameVersion $version, string $starName, string $parentName, string $terminalName, string $parentType = 'Planet', string $terminalType = 'Outpost'): array
+{
+    $starLocation = StarmapLocation::factory()->create();
+    $starData = StarmapLocationData::factory()
+        ->for($starLocation, 'location')
+        ->for($version, 'gameVersion')
+        ->create(['name' => $starName]);
+
+    $parentLocation = StarmapLocation::factory()->create();
+    $parentData = StarmapLocationData::factory()
+        ->for($parentLocation, 'location')
+        ->for($version, 'gameVersion')
+        ->create([
+            'name' => $parentName,
+            'type_name' => $parentType,
+            'star_data_id' => $starData->id,
+        ]);
+
+    $terminalLocation = StarmapLocation::factory()->create(['slug' => strtolower(str_replace(' ', '-', $terminalName))]);
+    $terminalData = StarmapLocationData::factory()
+        ->for($terminalLocation, 'location')
+        ->for($version, 'gameVersion')
+        ->create([
+            'name' => $terminalName,
+            'type_name' => $terminalType,
+            'parent_data_id' => $parentData->id,
+            'star_data_id' => $starData->id,
+        ]);
+
+    return ['location' => $terminalLocation, 'data' => $terminalData];
+}
+
 beforeEach(function () {
     $this->manufacturer = Manufacturer::factory()->create([
         'name' => 'Test Manufacturer',
@@ -42,35 +74,7 @@ it('returns empty uex_prices when no prices are stored', function (): void {
 });
 
 it('expands vehicle purchase prices with location data', function (): void {
-    $location = StarmapLocation::factory()->create(['slug' => 'lorville']);
-
-    $starLocation = StarmapLocation::factory()->create();
-    $starLocationData = StarmapLocationData::factory()
-        ->for($starLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create([
-            'name' => 'Stanton',
-        ]);
-
-    $parentLocation = StarmapLocation::factory()->create();
-    $parentLocationData = StarmapLocationData::factory()
-        ->for($parentLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create([
-            'name' => 'Hurston',
-            'type_name' => 'Planet',
-            'star_data_id' => $starLocationData->id,
-        ]);
-
-    $terminalLocationData = StarmapLocationData::factory()
-        ->for($location, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create([
-            'name' => 'Lorville',
-            'type_name' => 'Outpost',
-            'parent_data_id' => $parentLocationData->id,
-            'star_data_id' => $starLocationData->id,
-        ]);
+    ['location' => $location, 'data' => $terminalLocationData] = starmapLocationChain($this->gameVersion, 'Stanton', 'Hurston', 'Lorville');
 
     VehicleData::factory()
         ->for($this->vehicle)
@@ -147,51 +151,8 @@ it('expands vehicle rental prices with price_rent field', function (): void {
 });
 
 it('sorts prices by star system ascending then date_updated descending', function (): void {
-    $stantonLocation = StarmapLocation::factory()->create();
-    $stantonStarLocation = StarmapLocation::factory()->create();
-    $stantonStarData = StarmapLocationData::factory()
-        ->for($stantonStarLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create(['name' => 'Stanton']);
-    $stantonParentLocation = StarmapLocation::factory()->create();
-    $stantonParentData = StarmapLocationData::factory()
-        ->for($stantonParentLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create([
-            'name' => 'Hurston',
-            'star_data_id' => $stantonStarData->id,
-        ]);
-    $stantonTerminalData = StarmapLocationData::factory()
-        ->for($stantonLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create([
-            'name' => 'Lorville',
-            'parent_data_id' => $stantonParentData->id,
-            'star_data_id' => $stantonStarData->id,
-        ]);
-
-    $pyroLocation = StarmapLocation::factory()->create();
-    $pyroStarLocation = StarmapLocation::factory()->create();
-    $pyroStarData = StarmapLocationData::factory()
-        ->for($pyroStarLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create(['name' => 'Pyro']);
-    $pyroParentLocation = StarmapLocation::factory()->create();
-    $pyroParentData = StarmapLocationData::factory()
-        ->for($pyroParentLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create([
-            'name' => 'Pyro Planet',
-            'star_data_id' => $pyroStarData->id,
-        ]);
-    $pyroTerminalData = StarmapLocationData::factory()
-        ->for($pyroLocation, 'location')
-        ->for($this->gameVersion, 'gameVersion')
-        ->create([
-            'name' => 'Orison',
-            'parent_data_id' => $pyroParentData->id,
-            'star_data_id' => $pyroStarData->id,
-        ]);
+    ['location' => $stantonLocation, 'data' => $stantonTerminalData] = starmapLocationChain($this->gameVersion, 'Stanton', 'Hurston', 'Lorville');
+    ['location' => $pyroLocation, 'data' => $pyroTerminalData] = starmapLocationChain($this->gameVersion, 'Pyro', 'Pyro Planet', 'Orison');
 
     VehicleData::factory()
         ->for($this->vehicle)

@@ -104,25 +104,3 @@ it('selects highest tier from multiple beds', function (): void {
     $data = VehicleData::first();
     expect($data->max_medical_tier)->toBe('T2');
 });
-
-/**
- * Build a minimal vehicle payload with optional extra data merged in.
- */
-function baseVehiclePayload(string $uuid, string $manufacturerUuid, array $extra = []): array
-{
-    return array_merge([
-        'UUID' => $uuid,
-        'ClassName' => 'TEST_SHIP',
-        'Name' => 'Test Ship',
-        'Career' => 'Combat',
-        'Role' => 'Fighter',
-        'IsVehicle' => false,
-        'IsGravlev' => false,
-        'IsSpaceship' => true,
-        'Size' => 2,
-        'Manufacturer' => [
-            'UUID' => $manufacturerUuid,
-            'Name' => 'Test Manufacturer',
-        ],
-    ], $extra);
-}

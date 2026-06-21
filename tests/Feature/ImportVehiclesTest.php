@@ -28,9 +28,7 @@ beforeEach(function (): void {
 });
 
 it('fails when the game version does not exist', function (): void {
-    $this->artisan('game:import-vehicles', ['version' => 'missing'])
-        ->assertExitCode(Command::FAILURE)
-        ->expectsOutput('Game version "missing" does not exist. Please create it first.');
+    assertFailsOnMissingVersion('game:import-vehicles');
 });
 
 it('dispatches an import job for each ship file, skipping raw files', function (): void {
@@ -320,7 +318,7 @@ it('matches shipmatrix vehicle by stripping manufacturer prefix', function (): v
         ->and($data->shipmatrix_id)->toBe($shipmatrixVehicle->id);
 });
 
-it('generates display_name by stripping manufacturer prefix', function (): void {
+it('generates display_name by stripping manufacturer prefix', function (string $mfgName, string $mfgCode, string $vehicleName, string $expectedDisplayName): void {
     Storage::fake('scunpacked');
 
     $version = GameVersion::query()->create([
@@ -330,212 +328,43 @@ it('generates display_name by stripping manufacturer prefix', function (): void 
         'is_default' => false,
     ]);
 
-    $manufacturerUuid = fake()->uuid();
-    $manufacturer = Manufacturer::query()->create([
-        'uuid' => $manufacturerUuid,
-        'name' => 'Roberts Space Industries',
-        'code' => 'RSI',
+    $mfgUuid = fake()->uuid();
+    Manufacturer::query()->create([
+        'uuid' => $mfgUuid,
+        'name' => $mfgName,
+        'code' => $mfgCode,
     ]);
 
-    // Test with manufacturer name prefix
     $vehicleUuid = fake()->uuid();
     $payload = [
         'UUID' => $vehicleUuid,
-        'ClassName' => 'RSI_Constellation_Andromeda',
-        'Name' => 'Roberts Space Industries Constellation Andromeda',
+        'ClassName' => 'TEST_SHIP',
+        'Name' => $vehicleName,
         'Manufacturer' => [
-            'UUID' => $manufacturer->uuid,
-            'Name' => $manufacturer->name,
-            // Note: Real game data does NOT include 'Code' field
+            'UUID' => $mfgUuid,
+            'Name' => $mfgName,
         ],
     ];
 
-    Storage::disk('scunpacked')->put('ships/constellation.json', json_encode($payload, JSON_THROW_ON_ERROR));
-    (new ImportVehicleData($version->id, 'ships/constellation.json'))->handle();
+    Storage::disk('scunpacked')->put('ships/display_name.json', json_encode($payload, JSON_THROW_ON_ERROR));
+    (new ImportVehicleData($version->id, 'ships/display_name.json'))->handle();
 
-    $vehicle = Vehicle::query()->firstWhere('uuid', $vehicleUuid);
     $data = VehicleData::query()
-        ->where('vehicle_id', $vehicle->id)
+        ->where('vehicle_id', Vehicle::query()->firstWhere('uuid', $vehicleUuid)->id)
         ->where('game_version_id', $version->id)
         ->first();
 
-    expect($data->name)->toBe('Roberts Space Industries Constellation Andromeda')
-        ->and($data->display_name)->toBe('Constellation Andromeda');
-
-    // Test with manufacturer code prefix (tests special case mapping)
-    $vehicleUuid2 = fake()->uuid();
-    $payload2 = [
-        'UUID' => $vehicleUuid2,
-        'ClassName' => 'RSI_Aurora',
-        'Name' => 'RSI Aurora',
-        'Manufacturer' => [
-            'UUID' => $manufacturer->uuid,
-            'Name' => $manufacturer->name,
-            // Note: Real game data does NOT include 'Code' field
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/aurora.json', json_encode($payload2, JSON_THROW_ON_ERROR));
-    (new ImportVehicleData($version->id, 'ships/aurora.json'))->handle();
-
-    $vehicle2 = Vehicle::query()->firstWhere('uuid', $vehicleUuid2);
-    $data2 = VehicleData::query()
-        ->where('vehicle_id', $vehicle2->id)
-        ->where('game_version_id', $version->id)
-        ->first();
-
-    expect($data2->name)->toBe('RSI Aurora')
-        ->and($data2->display_name)->toBe('Aurora');
-
-    // Test without manufacturer prefix
-    $vehicleUuid3 = fake()->uuid();
-    $payload3 = [
-        'UUID' => $vehicleUuid3,
-        'ClassName' => 'Some_Ship',
-        'Name' => 'F8C Lightning PYAM Exec',
-        'Manufacturer' => [
-            'UUID' => $manufacturer->uuid,
-            'Name' => $manufacturer->name,
-            // Note: Real game data does NOT include 'Code' field
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/no-prefix.json', json_encode($payload3, JSON_THROW_ON_ERROR));
-    (new ImportVehicleData($version->id, 'ships/no-prefix.json'))->handle();
-
-    $vehicle3 = Vehicle::query()->firstWhere('uuid', $vehicleUuid3);
-    $data3 = VehicleData::query()
-        ->where('vehicle_id', $vehicle3->id)
-        ->where('game_version_id', $version->id)
-        ->first();
-
-    expect($data3->name)->toBe('F8C Lightning PYAM Exec')
-        ->and($data3->display_name)->toBe('F8C Lightning PYAM Exec');
-
-    // Test Aegis manufacturer (first word extraction)
-    $aegisUuid = fake()->uuid();
-    $aegisManufacturer = Manufacturer::query()->create([
-        'uuid' => $aegisUuid,
-        'name' => 'Aegis Dynamics',
-        'code' => 'AEG',
-    ]);
-
-    $vehicleUuid4 = fake()->uuid();
-    $payload4 = [
-        'UUID' => $vehicleUuid4,
-        'ClassName' => 'AEGS_Avenger_Stalker',
-        'Name' => 'Aegis Avenger Stalker',
-        'Manufacturer' => [
-            'UUID' => $aegisManufacturer->uuid,
-            'Name' => $aegisManufacturer->name,
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/avenger.json', json_encode($payload4, JSON_THROW_ON_ERROR));
-    (new ImportVehicleData($version->id, 'ships/avenger.json'))->handle();
-
-    $vehicle4 = Vehicle::query()->firstWhere('uuid', $vehicleUuid4);
-    $data4 = VehicleData::query()
-        ->where('vehicle_id', $vehicle4->id)
-        ->where('game_version_id', $version->id)
-        ->first();
-
-    expect($data4->name)->toBe('Aegis Avenger Stalker')
-        ->and($data4->display_name)->toBe('Avenger Stalker');
-
-    // Test Anvil manufacturer (first word extraction)
-    $anvilUuid = fake()->uuid();
-    $anvilManufacturer = Manufacturer::query()->create([
-        'uuid' => $anvilUuid,
-        'name' => 'Anvil Aerospace',
-        'code' => 'ANVL',
-    ]);
-
-    $vehicleUuid5 = fake()->uuid();
-    $payload5 = [
-        'UUID' => $vehicleUuid5,
-        'ClassName' => 'ANVL_Arrow',
-        'Name' => 'Anvil Arrow',
-        'Manufacturer' => [
-            'UUID' => $anvilManufacturer->uuid,
-            'Name' => $anvilManufacturer->name,
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/arrow.json', json_encode($payload5, JSON_THROW_ON_ERROR));
-    (new ImportVehicleData($version->id, 'ships/arrow.json'))->handle();
-
-    $vehicle5 = Vehicle::query()->firstWhere('uuid', $vehicleUuid5);
-    $data5 = VehicleData::query()
-        ->where('vehicle_id', $vehicle5->id)
-        ->where('game_version_id', $version->id)
-        ->first();
-
-    expect($data5->name)->toBe('Anvil Arrow')
-        ->and($data5->display_name)->toBe('Arrow');
-
-    // Test Consolidated Outland manufacturer (special case: C.O.)
-    $cnoUuid = fake()->uuid();
-    $cnoManufacturer = Manufacturer::query()->create([
-        'uuid' => $cnoUuid,
-        'name' => 'Consolidated Outland',
-        'code' => 'CNOU',
-    ]);
-
-    $vehicleUuid6 = fake()->uuid();
-    $payload6 = [
-        'UUID' => $vehicleUuid6,
-        'ClassName' => 'CNOU_Mustang',
-        'Name' => 'C.O. Mustang Alpha',
-        'Manufacturer' => [
-            'UUID' => $cnoManufacturer->uuid,
-            'Name' => $cnoManufacturer->name,
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/mustang.json', json_encode($payload6, JSON_THROW_ON_ERROR));
-    (new ImportVehicleData($version->id, 'ships/mustang.json'))->handle();
-
-    $vehicle6 = Vehicle::query()->firstWhere('uuid', $vehicleUuid6);
-    $data6 = VehicleData::query()
-        ->where('vehicle_id', $vehicle6->id)
-        ->where('game_version_id', $version->id)
-        ->first();
-
-    expect($data6->name)->toBe('C.O. Mustang Alpha')
-        ->and($data6->display_name)->toBe('Mustang Alpha');
-
-    // Test MISC manufacturer (special case)
-    $miscUuid = fake()->uuid();
-    $miscManufacturer = Manufacturer::query()->create([
-        'uuid' => $miscUuid,
-        'name' => 'Musashi Industrial & Starflight Concern',
-        'code' => 'MIS',
-    ]);
-
-    $vehicleUuid7 = fake()->uuid();
-    $payload7 = [
-        'UUID' => $vehicleUuid7,
-        'ClassName' => 'MISC_Prospector',
-        'Name' => 'MISC Prospector',
-        'Manufacturer' => [
-            'UUID' => $miscManufacturer->uuid,
-            'Name' => $miscManufacturer->name,
-        ],
-    ];
-
-    Storage::disk('scunpacked')->put('ships/prospector.json', json_encode($payload7, JSON_THROW_ON_ERROR));
-    (new ImportVehicleData($version->id, 'ships/prospector.json'))->handle();
-
-    $vehicle7 = Vehicle::query()->firstWhere('uuid', $vehicleUuid7);
-    $data7 = VehicleData::query()
-        ->where('vehicle_id', $vehicle7->id)
-        ->where('game_version_id', $version->id)
-        ->first();
-
-    expect($data7->name)->toBe('MISC Prospector')
-        ->and($data7->display_name)->toBe('Prospector');
-});
+    expect($data->name)->toBe($vehicleName)
+        ->and($data->display_name)->toBe($expectedDisplayName);
+})->with([
+    'RSI full name' => ['Roberts Space Industries', 'RSI', 'Roberts Space Industries Constellation Andromeda', 'Constellation Andromeda'],
+    'RSI code prefix' => ['Roberts Space Industries', 'RSI', 'RSI Aurora', 'Aurora'],
+    'no prefix match' => ['Roberts Space Industries', 'RSI', 'F8C Lightning PYAM Exec', 'F8C Lightning PYAM Exec'],
+    'Aegis first word' => ['Aegis Dynamics', 'AEG', 'Aegis Avenger Stalker', 'Avenger Stalker'],
+    'Anvil first word' => ['Anvil Aerospace', 'ANVL', 'Anvil Arrow', 'Arrow'],
+    'Consolidated Outland (C.O.)' => ['Consolidated Outland', 'CNOU', 'C.O. Mustang Alpha', 'Mustang Alpha'],
+    'MISC abbreviation' => ['Musashi Industrial & Starflight Concern', 'MIS', 'MISC Prospector', 'Prospector'],
+]);
 
 it('syncs description translations when DescriptionKey is present', function (): void {
     Storage::fake('scunpacked');

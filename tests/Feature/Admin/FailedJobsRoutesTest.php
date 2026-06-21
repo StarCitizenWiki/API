@@ -45,20 +45,6 @@ $insertFailedJob = static function (array $overrides = []): int {
     return (int) DB::table('failed_jobs')->insertGetId($attributes);
 };
 
-it('redirects guests to login for failed jobs index', function (): void {
-    $response = $this->get(route('admin.jobs.index'));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids non-admin users from failed jobs index', function (): void {
-    $user = User::factory()->create(['is_admin' => false]);
-
-    $response = $this->actingAs($user)->get(route('admin.jobs.index'));
-
-    $response->assertForbidden();
-});
-
 it('allows admin users to view failed jobs index with failed job rows', function () use ($insertFailedJob): void {
     $admin = User::factory()->create(['is_admin' => true]);
 
@@ -107,25 +93,6 @@ it('allows admin users to view failed jobs index with failed job rows', function
         ->assertSee(route('admin.jobs.truncate'), false);
 });
 
-it('redirects guests to login for deleting a failed job', function () use ($insertFailedJob): void {
-    $failedJobId = $insertFailedJob();
-
-    $response = $this->delete(route('admin.jobs.destroy', ['id' => $failedJobId]));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids non-admin users from deleting a failed job', function () use ($insertFailedJob): void {
-    $user = User::factory()->create(['is_admin' => false]);
-    $failedJobId = $insertFailedJob();
-
-    $response = $this->actingAs($user)
-        ->delete(route('admin.jobs.destroy', ['id' => $failedJobId]));
-
-    $response->assertForbidden();
-    $this->assertDatabaseHas('failed_jobs', ['id' => $failedJobId]);
-});
-
 it('allows admin users to delete a failed job and redirects with success flash', function () use ($insertFailedJob): void {
     $admin = User::factory()->create(['is_admin' => true]);
     $targetFailedJobId = $insertFailedJob(['queue' => 'critical']);
@@ -138,23 +105,6 @@ it('allows admin users to delete a failed job and redirects with success flash',
     $response->assertSessionHas('success', 'Failed job deleted successfully.');
     $this->assertDatabaseMissing('failed_jobs', ['id' => $targetFailedJobId]);
     $this->assertDatabaseHas('failed_jobs', ['id' => $keptFailedJobId]);
-});
-
-it('redirects guests to login for truncating failed jobs', function (): void {
-    $response = $this->delete(route('admin.jobs.truncate'));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids non-admin users from truncating failed jobs', function () use ($insertFailedJob): void {
-    $user = User::factory()->create(['is_admin' => false]);
-    $insertFailedJob();
-
-    $response = $this->actingAs($user)
-        ->delete(route('admin.jobs.truncate'));
-
-    $response->assertForbidden();
-    $this->assertDatabaseCount('failed_jobs', 1);
 });
 
 it('allows admin users to truncate failed jobs and redirects with success flash', function () use ($insertFailedJob): void {

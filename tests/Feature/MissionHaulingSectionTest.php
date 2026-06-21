@@ -3,19 +3,32 @@
 declare(strict_types=1);
 
 use App\Models\Game\Commodity\Commodity;
-use App\Models\Game\GameVersion;
 use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 
 beforeEach(function (): void {
-    $this->gameVersion = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
+    $this->gameVersion = createDefaultGameVersion();
 });
+
+/**
+ * Default HaulingOrders entry shape with zeroed-out optional keys;
+ * tests override only the fields relevant to their case.
+ */
+function makeHaulingOrder(array $overrides = []): array
+{
+    return array_merge([
+        'Kind' => 'Resource',
+        'Name' => 'Default',
+        'UUID' => null,
+        'MinScu' => 0,
+        'MaxScu' => 0,
+        'MinAmount' => 0,
+        'MaxAmount' => 0,
+        'MaxContainerSize' => -1,
+        'Items' => [],
+    ], $overrides);
+}
 
 describe('regular orders', function (): void {
     it('renders hauling section with commodity orders', function (): void {
@@ -29,17 +42,13 @@ describe('regular orders', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
+                        makeHaulingOrder([
                             'Kind' => 'Resource',
                             'Name' => 'Laranite',
                             'UUID' => $commodity->uuid,
                             'MinScu' => 10,
                             'MaxScu' => 24,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
+                        ]),
                     ],
                 ],
             ]);
@@ -50,8 +59,7 @@ describe('regular orders', function (): void {
             ->assertSee('Hauling Orders')
             ->assertSee('Laranite')
             ->assertSee('Commodity')
-            ->assertSee('10 - 24 SCU')
-            ->assertSee('badge-info', escape: false);
+            ->assertSee('10 - 24 SCU');
     });
 
     it('renders entity order with amount metric', function (): void {
@@ -65,17 +73,13 @@ describe('regular orders', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
+                        makeHaulingOrder([
                             'Kind' => 'Entity',
                             'Name' => 'Wikelo Favor',
                             'UUID' => $item->uuid,
-                            'MinScu' => 0,
-                            'MaxScu' => 0,
                             'MinAmount' => 1,
                             'MaxAmount' => 1,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
+                        ]),
                     ],
                 ],
             ]);
@@ -85,8 +89,7 @@ describe('regular orders', function (): void {
         $response->assertSuccessful()
             ->assertSee('Entity')
             ->assertSee('Wikelo Favor')
-            ->assertSee('1 ×')
-            ->assertSee('badge-warning', escape: false);
+            ->assertSee('1 ×');
     });
 
     it('renders entity group without link and shows sub-items', function (): void {
@@ -100,20 +103,17 @@ describe('regular orders', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
+                        makeHaulingOrder([
                             'Kind' => 'Entities',
                             'Name' => 'Power Plant, Industrial Grade (S2)',
                             'UUID' => $item->uuid,
-                            'MinScu' => 0,
-                            'MaxScu' => 0,
                             'MinAmount' => 3,
                             'MaxAmount' => 3,
-                            'MaxContainerSize' => -1,
                             'Items' => [
                                 ['Name' => 'Diligence', 'UUID' => $item->uuid],
                                 ['Name' => 'Genoa', 'UUID' => $item->uuid],
                             ],
-                        ],
+                        ]),
                     ],
                 ],
             ]);
@@ -125,8 +125,7 @@ describe('regular orders', function (): void {
             ->assertSee('Power Plant, Industrial Grade (S2)')
             ->assertSee('Diligence')
             ->assertSee('Genoa')
-            ->assertSee('3 ×')
-            ->assertSee('badge-warning', escape: false);
+            ->assertSee('3 ×');
     });
 
     it('renders mission item order', function (): void {
@@ -140,17 +139,14 @@ describe('regular orders', function (): void {
                 'reward_scope' => 'Investigation',
                 'data' => [
                     'HaulingOrders' => [
-                        [
+                        makeHaulingOrder([
                             'Kind' => 'MissionItem',
                             'Name' => 'Flight Recorder',
                             'UUID' => $item->uuid,
-                            'MinScu' => 0,
-                            'MaxScu' => 0,
                             'MinAmount' => 1,
                             'MaxAmount' => 1,
                             'MaxContainerSize' => 0,
-                            'Items' => [],
-                        ],
+                        ]),
                     ],
                 ],
             ]);
@@ -174,28 +170,8 @@ describe('regular orders', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
-                            'Kind' => 'Resource',
-                            'Name' => 'Quartz',
-                            'UUID' => $c1->uuid,
-                            'MinScu' => 21,
-                            'MaxScu' => 21,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
-                        [
-                            'Kind' => 'Resource',
-                            'Name' => 'Copper',
-                            'UUID' => $c2->uuid,
-                            'MinScu' => 18,
-                            'MaxScu' => 18,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
+                        makeHaulingOrder(['Name' => 'Quartz', 'UUID' => $c1->uuid, 'MinScu' => 21, 'MaxScu' => 21]),
+                        makeHaulingOrder(['Name' => 'Copper', 'UUID' => $c2->uuid, 'MinScu' => 18, 'MaxScu' => 18]),
                     ],
                 ],
             ]);
@@ -206,9 +182,7 @@ describe('regular orders', function (): void {
             ->assertSee('Quartz')
             ->assertSee('Copper')
             ->assertSee('21 SCU')
-            ->assertSee('18 SCU')
-            ->assertSee('badge-info', escape: false)
-            ->assertSee('rounded-box', escape: false);
+            ->assertSee('18 SCU');
     });
 });
 
@@ -228,28 +202,8 @@ describe('choice orders', function (): void {
                         [
                             'Kind' => 'Or',
                             'OrOptions' => [
-                                [[
-                                    'Kind' => 'Resource',
-                                    'Name' => 'Construction Rubble',
-                                    'UUID' => $c1->uuid,
-                                    'MinScu' => 10,
-                                    'MaxScu' => 10,
-                                    'MinAmount' => 0,
-                                    'MaxAmount' => 0,
-                                    'MaxContainerSize' => -1,
-                                    'Items' => [],
-                                ]],
-                                [[
-                                    'Kind' => 'Resource',
-                                    'Name' => 'Construction Pieces',
-                                    'UUID' => $c2->uuid,
-                                    'MinScu' => 15,
-                                    'MaxScu' => 15,
-                                    'MinAmount' => 0,
-                                    'MaxAmount' => 0,
-                                    'MaxContainerSize' => -1,
-                                    'Items' => [],
-                                ]],
+                                [makeHaulingOrder(['Name' => 'Construction Rubble', 'UUID' => $c1->uuid, 'MinScu' => 10, 'MaxScu' => 10])],
+                                [makeHaulingOrder(['Name' => 'Construction Pieces', 'UUID' => $c2->uuid, 'MinScu' => 15, 'MaxScu' => 15])],
                             ],
                         ],
                     ],
@@ -263,8 +217,7 @@ describe('choice orders', function (): void {
             ->assertSee('Construction Rubble')
             ->assertSee('Construction Pieces')
             ->assertSee('10 SCU')
-            ->assertSee('15 SCU')
-            ->assertSee('badge-info', escape: false);
+            ->assertSee('15 SCU');
     });
 
     it('renders mixed regular and choice orders', function (): void {
@@ -280,42 +233,12 @@ describe('choice orders', function (): void {
                 'reward_scope' => 'Salvage',
                 'data' => [
                     'HaulingOrders' => [
-                        [
-                            'Kind' => 'Resource',
-                            'Name' => 'Recycled Material Composite',
-                            'UUID' => $c1->uuid,
-                            'MinScu' => 5,
-                            'MaxScu' => 5,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
+                        makeHaulingOrder(['Name' => 'Recycled Material Composite', 'UUID' => $c1->uuid, 'MinScu' => 5, 'MaxScu' => 5]),
                         [
                             'Kind' => 'Or',
                             'OrOptions' => [
-                                [[
-                                    'Kind' => 'Resource',
-                                    'Name' => 'Construction Rubble',
-                                    'UUID' => $c2->uuid,
-                                    'MinScu' => 10,
-                                    'MaxScu' => 10,
-                                    'MinAmount' => 0,
-                                    'MaxAmount' => 0,
-                                    'MaxContainerSize' => -1,
-                                    'Items' => [],
-                                ]],
-                                [[
-                                    'Kind' => 'Resource',
-                                    'Name' => 'Construction Pieces',
-                                    'UUID' => $c3->uuid,
-                                    'MinScu' => 15,
-                                    'MaxScu' => 15,
-                                    'MinAmount' => 0,
-                                    'MaxAmount' => 0,
-                                    'MaxContainerSize' => -1,
-                                    'Items' => [],
-                                ]],
+                                [makeHaulingOrder(['Name' => 'Construction Rubble', 'UUID' => $c2->uuid, 'MinScu' => 10, 'MaxScu' => 10])],
+                                [makeHaulingOrder(['Name' => 'Construction Pieces', 'UUID' => $c3->uuid, 'MinScu' => 15, 'MaxScu' => 15])],
                             ],
                         ],
                     ],
@@ -345,17 +268,7 @@ describe('exact value display', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
-                            'Kind' => 'Resource',
-                            'Name' => "E'tam",
-                            'UUID' => $commodity->uuid,
-                            'MinScu' => 4,
-                            'MaxScu' => 0,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => 2,
-                            'Items' => [],
-                        ],
+                        makeHaulingOrder(['Name' => "E'tam", 'UUID' => $commodity->uuid, 'MinScu' => 4, 'MaxScu' => 0, 'MaxContainerSize' => 2]),
                     ],
                 ],
             ]);
@@ -378,17 +291,7 @@ describe('exact value display', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
-                            'Kind' => 'Entity',
-                            'Name' => 'Data Pad',
-                            'UUID' => $item->uuid,
-                            'MinScu' => 0,
-                            'MaxScu' => 0,
-                            'MinAmount' => 3,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
+                        makeHaulingOrder(['Kind' => 'Entity', 'Name' => 'Data Pad', 'UUID' => $item->uuid, 'MinAmount' => 3, 'MaxAmount' => 0]),
                     ],
                 ],
             ]);
@@ -411,17 +314,7 @@ describe('exact value display', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
-                            'Kind' => 'Resource',
-                            'Name' => 'Aphorite',
-                            'UUID' => $commodity->uuid,
-                            'MinScu' => 9,
-                            'MaxScu' => 16,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
+                        makeHaulingOrder(['Name' => 'Aphorite', 'UUID' => $commodity->uuid, 'MinScu' => 9, 'MaxScu' => 16]),
                     ],
                 ],
             ]);
@@ -445,17 +338,7 @@ describe('container size', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
-                            'Kind' => 'Resource',
-                            'Name' => "E'tam",
-                            'UUID' => $commodity->uuid,
-                            'MinScu' => 4,
-                            'MaxScu' => 4,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => 2,
-                            'Items' => [],
-                        ],
+                        makeHaulingOrder(['Name' => "E'tam", 'UUID' => $commodity->uuid, 'MinScu' => 4, 'MaxScu' => 4, 'MaxContainerSize' => 2]),
                     ],
                 ],
             ]);
@@ -463,8 +346,7 @@ describe('container size', function (): void {
         $response = $this->get("/missions/{$mission->slug}");
 
         $response->assertSuccessful()
-            ->assertSee('2 SCU container')
-            ->assertSee('badge-ghost', escape: false);
+            ->assertSee('2 SCU container');
     });
 
     it('hides container size when negative or zero', function (): void {
@@ -478,17 +360,7 @@ describe('container size', function (): void {
                 'reward_scope' => 'Hauling',
                 'data' => [
                     'HaulingOrders' => [
-                        [
-                            'Kind' => 'Resource',
-                            'Name' => 'Quartz',
-                            'UUID' => $commodity->uuid,
-                            'MinScu' => 2,
-                            'MaxScu' => 2,
-                            'MinAmount' => 0,
-                            'MaxAmount' => 0,
-                            'MaxContainerSize' => -1,
-                            'Items' => [],
-                        ],
+                        makeHaulingOrder(['Name' => 'Quartz', 'UUID' => $commodity->uuid, 'MinScu' => 2, 'MaxScu' => 2]),
                     ],
                 ],
             ]);

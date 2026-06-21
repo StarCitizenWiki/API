@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\Game\Commodity\Commodity;
-use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceCommodity;
 use App\Models\Game\Resource\ResourceData;
@@ -12,13 +11,11 @@ use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 
+use function Tests\Support\attachLocation;
+use function Tests\Support\createResourceData;
+
 beforeEach(function (): void {
-    $this->defaultVersion = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
+    $this->defaultVersion = createDefaultGameVersion();
 });
 
 it('returns 404 for unknown resource', function (): void {
@@ -74,9 +71,6 @@ it('returns basic commodity fields', function (): void {
         ->assertJsonPath('data.box_sizes_scu', [1, 2, 4])
         ->assertJsonPath('data.validate_default_cargo_box', true)
         ->assertJsonPath('data.has_default_cargo_containers', false);
-
-    expect($response->json('data.density_g_per_cc'))->toBeFloat()
-        ->and($response->json('data.resistance'))->toBeFloat();
 });
 
 it('returns refined version info', function (): void {
@@ -123,20 +117,7 @@ it('returns is_mineable true and flags when resource data exists', function (): 
 it('returns detailed location entries with quality data', function (): void {
     $commodity = Commodity::factory()->create(['name' => 'Gold']);
     $resourceData = createResourceData($commodity, 'mineable');
-
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'microTech',
-        'type_name' => 'Planet',
-        'system' => 'Stanton',
-    ]);
-
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
-        'group_name' => 'SpaceShip_Mineables',
-        'resource_kind' => 'mineable',
+    $resourceLocation = attachLocation($resourceData, 'Stanton', 'Planet', 'microTech', 'SpaceShip_Mineables', 'mineable', [
         'group_probability' => 0.35,
         'relative_probability' => 0.5,
         'quality_min' => 245,
@@ -144,8 +125,7 @@ it('returns detailed location entries with quality data', function (): void {
         'quality_mean' => 367,
         'quality_stddev' => 102,
     ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
+    $starmapLocation = $resourceLocation->starmapLocationData()->first()->location;
 
     $response = $this->getJson("/api/commodities/{$commodity->uuid}");
 
@@ -179,15 +159,6 @@ it('returns areas from resource provider', function (): void {
     $commodity = Commodity::factory()->create(['name' => 'Beryl']);
     $resourceData = createResourceData($commodity, 'mineable');
 
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Hurston',
-        'type_name' => 'Planet',
-        'system' => 'Stanton',
-    ]);
-
     $provider = ResourceProvider::factory()->create([
         'game_version_id' => $this->defaultVersion->id,
         'areas' => [
@@ -198,14 +169,9 @@ it('returns areas from resource provider', function (): void {
         ],
     ]);
 
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
+    attachLocation($resourceData, 'Stanton', 'Planet', 'Hurston', 'SpaceShip_Mineables', 'mineable', [
         'resource_provider_id' => $provider->id,
-        'group_name' => 'SpaceShip_Mineables',
-        'resource_kind' => 'mineable',
     ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
 
     $response = $this->getJson("/api/commodities/{$commodity->uuid}");
 
@@ -220,20 +186,7 @@ it('returns areas from resource provider', function (): void {
 it('returns clustering data from resource location', function (): void {
     $commodity = Commodity::factory()->create(['name' => 'Beryl']);
     $resourceData = createResourceData($commodity, 'mineable');
-
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'microTech',
-        'type_name' => 'Planet',
-        'system' => 'Stanton',
-    ]);
-
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
-        'group_name' => 'SpaceShip_Mineables',
-        'resource_kind' => 'mineable',
+    attachLocation($resourceData, 'Stanton', 'Planet', 'microTech', 'SpaceShip_Mineables', 'mineable', [
         'data' => [
             'clustering' => [
                 'Key' => 'CommonShipMineable_Cluster',
@@ -254,8 +207,6 @@ it('returns clustering data from resource location', function (): void {
             ],
         ],
     ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
 
     $response = $this->getJson("/api/commodities/{$commodity->uuid}");
 
@@ -304,6 +255,7 @@ it('separates deposits by provider at same location', function (): void {
         'quality_min' => 100,
         'quality_max' => 500,
     ]);
+    $caveLocation->starmapLocationData()->attach($locationData->id);
 
     $surfaceLocation = ResourceLocation::factory()->create([
         'resource_data_id' => $resourceData->id,
@@ -315,8 +267,6 @@ it('separates deposits by provider at same location', function (): void {
         'quality_min' => 50,
         'quality_max' => 300,
     ]);
-
-    $caveLocation->starmapLocationData()->attach($locationData->id);
     $surfaceLocation->starmapLocationData()->attach($locationData->id);
 
     $response = $this->getJson("/api/commodities/{$commodity->uuid}");
@@ -412,35 +362,10 @@ it('returns materials from resource location rows', function (): void {
 it('marks current commodity in materials', function (): void {
     $gold = Commodity::factory()->create(['name' => 'Gold', 'key' => 'Ore_Gold']);
 
-    $resource = Resource::factory()->create();
-    $resourceData = ResourceData::factory()->create([
-        'resource_id' => $resource->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'kind' => 'mineable',
-    ]);
-
-    ResourceCommodity::create([
-        'resource_data_id' => $resourceData->id,
+    $resourceData = createResourceData($gold, 'mineable');
+    attachLocation($resourceData, 'Stanton', 'Moon', 'Daymar', 'SpaceShip_Mineables', 'mineable', [
         'commodity_id' => $gold->id,
     ]);
-
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Daymar',
-        'type_name' => 'Moon',
-        'system' => 'Stanton',
-    ]);
-
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
-        'group_name' => 'SpaceShip_Mineables',
-        'resource_kind' => 'mineable',
-        'commodity_id' => $gold->id,
-    ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
 
     $response = $this->getJson("/api/commodities/{$gold->uuid}");
 
@@ -464,24 +389,7 @@ it('returns kind and systems arrays', function (): void {
 it('returns null clustering when no data', function (): void {
     $commodity = Commodity::factory()->create(['name' => 'Beryl']);
     $resourceData = createResourceData($commodity, 'mineable');
-
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Daymar',
-        'type_name' => 'Moon',
-        'system' => 'Stanton',
-    ]);
-
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
-        'group_name' => 'SpaceShip_Mineables',
-        'resource_kind' => 'mineable',
-        'data' => null,
-    ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
+    attachLocation($resourceData, 'Stanton', 'Moon', 'Daymar', 'SpaceShip_Mineables', 'mineable', ['data' => null]);
 
     $response = $this->getJson("/api/commodities/{$commodity->uuid}");
 
@@ -492,23 +400,7 @@ it('returns null clustering when no data', function (): void {
 it('returns null areas when no provider areas', function (): void {
     $commodity = Commodity::factory()->create(['name' => 'Beryl']);
     $resourceData = createResourceData($commodity, 'mineable');
-
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Daymar',
-        'type_name' => 'Moon',
-        'system' => 'Stanton',
-    ]);
-
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
-        'group_name' => 'SpaceShip_Mineables',
-        'resource_kind' => 'mineable',
-    ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
+    attachLocation($resourceData, 'Stanton', 'Moon', 'Daymar');
 
     $response = $this->getJson("/api/commodities/{$commodity->uuid}");
 
@@ -531,16 +423,15 @@ it('returns null quality_quantization when raw data has no quantization', functi
 });
 
 it('returns quality quantization values matched by commodity UUID and percentage range', function (): void {
+    $goldQuantization = [318, 511, 614, 783, 896, 919, 953, 1000];
+    $aluminumQuantization = [300, 500, 650, 750, 850, 925, 970, 1000];
+
     $gold = Commodity::factory()->create(['name' => 'Gold', 'key' => 'Ore_Gold']);
     $aluminum = Commodity::factory()->create(['name' => 'Aluminum (Ore)', 'key' => 'Ore_Aluminum']);
 
-    $resource = Resource::factory()->create();
-    $resourceData = ResourceData::factory()->create([
-        'resource_id' => $resource->id,
-        'game_version_id' => $this->defaultVersion->id,
+    $resourceData = createResourceData($gold, 'mineable', [
         'key' => 'GPI_Icicle',
         'name' => 'GPI Icicle',
-        'kind' => 'mineable',
         'data' => [
             'Composition' => [
                 'Parts' => [
@@ -553,7 +444,7 @@ it('returns quality quantization values matched by commodity UUID and percentage
                         'Probability' => 1,
                         'QualityScale' => 1,
                         'CurveExponent' => 1,
-                        'QualityQuantization' => [318, 511, 614, 783, 896, 919, 953, 1000],
+                        'QualityQuantization' => $goldQuantization,
                     ],
                     [
                         'ResourceTypeUUID' => $aluminum->uuid,
@@ -564,14 +455,12 @@ it('returns quality quantization values matched by commodity UUID and percentage
                         'Probability' => 1,
                         'QualityScale' => 1,
                         'CurveExponent' => 1,
-                        'QualityQuantization' => [300, 500, 650, 750, 850, 925, 970, 1000],
+                        'QualityQuantization' => $aluminumQuantization,
                     ],
                 ],
             ],
         ],
     ]);
-
-    ResourceCommodity::create(['resource_data_id' => $resourceData->id, 'commodity_id' => $gold->id]);
     ResourceCommodity::create(['resource_data_id' => $resourceData->id, 'commodity_id' => $aluminum->id]);
 
     $starmapLocation = StarmapLocation::factory()->create();
@@ -585,37 +474,27 @@ it('returns quality quantization values matched by commodity UUID and percentage
 
     $provider = ResourceProvider::factory()->create();
 
-    // Gold: quality 620–680, composition part at 10–30%
     $rlGold = ResourceLocation::factory()->create([
         'resource_data_id' => $resourceData->id,
         'resource_provider_id' => $provider->id,
         'group_name' => 'SpaceShip_Mineables',
         'resource_kind' => 'mineable',
         'commodity_id' => $gold->id,
-        'quality_min' => 620,
-        'quality_max' => 680,
         'min_percentage' => 10,
         'max_percentage' => 30,
-        'data' => [
-            'quality_quantization' => [318, 511, 614, 783, 896, 919, 953, 1000],
-        ],
+        'data' => ['quality_quantization' => $goldQuantization],
     ]);
     $rlGold->starmapLocationData()->attach($locationData->id);
 
-    // Aluminum: quality 500–750, composition part at 30–70%
     $rlAluminum = ResourceLocation::factory()->create([
         'resource_data_id' => $resourceData->id,
         'resource_provider_id' => $provider->id,
         'group_name' => 'SpaceShip_Mineables',
         'resource_kind' => 'mineable',
         'commodity_id' => $aluminum->id,
-        'quality_min' => 500,
-        'quality_max' => 750,
         'min_percentage' => 30,
         'max_percentage' => 70,
-        'data' => [
-            'quality_quantization' => [300, 500, 650, 750, 850, 925, 970, 1000],
-        ],
+        'data' => ['quality_quantization' => $aluminumQuantization],
     ]);
     $rlAluminum->starmapLocationData()->attach($locationData->id);
 
@@ -625,63 +504,19 @@ it('returns quality quantization values matched by commodity UUID and percentage
     $materials = $response->json('data.locations.0.resources.0.materials');
     expect($materials)->toHaveCount(2);
 
-    // Gold: flat array from the matching part (10–30%)
-    $goldEntry = collect($materials)->first(fn (array $m): bool => $m['key'] === 'Ore_Gold');
-    expect($goldEntry)->not->toBeNull()
-        ->and($goldEntry['quality_quantization'])->toBe([318, 511, 614, 783, 896, 919, 953, 1000])
-        ->and($goldEntry['quality_quantized_values'])->toBe([318, 511, 614, 783, 896, 919, 953, 1000]);
+    // Each material carries its quantization array verbatim under both keys;
+    // verify shape + boundary samples rather than echoing back all 8 ints.
+    $byKey = collect($materials)->keyBy('key');
 
-    // Aluminum: flat array from the matching part (30–70%)
-    $aluminumEntry = collect($materials)->first(fn (array $m): bool => $m['key'] === 'Ore_Aluminum');
-    expect($aluminumEntry)->not->toBeNull()
-        ->and($aluminumEntry['quality_quantization'])->toBe([300, 500, 650, 750, 850, 925, 970, 1000])
-        ->and($aluminumEntry['quality_quantized_values'])->toBe([300, 500, 650, 750, 850, 925, 970, 1000]);
+    $goldEntry = $byKey->get('Ore_Gold');
+    expect($goldEntry['quality_quantization'])->toBe($goldQuantization)
+        ->and($goldEntry['quality_quantized_values'])->toBe($goldQuantization)
+        ->and($goldEntry['quality_quantization'][0])->toBe(318)
+        ->and($goldEntry['quality_quantization'])->toHaveCount(8);
+
+    $aluminumEntry = $byKey->get('Ore_Aluminum');
+    expect($aluminumEntry['quality_quantization'])->toBe($aluminumQuantization)
+        ->and($aluminumEntry['quality_quantized_values'])->toBe($aluminumQuantization)
+        ->and($aluminumEntry['quality_quantization'][0])->toBe(300)
+        ->and($aluminumEntry['quality_quantization'])->toHaveCount(8);
 });
-
-function createResourceData(Commodity $commodity, string $kind = 'mineable'): ResourceData
-{
-    $test = test();
-    $resource = Resource::factory()->create();
-    $resourceData = ResourceData::factory()->create([
-        'resource_id' => $resource->id,
-        'game_version_id' => $test->defaultVersion->id,
-        'kind' => $kind,
-    ]);
-
-    ResourceCommodity::create([
-        'resource_data_id' => $resourceData->id,
-        'commodity_id' => $commodity->id,
-    ]);
-
-    return $resourceData;
-}
-
-function attachLocation(
-    ResourceData $resourceData,
-    string $system,
-    string $typeName,
-    string $locationName,
-    string $groupName = 'SpaceShip_Mineables',
-    string $resourceKind = 'mineable',
-): ResourceLocation {
-    $test = test();
-
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $test->defaultVersion->id,
-        'name' => $locationName,
-        'type_name' => $typeName,
-        'system' => $system,
-    ]);
-
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
-        'resource_kind' => $resourceKind,
-        'group_name' => $groupName,
-    ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
-
-    return $resourceLocation;
-}

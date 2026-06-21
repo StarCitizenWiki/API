@@ -34,7 +34,7 @@ it('creates location data on first import', function (): void {
         ->and($data->name)->toBe('Port Olisar');
 });
 
-it('rewrites the row only when data actually changes', function (): void {
+it('persists the row when source data changes', function (): void {
     $payload = starmapPayload();
 
     dispatchStarmapImport($this->version->id, $payload);

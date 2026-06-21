@@ -33,7 +33,54 @@ it('returns item filter values with counts', function (): void {
             'size' => 1,
             'grade' => 2,
             'class' => 'A',
-            'data' => [],
+            'rarity' => 'Common',
+            'data' => [
+                'stdItem' => [
+                    'Rarity' => 'Common',
+                ],
+            ],
+        ]);
+
+    $rareItemOne = Item::factory()->create();
+    ItemData::factory()
+        ->for($rareItemOne)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Rare Blaster',
+            'type' => 'Weapon',
+            'sub_type' => 'Plasma',
+            'classification' => 'FPS.Weapon',
+            'size' => 1,
+            'grade' => 3,
+            'class' => 'B',
+            'rarity' => 'Rare',
+            'data' => [
+                'stdItem' => [
+                    'Rarity' => 'Rare',
+                ],
+            ],
+        ]);
+
+    $rareItemTwo = Item::factory()->create();
+    ItemData::factory()
+        ->for($rareItemTwo)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Rare Cannon',
+            'type' => 'Weapon',
+            'sub_type' => 'Ballistic',
+            'classification' => 'FPS.Weapon',
+            'size' => 2,
+            'grade' => 3,
+            'class' => 'B',
+            'rarity' => 'Rare',
+            'data' => [
+                'stdItem' => [
+                    'Rarity' => 'Rare',
+                ],
+            ],
         ]);
 
     $unknownManufacturer = Manufacturer::factory()->create([
@@ -63,41 +110,48 @@ it('returns item filter values with counts', function (): void {
             'filters' => [
                 'type' => [
                     ['value' => 'Unknown', 'label' => 'Unknown', 'count' => 1],
-                    ['value' => 'Weapon', 'label' => 'Weapon', 'count' => 1],
+                    ['value' => 'Weapon', 'label' => 'Weapon', 'count' => 3],
                 ],
                 'sub_type' => [
+                    ['value' => 'Ballistic', 'label' => 'Ballistic', 'count' => 1],
                     ['value' => 'Laser', 'label' => 'Laser', 'count' => 1],
+                    ['value' => 'Plasma', 'label' => 'Plasma', 'count' => 1],
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'classification' => [
-                    ['value' => 'FPS.Weapon', 'label' => 'Weapon', 'count' => 1],
+                    ['value' => 'FPS.Weapon', 'label' => 'Weapon', 'count' => 3],
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'size' => [
-                    ['value' => 1, 'label' => '1', 'count' => 1],
+                    ['value' => 1, 'label' => '1', 'count' => 2],
+                    ['value' => 2, 'label' => '2', 'count' => 1],
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'grade' => [
                     ['value' => 2, 'label' => 'B', 'count' => 1],
+                    ['value' => 3, 'label' => 'C', 'count' => 2],
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'class' => [
                     ['value' => 'A', 'label' => 'A', 'count' => 1],
+                    ['value' => 'B', 'label' => 'B', 'count' => 2],
                     ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
                 'event_source' => [],
                 'manufacturer' => [
-                    ['value' => 'Acme', 'label' => 'Acme', 'count' => 1],
+                    ['value' => 'Acme', 'label' => 'Acme', 'count' => 3],
                     ['value' => 'Nova', 'label' => 'Nova', 'count' => 1],
                 ],
                 'rarity' => [
-                    ['value' => null, 'label' => 'Unknown', 'count' => 2],
+                    ['value' => 'Common', 'label' => 'Common', 'count' => 1],
+                    ['value' => 'Rare', 'label' => 'Rare', 'count' => 2],
+                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
                 ],
             ],
         ]);
 });
 
-it('filters item filter values by category', function (): void {
+it('filters item filter values by a single dimension', function (array $filter, array $matchData, array $otherData, array $expectedFilters): void {
     $version = GameVersion::factory()->create([
         'code' => '3.25.0-LIVE',
         'channel' => 'live',
@@ -106,17 +160,29 @@ it('filters item filter values by category', function (): void {
     ]);
 
     $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Category Co',
-        'code' => 'CAT',
+        'name' => 'Dimension Co',
+        'code' => 'DIM',
     ]);
 
-    $foodItem = Item::factory()->create();
     ItemData::factory()
-        ->for($foodItem)
+        ->for(Item::factory(), 'item')
         ->for($version, 'gameVersion')
         ->for($manufacturer)
-        ->create([
-            'name' => 'Energy Bar',
+        ->create(['name' => 'Match', ...$matchData]);
+
+    ItemData::factory()
+        ->for(Item::factory(), 'item')
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create(['name' => 'Other', ...$otherData]);
+
+    $this->getJson(route('items.filters', ['filter' => $filter]))
+        ->assertOk()
+        ->assertExactJson(['filters' => $expectedFilters]);
+})->with([
+    'by category' => [
+        'filter' => ['category' => 'food'],
+        'matchData' => [
             'type' => 'Food',
             'sub_type' => 'Snack',
             'classification' => 'Test',
@@ -124,15 +190,8 @@ it('filters item filter values by category', function (): void {
             'grade' => 1,
             'class' => 'Civilian',
             'data' => [],
-        ]);
-
-    $weaponItem = Item::factory()->create();
-    ItemData::factory()
-        ->for($weaponItem)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Laser Pistol',
+        ],
+        'otherData' => [
             'type' => 'WeaponPersonal',
             'sub_type' => 'Pistol',
             'classification' => 'Test',
@@ -140,61 +199,38 @@ it('filters item filter values by category', function (): void {
             'grade' => 3,
             'class' => 'Military',
             'data' => [],
-        ]);
-
-    $this->getJson(route('items.filters', ['filter' => ['category' => 'food']]))
-        ->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'type' => [
-                    ['value' => 'Food', 'label' => 'Food', 'count' => 1],
-                ],
-                'sub_type' => [
-                    ['value' => 'Snack', 'label' => 'Snack', 'count' => 1],
-                ],
-                'classification' => [
-                    ['value' => 'Test', 'label' => 'Test', 'count' => 1],
-                ],
-                'size' => [
-                    ['value' => 1, 'label' => '1', 'count' => 1],
-                ],
-                'grade' => [
-                    ['value' => 1, 'label' => 'A', 'count' => 1],
-                ],
-                'class' => [
-                    ['value' => 'Civilian', 'label' => 'Civilian', 'count' => 1],
-                ],
-                'event_source' => [],
-                'manufacturer' => [
-                    ['value' => 'Category Co', 'label' => 'Category Co', 'count' => 1],
-                ],
-                'rarity' => [
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
+        ],
+        'expectedFilters' => [
+            'type' => [
+                ['value' => 'Food', 'label' => 'Food', 'count' => 1],
             ],
-        ]);
-});
-
-it('filters item filter values by type', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.25.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Type Co',
-        'code' => 'TYPE',
-    ]);
-
-    $armorItem = Item::factory()->create();
-    ItemData::factory()
-        ->for($armorItem)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Armor Core',
+            'sub_type' => [
+                ['value' => 'Snack', 'label' => 'Snack', 'count' => 1],
+            ],
+            'classification' => [
+                ['value' => 'Test', 'label' => 'Test', 'count' => 1],
+            ],
+            'size' => [
+                ['value' => 1, 'label' => '1', 'count' => 1],
+            ],
+            'grade' => [
+                ['value' => 1, 'label' => 'A', 'count' => 1],
+            ],
+            'class' => [
+                ['value' => 'Civilian', 'label' => 'Civilian', 'count' => 1],
+            ],
+            'event_source' => [],
+            'manufacturer' => [
+                ['value' => 'Dimension Co', 'label' => 'Dimension Co', 'count' => 1],
+            ],
+            'rarity' => [
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+        ],
+    ],
+    'by type' => [
+        'filter' => ['type' => 'Armor'],
+        'matchData' => [
             'type' => 'Armor',
             'sub_type' => 'Light',
             'classification' => 'FPS.Armor',
@@ -202,15 +238,8 @@ it('filters item filter values by type', function (): void {
             'grade' => 4,
             'class' => 'Industrial',
             'data' => [],
-        ]);
-
-    $weaponItem = Item::factory()->create();
-    ItemData::factory()
-        ->for($weaponItem)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Sidearm',
+        ],
+        'otherData' => [
             'type' => 'Weapon',
             'sub_type' => 'Pistol',
             'classification' => 'FPS.Weapon',
@@ -218,40 +247,36 @@ it('filters item filter values by type', function (): void {
             'grade' => 2,
             'class' => 'Military',
             'data' => [],
-        ]);
-
-    $this->getJson(route('items.filters', ['filter' => ['type' => 'Armor']]))
-        ->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'type' => [
-                    ['value' => 'Armor', 'label' => 'Armor', 'count' => 1],
-                ],
-                'sub_type' => [
-                    ['value' => 'Light', 'label' => 'Light', 'count' => 1],
-                ],
-                'classification' => [
-                    ['value' => 'FPS.Armor', 'label' => 'Armor', 'count' => 1],
-                ],
-                'size' => [
-                    ['value' => 3, 'label' => '3', 'count' => 1],
-                ],
-                'grade' => [
-                    ['value' => 4, 'label' => 'D', 'count' => 1],
-                ],
-                'class' => [
-                    ['value' => 'Industrial', 'label' => 'Industrial', 'count' => 1],
-                ],
-                'event_source' => [],
-                'manufacturer' => [
-                    ['value' => 'Type Co', 'label' => 'Type Co', 'count' => 1],
-                ],
-                'rarity' => [
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
+        ],
+        'expectedFilters' => [
+            'type' => [
+                ['value' => 'Armor', 'label' => 'Armor', 'count' => 1],
             ],
-        ]);
-});
+            'sub_type' => [
+                ['value' => 'Light', 'label' => 'Light', 'count' => 1],
+            ],
+            'classification' => [
+                ['value' => 'FPS.Armor', 'label' => 'Armor', 'count' => 1],
+            ],
+            'size' => [
+                ['value' => 3, 'label' => '3', 'count' => 1],
+            ],
+            'grade' => [
+                ['value' => 4, 'label' => 'D', 'count' => 1],
+            ],
+            'class' => [
+                ['value' => 'Industrial', 'label' => 'Industrial', 'count' => 1],
+            ],
+            'event_source' => [],
+            'manufacturer' => [
+                ['value' => 'Dimension Co', 'label' => 'Dimension Co', 'count' => 1],
+            ],
+            'rarity' => [
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+        ],
+    ],
+]);
 
 it('resolves classification labels correctly', function (): void {
     $version = GameVersion::factory()->create([
@@ -307,44 +332,4 @@ it('resolves classification labels correctly', function (): void {
     }
 });
 
-it('includes rarity facet in filters endpoint', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '3.25.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
 
-    $manufacturer = Manufacturer::factory()->create();
-
-    foreach (['Common', 'Rare', 'Rare'] as $rarity) {
-        ItemData::factory()
-            ->for(Item::factory(), 'item')
-            ->for($version, 'gameVersion')
-            ->for($manufacturer)
-            ->create([
-                'name' => fake()->word(),
-                'type' => 'Weapon',
-                'classification' => 'Test',
-                'data' => [
-                    'stdItem' => [
-                        'Rarity' => $rarity,
-                    ],
-                ],
-                'rarity' => $rarity,
-            ]);
-    }
-
-    $response = $this->getJson(route('items.filters'));
-    $response->assertOk();
-
-    $rarityFilters = collect($response->json('filters.rarity'));
-
-    $common = $rarityFilters->first(fn (array $f) => $f['value'] === 'Common');
-    $rare = $rarityFilters->first(fn (array $f) => $f['value'] === 'Rare');
-
-    expect($common)->not->toBeNull()
-        ->and($common['count'])->toBe(1)
-        ->and($rare)->not->toBeNull()
-        ->and($rare['count'])->toBe(2);
-});

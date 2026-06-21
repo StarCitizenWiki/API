@@ -2,20 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\StarCitizen\Galactapedia\Category;
 use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
 
 it('returns galactapedia filter values with counts', function (): void {
-    GameVersion::factory()->create([
-        'code' => '3.25.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
     $category = Category::factory()->create(['name' => 'Lore']);
     $tag = Tag::factory()->create(['name' => 'Banu']);
     $template = Template::factory()->create(['template' => 'species']);
@@ -50,7 +42,7 @@ it('returns galactapedia filter values with counts', function (): void {
         ]);
 });
 
-it('returns filtered galactapedia facet values without caching the filtered response', function (): void {
+it('narrows facets when a filter is supplied', function (): void {
     $lore = Category::factory()->create(['name' => 'Lore']);
     $history = Category::factory()->create(['name' => 'History']);
     $banu = Tag::factory()->create(['name' => 'Banu']);

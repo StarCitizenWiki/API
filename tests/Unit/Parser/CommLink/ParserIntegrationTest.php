@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Parser\CommLink;
+namespace Tests\Unit\Parser\CommLink;
 
 use App\Services\Parser\CommLink\Content\AlexandriaExtractor;
 use App\Services\Parser\CommLink\Content\DefaultExtractor;

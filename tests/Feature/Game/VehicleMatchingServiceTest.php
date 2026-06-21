@@ -3,42 +3,13 @@
 declare(strict_types=1);
 
 use App\Models\StarCitizen\ShipMatrix\Manufacturer as ShipMatrixManufacturer;
-use App\Models\StarCitizen\ShipMatrix\ProductionNote;
-use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
-use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
-use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Services\Game\VehicleMatchingService;
 
 beforeEach(function (): void {
     VehicleMatchingService::resetState();
 
-    // Create required reference data for ship matrix vehicles
-    $this->productionStatus = ProductionStatus::query()->create([
-        'name' => 'In Production',
-        'slug' => 'in-production',
-    ]);
-
-    $this->productionNote = ProductionNote::query()->create([
-        'translation' => ['en' => 'None'],
-    ]);
-
-    $this->size = ShipSize::query()->create([
-        'slug' => 'small',
-        'size' => 'Small',
-    ]);
-
-    $this->type = ShipType::query()->create([
-        'slug' => 'fighter',
-        'type' => 'Fighter',
-    ]);
-
-    $this->manufacturer = ShipMatrixManufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Anvil Aerospace',
-        'name_short' => 'ANV',
-        'slug' => 'anvil-aerospace',
-    ]);
+    createShipMatrixReferenceData();
 
     $this->service = app(VehicleMatchingService::class);
 });
@@ -54,7 +25,7 @@ it('finds matches for default manufacturer name permutations', function (
         'cig_id' => $cigId,
         'name' => $vehicleName,
         'slug' => $vehicleSlug,
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -94,7 +65,7 @@ it('uses config overrides for matching', function (): void {
             'cig_id' => 3,
             'name' => 'Easy Name',
             'slug' => 'easy-name',
-            'manufacturer_id' => $this->manufacturer->id,
+            'manufacturer_id' => $this->shipMatrixManufacturer->id,
             'production_status_id' => $this->productionStatus->id,
             'production_note_id' => $this->productionNote->id,
             'size_id' => $this->size->id,
@@ -144,7 +115,7 @@ it('does not fuzzy match across manufacturers when the manufacturer is unknown',
         'cig_id' => 99,
         'name' => 'Mule',
         'slug' => 'mule',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -210,7 +181,7 @@ it('lets an exact match on one candidate win over a substring match on another',
         'cig_id' => 60,
         'name' => 'MOLE',
         'slug' => 'mole',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -221,7 +192,7 @@ it('lets an exact match on one candidate win over a substring match on another',
         'cig_id' => 61,
         'name' => 'Argo Mole Carbon Edition',
         'slug' => 'argo-mole-carbon-edition',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -233,7 +204,7 @@ it('lets an exact match on one candidate win over a substring match on another',
         'UUID' => fake()->uuid(),
         'Name' => 'Argo MOLE',
         'ClassName' => 'ARGO_MOLE',
-        'Manufacturer' => ['Name' => $this->manufacturer->name, 'Code' => 'ANV'],
+        'Manufacturer' => ['Name' => $this->shipMatrixManufacturer->name, 'Code' => 'ANV'],
     ]);
 
     expect($result)->toBe($base->id);
@@ -246,7 +217,7 @@ it('matches a base ship whose name is a prefix of a ship matrix variant', functi
         'cig_id' => 62,
         'name' => 'Caterpillar Pirate Edition',
         'slug' => 'caterpillar-pirate-edition',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -322,7 +293,7 @@ it('uses config override for hornet heartseeker variant', function (): void {
         'cig_id' => 12,
         'name' => 'F7C-M Super Hornet Heartseeker Mk I',
         'slug' => 'f7c-m-super-hornet-heartseeker-mk-i',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -353,7 +324,7 @@ it('does not match in-game event editions onto their base vehicle', function (st
         'cig_id' => 70,
         'name' => 'Vulture',
         'slug' => 'vulture',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -388,7 +359,7 @@ it('does not strip the IKTI special-edition suffix onto a base vehicle', functio
         'cig_id' => 80,
         'name' => 'ATLS',
         'slug' => 'atls',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,
@@ -416,7 +387,7 @@ it('falls back to class-name parsing when the vehicle payload has no name', func
         'cig_id' => 42,
         'name' => 'Retaliator Bomber',
         'slug' => 'retaliator-bomber',
-        'manufacturer_id' => $this->manufacturer->id,
+        'manufacturer_id' => $this->shipMatrixManufacturer->id,
         'production_status_id' => $this->productionStatus->id,
         'production_note_id' => $this->productionNote->id,
         'size_id' => $this->size->id,

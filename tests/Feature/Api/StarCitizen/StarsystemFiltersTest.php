@@ -2,18 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\Affiliation;
 use App\Models\StarCitizen\Starmap\Starsystem;
 
 it('returns starsystem filter values with counts', function (): void {
-    GameVersion::factory()->create([
-        'code' => '3.25.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
     $affiliation = Affiliation::factory()->create(['name' => 'UEE']);
 
     $starsystem = Starsystem::factory()->create([
@@ -52,7 +44,7 @@ it('returns starsystem filter values with counts', function (): void {
         ]);
 });
 
-it('returns filtered starsystem facet values without caching the filtered response', function (): void {
+it('narrows facets when a filter is supplied', function (): void {
     $uee = Affiliation::factory()->create(['name' => 'UEE']);
     $vanduul = Affiliation::factory()->create(['name' => 'Vanduul']);
 

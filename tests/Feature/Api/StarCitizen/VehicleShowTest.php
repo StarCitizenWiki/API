@@ -10,30 +10,43 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 
-it('returns a vehicle by slug', function (): void {
-    $manufacturer = Manufacturer::query()->create([
+beforeEach(function (): void {
+    $this->manufacturer = Manufacturer::query()->create([
         'cig_id' => 1,
         'name' => 'Aegis Dynamics',
         'name_short' => 'AEGS',
     ]);
 
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
+    $this->size = Size::query()->create([
+        'slug' => 'small',
+        'translation' => ['en' => 'Small'],
+    ]);
+
+    $this->type = Type::query()->create([
+        'slug' => 'fighter',
+        'translation' => ['en' => 'Combat'],
+    ]);
+
+    $this->note = ProductionNote::query()->create([
         'translation' => ['en' => 'Test note'],
     ]);
 
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
+    $this->status = ProductionStatus::query()->create([
+        'slug' => 'flight-ready',
+        'translation' => ['en' => 'Flight Ready'],
+    ]);
+});
 
+it('returns a vehicle by slug', function (): void {
     $vehicle = Vehicle::query()->create([
         'cig_id' => 1,
         'name' => 'Avenger',
         'slug' => 'avenger',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -52,41 +65,15 @@ it('returns 404 for non-existent vehicle', function (): void {
 });
 
 it('returns vehicle with correct structure', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Aegis Dynamics',
-        'name_short' => 'AEGS',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
-    $type->setTranslation('translation', 'en', 'Combat');
-    $type->save();
-
-    $note->setTranslation('translation', 'en', 'Test note');
-    $note->save();
-
-    $status->setTranslation('translation', 'en', 'Flight Ready');
-    $status->save();
-
-    $size->setTranslation('translation', 'en', 'Small');
-    $size->save();
-
     $vehicle = Vehicle::query()->create([
         'cig_id' => 1,
         'name' => 'Avenger',
         'slug' => 'avenger',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
         'length' => 22.5,
         'beam' => 16.5,
@@ -134,31 +121,17 @@ it('returns vehicle with correct structure', function (): void {
 });
 
 it('handles url-encoded slugs', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Anvil Aerospace',
-        'name_short' => 'ANVL',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
     $vehicleSlug = 'f7c hornet';
 
     Vehicle::query()->create([
         'cig_id' => 1,
         'name' => 'F7C Hornet',
         'slug' => $vehicleSlug,
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 

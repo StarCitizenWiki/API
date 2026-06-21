@@ -7,17 +7,12 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceCommodity;
 use App\Models\Game\Resource\ResourceData;
-use App\Models\Game\Resource\ResourceLocation;
-use App\Models\Game\StarmapLocation;
-use App\Models\Game\StarmapLocationData;
+
+use function Tests\Support\attachLocation;
+use function Tests\Support\createResourceData;
 
 beforeEach(function (): void {
-    $this->defaultVersion = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
+    $this->defaultVersion = createDefaultGameVersion();
 });
 
 it('returns all expected facet keys', function (): void {
@@ -194,41 +189,11 @@ function linkCommodityToLocation(
     string $locationName,
     string $groupName = 'SpaceShip_Mineables',
 ): void {
-    $test = test();
     $resourceData = linkCommodityToResourceData($commodity, 'mineable');
-
-    $starmapLocation = StarmapLocation::factory()->create();
-    $locationData = StarmapLocationData::factory()->create([
-        'starmap_location_id' => $starmapLocation->id,
-        'game_version_id' => $test->defaultVersion->id,
-        'name' => $locationName,
-        'type_name' => $typeName,
-        'system' => $system,
-    ]);
-
-    $resourceLocation = ResourceLocation::factory()->create([
-        'resource_data_id' => $resourceData->id,
-        'resource_kind' => 'mineable',
-        'group_name' => $groupName,
-    ]);
-
-    $resourceLocation->starmapLocationData()->attach($locationData->id);
+    attachLocation($resourceData, $system, $typeName, $locationName, $groupName, 'mineable');
 }
 
 function linkCommodityToResourceData(Commodity $commodity, string $kind = 'mineable'): ResourceData
 {
-    $test = test();
-    $resource = Resource::factory()->create();
-    $resourceData = ResourceData::factory()->create([
-        'resource_id' => $resource->id,
-        'game_version_id' => $test->defaultVersion->id,
-        'kind' => $kind,
-    ]);
-
-    ResourceCommodity::create([
-        'resource_data_id' => $resourceData->id,
-        'commodity_id' => $commodity->id,
-    ]);
-
-    return $resourceData;
+    return createResourceData($commodity, $kind);
 }

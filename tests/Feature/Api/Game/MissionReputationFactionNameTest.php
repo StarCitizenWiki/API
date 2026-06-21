@@ -3,17 +3,11 @@
 declare(strict_types=1);
 
 use App\Models\Game\Faction;
-use App\Models\Game\GameVersion;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 
 beforeEach(function (): void {
-    $this->gameVersion = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
+    $this->gameVersion = createDefaultGameVersion();
 });
 
 it('resolves UNINITIALIZED faction name in reputation_gained via faction UUID', function (): void {

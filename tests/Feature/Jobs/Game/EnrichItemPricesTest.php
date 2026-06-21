@@ -9,7 +9,6 @@ use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -79,7 +78,6 @@ it('enriches item prices from per-item API', function (): void {
         return Http::response(status: 404);
     });
 
-    Bus::fake();
 
     $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], null);
     $job->handle();
@@ -194,7 +192,6 @@ it('matches current-family prices with major.minor prefix and previous-family wi
         return Http::response(status: 404);
     });
 
-    Bus::fake();
 
     $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], $previousVersionCode);
     $job->handle();

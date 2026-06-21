@@ -10,87 +10,44 @@ beforeEach(function (): void {
     $this->defaultVersion = GameVersion::factory()->create(['is_default' => true]);
 });
 
-it('accepts hardpoints include on vehicle show route', function (): void {
+function bindVehicle(GameVersion $version, string $name = 'Test Ship', array $overrides = []): Vehicle
+{
     $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
+
+    VehicleData::factory()->create(array_merge([
         'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Test Ship',
-        'display_name' => 'Test Ship',
-    ]);
+        'game_version_id' => $version->id,
+        'name' => $name,
+        'display_name' => $name,
+    ], $overrides));
 
-    $response = $this->getJson("/api/vehicles/{$vehicle->slug}?include=hardpoints");
+    return $vehicle;
+}
 
-    $response->assertSuccessful()
+// CustomEagerLoadInclude accepts these include names but invokes $query->with([]):
+// the query params are a documented no-op and must not 500. The real components
+// assertion lives in VehicleShipMatrixIntegrationTest.
+it('accepts documented no-op includes on vehicle show route without error', function (string $include): void {
+    $vehicle = bindVehicle($this->defaultVersion);
+
+    $this->getJson("/api/vehicles/{$vehicle->slug}?include={$include}")
+        ->assertSuccessful()
         ->assertJsonPath('data.name', 'Test Ship')
         ->assertJsonStructure(['data' => ['ports']]);
-});
-
-it('includes ports on vehicle show route', function (): void {
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Test Ship',
-        'display_name' => 'Test Ship',
-    ]);
-
-    $response = $this->getJson("/api/vehicles/{$vehicle->slug}?include=ports");
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.name', 'Test Ship')
-        ->assertJsonStructure(['data' => ['ports']]);
-});
-
-it('accepts components include on vehicle show route without error', function (): void {
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Test Ship',
-        'display_name' => 'Test Ship',
-    ]);
-
-    $response = $this->getJson("/api/vehicles/{$vehicle->slug}?include=components");
-
-    $response->assertSuccessful()
-        ->assertJsonPath('data.name', 'Test Ship')
-        ->assertJsonStructure(['data' => ['uuid', 'name', 'link']]);
-});
+})->with(['hardpoints', 'ports', 'components']);
 
 it('treats percent characters as literal text for exact vehicle lookups', function (): void {
-    $decoy = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $decoy->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'WildcardXShip',
-        'display_name' => 'WildcardXShip',
-        'class_name' => 'WildcardXShip',
-    ]);
+    bindVehicle($this->defaultVersion, 'WildcardXShip', ['class_name' => 'WildcardXShip']);
+    $exact = bindVehicle($this->defaultVersion, 'Wildcard%Ship', ['class_name' => 'Wildcard_Percent_Ship']);
 
-    $exact = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $exact->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Wildcard%Ship',
-        'display_name' => 'Wildcard%Ship',
-        'class_name' => 'Wildcard_Percent_Ship',
-    ]);
-
-    $response = $this->getJson('/api/vehicles/'.rawurlencode('Wildcard%Ship'));
-
-    $response->assertSuccessful()
+    $this->getJson('/api/vehicles/'.rawurlencode('Wildcard%Ship'))
+        ->assertSuccessful()
         ->assertJsonPath('data.uuid', $exact->uuid)
         ->assertJsonPath('data.name', 'Wildcard%Ship');
 });
 
 it('ignores medical beds without a tier when resolving max medical tier', function (): void {
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Medical Ship',
-        'display_name' => 'Medical Ship',
+    $vehicle = bindVehicle($this->defaultVersion, 'Medical Ship', [
         'max_medical_tier' => 'T2',
         'data' => [
             'Seating' => [
@@ -103,21 +60,14 @@ it('ignores medical beds without a tier when resolving max medical tier', functi
         ],
     ]);
 
-    $response = $this->getJson("/api/vehicles/{$vehicle->uuid}");
-
-    $response->assertSuccessful()
+    $this->getJson("/api/vehicles/{$vehicle->uuid}")
+        ->assertSuccessful()
         ->assertJsonPath('data.max_medical_tier', 'T2')
         ->assertJsonPath('data.seating.medical_beds.T2', 1);
 });
 
 it('accepts hardpoints include on vehicle index route', function (): void {
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Test Ship',
-        'display_name' => 'Test Ship',
-    ]);
+    bindVehicle($this->defaultVersion);
 
     $response = $this->getJson('/api/vehicles?include=hardpoints');
 
@@ -127,13 +77,7 @@ it('accepts hardpoints include on vehicle index route', function (): void {
 });
 
 it('accepts ports include on vehicle index route', function (): void {
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Test Ship',
-        'display_name' => 'Test Ship',
-    ]);
+    bindVehicle($this->defaultVersion);
 
     $response = $this->getJson('/api/vehicles?include=ports');
 
@@ -143,12 +87,7 @@ it('accepts ports include on vehicle index route', function (): void {
 });
 
 it('returns filtered index ports as a JSON list', function (): void {
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'name' => 'Filtered Ports Ship',
-        'display_name' => 'Filtered Ports Ship',
+    bindVehicle($this->defaultVersion, 'Filtered Ports Ship', [
         'data' => [
             'Loadout' => [
                 [

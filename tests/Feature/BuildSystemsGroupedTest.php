@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Http\Resources\Game\Commodity\CommodityShowResource;
-use App\Models\Game\Resource\Resource;
 
 it('groups locations by system', function (): void {
     $locations = [
@@ -12,8 +11,7 @@ it('groups locations by system', function (): void {
         ['name' => 'Location C', 'system' => 'Stanton', 'designation' => null, 'resources' => [['key' => 'dep3']]],
     ];
 
-    $resource = Resource::factory()->create();
-    $showResource = new CommodityShowResource($resource);
+    $showResource = new CommodityShowResource(new stdClass);
     $result = $showResource->buildSystemsGrouped($locations);
 
     expect($result)->toHaveCount(2)
@@ -31,8 +29,7 @@ it('handles locations without a system', function (): void {
         ['name' => 'Unknown Loc', 'system' => null, 'resources' => []],
     ];
 
-    $resource = Resource::factory()->create();
-    $showResource = new CommodityShowResource($resource);
+    $showResource = new CommodityShowResource(new stdClass);
     $result = $showResource->buildSystemsGrouped($locations);
 
     expect($result)->toHaveCount(1)
@@ -41,8 +38,7 @@ it('handles locations without a system', function (): void {
 });
 
 it('returns empty array for no locations', function (): void {
-    $resource = Resource::factory()->create();
-    $showResource = new CommodityShowResource($resource);
+    $showResource = new CommodityShowResource(new stdClass);
     $result = $showResource->buildSystemsGrouped([]);
 
     expect($result)->toBe([]);
@@ -55,8 +51,7 @@ it('sorts systems alphabetically', function (): void {
         ['name' => 'Loc 3', 'system' => 'Castra', 'designation' => null, 'resources' => []],
     ];
 
-    $resource = Resource::factory()->create();
-    $showResource = new CommodityShowResource($resource);
+    $showResource = new CommodityShowResource(new stdClass);
     $result = $showResource->buildSystemsGrouped($locations);
 
     expect($result)->toHaveCount(3)
@@ -75,8 +70,7 @@ it('sorts locations by designation then name within each system', function (): v
         ['name' => 'Another Belt', 'system' => 'Stanton', 'designation' => null, 'resources' => []],
     ];
 
-    $resource = Resource::factory()->create();
-    $showResource = new CommodityShowResource($resource);
+    $showResource = new CommodityShowResource(new stdClass);
     $result = $showResource->buildSystemsGrouped($locations);
 
     $names = collect($result[0]['locations'])->pluck('name')->all();

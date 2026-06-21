@@ -274,7 +274,7 @@ describe('delisted items', function (): void {
             'data' => $sku->data?->toArray(),
         ]);
 
-        // Return a completely different SKU — 999 is missing from API
+        // Return a completely different SKU - 999 is missing from API
         $payload = [
             makeSku([
                 'id' => '100',
@@ -309,7 +309,7 @@ describe('delisted items', function (): void {
 
         runImport($payload);
 
-        // SKU 999 should not have a new history entry — it was already unavailable
+        // SKU 999 should not have a new history entry - it was already unavailable
         expect($sku->history()->count())->toBe(1);
     });
 });
@@ -367,7 +367,7 @@ describe('fetch failure safety', function (): void {
         $job->throttleUs = 0;
         $job->handle(new RsiDownloadClient);
 
-        // The existing SKU should NOT be delisted — the job aborted safely
+        // The existing SKU should NOT be delisted - the job aborted safely
         $existing->refresh();
         expect($existing->stock_available)->toBeTrue()
             ->and(PledgeStoreSku::count())->toBe(1);
@@ -375,7 +375,7 @@ describe('fetch failure safety', function (): void {
 });
 
 /*
- * ─── Helpers ───────────────────────────────────────────────────────────────
+ * Helpers
  */
 
 /**

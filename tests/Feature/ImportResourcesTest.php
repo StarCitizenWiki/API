@@ -12,11 +12,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 it('fails when the game version does not exist', function (): void {
-    Storage::fake('scunpacked');
-
-    $this->artisan('game:import-resources', ['version' => 'missing'])
-        ->assertExitCode(Command::FAILURE)
-        ->expectsOutput('Game version "missing" does not exist. Please create it first.');
+    assertFailsOnMissingVersion('game:import-resources');
 });
 
 it('fails when the resources file is missing', function (): void {

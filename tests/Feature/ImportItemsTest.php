@@ -24,9 +24,7 @@ beforeEach(function (): void {
 });
 
 it('fails when the game version does not exist', function (): void {
-    $this->artisan('game:import-items', ['version' => 'missing'])
-        ->assertExitCode(Command::FAILURE)
-        ->expectsOutput('Game version "missing" does not exist. Please create it first.');
+    assertFailsOnMissingVersion('game:import-items');
 });
 
 it('dispatches an import job for each item file', function (): void {

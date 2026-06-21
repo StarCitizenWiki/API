@@ -277,24 +277,62 @@ describe('apiResolve', function (): void {
             ->assertRedirect(route('vehicles.show', ['vehicle' => 'priority-vehicle']));
     });
 
-    it('returns a redirect with a Location header', function (): void {
-        $item = Item::factory()->create(['slug' => 'content-type-item']);
-        ItemData::factory()
-            ->for($item)
+    it('resolves a vehicle by partial name via LIKE fallback', function (): void {
+        $vehicle = Vehicle::factory()->create(['slug' => 'origin-300i']);
+        VehicleData::factory()
+            ->for($vehicle)
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
             ->create([
-                'name' => 'ContentType Item',
-                'class_name' => 'content_type_item',
-                'classification' => 'Test',
-                'data' => [],
+                'name' => 'Origin 300i',
+                'class_name' => 'ORIG_300i',
             ]);
 
-        $response = $this->getJson('/api/search/ContentType%20Item');
+        $this->getJson('/api/search/300i')
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'origin-300i']));
+    });
 
-        $response->assertStatus(302)
-            ->assertRedirect(route('items.show', ['identifier' => 'content-type-item']));
-        expect($response->headers->get('Location'))->not->toBeNull();
+    it('resolves a vehicle by partial class name via LIKE fallback', function (): void {
+        $vehicle = Vehicle::factory()->create(['slug' => 'origin-300i']);
+        VehicleData::factory()
+            ->for($vehicle)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Origin 300i',
+                'class_name' => 'ORIG_300i',
+            ]);
+
+        $this->getJson('/api/search/ORIG_300')
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'origin-300i']));
+    });
+
+    it('prefers exact match over LIKE match for vehicles', function (): void {
+        $vehicle = Vehicle::factory()->create(['slug' => 'origin-300i']);
+        VehicleData::factory()
+            ->for($vehicle)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Origin 300i',
+                'class_name' => 'ORIG_300i',
+            ]);
+
+        $vehicle2 = Vehicle::factory()->create(['slug' => 'origin-315p']);
+        VehicleData::factory()
+            ->for($vehicle2)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Origin 315p',
+                'class_name' => 'ORIG_315p',
+            ]);
+
+        $this->getJson('/api/search/Origin 300i')
+            ->assertStatus(302)
+            ->assertRedirect(route('vehicles.show', ['vehicle' => 'origin-300i']));
     });
 });
 

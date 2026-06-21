@@ -57,7 +57,7 @@ it('creates mission data on first import', function (): void {
         ->and($missionData->has_combat)->toBeTrue();
 });
 
-it('rewrites the row only when data actually changes', function (): void {
+it('persists the row when source data changes', function (): void {
     $payload = missionPayload();
 
     dispatchMissionImport($this->version->id, $payload);
