@@ -562,7 +562,7 @@ describe('naming', function () {
         expect($result['variant_items'])->toHaveCount(1);
     });
 
-    it('resolves set name for Lynx Legs armor with manufacturer-name collision', function (): void {
+    it('resolves set name via entity tags when manufacturer name collides', function (): void {
         // Regression: "Lynx" is both an armor set name and a manufacturer name.
         // Entity tags for Lynx items include: Light, Common, FPS, Legs, Human,
         // KastakArms, Lynx, Grey - where only "Lynx" is the set identifier.
@@ -639,9 +639,9 @@ describe('naming', function () {
         expect($variantResult['set_name'])->toBe('Lynx');
     });
 
-    it('derives set name from variant group after job computes it', function (): void {
-        // The job uses entity tags, LCP, and set-items fallbacks to compute
-        // set_name. This verifies the full pipeline produces 'Lynx' correctly.
+    it('falls back to LCP on class-name prefix when entity tags are absent', function (): void {
+        // Without entity tags the resolver falls back to longest-common-prefix
+        // on class names, producing "Lynx" from the variant group.
         $base = ItemData::factory()
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
@@ -680,7 +680,7 @@ describe('naming', function () {
         expect($result['set_name'])->toBe('Lynx');
     });
 
-    it('derives set name from set items when entity tags and LCP fail', function (): void {
+    it('derives set name from set items when player-relevant filter applies', function (): void {
         // The "Monde" armor set has items across Helmet/Core/Arms/Legs.
         // With no entity tags and a common suffix ("HighSec"), the LCP should
         // produce the set name from cross-slot item names.

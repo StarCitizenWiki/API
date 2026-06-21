@@ -99,11 +99,7 @@ function buildPayload(array $s): array
 
 describe('basic import', function (): void {
     it('fails when the game version does not exist', function (): void {
-        Storage::fake('scunpacked');
-
-        $this->artisan('game:import-resource-locations', ['version' => 'missing'])
-            ->assertExitCode(Command::FAILURE)
-            ->expectsOutput('Game version "missing" does not exist. Please create it first.');
+        assertFailsOnMissingVersion('game:import-resource-locations');
     });
 
     it('fails when the locations file is missing', function (): void {

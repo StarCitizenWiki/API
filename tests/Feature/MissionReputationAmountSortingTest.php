@@ -7,12 +7,7 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 
 beforeEach(function (): void {
-    $this->version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'released_at' => now(),
-        'is_default' => true,
-    ]);
+    $this->version = createDefaultGameVersion();
 });
 
 function createMissionWithReputationAmount(GameVersion $version, ?int $amount, string $title): MissionData

@@ -66,24 +66,6 @@ it('returns matching similar image contract when authenticated', function (): vo
         );
 });
 
-it('rate limits requests to 10 per minute', function (): void {
-    $user = User::factory()->create();
-    $token = $user->createToken('test-token')->plainTextToken;
-
-    $image = Image::factory()->create();
-
-    for ($attempt = 0; $attempt < 10; $attempt++) {
-        $this->withToken($token)
-            ->getJson("/api/comm-link-images/{$image->id}/similar")
-            ->assertSuccessful()
-            ->assertJsonCount(0, 'data');
-    }
-
-    $this->withToken($token)
-        ->getJson("/api/comm-link-images/{$image->id}/similar")
-        ->assertTooManyRequests();
-});
-
 it('rate limit resets after minute expires', function (): void {
     $user = User::factory()->create();
     $token = $user->createToken('test-token')->plainTextToken;

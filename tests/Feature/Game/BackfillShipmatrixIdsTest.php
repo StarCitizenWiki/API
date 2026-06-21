@@ -6,41 +6,11 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use App\Models\StarCitizen\ShipMatrix\Manufacturer as ShipMatrixManufacturer;
-use App\Models\StarCitizen\ShipMatrix\ProductionNote;
-use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
-use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
-use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use Illuminate\Console\Command;
 
 beforeEach(function (): void {
-    // Create required reference data
-    $this->productionStatus = ProductionStatus::query()->create([
-        'name' => 'In Production',
-        'slug' => 'in-production',
-    ]);
-
-    $this->productionNote = ProductionNote::query()->create([
-        'translation' => ['en' => 'None'],
-    ]);
-
-    $this->size = ShipSize::query()->create([
-        'slug' => 'small',
-        'size' => 'Small',
-    ]);
-
-    $this->type = ShipType::query()->create([
-        'slug' => 'fighter',
-        'type' => 'Fighter',
-    ]);
-
-    $this->shipMatrixManufacturer = ShipMatrixManufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Anvil Aerospace',
-        'name_short' => 'ANV',
-        'slug' => 'anvil-aerospace',
-    ]);
+    createShipMatrixReferenceData();
 
     $this->gameManufacturer = Manufacturer::query()->create([
         'uuid' => fake()->uuid(),

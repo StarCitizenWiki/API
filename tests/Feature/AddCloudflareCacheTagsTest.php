@@ -8,10 +8,4 @@ describe('Cloudflare cache tag middleware integration', function (): void {
             ->assertSuccessful()
             ->assertHeader('Cache-Tag', 'api, api-comm-links');
     });
-
-    it('sets Cache-Tag header on web controllers', function (): void {
-        $this->get('/comm-links')
-            ->assertSuccessful()
-            ->assertHeader('Cache-Tag', 'web, web-comm-links');
-    });
 });

@@ -47,7 +47,7 @@ it('creates item data on first import', function (): void {
         ->and($itemData->data)->toBeArray();
 });
 
-it('rewrites the row only when data actually changes', function (): void {
+it('persists the row when source data changes', function (): void {
     $payload = itemPayload($this->manufacturer->uuid);
 
     dispatchItemImport($this->version->id, $payload);

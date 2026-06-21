@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Feature\Parser\CommLink\Traits;
+namespace Tests\Unit\Parser\CommLink\Traits;
 
 use App\Services\Parser\CommLink\Content\Traits\GFaqExtractorTrait;
 use Symfony\Component\DomCrawler\Crawler;

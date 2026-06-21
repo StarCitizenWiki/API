@@ -12,14 +12,12 @@ use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 beforeEach(function (): void {
     config(['images.throttle_microseconds' => 0]);
 });
 
 it('stores image on item from primary source', function (): void {
-    Log::spy();
 
     $item = Item::factory()->create();
     $version = GameVersion::factory()->create(['is_default' => true]);
@@ -73,7 +71,6 @@ it('stores image on item from primary source', function (): void {
 });
 
 it('stores image on vehicle from primary source', function (): void {
-    Log::spy();
 
     $vehicle = Vehicle::factory()->create();
     $version = GameVersion::factory()->create(['is_default' => true]);
@@ -119,7 +116,6 @@ it('stores image on vehicle from primary source', function (): void {
 });
 
 it('skips placeholder images from primary source', function (): void {
-    Log::spy();
 
     $item = Item::factory()->create();
     $version = GameVersion::factory()->create(['is_default' => true]);
@@ -179,7 +175,6 @@ it('skips placeholder images from primary source', function (): void {
 });
 
 it('falls back to secondary source when primary has no image', function (): void {
-    Log::spy();
 
     $item = Item::factory()->create();
     $version = GameVersion::factory()->create(['is_default' => true]);
@@ -237,7 +232,6 @@ it('falls back to secondary source when primary has no image', function (): void
 });
 
 it('falls back to direct source when wiki sources have no image', function (): void {
-    Log::spy();
 
     $item = Item::factory()->create();
     $version = GameVersion::factory()->create(['is_default' => true]);
@@ -294,7 +288,6 @@ it('falls back to direct source when wiki sources have no image', function (): v
 });
 
 it('sets empty array when all sources fail', function (): void {
-    Log::spy();
 
     $item = Item::factory()->create();
     $version = GameVersion::factory()->create(['is_default' => true]);
@@ -339,7 +332,6 @@ it('sets empty array when all sources fail', function (): void {
 });
 
 it('chunks 50+ titles into multiple API calls', function (): void {
-    Log::spy();
 
     $version = GameVersion::factory()->create(['is_default' => true]);
 
@@ -383,7 +375,6 @@ it('chunks 50+ titles into multiple API calls', function (): void {
 });
 
 it('stores image on starmap location from primary source', function (): void {
-    Log::spy();
 
     $location = StarmapLocation::factory()->create();
     $version = GameVersion::factory()->create(['is_default' => true]);
@@ -437,7 +428,6 @@ it('stores image on starmap location from primary source', function (): void {
 });
 
 it('stores image on commodity from primary source', function (): void {
-    Log::spy();
 
     $commodity = Commodity::factory()->create(['name' => 'Quantanium']);
 

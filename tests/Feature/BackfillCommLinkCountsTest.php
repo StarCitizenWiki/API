@@ -87,15 +87,6 @@ it('runs in dry-run mode without modifying data', function () {
         ->and($this->commLink1->fresh()->links_count)->toBe(0);
 });
 
-it('handles chunk size option', function () {
-    $this->artisan('comm-link:backfill-counts --chunk=1')
-        ->assertExitCode(Command::SUCCESS)
-        ->expectsOutput('Successfully updated 2 comm-links.');
-
-    expect($this->commLink1->fresh()->images_count)->toBe(2)
-        ->and($this->commLink1->fresh()->links_count)->toBe(2);
-});
-
 it('handles empty database', function () {
     CommLink::query()->delete();
 

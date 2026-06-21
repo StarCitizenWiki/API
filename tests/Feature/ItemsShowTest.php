@@ -15,6 +15,8 @@ use App\Models\Game\VariantGroupItem;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function Tests\Support\createItemForShow;
+
 function itemShowCrawler(TestResponse $response): Crawler
 {
     return new Crawler($response->getContent());
@@ -224,6 +226,7 @@ it('renders the item show view with api data', function (): void {
         ->assertSeeText('Test Module')
         ->assertSeeText('Acme Works')
         ->assertSeeText('PowerPlant')
+        ->assertSeeText('Small')
         ->assertSeeText('Main Port')
         ->assertSeeText('Explosive')
         ->assertSeeText($item->uuid)
@@ -261,27 +264,9 @@ it('renders the item show view with api data', function (): void {
 });
 
 it('renders quoted item names in the page title without double-escaped entities', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Klaus & Werner',
-        'code' => 'KLWE',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Calibrated "test" shot.'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Calibrated "test" shot.']],
+        itemDataOverrides: [
             'name' => 'Arrowhead "Pathfinder" Sniper Rifle',
             'class_name' => 'klwe_sniper_energy_01_imp01',
             'classification' => 'FPS.Weapon.Medium',
@@ -289,7 +274,9 @@ it('renders quoted item names in the page title without double-escaped entities'
             'sub_type' => 'Sniper',
             'size' => 4,
             'data' => [],
-        ]);
+        ],
+        manufacturerAttrs: ['name' => 'Klaus & Werner', 'code' => 'KLWE'],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -302,63 +289,6 @@ it('renders quoted item names in the page title without double-escaped entities'
         ->and($title)->not->toContain('&quot;')
         ->and(itemShowCrawler($response)->filter('meta[name="description"]')->attr('content'))->toBe('Calibrated "test" shot.')
         ->and($response->getContent())->not->toContain('&amp;quot;');
-});
-
-it('renders minimal item with essentials block only', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Minimal item description'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Minimal Module',
-            'class_name' => 'minimal_module',
-            'classification' => 'Test.Module',
-            'type' => 'PowerPlant',
-            'sub_type' => 'Small',
-            'size' => 1,
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 5.0,
-                    'InventoryOccupancy' => [
-                        'Dimensions' => [
-                            'Width' => 0.5,
-                            'Height' => 0.5,
-                            'Length' => 0.5,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-    $response = $this->get(route('web.items.show', $item->uuid));
-
-    $response->assertOk()
-        ->assertSeeText('Minimal Module')
-        ->assertSeeText('minimal_module')
-        ->assertSeeText('Acme Works')
-        ->assertSeeText('PowerPlant')
-        ->assertSeeText('Small')
-        ->assertSeeText($item->uuid)
-        ->assertSeeText('4.0.0-LIVE');
-
-    assertItemMetaPanels($response);
-    assertTechnicalMetadataVisible($response, $item->uuid, 'Test.Module', 'minimal_module', '4.0.0-LIVE');
 });
 
 it('renders ports-heavy item with collapsible ports section', function (): void {
@@ -513,27 +443,9 @@ it('renders variant-heavy item with variants section', function (): void {
 });
 
 it('renders spec-heavy item with dynamic component sections', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Aegis Dynamics',
-        'code' => 'AEGS',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Complex shield generator'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Complex shield generator']],
+        itemDataOverrides: [
             'name' => 'Heavy Shield Generator',
             'class_name' => 'heavy_shield',
             'classification' => 'Ship.Shield',
@@ -560,7 +472,9 @@ it('renders spec-heavy item with dynamic component sections', function (): void 
                     'ChargingEnergyRatio' => 500.0,
                 ],
             ],
-        ]);
+        ],
+        manufacturerAttrs: ['name' => 'Aegis Dynamics', 'code' => 'AEGS'],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -571,31 +485,15 @@ it('renders spec-heavy item with dynamic component sections', function (): void 
 });
 
 it('renders item with long description in collapsible details', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'MISC',
-        'code' => 'MISC',
-    ]);
-
     /** @var Item $item */
-    $item = Item::factory()->create([
-        'translation' => [
-            'en' => 'The Exploration Scanner is an advanced detection system designed for deep space reconnaissance. Featuring multiple frequency modes, it can identify everything from mineral deposits to hostile entities. Its ergonomic design allows for prolonged use during extended missions. The unit interfaces seamlessly with standard ship systems.',
-            'de' => 'Erster Absatz. ',
+    [$item] = createItemForShow(
+        itemOverrides: [
+            'translation' => [
+                'en' => 'The Exploration Scanner is an advanced detection system designed for deep space reconnaissance. Featuring multiple frequency modes, it can identify everything from mineral deposits to hostile entities. Its ergonomic design allows for prolonged use during extended missions. The unit interfaces seamlessly with standard ship systems.',
+                'de' => 'Erster Absatz. ',
+            ],
         ],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+        itemDataOverrides: [
             'name' => 'Exploration Scanner',
             'class_name' => 'exploration_scanner',
             'classification' => 'Equipment.Scanner',
@@ -612,7 +510,9 @@ it('renders item with long description in collapsible details', function (): voi
                     ],
                 ],
             ],
-        ]);
+        ],
+        manufacturerAttrs: ['name' => 'MISC', 'code' => 'MISC'],
+    );
 
     ItemDescriptionData::factory()->for($item)->create([
         'name' => 'Technical Specifications',
@@ -627,152 +527,6 @@ it('renders item with long description in collapsible details', function (): voi
         ->assertSeeText('Exploration Scanner is an advanced detection system')
         ->assertSeeText('Technical Specifications')
         ->assertSeeText($item->uuid);
-});
-
-it('displays technical metadata in collapsible details', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Origin',
-        'code' => 'ORIG',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Luxury component'],
-    ]);
-
-    $itemData = ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Luxury Lamp',
-            'class_name' => 'luxury_lamp',
-            'classification' => 'Equipment.Furniture',
-            'type' => 'Furniture',
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 5.0,
-                ],
-            ],
-        ]);
-
-    $response = $this->get(route('web.items.show', $item->uuid));
-
-    $response->assertOk()
-        ->assertSeeText('Luxury Lamp')
-        ->assertSeeText($item->uuid);
-
-    assertItemMetaPanels($response);
-    assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Furniture', 'luxury_lamp', '4.0.0-LIVE');
-});
-
-it('renders the item page with technical metadata', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Anvil Aerospace',
-        'code' => 'ANVL',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Military component'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Tactical Display',
-            'class_name' => 'tactical_display',
-            'classification' => 'Equipment.Display',
-            'type' => 'Display',
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 15.0,
-                    'InventoryOccupancy' => [
-                        'Dimensions' => [
-                            'Width' => 1.0,
-                            'Height' => 0.8,
-                            'Length' => 0.2,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-    $response = $this->get(route('web.items.show', $item->uuid));
-
-    $response->assertOk()
-        ->assertSeeText('Tactical Display')
-        ->assertSeeText('Anvil Aerospace');
-
-    assertItemMetaPanels($response);
-    assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Display', 'tactical_display', '4.0.0-LIVE');
-});
-
-it('renders the item page with core metadata', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Roberts Space Industries',
-        'code' => 'RSI',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Standard component'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
-            'name' => 'Standard Component',
-            'class_name' => 'standard_component',
-            'classification' => 'Equipment.Standard',
-            'type' => 'Utility',
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 10.0,
-                    'InventoryOccupancy' => [
-                        'Dimensions' => [
-                            'Width' => 0.6,
-                            'Height' => 0.6,
-                            'Length' => 0.6,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-    $response = $this->get(route('web.items.show', $item->uuid));
-
-    $response->assertOk()
-        ->assertSeeText('Standard Component')
-        ->assertSeeText('Roberts Space Industries')
-        ->assertSeeText('Utility')
-        ->assertSeeText($item->uuid)
-        ->assertSeeText('4.0.0-LIVE');
-
-    assertItemMetaPanels($response);
-    assertTechnicalMetadataVisible($response, $item->uuid, 'Equipment.Standard', 'standard_component', '4.0.0-LIVE');
 });
 
 it('shows variant state in the hero and base variant link in quick facts', function (): void {
@@ -894,27 +648,9 @@ it('shows variant state in the hero and base variant link in quick facts', funct
 });
 
 it('shows true dimensions alongside overridden dimensions in quick facts', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Item with UI dimension overrides'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Item with UI dimension overrides']],
+        itemDataOverrides: [
             'name' => 'Override Test Item',
             'class_name' => 'override_test_item',
             'classification' => 'Test.Module',
@@ -942,7 +678,8 @@ it('shows true dimensions alongside overridden dimensions in quick facts', funct
                     ],
                 ],
             ],
-        ]);
+        ],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -957,27 +694,9 @@ it('shows true dimensions alongside overridden dimensions in quick facts', funct
 });
 
 it('does not show true dimensions when no override exists', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Item without overrides'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Item without overrides']],
+        itemDataOverrides: [
             'name' => 'No Override Item',
             'class_name' => 'no_override_item',
             'classification' => 'Test.Module',
@@ -1000,7 +719,8 @@ it('does not show true dimensions when no override exists', function (): void {
                     ],
                 ],
             ],
-        ]);
+        ],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -1014,27 +734,9 @@ it('does not show true dimensions when no override exists', function (): void {
 });
 
 it('shows cargo size row when cargo dimension is available', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Item with cargo dimensions'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Item with cargo dimensions']],
+        itemDataOverrides: [
             'name' => 'Cargo Dim Item',
             'class_name' => 'cargo_dim_item',
             'classification' => 'Test.Module',
@@ -1067,7 +769,8 @@ it('shows cargo size row when cargo dimension is available', function (): void {
                     ],
                 ],
             ],
-        ]);
+        ],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -1087,27 +790,9 @@ it('shows cargo size row when cargo dimension is available', function (): void {
 });
 
 it('does not show cargo size row when no cargo dimension', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Item without cargo dims'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Item without cargo dims']],
+        itemDataOverrides: [
             'name' => 'No Cargo Dim Item',
             'class_name' => 'no_cargo_dim_item',
             'classification' => 'Test.Module',
@@ -1130,7 +815,8 @@ it('does not show cargo size row when no cargo dimension', function (): void {
                     ],
                 ],
             ],
-        ]);
+        ],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -1143,27 +829,9 @@ it('does not show cargo size row when no cargo dimension', function (): void {
 });
 
 it('shows blueprint links in quick-facts card when item is craftable', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'CraftCorp',
-        'code' => 'CRC',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Craftable Item'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item, , $version] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Craftable Item']],
+        itemDataOverrides: [
             'name' => 'Craftable Item',
             'class_name' => 'craftable_item',
             'classification' => 'WeaponPersonal',
@@ -1171,7 +839,9 @@ it('shows blueprint links in quick-facts card when item is craftable', function 
             'sub_type' => 'Rifle',
             'is_craftable' => true,
             'data' => ['stdItem' => []],
-        ]);
+        ],
+        manufacturerAttrs: ['name' => 'CraftCorp', 'code' => 'CRC'],
+    );
 
     $blueprint = Blueprint::factory()->create();
 
@@ -1204,34 +874,18 @@ it('shows blueprint links in quick-facts card when item is craftable', function 
 });
 
 it('does not show blueprints row in quick-facts card when item is not craftable', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'SimpleCorp',
-        'code' => 'SMP',
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Non Craftable Item'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Non Craftable Item']],
+        itemDataOverrides: [
             'name' => 'Non Craftable Item',
             'class_name' => 'non_craftable_item',
             'classification' => 'WeaponPersonal',
             'type' => 'WeaponPersonal',
             'sub_type' => 'Rifle',
             'data' => ['stdItem' => []],
-        ]);
+        ],
+        manufacturerAttrs: ['name' => 'SimpleCorp', 'code' => 'SMP'],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -1322,27 +976,17 @@ it('hides the related items card for cargo items', function (): void {
 });
 
 it('renders the hero icon chip with the daisyui rounded-box radius when no image is available', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $item = Item::factory()->create([
-        'translation' => ['en' => 'Power plant description'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: ['translation' => ['en' => 'Power plant description']],
+        itemDataOverrides: [
             'name' => 'Turbo Power Plant',
             'class_name' => 'turbo_power_plant',
             'classification' => 'Ship.PowerPlant',
             'type' => 'PowerPlant',
             'data' => ['stdItem' => []],
-        ]);
+        ],
+        manufacturerAttrs: [],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 

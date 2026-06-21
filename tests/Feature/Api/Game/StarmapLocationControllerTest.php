@@ -1239,6 +1239,68 @@ it('filters starmap locations by resource commodity name and uuid', function ():
         ->assertSuccessful()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.uuid', $quantaniumLocation->uuid);
+});
+
+it('filters starmap locations by multiple resource commodities via comma-separated values', function (): void {
+    $quantaniumLocation = StarmapLocation::factory()->create();
+    $hephaestaniteLocation = StarmapLocation::factory()->create();
+    $noResourcesLocation = StarmapLocation::factory()->create();
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Daymar',
+        'system' => 'Stanton',
+        'type_name' => 'Moon',
+        'data' => ['Type' => ['Classification' => 'Moon']],
+    ], $quantaniumLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Yela',
+        'system' => 'Stanton',
+        'type_name' => 'Moon',
+        'data' => ['Type' => ['Classification' => 'Moon']],
+    ], $hephaestaniteLocation);
+
+    createStarmapLocationData($this->defaultVersion, [
+        'name' => 'Port Olisar',
+        'system' => 'Stanton',
+        'type_name' => 'Station',
+        'data' => ['Type' => ['Classification' => 'Manmade']],
+    ], $noResourcesLocation);
+
+    $quantanium = Commodity::factory()->create([
+        'name' => 'Quantanium (Raw)',
+    ]);
+
+    $hephaestanite = Commodity::factory()->create([
+        'name' => 'Hephaestanite (Raw)',
+    ]);
+
+    $quantaniumResourceData = ResourceData::factory()->create([
+        'game_version_id' => $this->defaultVersion->id,
+    ]);
+    $quantaniumResourceData->commodities()->sync([$quantanium->id]);
+
+    $hephaestaniteResourceData = ResourceData::factory()->create([
+        'game_version_id' => $this->defaultVersion->id,
+    ]);
+    $hephaestaniteResourceData->commodities()->sync([$hephaestanite->id]);
+
+    $quantaniumRL = ResourceLocation::factory()->create([
+        'resource_data_id' => $quantaniumResourceData->id,
+    ]);
+    $hephaestaniteRL = ResourceLocation::factory()->create([
+        'resource_data_id' => $hephaestaniteResourceData->id,
+    ]);
+
+    $quantaniumLocationData = StarmapLocationData::where('name', 'Daymar')
+        ->where('game_version_id', $this->defaultVersion->id)
+        ->first();
+    $quantaniumLocationData->resourceLocations()->sync([$quantaniumRL->id]);
+
+    $hephaestaniteLocationData = StarmapLocationData::where('name', 'Yela')
+        ->where('game_version_id', $this->defaultVersion->id)
+        ->first();
+    $hephaestaniteLocationData->resourceLocations()->sync([$hephaestaniteRL->id]);
 
     $this->getJson('/api/locations?filter[resource]='.urlencode('Quantanium (Raw)').','.urlencode('Hephaestanite (Raw)'))
         ->assertSuccessful()
@@ -1540,27 +1602,11 @@ it('includes mission_count on starmap location index responses', function (): vo
     $dataWithMissions->missions()->attach($missionData->id, ['purpose' => 'Availability']);
     $dataWithMissions->forceFill(['mission_count' => 1])->save();
 
-    $this->getJson('/api/locations')
-        ->assertSuccessful()
-        ->assertJsonPath('data.0.mission_count', fn (mixed $count): bool => is_int($count))
-        ->assertJsonPath('data.1.mission_count', fn (mixed $count): bool => is_int($count));
+    $locations = $this->getJson('/api/locations')->assertSuccessful()->json('data');
 
-    $foundWith = false;
-    $foundWithout = false;
-
-    foreach ($this->getJson('/api/locations')->json('data') as $location) {
-        if ($location['uuid'] === $locationWithMissions->uuid) {
-            expect($location['mission_count'])->toBe(1);
-            $foundWith = true;
-        }
-        if ($location['uuid'] === $locationWithoutMissions->uuid) {
-            expect($location['mission_count'])->toBe(0);
-            $foundWithout = true;
-        }
-    }
-
-    expect($foundWith)->toBeTrue()
-        ->and($foundWithout)->toBeTrue();
+    $byUuid = collect($locations)->keyBy('uuid');
+    expect($byUuid->get($locationWithMissions->uuid)['mission_count'])->toBe(1)
+        ->and($byUuid->get($locationWithoutMissions->uuid)['mission_count'])->toBe(0);
 });
 
 it('shows missions grouped by purpose on show response when requested via include', function (): void {

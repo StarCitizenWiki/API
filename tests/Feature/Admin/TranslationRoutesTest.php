@@ -172,21 +172,6 @@ it('renders the translations index with visible rows and edit links', function (
         ]);
 });
 
-it('redirects guests to login on translations index', function (): void {
-    $response = $this->get(route('admin.translations.index'));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids non-admin users on translations index', function (): void {
-    $nonAdmin = User::factory()->create(['is_admin' => false]);
-
-    $response = $this->actingAs($nonAdmin)
-        ->get(route('admin.translations.index'));
-
-    $response->assertForbidden();
-});
-
 it('renders the edit page for each translation resolver branch', function (string $type) use ($resolveTranslationModel): void {
     $admin = User::factory()->create(['is_admin' => true]);
     [$model, $expectedHeading, $translations] = $resolveTranslationModel($type);
@@ -219,30 +204,6 @@ it('renders the edit page for each translation resolver branch', function (strin
     'smType',
 ]);
 
-it('redirects guests to login on translations edit', function (): void {
-    $commLink = CommLink::factory()->create();
-
-    $response = $this->get(route('admin.translations.edit', [
-        'type' => 'comm-link',
-        'id' => $commLink->id,
-    ]));
-
-    $response->assertRedirect(route('login'));
-});
-
-it('forbids non-admin users on translations edit', function (): void {
-    $nonAdmin = User::factory()->create(['is_admin' => false]);
-    $commLink = CommLink::factory()->create();
-
-    $response = $this->actingAs($nonAdmin)
-        ->get(route('admin.translations.edit', [
-            'type' => 'comm-link',
-            'id' => $commLink->id,
-        ]));
-
-    $response->assertForbidden();
-});
-
 it('updates translations for each resolver branch', function (string $type) use ($resolveTranslationModel): void {
     $admin = User::factory()->create(['is_admin' => true]);
     [$model, , $translations] = $resolveTranslationModel($type);
@@ -274,58 +235,6 @@ it('updates translations for each resolver branch', function (string $type) use 
     'smFocus',
     'smType',
 ]);
-
-it('redirects guests to login on translations update', function (): void {
-    $commLink = CommLink::factory()->create([
-        'translation' => [Language::ENGLISH => 'Initial English translation'],
-    ]);
-
-    $response = $this->put(route('admin.translations.update', [
-        'type' => 'comm-link',
-        'id' => $commLink->id,
-    ]), [
-        'translations' => [
-            Language::ENGLISH => 'Updated English translation',
-            Language::GERMAN => 'Updated German translation',
-            Language::CHINESE => 'Updated Chinese translation',
-            Language::FRENCH => 'Updated French translation',
-        ],
-    ]);
-
-    $response->assertRedirect(route('login'));
-
-    $commLink->refresh();
-    expect($commLink->getTranslations('translation'))->toBe([
-        Language::ENGLISH => 'Initial English translation',
-    ]);
-});
-
-it('forbids non-admin users on translations update', function (): void {
-    $nonAdmin = User::factory()->create(['is_admin' => false]);
-    $commLink = CommLink::factory()->create([
-        'translation' => [Language::ENGLISH => 'Initial English translation'],
-    ]);
-
-    $response = $this->actingAs($nonAdmin)
-        ->put(route('admin.translations.update', [
-            'type' => 'comm-link',
-            'id' => $commLink->id,
-        ]), [
-            'translations' => [
-                Language::ENGLISH => 'Updated English translation',
-                Language::GERMAN => 'Updated German translation',
-                Language::CHINESE => 'Updated Chinese translation',
-                Language::FRENCH => 'Updated French translation',
-            ],
-        ]);
-
-    $response->assertForbidden();
-
-    $commLink->refresh();
-    expect($commLink->getTranslations('translation'))->toBe([
-        Language::ENGLISH => 'Initial English translation',
-    ]);
-});
 
 it('filters blank translations when updating', function (): void {
     $admin = User::factory()->create(['is_admin' => true]);

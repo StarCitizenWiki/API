@@ -145,129 +145,45 @@ it('excludes disabled galactapedia articles', function (): void {
     expect($content)->not->toContain(route('web.galactapedia.show', $disabled->cig_id));
 });
 
-it('includes game vehicles with slug in URLs', function (): void {
-    $vehicle = Vehicle::factory()->create();
+it('includes slug/uuid/code models in sitemap URLs', function (string $segment, string $route, string $model, string $param): void {
+    // When slug is set the sitemap uses it; when null it falls back to uuid.
+    // Starsystem and CelestialObject use code. StarmapLocation and Mission use uuid.
+    $instance = $model::factory()->create();
 
-    $this->artisan('sitemap:generate', ['--only' => 'vehicles'])
+    $this->artisan('sitemap:generate', ['--only' => $segment])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-vehicles.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-'.$segment.'.xml'));
 
-    expect($content)->toContain(route('web.vehicles.show', $vehicle->slug));
-});
+    expect($content)->toContain(route($route, $instance->$param));
+})->with([
+    'vehicles'      => ['vehicles',          'web.vehicles.show',                    Vehicle::class,          'slug'],
+    'items'         => ['items',             'web.items.show',                       Item::class,             'slug'],
+    'blueprints'    => ['blueprints',        'web.blueprints.show',                  Blueprint::class,        'slug'],
+    'commodities'   => ['commodities',       'web.commodities.show',                 Commodity::class,        'slug'],
+    'missions'      => ['missions',          'web.missions.show',                    Mission::class,          'slug'],
+    'locations'     => ['locations',          'web.locations.show',                   StarmapLocation::class,  'uuid'],
+    'starsystems'   => ['starsystems',       'web.starmap.systems.show',             Starsystem::class,       'code'],
+    'celestial objects' => ['celestial-objects', 'web.starmap.celestial-objects.show', CelestialObject::class, 'code'],
+]);
 
-it('includes items with slug in URLs', function (): void {
-    $item = Item::factory()->create();
+it('falls back to uuid when slug is null', function (string $segment, string $route, string $model): void {
+    $instance = $model::factory()->create(['slug' => null]);
 
-    $this->artisan('sitemap:generate', ['--only' => 'items'])
+    $this->artisan('sitemap:generate', ['--only' => $segment])
         ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-items.xml'));
+    $content = file_get_contents(storage_path('app/sitemaps/sitemap-'.$segment.'.xml'));
 
-    expect($content)->toContain(route('web.items.show', $item->slug));
-});
-
-it('includes items with uuid fallback when slug is null', function (): void {
-    $item = Item::factory()->create(['slug' => null]);
-
-    $this->artisan('sitemap:generate', ['--only' => 'items'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-items.xml'));
-
-    expect($content)->toContain(route('web.items.show', $item->uuid));
-});
-
-it('includes blueprints with slug in URLs', function (): void {
-    $blueprint = Blueprint::factory()->create();
-
-    $this->artisan('sitemap:generate', ['--only' => 'blueprints'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-blueprints.xml'));
-
-    expect($content)->toContain(route('web.blueprints.show', $blueprint->slug));
-});
-
-it('includes blueprints with uuid fallback when slug is null', function (): void {
-    $blueprint = Blueprint::factory()->create(['slug' => null]);
-
-    $this->artisan('sitemap:generate', ['--only' => 'blueprints'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-blueprints.xml'));
-
-    expect($content)->toContain(route('web.blueprints.show', $blueprint->uuid));
-});
-
-it('includes commodities with slug in URLs', function (): void {
-    $commodity = Commodity::factory()->create();
-
-    $this->artisan('sitemap:generate', ['--only' => 'commodities'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-commodities.xml'));
-
-    expect($content)->toContain(route('web.commodities.show', $commodity->slug));
-});
-
-it('includes commodities with uuid fallback when slug is null', function (): void {
-    $commodity = Commodity::factory()->create(['slug' => null]);
-
-    $this->artisan('sitemap:generate', ['--only' => 'commodities'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-commodities.xml'));
-
-    expect($content)->toContain(route('web.commodities.show', $commodity->uuid));
-});
-
-it('includes missions with slug in URLs', function (): void {
-    $mission = Mission::factory()->create();
-
-    $this->artisan('sitemap:generate', ['--only' => 'missions'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-missions.xml'));
-
-    expect($content)->toContain(route('web.missions.show', $mission->slug));
-});
-
-it('includes starmap locations with uuid when slug is null', function (): void {
-    $location = StarmapLocation::factory()->create();
-
-    $this->artisan('sitemap:generate', ['--only' => 'locations'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-locations.xml'));
-
-    expect($content)->toContain(route('web.locations.show', $location->uuid));
-});
-
-it('includes starsystems with code in URLs', function (): void {
-    $system = Starsystem::factory()->create();
-
-    $this->artisan('sitemap:generate', ['--only' => 'starsystems'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-starsystems.xml'));
-
-    expect($content)->toContain(route('web.starmap.systems.show', $system->code));
-});
-
-it('includes celestial objects with code in URLs', function (): void {
-    $object = CelestialObject::factory()->create();
-
-    $this->artisan('sitemap:generate', ['--only' => 'celestial-objects'])
-        ->assertExitCode(Command::SUCCESS);
-
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-celestial-objects.xml'));
-
-    expect($content)->toContain(route('web.starmap.celestial-objects.show', $object->code));
-});
+    expect($content)->toContain(route($route, $instance->uuid));
+})->with([
+    'items'       => ['items',       'web.items.show',       Item::class],
+    'blueprints'  => ['blueprints',  'web.blueprints.show',  Blueprint::class],
+    'commodities' => ['commodities', 'web.commodities.show', Commodity::class],
+]);
 
 it('sets priority 1.0 for game data segments', function (): void {
-    $item = Item::factory()->create();
+    Item::factory()->create();
 
     $this->artisan('sitemap:generate', ['--only' => 'items'])
         ->assertExitCode(Command::SUCCESS);

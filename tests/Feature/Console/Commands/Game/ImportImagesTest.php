@@ -84,37 +84,10 @@ it('dispatches item enrichment jobs as EnrichImages instances', function (): voi
     Bus::assertBatchCount(1);
 });
 
-it('skips items when no items exist', function (): void {
+it('skips entity types with no records and logs a warning', function (): void {
     $version = GameVersion::factory()->create(['is_default' => true]);
 
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $version->id,
-        'display_name' => 'Test Vehicle',
-    ]);
-
-    $location = StarmapLocation::factory()->create();
-    StarmapLocationData::factory()->create([
-        'starmap_location_id' => $location->id,
-        'game_version_id' => $version->id,
-        'name' => 'Test Location',
-    ]);
-
-    Commodity::factory()->create(['name' => 'Test Commodity']);
-
-    Bus::fake();
-
-    $this->artisan('game:import-images')
-        ->assertSuccessful()
-        ->expectsOutput('No items found for image import.');
-
-    Bus::assertBatchCount(3);
-});
-
-it('skips vehicles when no vehicles exist', function (): void {
-    $version = GameVersion::factory()->create(['is_default' => true]);
-
+    // Only items exist; vehicles, starmap locations, and commodities are absent.
     $item = Item::factory()->create();
     ItemData::factory()->create([
         'item_id' => $item->id,
@@ -122,22 +95,16 @@ it('skips vehicles when no vehicles exist', function (): void {
         'name' => 'Test Item',
     ]);
 
-    $location = StarmapLocation::factory()->create();
-    StarmapLocationData::factory()->create([
-        'starmap_location_id' => $location->id,
-        'game_version_id' => $version->id,
-        'name' => 'Test Location',
-    ]);
-
-    Commodity::factory()->create(['name' => 'Test Commodity']);
-
     Bus::fake();
 
     $this->artisan('game:import-images')
         ->assertSuccessful()
-        ->expectsOutput('No vehicles found for image import.');
+        ->expectsOutput('No vehicles found for image import.')
+        ->expectsOutput('No starmap locations found for image import.')
+        ->expectsOutput('No commodities found for image import.');
 
-    Bus::assertBatchCount(3);
+    // Only 1 batch: items. The other 3 entity types are skipped.
+    Bus::assertBatchCount(1);
 });
 
 it('chunks jobs correctly', function (): void {
@@ -160,58 +127,4 @@ it('chunks jobs correctly', function (): void {
     Bus::assertBatched(function ($batch): bool {
         return $batch->jobs->count() === 3; // ceil(5/2) = 3
     });
-});
-
-it('skips starmap locations when no locations exist', function (): void {
-    $version = GameVersion::factory()->create(['is_default' => true]);
-
-    $item = Item::factory()->create();
-    ItemData::factory()->create([
-        'item_id' => $item->id,
-        'game_version_id' => $version->id,
-        'name' => 'Test Item',
-    ]);
-
-    Commodity::factory()->create(['name' => 'Test Commodity']);
-
-    Bus::fake();
-
-    $this->artisan('game:import-images')
-        ->assertSuccessful()
-        ->expectsOutput('No starmap locations found for image import.');
-
-    Bus::assertBatchCount(2);
-});
-
-it('skips commodities when no commodities exist', function (): void {
-    $version = GameVersion::factory()->create(['is_default' => true]);
-
-    $item = Item::factory()->create();
-    ItemData::factory()->create([
-        'item_id' => $item->id,
-        'game_version_id' => $version->id,
-        'name' => 'Test Item',
-    ]);
-
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $version->id,
-        'display_name' => 'Test Vehicle',
-    ]);
-
-    $location = StarmapLocation::factory()->create();
-    StarmapLocationData::factory()->create([
-        'starmap_location_id' => $location->id,
-        'game_version_id' => $version->id,
-        'name' => 'Test Location',
-    ]);
-
-    Bus::fake();
-
-    $this->artisan('game:import-images')
-        ->assertSuccessful()
-        ->expectsOutput('No commodities found for image import.');
-
-    Bus::assertBatchCount(3);
 });

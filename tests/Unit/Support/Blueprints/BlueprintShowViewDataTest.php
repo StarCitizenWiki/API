@@ -4,219 +4,201 @@ declare(strict_types=1);
 
 use App\Support\Blueprints\BlueprintShowViewData;
 
-it('builds grouped blueprint detail view data', function (): void {
-    app('request')->query->set('version', '4.0.0-PTU');
-
-    $builder = app(BlueprintShowViewData::class);
-    $blueprintUuid = fake()->uuid();
-    $outputItemUuid = fake()->uuid();
+/**
+ * Shared blueprint fixture for requirement-groups tests. Each test overrides
+ * only the fields it cares about, keeping the payload DRY.
+ *
+ * @param  array<string, mixed>  $overrides  Top-level blueprint keys to merge.
+ * @return array<string, mixed>
+ */
+function blueprintFixture(array $overrides = []): array
+{
     $laraniteUuid = fake()->uuid();
     $aslariteUuid = fake()->uuid();
     $stileronUuid = fake()->uuid();
 
-    $page = $builder->build(
-        mode: 'detail',
-        blueprint: [
-            'uuid' => $blueprintUuid,
-            'key' => 'BP_CRAFT_vgl_utility_light_legs_01_01_01',
-            'output_name' => 'Chiron Legs',
-            'output_class' => 'utility_light_legs',
-            'craft_time_seconds' => 180,
-            'craft_time_label' => '3 minutes',
-            'ingredient_count' => 3,
-            'ingredients' => [
+    $defaultRequirementGroups = [
+        [
+            'key' => 'ASPECTS',
+            'name' => '<= PLACEHOLDER =>',
+            'required_count' => 2,
+            'children' => [
                 [
-                    'name' => 'Laranite',
-                    'resource_type_uuid' => $laraniteUuid,
-                ],
-                [
-                    'name' => 'Aslarite',
-                    'resource_type_uuid' => $aslariteUuid,
-                ],
-                [
-                    'name' => 'Stileron',
-                    'resource_type_uuid' => $stileronUuid,
-                ],
-            ],
-            'web_url' => route('web.blueprints.show', [
-                'blueprint' => $blueprintUuid,
-                'version' => '4.0.0-PTU',
-            ]),
-            'is_available_by_default' => false,
-            'output' => [
-                'uuid' => $outputItemUuid,
-                'type' => 'Armor',
-                'subtype' => 'Legs',
-                'grade' => '1',
-                'item_web_url' => route('web.items.show', [
-                    'item' => $outputItemUuid,
-                    'version' => '4.0.0-PTU',
-                ]),
-            ],
-            'summary_properties' => [
-                [
-                    'property_key' => 'armor_temperaturemax',
-                    'label' => 'Armor Temperature Max',
-                    'better_when' => 'higher',
-                ],
-                [
-                    'property_key' => 'armor_damagemitigation',
-                    'label' => 'Armor Damage Mitigation',
-                    'better_when' => 'higher',
-                ],
-            ],
-            'requirement_groups' => [
-                [
-                    'key' => 'ASPECTS',
-                    'name' => '<= PLACEHOLDER =>',
-                    'required_count' => 2,
+                    'kind' => 'group',
+                    'key' => 'CASING',
+                    'name' => 'Casing',
+                    'required_count' => 1,
                     'children' => [
                         [
-                            'kind' => 'group',
-                            'key' => 'CASING',
-                            'name' => 'Casing',
-                            'required_count' => 1,
-                            'children' => [
-                                [
-                                    'kind' => 'resource',
-                                    'uuid' => $laraniteUuid,
-                                    'name' => 'Laranite',
-                                    'quantity_scu' => 0.03,
-                                    'min_quality' => 0,
-                                ],
-                            ],
+                            'kind' => 'resource',
+                            'uuid' => $laraniteUuid,
+                            'name' => 'Laranite',
+                            'quantity_scu' => 0.03,
+                            'min_quality' => 0,
                         ],
+                    ],
+                ],
+                [
+                    'kind' => 'group',
+                    'key' => 'INSULATIVE LINER',
+                    'name' => 'Insulative Liner',
+                    'required_count' => 1,
+                    'modifiers' => [
                         [
-                            'kind' => 'group',
-                            'key' => 'INSULATIVE LINER',
-                            'name' => 'Insulative Liner',
-                            'required_count' => 1,
-                            'modifiers' => [
-                                [
-                                    'property_key' => 'armor_temperaturemax',
-                                    'quality_range' => [
-                                        'min' => 0,
-                                        'max' => 1000,
-                                    ],
-                                    'modifier_range' => [
-                                        'at_min_quality' => 0.8,
-                                        'at_max_quality' => 1.2,
-                                    ],
-                                    'better_when' => 'higher',
-                                ],
-                            ],
-                            'children' => [
-                                [
-                                    'kind' => 'resource',
-                                    'uuid' => $aslariteUuid,
-                                    'name' => 'Aslarite',
-                                    'quantity_scu' => 0.02,
-                                    'min_quality' => 0,
-                                ],
-                            ],
+                            'property_key' => 'armor_temperaturemax',
+                            'quality_range' => ['min' => 0, 'max' => 1000],
+                            'modifier_range' => ['at_min_quality' => 0.8, 'at_max_quality' => 1.2],
+                            'better_when' => 'higher',
                         ],
+                    ],
+                    'children' => [
                         [
-                            'kind' => 'group',
-                            'key' => 'CASING WEAVE',
-                            'name' => 'Casing Weave',
-                            'required_count' => 1,
-                            'modifiers' => [
-                                [
-                                    'property_key' => 'armor_damagemitigation',
-                                    'quality_range' => [
-                                        'min' => 0,
-                                        'max' => 1000,
-                                    ],
-                                    'modifier_range' => [
-                                        'at_min_quality' => 0.95,
-                                        'at_max_quality' => 1.05,
-                                    ],
-                                    'better_when' => 'higher',
-                                ],
-                            ],
-                            'children' => [
-                                [
-                                    'kind' => 'resource',
-                                    'uuid' => $stileronUuid,
-                                    'name' => 'Stileron',
-                                    'quantity_scu' => 0.03,
-                                    'min_quality' => 0,
-                                ],
-                            ],
+                            'kind' => 'resource',
+                            'uuid' => $aslariteUuid,
+                            'name' => 'Aslarite',
+                            'quantity_scu' => 0.02,
+                            'min_quality' => 0,
+                        ],
+                    ],
+                ],
+                [
+                    'kind' => 'group',
+                    'key' => 'CASING WEAVE',
+                    'name' => 'Casing Weave',
+                    'required_count' => 1,
+                    'modifiers' => [
+                        [
+                            'property_key' => 'armor_damagemitigation',
+                            'quality_range' => ['min' => 0, 'max' => 1000],
+                            'modifier_range' => ['at_min_quality' => 0.95, 'at_max_quality' => 1.05],
+                            'better_when' => 'higher',
+                        ],
+                    ],
+                    'children' => [
+                        [
+                            'kind' => 'resource',
+                            'uuid' => $stileronUuid,
+                            'name' => 'Stileron',
+                            'quantity_scu' => 0.03,
+                            'min_quality' => 0,
                         ],
                     ],
                 ],
             ],
-            'unlocking_missions_grouped' => [],
+        ],
+    ];
+
+    $blueprintUuid = fake()->uuid();
+    $outputItemUuid = fake()->uuid();
+
+    $defaults = [
+        'uuid' => $blueprintUuid,
+        'key' => 'BP_CRAFT_vgl_utility_light_legs_01_01_01',
+        'output_name' => 'Chiron Legs',
+        'output_class' => 'utility_light_legs',
+        'craft_time_seconds' => 180,
+        'craft_time_label' => '3 minutes',
+        'ingredient_count' => 3,
+        'ingredients' => [
+            ['name' => 'Laranite', 'resource_type_uuid' => $laraniteUuid],
+            ['name' => 'Aslarite', 'resource_type_uuid' => $aslariteUuid],
+            ['name' => 'Stileron', 'resource_type_uuid' => $stileronUuid],
+        ],
+        'web_url' => route('web.blueprints.show', ['blueprint' => $blueprintUuid, 'version' => '4.0.0-PTU']),
+        'is_available_by_default' => false,
+        'output' => [
+            'uuid' => $outputItemUuid,
+            'type' => 'Armor',
+            'subtype' => 'Legs',
+            'grade' => '1',
+            'item_web_url' => route('web.items.show', ['item' => $outputItemUuid, 'version' => '4.0.0-PTU']),
+        ],
+        'summary_properties' => [
+            ['property_key' => 'armor_temperaturemax', 'label' => 'Armor Temperature Max', 'better_when' => 'higher'],
+            ['property_key' => 'armor_damagemitigation', 'label' => 'Armor Damage Mitigation', 'better_when' => 'higher'],
+        ],
+        'requirement_groups' => $defaultRequirementGroups,
+        'unlocking_missions_grouped' => [],
+        'aspects' => [
             'aspects' => [
-                'aspects' => [
-                    [
-                        'key' => 'CASING',
-                        'name' => 'Casing',
-                        'required_count' => 1,
-                        'selection_group' => ['key' => 'ASPECTS', 'name' => 'Aspects', 'required_count' => 2, 'option_count' => 3],
-                        'input' => ['kind' => 'resource', 'uuid' => $laraniteUuid, 'name' => 'Laranite', 'quantity' => null, 'quantity_scu' => 0.03, 'min_quality' => 0, 'web_url' => null],
-                        'modifiers' => [],
-                        'initial_quality' => 500,
-                        'slider_min' => 0,
-                        'slider_max' => 1000,
-                        'has_modifiers' => false,
-                        'has_dynamic_modifiers' => false,
-                        'is_selected' => true,
-                    ],
-                    [
-                        'key' => 'INSULATIVE LINER',
-                        'name' => 'Insulative Liner',
-                        'required_count' => 1,
-                        'selection_group' => ['key' => 'ASPECTS', 'name' => 'Aspects', 'required_count' => 2, 'option_count' => 3],
-                        'input' => ['kind' => 'resource', 'uuid' => $aslariteUuid, 'name' => 'Aslarite', 'quantity' => null, 'quantity_scu' => 0.02, 'min_quality' => 0, 'web_url' => null],
-                        'modifiers' => [
-                            ['property_key' => 'armor_temperaturemax', 'quality_range' => ['min' => 0, 'max' => 1000], 'modifier_range' => ['at_min_quality' => 0.8, 'at_max_quality' => 1.2], 'better_when' => 'higher'],
-                        ],
-                        'initial_quality' => 500,
-                        'slider_min' => 0,
-                        'slider_max' => 1000,
-                        'has_modifiers' => true,
-                        'has_dynamic_modifiers' => true,
-                        'is_selected' => true,
-                    ],
-                    [
-                        'key' => 'CASING WEAVE',
-                        'name' => 'Casing Weave',
-                        'required_count' => 1,
-                        'selection_group' => ['key' => 'ASPECTS', 'name' => 'Aspects', 'required_count' => 2, 'option_count' => 3],
-                        'input' => ['kind' => 'resource', 'uuid' => $stileronUuid, 'name' => 'Stileron', 'quantity' => null, 'quantity_scu' => 0.03, 'min_quality' => 0, 'web_url' => null],
-                        'modifiers' => [
-                            ['property_key' => 'armor_damagemitigation', 'quality_range' => ['min' => 0, 'max' => 1000], 'modifier_range' => ['at_min_quality' => 0.95, 'at_max_quality' => 1.05], 'better_when' => 'higher'],
-                        ],
-                        'initial_quality' => 500,
-                        'slider_min' => 0,
-                        'slider_max' => 1000,
-                        'has_modifiers' => true,
-                        'has_dynamic_modifiers' => true,
-                        'is_selected' => false,
-                    ],
+                [
+                    'key' => 'CASING',
+                    'name' => 'Casing',
+                    'required_count' => 1,
+                    'selection_group' => ['key' => 'ASPECTS', 'name' => 'Aspects', 'required_count' => 2, 'option_count' => 3],
+                    'input' => ['kind' => 'resource', 'uuid' => $laraniteUuid, 'name' => 'Laranite', 'quantity' => null, 'quantity_scu' => 0.03, 'min_quality' => 0, 'web_url' => null],
+                    'modifiers' => [],
+                    'initial_quality' => 500,
+                    'slider_min' => 0,
+                    'slider_max' => 1000,
+                    'has_modifiers' => false,
+                    'has_dynamic_modifiers' => false,
+                    'is_selected' => true,
                 ],
-                'aspect_groups' => [
-                    [
-                        'key' => 'ASPECTS',
-                        'name' => 'Aspects',
-                        'display_name' => null,
-                        'required_count' => 2,
-                        'option_count' => 3,
-                        'is_choice_group' => true,
-                        'selected_count' => 2,
-                        'aspect_indexes' => [0, 1, 2],
+                [
+                    'key' => 'INSULATIVE LINER',
+                    'name' => 'Insulative Liner',
+                    'required_count' => 1,
+                    'selection_group' => ['key' => 'ASPECTS', 'name' => 'Aspects', 'required_count' => 2, 'option_count' => 3],
+                    'input' => ['kind' => 'resource', 'uuid' => $aslariteUuid, 'name' => 'Aslarite', 'quantity' => null, 'quantity_scu' => 0.02, 'min_quality' => 0, 'web_url' => null],
+                    'modifiers' => [
+                        ['property_key' => 'armor_temperaturemax', 'quality_range' => ['min' => 0, 'max' => 1000], 'modifier_range' => ['at_min_quality' => 0.8, 'at_max_quality' => 1.2], 'better_when' => 'higher'],
                     ],
+                    'initial_quality' => 500,
+                    'slider_min' => 0,
+                    'slider_max' => 1000,
+                    'has_modifiers' => true,
+                    'has_dynamic_modifiers' => true,
+                    'is_selected' => true,
                 ],
-                'has_interactive_aspects' => true,
+                [
+                    'key' => 'CASING WEAVE',
+                    'name' => 'Casing Weave',
+                    'required_count' => 1,
+                    'selection_group' => ['key' => 'ASPECTS', 'name' => 'Aspects', 'required_count' => 2, 'option_count' => 3],
+                    'input' => ['kind' => 'resource', 'uuid' => $stileronUuid, 'name' => 'Stileron', 'quantity' => null, 'quantity_scu' => 0.03, 'min_quality' => 0, 'web_url' => null],
+                    'modifiers' => [
+                        ['property_key' => 'armor_damagemitigation', 'quality_range' => ['min' => 0, 'max' => 1000], 'modifier_range' => ['at_min_quality' => 0.95, 'at_max_quality' => 1.05], 'better_when' => 'higher'],
+                    ],
+                    'initial_quality' => 500,
+                    'slider_min' => 0,
+                    'slider_max' => 1000,
+                    'has_modifiers' => true,
+                    'has_dynamic_modifiers' => true,
+                    'is_selected' => false,
+                ],
             ],
+            'aspect_groups' => [
+                [
+                    'key' => 'ASPECTS',
+                    'name' => 'Aspects',
+                    'display_name' => null,
+                    'required_count' => 2,
+                    'option_count' => 3,
+                    'is_choice_group' => true,
+                    'selected_count' => 2,
+                    'aspect_indexes' => [0, 1, 2],
+                ],
+            ],
+            'has_interactive_aspects' => true,
         ],
-        search: [
-            'filters' => [],
-            'results' => [],
-            'result_count' => 0,
-        ],
+    ];
+
+    return array_merge($defaults, $overrides);
+}
+
+it('builds grouped blueprint detail view data', function (): void {
+    app('request')->query->set('version', '4.0.0-PTU');
+
+    $blueprint = blueprintFixture();
+    $laraniteUuid = collect($blueprint['ingredients'])->firstWhere('name', 'Laranite')['resource_type_uuid'];
+    $aslariteUuid = collect($blueprint['ingredients'])->firstWhere('name', 'Aslarite')['resource_type_uuid'];
+    $stileronUuid = collect($blueprint['ingredients'])->firstWhere('name', 'Stileron')['resource_type_uuid'];
+
+    $page = app(BlueprintShowViewData::class)->build(
+        mode: 'detail',
+        blueprint: $blueprint,
+        search: ['filters' => [], 'results' => [], 'result_count' => 0],
         pageTitle: 'Chiron &amp; Legs',
     );
 
@@ -229,12 +211,12 @@ it('builds grouped blueprint detail view data', function (): void {
         ->and($page['craftTimeLabel'])->toBe('3 minutes')
         ->and($page['resolvedVersionCode'])->toBe('4.0.0-PTU')
         ->and($page['outputItemWebUrl'])->toBe(route('web.items.show', [
-            'item' => $outputItemUuid,
+            'item' => $blueprint['output']['uuid'],
             'version' => '4.0.0-PTU',
         ]))
         ->and($page['hasSearchFilters'])->toBeFalse()
         ->and($page['renderSearchResultCount'])->toBe(1)
-        ->and($initialResult['uuid'])->toBe($blueprintUuid)
+        ->and($initialResult['uuid'])->toBe($blueprint['uuid'])
         ->and(collect($initialResult['ingredients'])->pluck('resource_type_uuid')->all())->toBe([
             $laraniteUuid,
             $aslariteUuid,
@@ -266,13 +248,7 @@ it('builds interactive aspect state from grouped requirements', function (): voi
                             'name' => 'Casing',
                             'required_count' => 1,
                             'children' => [
-                                [
-                                    'kind' => 'resource',
-                                    'uuid' => $laraniteUuid,
-                                    'name' => 'Laranite',
-                                    'quantity_scu' => 0.03,
-                                    'min_quality' => 0,
-                                ],
+                                ['kind' => 'resource', 'uuid' => $laraniteUuid, 'name' => 'Laranite', 'quantity_scu' => 0.03, 'min_quality' => 0],
                             ],
                         ],
                         [
@@ -281,27 +257,10 @@ it('builds interactive aspect state from grouped requirements', function (): voi
                             'name' => 'Insulative Liner',
                             'required_count' => 1,
                             'modifiers' => [
-                                [
-                                    'property_key' => 'armor_temperaturemax',
-                                    'quality_range' => [
-                                        'min' => 0,
-                                        'max' => 1000,
-                                    ],
-                                    'modifier_range' => [
-                                        'at_min_quality' => 0.8,
-                                        'at_max_quality' => 1.2,
-                                    ],
-                                    'better_when' => 'higher',
-                                ],
+                                ['property_key' => 'armor_temperaturemax', 'quality_range' => ['min' => 0, 'max' => 1000], 'modifier_range' => ['at_min_quality' => 0.8, 'at_max_quality' => 1.2], 'better_when' => 'higher'],
                             ],
                             'children' => [
-                                [
-                                    'kind' => 'resource',
-                                    'uuid' => $aslariteUuid,
-                                    'name' => 'Aslarite',
-                                    'quantity_scu' => 0.02,
-                                    'min_quality' => 0,
-                                ],
+                                ['kind' => 'resource', 'uuid' => $aslariteUuid, 'name' => 'Aslarite', 'quantity_scu' => 0.02, 'min_quality' => 0],
                             ],
                         ],
                         [
@@ -310,13 +269,7 @@ it('builds interactive aspect state from grouped requirements', function (): voi
                             'name' => 'Casing Weave',
                             'required_count' => 1,
                             'children' => [
-                                [
-                                    'kind' => 'resource',
-                                    'uuid' => $stileronUuid,
-                                    'name' => 'Stileron',
-                                    'quantity_scu' => 0.03,
-                                    'min_quality' => 0,
-                                ],
+                                ['kind' => 'resource', 'uuid' => $stileronUuid, 'name' => 'Stileron', 'quantity_scu' => 0.03, 'min_quality' => 0],
                             ],
                         ],
                     ],
@@ -325,39 +278,17 @@ it('builds interactive aspect state from grouped requirements', function (): voi
             'unlocking_missions_grouped' => [],
             'aspects' => [
                 'aspects' => [
-                    [
-                        'key' => 'CASING',
-                        'name' => 'Casing',
-                        'is_selected' => true,
-                    ],
-                    [
-                        'key' => 'INSULATIVE LINER',
-                        'name' => 'Insulative Liner',
-                        'is_selected' => true,
-                    ],
-                    [
-                        'key' => 'CASING WEAVE',
-                        'name' => 'Casing Weave',
-                        'is_selected' => false,
-                    ],
+                    ['key' => 'CASING', 'name' => 'Casing', 'is_selected' => true],
+                    ['key' => 'INSULATIVE LINER', 'name' => 'Insulative Liner', 'is_selected' => true],
+                    ['key' => 'CASING WEAVE', 'name' => 'Casing Weave', 'is_selected' => false],
                 ],
                 'aspect_groups' => [
-                    [
-                        'key' => 'ASPECTS',
-                        'is_choice_group' => true,
-                        'selected_count' => 2,
-                        'display_name' => null,
-                        'aspect_indexes' => [0, 1, 2],
-                    ],
+                    ['key' => 'ASPECTS', 'is_choice_group' => true, 'selected_count' => 2, 'display_name' => null, 'aspect_indexes' => [0, 1, 2]],
                 ],
                 'has_interactive_aspects' => true,
             ],
         ],
-        search: [
-            'filters' => [],
-            'results' => [],
-            'result_count' => 0,
-        ],
+        search: ['filters' => [], 'results' => [], 'result_count' => 0],
         pageTitle: 'Chiron Legs',
     );
 
@@ -419,35 +350,31 @@ it('escapes embedded client payload json for script tags', function (): void {
     app('request')->query->set('version', '4.0.0-PTU');
 
     $unsafeBlueprintName = 'Unsafe </script><script>alert("x")</script>';
+    $blueprint = blueprintFixture([
+        'output_name' => $unsafeBlueprintName,
+        'output' => [
+            'name' => $unsafeBlueprintName,
+            'class' => 'unsafe_output',
+        ],
+        'requirement_groups' => [],
+        'unlocking_missions_grouped' => [],
+        'aspects' => [
+            'aspects' => [],
+            'aspect_groups' => [],
+            'has_interactive_aspects' => false,
+        ],
+    ]);
     $page = app(BlueprintShowViewData::class)->build(
         mode: 'detail',
-        blueprint: [
-            'uuid' => $blueprintUuid = fake()->uuid(),
-            'output_name' => $unsafeBlueprintName,
-            'output' => [
-                'name' => $unsafeBlueprintName,
-                'class' => 'unsafe_output',
-            ],
-            'requirement_groups' => [],
-            'unlocking_missions_grouped' => [],
-            'aspects' => [
-                'aspects' => [],
-                'aspect_groups' => [],
-                'has_interactive_aspects' => false,
-            ],
-        ],
-        search: [
-            'filters' => [],
-            'results' => [],
-            'result_count' => 0,
-        ],
+        blueprint: $blueprint,
+        search: ['filters' => [], 'results' => [], 'result_count' => 0],
         pageTitle: $unsafeBlueprintName,
     );
 
     $clientPayload = json_decode($page['clientPayload'], true, 512, JSON_THROW_ON_ERROR);
 
     expect($page['clientPayload'])->not->toContain('</script>')
-        ->and($clientPayload['search']['currentBlueprintUuid'])->toBe($blueprintUuid)
+        ->and($clientPayload['search']['currentBlueprintUuid'])->toBe($blueprint['uuid'])
         ->and($clientPayload['search']['initialResults'][0]['output_name'])->toBe($unsafeBlueprintName);
 });
 
@@ -458,13 +385,7 @@ it('passes web_url through unlocking missions into grouped view data', function 
 
     $page = app(BlueprintShowViewData::class)->build(
         mode: 'detail',
-        blueprint: [
-            'uuid' => fake()->uuid(),
-            'output_name' => 'Test Blueprint',
-            'output' => [
-                'name' => 'Test Blueprint',
-                'class' => 'test_output',
-            ],
+        blueprint: blueprintFixture([
             'requirement_groups' => [],
             'unlocking_missions_grouped' => [
                 [
@@ -485,12 +406,8 @@ it('passes web_url through unlocking missions into grouped view data', function 
                 'aspect_groups' => [],
                 'has_interactive_aspects' => false,
             ],
-        ],
-        search: [
-            'filters' => [],
-            'results' => [],
-            'result_count' => 0,
-        ],
+        ]),
+        search: ['filters' => [], 'results' => [], 'result_count' => 0],
         pageTitle: 'Test Blueprint',
     );
 

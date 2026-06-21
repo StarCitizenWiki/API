@@ -11,25 +11,6 @@ beforeEach(function () {
     $this->defaultVersion = GameVersion::factory()->create(['is_default' => true]);
 });
 
-it('returns the vehicle list without error', function (): void {
-    $vehicle = Vehicle::factory()->create();
-    VehicleData::factory()->create([
-        'vehicle_id' => $vehicle->id,
-        'game_version_id' => $this->defaultVersion->id,
-        'class_name' => 'TestVehicle_Class',
-        'name' => 'Test Vehicle',
-        'display_name' => null,
-        'data' => [],
-    ]);
-
-    $response = $this->getJson(route('vehicles.index'));
-
-    $response->assertOk();
-    expect($response->json('meta.total'))->toBe(1)
-        ->and($response->json('data.0.uuid'))->toBe($vehicle->uuid)
-        ->and($response->json('data.0.name'))->toBe('Test Vehicle');
-});
-
 it('sorts vehicles by display name ascending', function (): void {
     foreach (['Avenger', 'Cutlass', 'Freelancer', 'Hornet', 'Mustang'] as $name) {
         $vehicle = Vehicle::factory()->create();

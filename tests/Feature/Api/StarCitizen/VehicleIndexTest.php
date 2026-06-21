@@ -10,73 +10,44 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Size;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 
-it('returns the vehicle list without error', function (): void {
-    $manufacturer = Manufacturer::query()->create([
+beforeEach(function (): void {
+    $this->manufacturer = Manufacturer::query()->create([
         'cig_id' => 1,
         'name' => 'Aegis Dynamics',
         'name_short' => 'AEGS',
     ]);
 
-    $size = Size::query()->create([
+    $this->size = Size::query()->create([
         'slug' => 'small',
+        'translation' => ['en' => 'Small'],
     ]);
 
-    $type = Type::query()->create([
+    $this->type = Type::query()->create([
         'slug' => 'fighter',
+        'translation' => ['en' => 'Fighter'],
     ]);
 
-    $status = ProductionStatus::query()->create([
+    $this->note = ProductionNote::query()->create([
+        'translation' => ['en' => 'In active production'],
+    ]);
+
+    $this->status = ProductionStatus::query()->create([
         'slug' => 'flight-ready',
+        'translation' => ['en' => 'Flight Ready'],
     ]);
-
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    Vehicle::query()->create([
-        'cig_id' => 1,
-        'name' => 'Avenger',
-        'slug' => 'avenger',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
-        'chassis_id' => 1,
-    ]);
-
-    $response = $this->getJson(route('shipmatrix.vehicles.index'));
-
-    $response->assertOk();
-    expect($response->json('data.0.name'))->toBe('Avenger');
-    expect($response->json('data.0.slug'))->toBe('avenger');
 });
 
 it('paginates vehicles by requested page size and sort order', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
     foreach ([70, 10, 50, 20, 60, 30, 40] as $cigId) {
         Vehicle::query()->create([
             'cig_id' => $cigId,
             'name' => "Vehicle {$cigId}",
             'slug' => "vehicle-{$cigId}",
-            'manufacturer_id' => $manufacturer->id,
-            'size_id' => $size->id,
-            'type_id' => $type->id,
-            'production_status_id' => $status->id,
-            'production_note_id' => $note->id,
+            'manufacturer_id' => $this->manufacturer->id,
+            'size_id' => $this->size->id,
+            'type_id' => $this->type->id,
+            'production_status_id' => $this->status->id,
+            'production_note_id' => $this->note->id,
             'chassis_id' => 1,
         ]);
     }
@@ -99,29 +70,16 @@ it('paginates vehicles by requested page size and sort order', function (): void
 });
 
 it('builds pagination links for the requested page size', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
     foreach (range(1, 12) as $i) {
         Vehicle::query()->create([
             'cig_id' => $i,
             'name' => "Vehicle {$i}",
             'slug' => "vehicle-{$i}",
-            'manufacturer_id' => $manufacturer->id,
-            'size_id' => $size->id,
-            'type_id' => $type->id,
-            'production_status_id' => $status->id,
-            'production_note_id' => $note->id,
+            'manufacturer_id' => $this->manufacturer->id,
+            'size_id' => $this->size->id,
+            'type_id' => $this->type->id,
+            'production_status_id' => $this->status->id,
+            'production_note_id' => $this->note->id,
             'chassis_id' => 1,
         ]);
     }
@@ -155,30 +113,16 @@ it('builds pagination links for the requested page size', function (): void {
 });
 
 it('uses the default page size when none is requested', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
     for ($i = 1; $i <= 31; $i++) {
         Vehicle::query()->create([
             'cig_id' => $i,
             'name' => "Vehicle {$i}",
             'slug' => "vehicle-{$i}",
-            'manufacturer_id' => $manufacturer->id,
-            'size_id' => $size->id,
-            'type_id' => $type->id,
-            'production_status_id' => $status->id,
-            'production_note_id' => $note->id,
+            'manufacturer_id' => $this->manufacturer->id,
+            'size_id' => $this->size->id,
+            'type_id' => $this->type->id,
+            'production_status_id' => $this->status->id,
+            'production_note_id' => $this->note->id,
             'chassis_id' => 1,
         ]);
     }
@@ -207,35 +151,21 @@ it('uses the default page size when none is requested', function (): void {
 });
 
 it('filters by manufacturer name', function (): void {
-    $aegis = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Aegis Dynamics',
-        'name_short' => 'AEGS',
-    ]);
-
     $drake = Manufacturer::query()->create([
         'cig_id' => 2,
         'name' => 'Drake Interplanetary',
         'name_short' => 'DRAK',
     ]);
 
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
     Vehicle::query()->create([
         'cig_id' => 1,
         'name' => 'Avenger',
         'slug' => 'avenger',
-        'manufacturer_id' => $aegis->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -244,10 +174,10 @@ it('filters by manufacturer name', function (): void {
         'name' => 'Cutlass',
         'slug' => 'cutlass',
         'manufacturer_id' => $drake->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -259,30 +189,17 @@ it('filters by manufacturer name', function (): void {
 });
 
 it('filters by size code', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $small = Size::query()->create(['slug' => 'small']);
     $large = Size::query()->create(['slug' => 'large']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
 
     Vehicle::query()->create([
         'cig_id' => 1,
         'name' => 'Small Ship',
         'slug' => 'small-ship',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $small->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -290,11 +207,11 @@ it('filters by size code', function (): void {
         'cig_id' => 2,
         'name' => 'Large Ship',
         'slug' => 'large-ship',
-        'manufacturer_id' => $manufacturer->id,
+        'manufacturer_id' => $this->manufacturer->id,
         'size_id' => $large->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -306,30 +223,17 @@ it('filters by size code', function (): void {
 });
 
 it('filters by type slug', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $fighter = Type::query()->create(['slug' => 'fighter']);
     $transport = Type::query()->create(['slug' => 'transport']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
 
     Vehicle::query()->create([
         'cig_id' => 1,
         'name' => 'Fighter Ship',
         'slug' => 'fighter-ship',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $fighter->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -337,11 +241,11 @@ it('filters by type slug', function (): void {
         'cig_id' => 2,
         'name' => 'Transport Ship',
         'slug' => 'transport-ship',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
         'type_id' => $transport->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -353,20 +257,6 @@ it('filters by type slug', function (): void {
 });
 
 it('filters by focus slug', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'multi-role']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-
-    $status = ProductionStatus::query()->create(['slug' => 'flight-ready']);
-
     $combat = Focus::query()->create(['slug' => 'combat']);
     $exploration = Focus::query()->create(['slug' => 'exploration']);
 
@@ -374,11 +264,11 @@ it('filters by focus slug', function (): void {
         'cig_id' => 1,
         'name' => 'Combat Ship',
         'slug' => 'combat-ship',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -386,11 +276,11 @@ it('filters by focus slug', function (): void {
         'cig_id' => 2,
         'name' => 'Explorer Ship',
         'slug' => 'explorer-ship',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -405,29 +295,17 @@ it('filters by focus slug', function (): void {
 });
 
 it('filters by production status slug', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Test Manufacturer',
-        'name_short' => 'TEST',
-    ]);
-
-    $size = Size::query()->create(['slug' => 'small']);
-    $type = Type::query()->create(['slug' => 'fighter']);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'Test note'],
-    ]);
-    $flightReady = ProductionStatus::query()->create(['slug' => 'flight-ready']);
     $inDevelopment = ProductionStatus::query()->create(['slug' => 'in-development']);
 
     Vehicle::query()->create([
         'cig_id' => 1,
         'name' => 'Ready Ship',
         'slug' => 'ready-ship',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $flightReady->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
     ]);
 
@@ -435,11 +313,11 @@ it('filters by production status slug', function (): void {
         'cig_id' => 2,
         'name' => 'Dev Ship',
         'slug' => 'dev-ship',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
         'production_status_id' => $inDevelopment->id,
-        'production_note_id' => $note->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 2,
     ]);
 
@@ -451,28 +329,6 @@ it('filters by production status slug', function (): void {
 });
 
 it('returns mapped vehicle fields and supports filtering by partial name', function (): void {
-    $manufacturer = Manufacturer::query()->create([
-        'cig_id' => 1,
-        'name' => 'Aegis Dynamics',
-        'name_short' => 'AEGS',
-    ]);
-
-    $size = Size::query()->create([
-        'slug' => 'small',
-        'translation' => ['en' => 'Small'],
-    ]);
-    $type = Type::query()->create([
-        'slug' => 'fighter',
-        'translation' => ['en' => 'Fighter'],
-    ]);
-    $note = ProductionNote::query()->create([
-        'translation' => ['en' => 'In active production'],
-    ]);
-    $status = ProductionStatus::query()->create([
-        'slug' => 'flight-ready',
-        'translation' => ['en' => 'Flight Ready'],
-    ]);
-
     $focus = Focus::query()->create([
         'slug' => 'combat',
         'translation' => ['en' => 'Combat'],
@@ -482,11 +338,11 @@ it('returns mapped vehicle fields and supports filtering by partial name', funct
         'cig_id' => 1,
         'name' => 'Avenger Mk II',
         'slug' => 'avenger-mk-ii',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 1,
         'length' => 22.5,
         'beam' => 6.75,
@@ -507,11 +363,11 @@ it('returns mapped vehicle fields and supports filtering by partial name', funct
         'cig_id' => 2,
         'name' => 'Cutter Scout',
         'slug' => 'cutter-scout',
-        'manufacturer_id' => $manufacturer->id,
-        'size_id' => $size->id,
-        'type_id' => $type->id,
-        'production_status_id' => $status->id,
-        'production_note_id' => $note->id,
+        'manufacturer_id' => $this->manufacturer->id,
+        'size_id' => $this->size->id,
+        'type_id' => $this->type->id,
+        'production_status_id' => $this->status->id,
+        'production_note_id' => $this->note->id,
         'chassis_id' => 2,
     ]);
 

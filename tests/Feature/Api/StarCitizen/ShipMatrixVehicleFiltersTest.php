@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\ShipMatrix\Manufacturer;
 use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus;
@@ -11,13 +10,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Type;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 
 it('returns ship matrix vehicle filter values with counts', function (): void {
-    GameVersion::factory()->create([
-        'code' => '3.25.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
     $manufacturer = Manufacturer::factory()->create(['name' => 'Aegis']);
     $size = Size::factory()->create(['slug' => 'small']);
     $type = Type::factory()->create(['slug' => 'fighter']);
@@ -63,7 +55,7 @@ it('returns ship matrix vehicle filter values with counts', function (): void {
         ]);
 });
 
-it('returns filtered ship matrix facet values without caching the filtered response', function (): void {
+it('narrows facets when a filter is supplied', function (): void {
     $aegis = Manufacturer::factory()->create(['name' => 'Aegis']);
     $anvil = Manufacturer::factory()->create(['name' => 'Anvil']);
     $small = Size::factory()->create(['slug' => 'small']);

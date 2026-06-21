@@ -2,47 +2,26 @@
 
 declare(strict_types=1);
 
-use App\Models\Game\GameVersion;
-use App\Models\Game\Item;
-use App\Models\Game\ItemData;
-use App\Models\Game\Manufacturer;
 use Symfony\Component\DomCrawler\Crawler;
 
+use function Tests\Support\createItemForShow;
+
 it('resolves item by slug via web route', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'slug' => 'test-module',
-        'translation' => ['en' => 'Test item description'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: [
+            'slug' => 'test-module',
+            'translation' => ['en' => 'Test item description'],
+        ],
+        itemDataOverrides: [
             'name' => 'Test Module',
             'class_name' => 'test_module',
             'classification' => 'Test.Module',
             'type' => 'PowerPlant',
             'sub_type' => 'Small',
             'size' => 2,
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 12.5,
-                ],
-            ],
-        ]);
+            'data' => ['stdItem' => ['Mass' => 12.5]],
+        ],
+    );
 
     $response = $this->get(route('web.items.show', $item->slug));
 
@@ -52,40 +31,21 @@ it('resolves item by slug via web route', function (): void {
 });
 
 it('resolves item by uuid via web route (backwards compatibility)', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'slug' => 'compat-module',
-        'translation' => ['en' => 'Compat item description'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: [
+            'slug' => 'compat-module',
+            'translation' => ['en' => 'Compat item description'],
+        ],
+        itemDataOverrides: [
             'name' => 'Compat Module',
             'class_name' => 'compat_module',
             'classification' => 'Test.Module',
             'type' => 'PowerPlant',
             'sub_type' => 'Small',
             'size' => 1,
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 5.0,
-                ],
-            ],
-        ]);
+            'data' => ['stdItem' => ['Mass' => 5.0]],
+        ],
+    );
 
     $response = $this->get(route('web.items.show', $item->uuid));
 
@@ -95,40 +55,21 @@ it('resolves item by uuid via web route (backwards compatibility)', function ():
 });
 
 it('uses slug in canonical url when slug is present', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'slug' => 'canonical-module',
-        'translation' => ['en' => 'Canonical item description'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: [
+            'slug' => 'canonical-module',
+            'translation' => ['en' => 'Canonical item description'],
+        ],
+        itemDataOverrides: [
             'name' => 'Canonical Module',
             'class_name' => 'canonical_module',
             'classification' => 'Test.Module',
             'type' => 'PowerPlant',
             'sub_type' => 'Small',
             'size' => 1,
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 5.0,
-                ],
-            ],
-        ]);
+            'data' => ['stdItem' => ['Mass' => 5.0]],
+        ],
+    );
 
     $response = $this->get(route('web.items.show', $item->slug));
 
@@ -142,40 +83,22 @@ it('uses slug in canonical url when slug is present', function (): void {
 });
 
 it('resolves item by class_name via web route', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Behring',
-        'code' => 'BEHR',
-    ]);
-
-    $item = Item::factory()->create([
-        'slug' => 'behr-laser-cannon-s4',
-        'translation' => ['en' => 'Laser cannon description'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    createItemForShow(
+        itemOverrides: [
+            'slug' => 'behr-laser-cannon-s4',
+            'translation' => ['en' => 'Laser cannon description'],
+        ],
+        itemDataOverrides: [
             'name' => 'BEHR LaserCannon S4',
             'class_name' => 'BEHR_LaserCannon_S4',
             'classification' => 'Ship.Weapon',
             'type' => 'WeaponGun',
             'sub_type' => 'Laser',
             'size' => 4,
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 2500,
-                ],
-            ],
-        ]);
+            'data' => ['stdItem' => ['Mass' => 2500]],
+        ],
+        manufacturerAttrs: ['name' => 'Behring', 'code' => 'BEHR'],
+    );
 
     $response = $this->get(route('web.items.show', 'BEHR_LaserCannon_S4'));
 
@@ -185,40 +108,21 @@ it('resolves item by class_name via web route', function (): void {
 });
 
 it('uses slug in canonical url when accessed via class_name', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'Acme Works',
-        'code' => 'ACME',
-    ]);
-
-    $item = Item::factory()->create([
-        'slug' => 'heavy-armor-arms',
-        'translation' => ['en' => 'Armor description'],
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    [$item] = createItemForShow(
+        itemOverrides: [
+            'slug' => 'heavy-armor-arms',
+            'translation' => ['en' => 'Armor description'],
+        ],
+        itemDataOverrides: [
             'name' => 'Heavy Armor Arms',
             'class_name' => 'cds_armor_heavy_arms_01_02_01',
             'classification' => 'FPS.Armor.Arms',
             'type' => 'Char_Armor_Arms',
             'sub_type' => 'Heavy',
             'size' => 1,
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 8.0,
-                ],
-            ],
-        ]);
+            'data' => ['stdItem' => ['Mass' => 8.0]],
+        ],
+    );
 
     $response = $this->get(route('web.items.show', 'cds_armor_heavy_arms_01_02_01'));
 
@@ -232,39 +136,19 @@ it('uses slug in canonical url when accessed via class_name', function (): void 
 });
 
 it('resolves item by class_name when no slug exists', function (): void {
-    $version = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    $manufacturer = Manufacturer::factory()->create([
-        'name' => 'KnightBridge Arms',
-        'code' => 'KBA',
-    ]);
-
-    $item = Item::factory()->create([
-        'slug' => null,
-    ]);
-
-    ItemData::factory()
-        ->for($item)
-        ->for($version, 'gameVersion')
-        ->for($manufacturer)
-        ->create([
+    createItemForShow(
+        itemOverrides: ['slug' => null],
+        itemDataOverrides: [
             'name' => 'MGA Assault',
             'class_name' => 'MGA_Assault',
             'classification' => 'FPS.Weapon.Rifle',
             'type' => 'WeaponPersonal',
             'sub_type' => 'Rifle',
             'size' => 2,
-            'data' => [
-                'stdItem' => [
-                    'Mass' => 3.5,
-                ],
-            ],
-        ]);
+            'data' => ['stdItem' => ['Mass' => 3.5]],
+        ],
+        manufacturerAttrs: ['name' => 'KnightBridge Arms', 'code' => 'KBA'],
+    );
 
     $response = $this->get(route('web.items.show', 'MGA_Assault'));
 

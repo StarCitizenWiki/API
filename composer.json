@@ -52,7 +52,16 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "tests/Support/GameVersionHelper.php",
+            "tests/Support/ItemShowHelper.php",
+            "tests/Support/ResourceTestHelper.php",
+            "tests/Support/ImportTestHelper.php",
+            "tests/Support/MissionFactionFactory.php",
+            "tests/Support/BlueprintDataHelper.php",
+            "tests/Support/ShipMatrixReferenceDataFactory.php"
+        ]
     },
     "scripts": {
         "setup": [

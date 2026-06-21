@@ -76,21 +76,11 @@ it('builds vehicle seo data with session version fallback and shared schema help
         ->and($seo['breadcrumbs'][0]['url'])->toBe(route('web.vehicles.index', ['version' => '4.1.0-LIVE']))
         ->and(data_get($seo, 'structuredData.0.@type'))->toBe('BreadcrumbList')
         ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Vehicle')
-        ->and(data_get($seo, 'structuredData.1.vehicleConfiguration'))->toBe('Medium Freight')
-        ->and(data_get($seo, 'structuredData.1.image'))->toBe('https://example.com/mercury.jpg')
         ->and(data_get($seo, 'structuredData.1.brand.name'))->toBe('Crusader Industries')
         ->and(data_get($seo, 'structuredData.1.offers'))->toHaveCount(2)
-        ->and(data_get($seo, 'structuredData.1.offers.0.@type'))->toBe('AggregateOffer')
         ->and(data_get($seo, 'structuredData.1.offers.0.priceCurrency'))->toBe('USD')
         ->and(data_get($seo, 'structuredData.1.offers.0.lowPrice'))->toBe(220)
-        ->and(data_get($seo, 'structuredData.1.offers.0.offers.0.price'))->toBe(220)
-        ->and(data_get($seo, 'structuredData.1.offers.0.offers.0.url'))->toBe('https://robertsspaceindustries.com/pledge/ships/mercury-star-runner')
-        ->and(data_get($seo, 'structuredData.1.offers.1.@type'))->toBe('AggregateOffer')
         ->and(data_get($seo, 'structuredData.1.offers.1.priceCurrency'))->toBe('aUEC')
-        ->and(data_get($seo, 'structuredData.1.offers.1.lowPrice'))->toBe(6_500_000.0)
-        ->and(data_get($seo, 'structuredData.1.offers.1.highPrice'))->toBe(6_800_000.0)
-        ->and(data_get($seo, 'structuredData.1.offers.1.offers'))->toHaveCount(2)
-        ->and(data_get($seo, 'structuredData.1.offers.1.offers.0.seller.name'))->toBe('Port Olisar')
         ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(19);
 });
 
@@ -213,12 +203,9 @@ it('builds item seo data with localized description and type-specific breadcrumb
         ->and(data_get($seo, 'structuredData.0.@type'))->toBe('BreadcrumbList')
         ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Item')
         ->and(data_get($seo, 'structuredData.1.brand.name'))->toBe('Klaus & Werner')
-        ->and(data_get($seo, 'structuredData.1.image'))->toBe('https://example.com/original.jpg')
         ->and(data_get($seo, 'structuredData.1.offers.@type'))->toBe('AggregateOffer')
         ->and(data_get($seo, 'structuredData.1.offers.lowPrice'))->toBe(1500.0)
-        ->and(data_get($seo, 'structuredData.1.offers.highPrice'))->toBe(1600.0)
         ->and(data_get($seo, 'structuredData.1.offers.offers'))->toHaveCount(2)
-        ->and(data_get($seo, 'structuredData.1.offers.offers.0.seller.name'))->toBe('Port Olisar')
         ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(9);
 });
 

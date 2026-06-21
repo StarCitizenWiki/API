@@ -10,10 +10,35 @@ use App\Models\Game\StarmapLocationData;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
+function makeStarmapEntry(string $uuid, string $name, array $overrides = []): array
+{
+    return array_merge([
+        'UUID' => $uuid,
+        'Name' => $name,
+        'Description' => null,
+        'ParentUUID' => null,
+        'RespawnLocationType' => 'None',
+        'IsScannable' => false,
+        'HideInStarmap' => false,
+        'HideInWorld' => false,
+        'BlockTravel' => false,
+        'Size' => 400,
+        'MinimumDisplaySize' => 0,
+        'QuantumTravel' => null,
+        'LocationHierarchyTag' => null,
+        'Type' => [
+            'Name' => 'SolarSystem',
+            'Classification' => 'Solar System',
+        ],
+        'Jurisdiction' => null,
+        'Affiliation' => null,
+        'AsteroidRing' => null,
+        'Amenities' => [],
+    ], $overrides);
+}
+
 it('fails when the game version does not exist', function (): void {
-    $this->artisan('game:import-starmap', ['version' => 'missing'])
-        ->assertExitCode(Command::FAILURE)
-        ->expectsOutput('Game version "missing" does not exist. Please create it first.');
+    assertFailsOnMissingVersion('game:import-starmap');
 });
 
 it('imports starmap data synchronously for a version', function (): void {
@@ -27,50 +52,13 @@ it('imports starmap data synchronously for a version', function (): void {
     $childUuid = fake()->uuid();
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode([
-        [
-            'UUID' => $systemUuid,
-            'Name' => 'Stanton',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
-            'Size' => 400,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'SolarSystem',
-                'Classification' => 'Solar System',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $childUuid,
-            'Name' => 'Area18',
+        makeStarmapEntry($systemUuid, 'Stanton'),
+        makeStarmapEntry($childUuid, 'Area18', [
             'ParentUUID' => $systemUuid,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
+            'Type' => ['Name' => 'LandingZone', 'Classification' => 'Landing Zone'],
             'Size' => 10,
             'MinimumDisplaySize' => 1,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'LandingZone',
-                'Classification' => 'Landing Zone',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
+        ]),
     ], JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-starmap', ['version' => $version->code])
@@ -106,106 +94,38 @@ it('imports starmap hierarchy, tags, amenities, and system names and upserts on 
     ]);
 
     $payload = [
-        [
-            'UUID' => $systemUuid,
-            'Name' => 'Stanton',
+        makeStarmapEntry($systemUuid, 'Stanton', [
             'Description' => 'Primary system',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
-            'Size' => 400,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => [
-                'ArrivalRadius' => 7000,
-            ],
-            'LocationHierarchyTag' => [
-                'UUID' => $tagUuid,
-                'Name' => 'Stanton System',
-            ],
-            'Type' => [
-                'Name' => 'SolarSystem',
-                'Classification' => 'Solar System',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $planetUuid,
-            'Name' => 'ArcCorp',
+            'QuantumTravel' => ['ArrivalRadius' => 7000],
+            'LocationHierarchyTag' => ['UUID' => $tagUuid, 'Name' => 'Stanton System'],
+        ]),
+        makeStarmapEntry($planetUuid, 'ArcCorp', [
             'Description' => 'Planet node',
             'ParentUUID' => $systemUuid,
-            'RespawnLocationType' => 'None',
             'IsScannable' => true,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
             'Size' => 120,
             'MinimumDisplaySize' => 5,
-            'QuantumTravel' => [
-                'ArrivalRadius' => 4000,
-            ],
-            'LocationHierarchyTag' => [
-                'UUID' => $tagUuid,
-                'Name' => 'Stanton System',
-            ],
-            'Type' => [
-                'Name' => 'Planet',
-                'Classification' => 'Planet',
-            ],
-            'Jurisdiction' => [
-                'Name' => 'UEE',
-                'IsPrison' => false,
-            ],
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $stationUuid,
-            'Name' => 'Baijini Point',
+            'QuantumTravel' => ['ArrivalRadius' => 4000],
+            'LocationHierarchyTag' => ['UUID' => $tagUuid, 'Name' => 'Stanton System'],
+            'Type' => ['Name' => 'Planet', 'Classification' => 'Planet'],
+            'Jurisdiction' => ['Name' => 'UEE', 'IsPrison' => false],
+        ]),
+        makeStarmapEntry($stationUuid, 'Baijini Point', [
             'Description' => 'Station node',
             'ParentUUID' => $planetUuid,
             'RespawnLocationType' => 'Hospital',
             'IsScannable' => true,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
             'Size' => 10,
             'MinimumDisplaySize' => 1,
-            'QuantumTravel' => [
-                'ArrivalRadius' => 1000,
-            ],
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Manmade',
-                'Classification' => 'Manmade',
-            ],
-            'Jurisdiction' => [
-                'Name' => 'UEE',
-                'IsPrison' => false,
-            ],
-            'Affiliation' => [
-                'DisplayName' => 'Private Security',
-            ],
-            'AsteroidRing' => null,
+            'QuantumTravel' => ['ArrivalRadius' => 1000],
+            'Type' => ['Name' => 'Manmade', 'Classification' => 'Manmade'],
+            'Jurisdiction' => ['Name' => 'UEE', 'IsPrison' => false],
+            'Affiliation' => ['DisplayName' => 'Private Security'],
             'Amenities' => [
-                [
-                    'UUID' => $dockingAmenityUuid,
-                    'Name' => 'Docking',
-                    'DisplayName' => 'Docking',
-                ],
-                [
-                    'UUID' => $clinicAmenityUuid,
-                    'Name' => 'Clinic',
-                    'DisplayName' => 'Clinic',
-                ],
+                ['UUID' => $dockingAmenityUuid, 'Name' => 'Docking', 'DisplayName' => 'Docking'],
+                ['UUID' => $clinicAmenityUuid, 'Name' => 'Clinic', 'DisplayName' => 'Clinic'],
             ],
-        ],
+        ]),
     ];
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode($payload, JSON_THROW_ON_ERROR));
@@ -250,11 +170,7 @@ it('imports starmap hierarchy, tags, amenities, and system names and upserts on 
 
     $payload[2]['Description'] = 'Updated station node';
     $payload[2]['Amenities'] = [
-        [
-            'UUID' => $dockingAmenityUuid,
-            'Name' => 'Docking',
-            'DisplayName' => 'Docking',
-        ],
+        ['UUID' => $dockingAmenityUuid, 'Name' => 'Docking', 'DisplayName' => 'Docking'],
     ];
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode($payload, JSON_THROW_ON_ERROR));
@@ -338,52 +254,14 @@ it('repairs stale system names when the starmap import command is rerun', functi
     ]);
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode([
-        [
-            'UUID' => $systemUuid,
-            'Name' => 'Stanton',
-            'Description' => 'Primary system',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
-            'Size' => 400,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'SolarSystem',
-                'Classification' => 'Solar System',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $planetUuid,
-            'Name' => 'ArcCorp',
+        makeStarmapEntry($systemUuid, 'Stanton', ['Description' => 'Primary system']),
+        makeStarmapEntry($planetUuid, 'ArcCorp', [
             'Description' => 'Planet node',
             'ParentUUID' => $systemUuid,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
+            'Type' => ['Name' => 'Planet', 'Classification' => 'Planet'],
             'Size' => 120,
             'MinimumDisplaySize' => 5,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Planet',
-                'Classification' => 'Planet',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
+        ]),
     ], JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-starmap', ['version' => $version->code])
@@ -405,52 +283,12 @@ it('maps root stars to the solar system name when the source omits a parent uuid
     $starUuid = fake()->uuid();
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode([
-        [
-            'UUID' => $solarSystemUuid,
-            'Name' => 'Stanton System',
-            'Description' => 'System record',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
-            'Size' => 400,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'SolarSystem',
-                'Classification' => 'Solar System',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $starUuid,
-            'Name' => 'Stanton',
+        makeStarmapEntry($solarSystemUuid, 'Stanton System', ['Description' => 'System record']),
+        makeStarmapEntry($starUuid, 'Stanton', [
             'Description' => 'Root star',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
+            'Type' => ['Name' => 'Star', 'Classification' => 'Star'],
             'Size' => 696000000,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Star',
-                'Classification' => 'Star',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
+        ]),
     ], JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-starmap', ['version' => $version->code])
@@ -540,52 +378,12 @@ it('repairs stale system data for detached stars when the starmap import command
     ]);
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode([
-        [
-            'UUID' => $solarSystemUuid,
-            'Name' => 'Stanton System',
-            'Description' => 'System record',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
-            'Size' => 400,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'SolarSystem',
-                'Classification' => 'Solar System',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $starUuid,
-            'Name' => 'Stanton',
+        makeStarmapEntry($solarSystemUuid, 'Stanton System', ['Description' => 'System record']),
+        makeStarmapEntry($starUuid, 'Stanton', [
             'Description' => 'Root star',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
+            'Type' => ['Name' => 'Star', 'Classification' => 'Star'],
             'Size' => 696000000,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Star',
-                'Classification' => 'Star',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
+        ]),
     ], JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-starmap', ['version' => $version->code])
@@ -613,98 +411,35 @@ it('maps descendants of a root star to the matching solar system uuid', function
     $outpostUuid = fake()->uuid();
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode([
-        [
-            'UUID' => $solarSystemUuid,
-            'Name' => 'Stanton System',
+        makeStarmapEntry($solarSystemUuid, 'Stanton System', [
             'Description' => 'System record',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
             'HideInStarmap' => true,
             'HideInWorld' => true,
             'BlockTravel' => true,
             'Size' => 0.1,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'SolarSystem',
-                'Classification' => 'Solar System',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $starUuid,
-            'Name' => 'Stanton',
+        ]),
+        makeStarmapEntry($starUuid, 'Stanton', [
             'Description' => 'Root star',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
             'BlockTravel' => true,
             'Size' => 696000000,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Star',
-                'Classification' => 'Star',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $planetUuid,
-            'Name' => 'ArcCorp',
+            'Type' => ['Name' => 'Star', 'Classification' => 'Star'],
+        ]),
+        makeStarmapEntry($planetUuid, 'ArcCorp', [
             'Description' => 'Planet node',
             'ParentUUID' => $starUuid,
-            'RespawnLocationType' => 'None',
             'IsScannable' => true,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
             'Size' => 120,
             'MinimumDisplaySize' => 5,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Planet',
-                'Classification' => 'Planet',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $outpostUuid,
-            'Name' => 'Area18',
+            'Type' => ['Name' => 'Planet', 'Classification' => 'Planet'],
+        ]),
+        makeStarmapEntry($outpostUuid, 'Area18', [
             'Description' => 'Landing zone node',
             'ParentUUID' => $planetUuid,
-            'RespawnLocationType' => 'None',
             'IsScannable' => true,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
             'Size' => 10,
             'MinimumDisplaySize' => 1,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'LandingZone',
-                'Classification' => 'Landing Zone',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
+            'Type' => ['Name' => 'LandingZone', 'Classification' => 'Landing Zone'],
+        ]),
     ], JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-starmap', ['version' => $version->code])
@@ -738,52 +473,18 @@ it('falls back to the root star name when a root star has no matching solar syst
     $planetUuid = fake()->uuid();
 
     Storage::disk('scunpacked')->put('starmap.json', json_encode([
-        [
-            'UUID' => $starUuid,
-            'Name' => 'Orion',
+        makeStarmapEntry($starUuid, 'Orion', [
             'Description' => 'Root star',
-            'ParentUUID' => null,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
             'BlockTravel' => true,
             'Size' => 100,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Star',
-                'Classification' => 'Star',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
-        [
-            'UUID' => $planetUuid,
-            'Name' => 'Orion I',
+            'Type' => ['Name' => 'Star', 'Classification' => 'Star'],
+        ]),
+        makeStarmapEntry($planetUuid, 'Orion I', [
             'Description' => 'Planet node',
             'ParentUUID' => $starUuid,
-            'RespawnLocationType' => 'None',
-            'IsScannable' => false,
-            'HideInStarmap' => false,
-            'HideInWorld' => false,
-            'BlockTravel' => false,
             'Size' => 50,
-            'MinimumDisplaySize' => 0,
-            'QuantumTravel' => null,
-            'LocationHierarchyTag' => null,
-            'Type' => [
-                'Name' => 'Planet',
-                'Classification' => 'Planet',
-            ],
-            'Jurisdiction' => null,
-            'Affiliation' => null,
-            'AsteroidRing' => null,
-            'Amenities' => [],
-        ],
+            'Type' => ['Name' => 'Planet', 'Classification' => 'Planet'],
+        ]),
     ], JSON_THROW_ON_ERROR));
 
     $this->artisan('game:import-starmap', ['version' => $version->code])

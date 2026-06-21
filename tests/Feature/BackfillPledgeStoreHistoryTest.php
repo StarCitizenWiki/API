@@ -63,19 +63,23 @@ describe('backfill pledge store history', function (): void {
     });
 
     it('matches warbond editions correctly', function (): void {
+        // Current prices differ from legacy prices so the assertion
+        // would fail if backfill stored the current price instead of the legacy one.
         $standardSku = PledgeStoreSku::factory()->create([
             'name' => 'Gladius',
             'product_id' => 72,
             'is_warbond' => false,
-            'native_price' => 9000,
+            'native_price' => 12000,  // current: $120
         ]);
         $warbondSku = PledgeStoreSku::factory()->create([
             'name' => 'Gladius',
             'product_id' => 72,
             'is_warbond' => true,
-            'native_price' => 8000,
+            'native_price' => 11000,  // current: $110
         ]);
 
+        // Legacy prices are $90 (standard) and $80 (warbond) -- deliberately
+        // different from the current prices above.
         insertOldSku('Gladius', 'Standard Edition', 90, true, '2024-01-07 10:00:00');
         insertOldSku('Gladius', 'Warbond Edition', 80, true, '2024-01-07 10:00:01');
 
@@ -85,14 +89,14 @@ describe('backfill pledge store history', function (): void {
         $standardHistory = PledgeStoreSkuHistory::where('pledge_store_sku_id', $standardSku->id)->first();
         $warbondHistory = PledgeStoreSkuHistory::where('pledge_store_sku_id', $warbondSku->id)->first();
 
+        // History must contain the *legacy* price, not the current one.
         expect($standardHistory)->not->toBeNull()
             ->and($standardHistory->getData('nativePrice.amount'))->toBe(9000)
             ->and($warbondHistory)->not->toBeNull()
             ->and($warbondHistory->getData('nativePrice.amount'))->toBe(8000);
-
     });
 
-    it('is idempotent — re-run creates no new entries', function (): void {
+    it('is idempotent - re-run creates no new entries', function (): void {
         $newSku = PledgeStoreSku::factory()->create([
             'name' => 'C1 Spirit',
             'product_id' => 72,
@@ -154,7 +158,7 @@ describe('backfill pledge store history', function (): void {
     });
 
     it('only matches against standalone ship SKUs (product_id 72)', function (): void {
-        // Paint SKU with same name — should NOT be matched
+        // Paint SKU with same name - should NOT be matched
         PledgeStoreSku::factory()->create([
             'name' => '300i',
             'product_id' => 268, // paints
@@ -202,7 +206,7 @@ describe('backfill pledge store history', function (): void {
 });
 
 /*
- * ─── Helpers ───────────────────────────────────────────────────────────────
+ * Helpers
  */
 
 function insertOldSku(string $vehicleName, string $skuTitle, int $priceDollars, bool $available, string $createdAt): void

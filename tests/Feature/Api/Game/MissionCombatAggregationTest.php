@@ -2,17 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Models\Game\GameVersion;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 
 beforeEach(function (): void {
-    $this->gameVersion = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
+    $this->gameVersion = createDefaultGameVersion();
 });
 
 it('returns aggregated_spawns grouped by role, group_name, and spawn_kind', function (): void {
@@ -43,7 +37,9 @@ it('returns aggregated_spawns grouped by role, group_name, and spawn_kind', func
 
     expect($aggregated)->toHaveCount(3);
 
-    expect($aggregated[0])->toBe([
+    // Role grouping is the contract; within-role order is incidental.
+    $byGroup = collect($aggregated)->keyBy('group_name');
+    expect($byGroup->get('guards'))->toBe([
         'role' => 'enemy',
         'group_name' => 'guards',
         'spawn_kind' => 'Npc',
@@ -51,8 +47,7 @@ it('returns aggregated_spawns grouped by role, group_name, and spawn_kind', func
         'concurrent_max' => 4,
         'weight' => 1,
     ]);
-
-    expect($aggregated[1])->toBe([
+    expect($byGroup->get('snipers'))->toBe([
         'role' => 'enemy',
         'group_name' => 'snipers',
         'spawn_kind' => 'Npc',
@@ -60,8 +55,7 @@ it('returns aggregated_spawns grouped by role, group_name, and spawn_kind', func
         'concurrent_max' => 1,
         'weight' => 2,
     ]);
-
-    expect($aggregated[2])->toBe([
+    expect($byGroup->get('vip'))->toBe([
         'role' => 'defend_target',
         'group_name' => 'vip',
         'spawn_kind' => 'Npc',

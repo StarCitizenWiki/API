@@ -2,24 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Models\Game\GameVersion;
-use App\Models\Game\Item;
-use App\Models\Game\ItemData;
-use App\Models\Game\Mission\Mission;
-use App\Models\Game\Mission\MissionData;
-use App\Models\Game\Mission\MissionRewardGroup;
-
 beforeEach(function (): void {
-    $this->gameVersion = GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
+    $this->gameVersion = createDefaultGameVersion();
 
-    $this->mission = Mission::factory()->create();
+    $this->mission = \App\Models\Game\Mission\Mission::factory()->create();
 
-    $this->missionData = MissionData::factory()
+    $this->missionData = \App\Models\Game\Mission\MissionData::factory()
         ->forVersion($this->gameVersion)
         ->forMission($this->mission)
         ->create([
@@ -27,43 +15,10 @@ beforeEach(function (): void {
         ]);
 });
 
-function attachRewardItem(MissionRewardGroup $group, ItemData $itemData, ?int $amount = null, ?bool $sendToHome = null): void
-{
-    $group->items()->create([
-        'item_data_id' => $itemData->id,
-        'amount' => $amount,
-        'send_to_home' => $sendToHome,
-    ]);
-}
-
-function makeItemData(GameVersion $version, string $uuid, string $name): ItemData
-{
-    $item = Item::factory()->create([
-        'uuid' => $uuid,
-        'slug' => str($name)->slug(),
-    ]);
-
-    return ItemData::factory()->create([
-        'item_id' => $item->id,
-        'game_version_id' => $version->id,
-        'name' => $name,
-    ]);
-}
-
 describe('reward_groups', function (): void {
     it('maps grouped reward items with weight and owner flags', function (): void {
-        $weapon = makeItemData($this->gameVersion, '44444444-4444-4444-4444-444444444444', 'Energy Cell');
-        $armor = makeItemData($this->gameVersion, '55555555-5555-5555-5555-555555555555', 'Combat Armor');
-
-        $first = MissionRewardGroup::factory()
-            ->forMissionData($this->missionData)
-            ->create(['group_index' => 0, 'weight' => 0.5, 'award_only_to_mission_owner' => true]);
-        attachRewardItem($first, $weapon, 10, true);
-
-        $second = MissionRewardGroup::factory()
-            ->forMissionData($this->missionData)
-            ->create(['group_index' => 1, 'weight' => null, 'award_only_to_mission_owner' => null]);
-        attachRewardItem($second, $armor, 3, false);
+        createRewardItem($this->gameVersion, $this->missionData, '44444444-4444-4444-4444-444444444444', 'Energy Cell', 0, 0.5, true, 10, true);
+        createRewardItem($this->gameVersion, $this->missionData, '55555555-5555-5555-5555-555555555555', 'Combat Armor', 1, null, null, 3, false);
 
         $this->getJson("/api/missions/{$this->mission->uuid}")
             ->assertSuccessful()
@@ -84,14 +39,8 @@ describe('reward_groups', function (): void {
     });
 
     it('flattens all group items into the legacy reward_items array', function (): void {
-        $first = makeItemData($this->gameVersion, '44444444-4444-4444-4444-444444444444', 'Energy Cell');
-        $second = makeItemData($this->gameVersion, '55555555-5555-5555-5555-555555555555', 'Combat Armor');
-
-        $groupA = MissionRewardGroup::factory()->forMissionData($this->missionData)->create(['group_index' => 0]);
-        attachRewardItem($groupA, $first, 10, true);
-
-        $groupB = MissionRewardGroup::factory()->forMissionData($this->missionData)->create(['group_index' => 1]);
-        attachRewardItem($groupB, $second, 3, false);
+        createRewardItem($this->gameVersion, $this->missionData, '44444444-4444-4444-4444-444444444444', 'Energy Cell', 0, null, true, 10, true);
+        createRewardItem($this->gameVersion, $this->missionData, '55555555-5555-5555-5555-555555555555', 'Combat Armor', 1, null, false, 3, false);
 
         $this->getJson("/api/missions/{$this->mission->uuid}")
             ->assertSuccessful()

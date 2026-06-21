@@ -103,7 +103,7 @@ it('returns v3 port format when accessing api/v3/vehicles endpoint', function ()
     expect($port)->toHaveKey('subtype', 'Gun');
 });
 
-it('returns cargo limits when accessing api/v2/vehicles endpoint', function (): void {
+it('returns cargo limits when accessing versioned vehicles endpoints', function (string $versionPrefix): void {
     $this->vehicleData->update([
         'data' => array_merge($this->vehicleData->data, [
             'CargoGrids' => [
@@ -119,45 +119,15 @@ it('returns cargo limits when accessing api/v2/vehicles endpoint', function (): 
         ]),
     ]);
 
-    $response = $this->getJson("/api/v2/vehicles/{$this->vehicle->uuid}");
-
-    $response->assertSuccessful();
-
-    expect($response->json('data.cargo_limits'))->toBe([
-        'min_size' => ['x' => 1, 'y' => 1, 'z' => 1],
-        'min_scu_box' => 1,
-        'max_size' => ['x' => 4, 'y' => 4, 'z' => 4],
-        'max_scu_box' => 8,
-    ]);
-});
-
-it('returns cargo limits when accessing api/v3/vehicles endpoint', function (): void {
-    $this->vehicleData->update([
-        'data' => array_merge($this->vehicleData->data, [
-            'CargoGrids' => [
-                [
-                    'MinSize' => ['X' => 1.0, 'Y' => 1.0, 'Z' => 1.0],
-                    'MaxSize' => ['X' => 2.0, 'Y' => 2.0, 'Z' => 2.0],
-                ],
-                [
-                    'MinSize' => ['X' => 2.0, 'Y' => 2.0, 'Z' => 2.0],
-                    'MaxSize' => ['X' => 4.0, 'Y' => 4.0, 'Z' => 4.0],
-                ],
-            ],
-        ]),
-    ]);
-
-    $response = $this->getJson("/api/v3/vehicles/{$this->vehicle->uuid}");
-
-    $response->assertSuccessful();
-
-    expect($response->json('data.cargo_limits'))->toBe([
-        'min_size' => ['x' => 1, 'y' => 1, 'z' => 1],
-        'min_scu_box' => 1,
-        'max_size' => ['x' => 4, 'y' => 4, 'z' => 4],
-        'max_scu_box' => 8,
-    ]);
-});
+    $this->getJson("/{$versionPrefix}/vehicles/{$this->vehicle->uuid}")
+        ->assertSuccessful()
+        ->assertJsonPath('data.cargo_limits', [
+            'min_size' => ['x' => 1, 'y' => 1, 'z' => 1],
+            'min_scu_box' => 1,
+            'max_size' => ['x' => 4, 'y' => 4, 'z' => 4],
+            'max_scu_box' => 8,
+        ]);
+})->with(['api/v2', 'api/v3']);
 
 it('returns v3 port format when accessing api/vehicles endpoint without version prefix', function (): void {
     $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
@@ -247,37 +217,29 @@ it('returns nested ports in v3 format', function (): void {
     expect($port['ports'][0])->toHaveKey('name', 'child_port');
 });
 
-it('includes version in api link when version is requested in vehicle show', function (): void {
-    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}?version=4.4.0-TEST");
+it('toggles version query param in api link on vehicle show', function (bool $withVersion): void {
+    $url = "/api/vehicles/{$this->vehicle->uuid}".($withVersion ? '?version=4.4.0-TEST' : '');
 
-    $response->assertSuccessful();
+    $link = $this->getJson($url)->assertSuccessful()->json('data.link');
 
-    expect($response->json('data.link'))->toContain('version=4.4.0-TEST');
-});
+    if ($withVersion) {
+        expect($link)->toContain('version=4.4.0-TEST');
+    } else {
+        expect($link)->not->toContain('version=');
+    }
+})->with(['with version' => true, 'without version' => false]);
 
-it('includes version in web url when version is requested in vehicle show', function (): void {
-    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}?version=4.4.0-TEST");
+it('toggles version query param in web url on vehicle show', function (bool $withVersion): void {
+    $url = "/api/vehicles/{$this->vehicle->uuid}".($withVersion ? '?version=4.4.0-TEST' : '');
 
-    $response->assertSuccessful();
+    $webUrl = $this->getJson($url)->assertSuccessful()->json('data.web_url');
 
-    expect($response->json('data.web_url'))->toContain('version=4.4.0-TEST');
-});
-
-it('does not include version in api link when version is not requested in vehicle show', function (): void {
-    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
-
-    $response->assertSuccessful();
-
-    expect($response->json('data.link'))->not->toContain('version=');
-});
-
-it('does not include version in web url when version is not requested in vehicle show', function (): void {
-    $response = $this->getJson("/api/vehicles/{$this->vehicle->uuid}");
-
-    $response->assertSuccessful();
-
-    expect($response->json('data.web_url'))->not->toContain('version=');
-});
+    if ($withVersion) {
+        expect($webUrl)->toContain('version=4.4.0-TEST');
+    } else {
+        expect($webUrl)->not->toContain('version=');
+    }
+})->with(['with version' => true, 'without version' => false]);
 
 describe('ore_capacity', function (): void {
     it('returns ore_capacity when present in ship data', function (): void {

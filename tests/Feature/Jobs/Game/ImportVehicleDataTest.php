@@ -47,7 +47,7 @@ it('creates vehicle data on first import', function (): void {
         ->and($vehicleData->data)->toBeArray();
 });
 
-it('rewrites the row only when data actually changes', function (): void {
+it('persists the row when source data changes', function (): void {
     $payload = vehiclePayload($this->manufacturer->uuid);
 
     dispatchVehicleImport($this->version->id, $payload);
