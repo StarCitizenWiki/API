@@ -120,13 +120,14 @@ final class VehicleWeaponryBuilder
      */
     public function decorateTurretEntries(array $entries, string $category): array
     {
-        return collect($entries)
-            ->filter(static fn (mixed $entry): bool => is_array($entry))
-            ->map(static fn (array $entry): array => [
-                ...$entry,
-                'Category' => $category,
-            ])
-            ->values()
-            ->all();
+        $result = [];
+
+        foreach ($entries as $entry) {
+            if (is_array($entry)) {
+                $result[] = [...$entry, 'Category' => $category];
+            }
+        }
+
+        return $result;
     }
 }

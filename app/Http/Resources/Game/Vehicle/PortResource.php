@@ -135,7 +135,7 @@ class PortResource extends AbstractBaseResource
             'health' => $health,
             'equipped_item' => $this->resolveEquippedItem($resolvedItem, $isShowRoute),
             'attached_vehicle' => $attachedVehicle,
-            'ports' => $isShowRoute && $this->shouldIncludeChildren() ? self::collection(collect($this->getChildrenArray())->map(fn ($port) => new self($port, isChild: true))) : null,
+            'ports' => $isShowRoute && $this->shouldIncludeChildren() ? self::collection(array_map(static fn ($port) => new self($port, isChild: true), $this->getChildrenArray() ?? [])) : null,
             'category_label' => ! $this->isChild ? $this->categorizePort() : null,
             'required_tags' => self::normalizeTagList($this->resource['RequiredTags'] ?? null),
             'port_tags' => $this->buildPortTags(),

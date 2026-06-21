@@ -1298,38 +1298,47 @@ class VehicleResource extends AbstractBaseResource
 
     public function calculateCargoGridSizeLimits(array $cargoGrids): ?array
     {
-        $minSize = collect($cargoGrids)
-            ->map(fn (array $grid) => $this->extractSizeBlock($grid, 'MinSize', 'min_size'))
-            ->filter()
-            ->sortBy(fn (array $size) => $size['x'] * $size['y'] * $size['z'])
-            ->first();
+        $minSize = null;
+        $minVolume = null;
+        $maxSize = null;
+        $maxVolume = null;
+        $maxScuBox = null;
 
-        $maxSize = collect($cargoGrids)
-            ->map(fn (array $grid) => $this->extractSizeBlock($grid, 'MaxSize', 'max_size'))
-            ->filter()
-            ->sortByDesc(fn (array $size) => $size['x'] * $size['y'] * $size['z'])
-            ->first();
+        foreach ($cargoGrids as $grid) {
+            $minBlock = $this->extractSizeBlock($grid, 'MinSize', 'min_size');
 
-        // Compute per-grid max_scu_box (constrained by both interior & max_size), take the largest
-        $maxScuBox = collect($cargoGrids)
-            ->map(function (array $grid) {
+            if ($minBlock !== null) {
+                $vol = $minBlock['x'] * $minBlock['y'] * $minBlock['z'];
+
+                if ($minVolume === null || $vol < $minVolume) {
+                    $minVolume = $vol;
+                    $minSize = $minBlock;
+                }
+            }
+
+            $maxBlock = $this->extractSizeBlock($grid, 'MaxSize', 'max_size');
+
+            if ($maxBlock !== null) {
+                $vol = $maxBlock['x'] * $maxBlock['y'] * $maxBlock['z'];
+
+                if ($maxVolume === null || $vol > $maxVolume) {
+                    $maxVolume = $vol;
+                    $maxSize = $maxBlock;
+                }
+
                 $x = $grid['X'] ?? null;
                 $y = $grid['Y'] ?? null;
                 $z = $grid['Z'] ?? null;
-                $maxSize = $this->extractSizeBlock($grid, 'MaxSize', 'max_size');
 
-                if ($maxSize === null) {
-                    return null;
+                $box = ($x !== null && $y !== null && $z !== null)
+                    ? ScuBox::largestThatFitsInGrid(['x' => $x, 'y' => $y, 'z' => $z], $maxBlock)
+                    : ScuBox::largestThatFits($maxBlock);
+
+                if ($box !== null && ($maxScuBox === null || $box > $maxScuBox)) {
+                    $maxScuBox = $box;
                 }
-
-                if ($x !== null && $y !== null && $z !== null) {
-                    return ScuBox::largestThatFitsInGrid(['x' => $x, 'y' => $y, 'z' => $z], $maxSize);
-                }
-
-                return ScuBox::largestThatFits($maxSize);
-            })
-            ->filter()
-            ->max();
+            }
+        }
 
         $minScuBox = $minSize !== null ? ScuBox::smallestThatFits($minSize) : null;
 

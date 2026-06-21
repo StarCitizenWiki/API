@@ -6,8 +6,6 @@ namespace App\Http\Resources\Game\Vehicle;
 
 use App\Http\Resources\AbstractBaseResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -44,23 +42,23 @@ class WeaponStorageResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         $ws = $this->resource;
+        $byLocker = $ws['ByLocker'] ?? [];
 
-        $byLocker = collect(Arr::get($ws, 'ByLocker', []))
-            ->map(static fn (array $locker): array => [
-                'name' => Arr::get($locker, 'Name'),
-                'class_name' => Arr::get($locker, 'ClassName'),
-                'port' => Arr::get($locker, 'Port'),
-                'slots_total' => Arr::get($locker, 'SlotsTotal'),
-                'slots_rifle' => Arr::get($locker, 'SlotsRifle'),
-                'slots_pistol' => Arr::get($locker, 'SlotsPistol'),
-            ]);
+        $racks = array_map(static fn (array $locker): array => [
+            'name' => $locker['Name'] ?? null,
+            'class_name' => $locker['ClassName'] ?? null,
+            'port' => $locker['Port'] ?? null,
+            'slots_total' => $locker['SlotsTotal'] ?? null,
+            'slots_rifle' => $locker['SlotsRifle'] ?? null,
+            'slots_pistol' => $locker['SlotsPistol'] ?? null,
+        ], $byLocker);
 
         return [
-            'lockers' => Arr::get($ws, 'Lockers'),
-            'slots_total' => Arr::get($ws, 'SlotsTotal'),
-            'slots_rifle' => Arr::get($ws, 'SlotsRifle'),
-            'slots_pistol' => Arr::get($ws, 'SlotsPistol'),
-            'by_locker' => $this->groupIdenticalRacks($byLocker),
+            'lockers' => $ws['Lockers'] ?? null,
+            'slots_total' => $ws['SlotsTotal'] ?? null,
+            'slots_rifle' => $ws['SlotsRifle'] ?? null,
+            'slots_pistol' => $ws['SlotsPistol'] ?? null,
+            'by_locker' => $this->groupIdenticalRacks($racks),
         ];
     }
 
@@ -70,22 +68,31 @@ class WeaponStorageResource extends AbstractBaseResource
      * Racks with the same class_name, slots_total, slots_rifle, and slots_pistol
      * are collapsed into a single entry with a count, keeping one representative port.
      *
-     * @param  Collection<int, array<string, mixed>>  $racks
+     * @param  list<array<string, mixed>>  $racks
      * @return list<array<string, mixed>>
      */
-    private function groupIdenticalRacks($racks): array
+    private function groupIdenticalRacks(array $racks): array
     {
-        return $racks
-            ->groupBy(static fn (array $rack): string => implode('|', [
+        $grouped = [];
+
+        foreach ($racks as $rack) {
+            $key = implode('|', [
                 $rack['class_name'] ?? '',
                 $rack['slots_total'] ?? 0,
                 $rack['slots_rifle'] ?? 0,
                 $rack['slots_pistol'] ?? 0,
-            ]))
-            ->map(static fn ($group): array => tap($group->first(), static function (array &$rack) use ($group): void {
-                $rack['count'] = $group->count();
-            }))
-            ->values()
-            ->all();
+            ]);
+
+            if (isset($grouped[$key])) {
+                $grouped[$key]['count']++;
+
+                continue;
+            }
+
+            $rack['count'] = 1;
+            $grouped[$key] = $rack;
+        }
+
+        return array_values($grouped);
     }
 }
