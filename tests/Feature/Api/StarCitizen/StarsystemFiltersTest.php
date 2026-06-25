@@ -21,27 +21,26 @@ it('returns starsystem filter values with counts', function (): void {
         'aggregated_size' => 10.0,
     ]);
 
-    $this->getJson(route('starsystems.filters'))
-        ->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'affiliation' => [
-                    ['value' => 'UEE', 'label' => 'UEE', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'status' => [
-                    ['value' => 'ACTIVE', 'label' => 'ACTIVE', 'count' => 1],
-                    ['value' => 'INACTIVE', 'label' => 'INACTIVE', 'count' => 1],
-                ],
-                'type' => [
-                    ['value' => 'SYSTEM', 'label' => 'SYSTEM', 'count' => 2],
-                ],
-                'size' => [
-                    ['value' => 10, 'label' => '10', 'count' => 1],
-                    ['value' => 42.5, 'label' => '42.5', 'count' => 1],
-                ],
+    assertFacetsEqual(
+        $this->getJson(route('starsystems.filters'))->assertOk(),
+        [
+            'affiliation' => [
+                ['value' => 'UEE', 'label' => 'UEE', 'count' => 1],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
             ],
-        ]);
+            'status' => [
+                ['value' => 'ACTIVE', 'label' => 'ACTIVE', 'count' => 1],
+                ['value' => 'INACTIVE', 'label' => 'INACTIVE', 'count' => 1],
+            ],
+            'type' => [
+                ['value' => 'SYSTEM', 'label' => 'SYSTEM', 'count' => 2],
+            ],
+            'size' => [
+                ['value' => 10, 'label' => '10', 'count' => 1],
+                ['value' => 42.5, 'label' => '42.5', 'count' => 1],
+            ],
+        ],
+    );
 });
 
 it('narrows facets when a filter is supplied', function (): void {
@@ -62,26 +61,23 @@ it('narrows facets when a filter is supplied', function (): void {
     ]);
     $inactive->affiliation()->attach($vanduul);
 
-    $response = $this->getJson(route('starsystems.filters', [
-        'filter' => ['status' => 'ACTIVE'],
-    ]));
-
-    $response->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'affiliation' => [
-                    ['value' => 'UEE', 'label' => 'UEE', 'count' => 1],
-                ],
-                'status' => [
-                    ['value' => 'ACTIVE', 'label' => 'ACTIVE', 'count' => 1],
-                ],
-                'type' => [
-                    ['value' => 'SYSTEM', 'label' => 'SYSTEM', 'count' => 1],
-                ],
-                'size' => [
-                    ['value' => 42.5, 'label' => '42.5', 'count' => 1],
-                ],
+    assertFacetsEqual(
+        $this->getJson(route('starsystems.filters', [
+            'filter' => ['status' => 'ACTIVE'],
+        ]))->assertOk(),
+        [
+            'affiliation' => [
+                ['value' => 'UEE', 'label' => 'UEE', 'count' => 1],
             ],
-        ]);
-
+            'status' => [
+                ['value' => 'ACTIVE', 'label' => 'ACTIVE', 'count' => 1],
+            ],
+            'type' => [
+                ['value' => 'SYSTEM', 'label' => 'SYSTEM', 'count' => 1],
+            ],
+            'size' => [
+                ['value' => 42.5, 'label' => '42.5', 'count' => 1],
+            ],
+        ],
+    );
 });

@@ -157,13 +157,13 @@ it('includes slug/uuid/code models in sitemap URLs', function (string $segment, 
 
     expect($content)->toContain(route($route, $instance->$param));
 })->with([
-    'vehicles'      => ['vehicles',          'web.vehicles.show',                    Vehicle::class,          'slug'],
-    'items'         => ['items',             'web.items.show',                       Item::class,             'slug'],
-    'blueprints'    => ['blueprints',        'web.blueprints.show',                  Blueprint::class,        'slug'],
-    'commodities'   => ['commodities',       'web.commodities.show',                 Commodity::class,        'slug'],
-    'missions'      => ['missions',          'web.missions.show',                    Mission::class,          'slug'],
-    'locations'     => ['locations',          'web.locations.show',                   StarmapLocation::class,  'uuid'],
-    'starsystems'   => ['starsystems',       'web.starmap.systems.show',             Starsystem::class,       'code'],
+    'vehicles' => ['vehicles',          'web.vehicles.show',                    Vehicle::class,          'slug'],
+    'items' => ['items',             'web.items.show',                       Item::class,             'slug'],
+    'blueprints' => ['blueprints',        'web.blueprints.show',                  Blueprint::class,        'slug'],
+    'commodities' => ['commodities',       'web.commodities.show',                 Commodity::class,        'slug'],
+    'missions' => ['missions',          'web.missions.show',                    Mission::class,          'slug'],
+    'locations' => ['locations',          'web.locations.show',                   StarmapLocation::class,  'uuid'],
+    'starsystems' => ['starsystems',       'web.starmap.systems.show',             Starsystem::class,       'code'],
     'celestial objects' => ['celestial-objects', 'web.starmap.celestial-objects.show', CelestialObject::class, 'code'],
 ]);
 
@@ -177,8 +177,8 @@ it('falls back to uuid when slug is null', function (string $segment, string $ro
 
     expect($content)->toContain(route($route, $instance->uuid));
 })->with([
-    'items'       => ['items',       'web.items.show',       Item::class],
-    'blueprints'  => ['blueprints',  'web.blueprints.show',  Blueprint::class],
+    'items' => ['items',       'web.items.show',       Item::class],
+    'blueprints' => ['blueprints',  'web.blueprints.show',  Blueprint::class],
     'commodities' => ['commodities', 'web.commodities.show', Commodity::class],
 ]);
 

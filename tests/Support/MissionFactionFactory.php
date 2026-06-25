@@ -12,13 +12,14 @@ use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Mission\MissionRewardGroup;
+use Illuminate\Database\Eloquent\Collection;
 
 if (! function_exists('createFactionWithReputationLadder')) {
     /**
      * Create a Faction with a reputation scope, standings, and ref.
      * Shared by Web/MissionShowFactionTest and Api/Game/MissionShowFactionTest.
      *
-     * @return array{faction: Faction, scope: FactionScope, standings: \Illuminate\Database\Eloquent\Collection}
+     * @return array{faction: Faction, scope: FactionScope, standings: Collection}
      */
     function createFactionWithReputationLadder(array $factionOverrides = []): array
     {

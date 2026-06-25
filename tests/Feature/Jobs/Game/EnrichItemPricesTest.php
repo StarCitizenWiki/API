@@ -78,7 +78,6 @@ it('enriches item prices from per-item API', function (): void {
         return Http::response(status: 404);
     });
 
-
     $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], null);
     $job->handle();
 
@@ -191,7 +190,6 @@ it('matches current-family prices with major.minor prefix and previous-family wi
 
         return Http::response(status: 404);
     });
-
 
     $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], $previousVersionCode);
     $job->handle();

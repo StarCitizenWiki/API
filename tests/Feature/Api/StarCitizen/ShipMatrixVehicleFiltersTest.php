@@ -31,28 +31,27 @@ it('returns ship matrix vehicle filter values with counts', function (): void {
         'production_status_id' => $status->id,
     ]);
 
-    $this->getJson(route('shipmatrix.vehicles.filters'))
-        ->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'manufacturer' => [
-                    ['value' => 'Aegis', 'label' => 'Aegis', 'count' => 2],
-                ],
-                'size' => [
-                    ['value' => 'small', 'label' => 'small', 'count' => 2],
-                ],
-                'type' => [
-                    ['value' => 'fighter', 'label' => 'fighter', 'count' => 2],
-                ],
-                'focus' => [
-                    ['value' => 'combat', 'label' => 'combat', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'production_status' => [
-                    ['value' => 'flight-ready', 'label' => 'flight-ready', 'count' => 2],
-                ],
+    assertFacetsEqual(
+        $this->getJson(route('shipmatrix.vehicles.filters'))->assertOk(),
+        [
+            'manufacturer' => [
+                ['value' => 'Aegis', 'label' => 'Aegis', 'count' => 2],
             ],
-        ]);
+            'size' => [
+                ['value' => 'small', 'label' => 'small', 'count' => 2],
+            ],
+            'type' => [
+                ['value' => 'fighter', 'label' => 'fighter', 'count' => 2],
+            ],
+            'focus' => [
+                ['value' => 'combat', 'label' => 'combat', 'count' => 1],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+            'production_status' => [
+                ['value' => 'flight-ready', 'label' => 'flight-ready', 'count' => 2],
+            ],
+        ],
+    );
 });
 
 it('narrows facets when a filter is supplied', function (): void {
@@ -83,29 +82,26 @@ it('narrows facets when a filter is supplied', function (): void {
     ]);
     $nonMatching->foci()->attach($transport);
 
-    $response = $this->getJson(route('shipmatrix.vehicles.filters', [
-        'filter' => ['manufacturer' => 'Aegis'],
-    ]));
-
-    $response->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'manufacturer' => [
-                    ['value' => 'Aegis', 'label' => 'Aegis', 'count' => 1],
-                ],
-                'size' => [
-                    ['value' => 'small', 'label' => 'small', 'count' => 1],
-                ],
-                'type' => [
-                    ['value' => 'fighter', 'label' => 'fighter', 'count' => 1],
-                ],
-                'focus' => [
-                    ['value' => 'combat', 'label' => 'combat', 'count' => 1],
-                ],
-                'production_status' => [
-                    ['value' => 'flight-ready', 'label' => 'flight-ready', 'count' => 1],
-                ],
+    assertFacetsEqual(
+        $this->getJson(route('shipmatrix.vehicles.filters', [
+            'filter' => ['manufacturer' => 'Aegis'],
+        ]))->assertOk(),
+        [
+            'manufacturer' => [
+                ['value' => 'Aegis', 'label' => 'Aegis', 'count' => 1],
             ],
-        ]);
-
+            'size' => [
+                ['value' => 'small', 'label' => 'small', 'count' => 1],
+            ],
+            'type' => [
+                ['value' => 'fighter', 'label' => 'fighter', 'count' => 1],
+            ],
+            'focus' => [
+                ['value' => 'combat', 'label' => 'combat', 'count' => 1],
+            ],
+            'production_status' => [
+                ['value' => 'flight-ready', 'label' => 'flight-ready', 'count' => 1],
+            ],
+        ],
+    );
 });

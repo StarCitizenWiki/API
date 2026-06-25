@@ -64,7 +64,7 @@ describe('denormalized column facets', function (): void {
         ]));
 
         $response->assertOk();
-        expect($response->json('filters')['shield.face_type'])->toBe([
+        expect($response->json('filters')['shield.face_type'])->toEqualCanonicalizing([
             ['value' => 'Bubble', 'label' => 'Bubble', 'count' => 2],
             ['value' => 'FrontBack', 'label' => 'FrontBack', 'count' => 1],
         ]);

@@ -26,9 +26,9 @@ function createDefaultGameVersion(): GameVersion
 /**
  * Builds the minimal item-show fixture: default version, manufacturer, item, and item data.
  *
- * @param array<string, mixed> $itemOverrides Item factory attributes.
- * @param array<string, mixed> $itemDataOverrides ItemData factory attributes (data, type, sub_type, etc.).
- * @param array{name?: string, code?: string} $manufacturerAttrs Manufacturer factory attributes.
+ * @param  array<string, mixed>  $itemOverrides  Item factory attributes.
+ * @param  array<string, mixed>  $itemDataOverrides  ItemData factory attributes (data, type, sub_type, etc.).
+ * @param  array{name?: string, code?: string}  $manufacturerAttrs  Manufacturer factory attributes.
  * @return array{0: Item, 1: ItemData, 2: GameVersion, 3: Manufacturer}
  */
 function createItemForShow(

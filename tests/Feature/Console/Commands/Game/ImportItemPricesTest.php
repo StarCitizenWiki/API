@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
 use App\Jobs\Game\ImportCommodityPrices as ImportCommodityPricesJob;
+use App\Jobs\Game\ImportItemPrices as ImportItemPricesJob;
 use App\Models\Game\GameVersion;
 use Illuminate\Support\Facades\Bus;
 

@@ -178,7 +178,6 @@ it('shows a last used value for used tokens', function (): void {
                     && $profileToken->last_used_at->equalTo($token->last_used_at);
             });
 
-
         $lastUsedCellMatch = preg_match(
             sprintf('/data-testid="profile-token-last-used-%d"[^>]*>\s*(.*?)\s*<\/td>/s', $token->id),
             (string) $response->getContent(),

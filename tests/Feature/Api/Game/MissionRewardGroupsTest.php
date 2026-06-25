@@ -1,13 +1,15 @@
 <?php
 
 declare(strict_types=1);
+use App\Models\Game\Mission\Mission;
+use App\Models\Game\Mission\MissionData;
 
 beforeEach(function (): void {
     $this->gameVersion = createDefaultGameVersion();
 
-    $this->mission = \App\Models\Game\Mission\Mission::factory()->create();
+    $this->mission = Mission::factory()->create();
 
-    $this->missionData = \App\Models\Game\Mission\MissionData::factory()
+    $this->missionData = MissionData::factory()
         ->forVersion($this->gameVersion)
         ->forMission($this->mission)
         ->create([

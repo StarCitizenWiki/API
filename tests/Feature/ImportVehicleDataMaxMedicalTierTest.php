@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
-use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use Illuminate\Support\Facades\Storage;
 

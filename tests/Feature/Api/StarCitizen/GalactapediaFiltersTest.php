@@ -22,24 +22,23 @@ it('returns galactapedia filter values with counts', function (): void {
 
     Article::factory()->create();
 
-    $this->getJson(route('galactapedia.filters'))
-        ->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'category' => [
-                    ['value' => 'Lore', 'label' => 'Lore', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'tag' => [
-                    ['value' => 'Banu', 'label' => 'Banu', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'template' => [
-                    ['value' => 'species', 'label' => 'species', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
+    assertFacetsEqual(
+        $this->getJson(route('galactapedia.filters'))->assertOk(),
+        [
+            'category' => [
+                ['value' => 'Lore', 'label' => 'Lore', 'count' => 1],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
             ],
-        ]);
+            'tag' => [
+                ['value' => 'Banu', 'label' => 'Banu', 'count' => 1],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+            'template' => [
+                ['value' => 'species', 'label' => 'species', 'count' => 1],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+        ],
+    );
 });
 
 it('narrows facets when a filter is supplied', function (): void {
@@ -60,23 +59,20 @@ it('narrows facets when a filter is supplied', function (): void {
     $nonMatching->tags()->attach($human);
     $nonMatching->templates()->attach($timeline);
 
-    $response = $this->getJson(route('galactapedia.filters', [
-        'filter' => ['category' => 'Lore'],
-    ]));
-
-    $response->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'category' => [
-                    ['value' => 'Lore', 'label' => 'Lore', 'count' => 1],
-                ],
-                'tag' => [
-                    ['value' => 'Banu', 'label' => 'Banu', 'count' => 1],
-                ],
-                'template' => [
-                    ['value' => 'species', 'label' => 'species', 'count' => 1],
-                ],
+    assertFacetsEqual(
+        $this->getJson(route('galactapedia.filters', [
+            'filter' => ['category' => 'Lore'],
+        ]))->assertOk(),
+        [
+            'category' => [
+                ['value' => 'Lore', 'label' => 'Lore', 'count' => 1],
             ],
-        ]);
-
+            'tag' => [
+                ['value' => 'Banu', 'label' => 'Banu', 'count' => 1],
+            ],
+            'template' => [
+                ['value' => 'species', 'label' => 'species', 'count' => 1],
+            ],
+        ],
+    );
 });

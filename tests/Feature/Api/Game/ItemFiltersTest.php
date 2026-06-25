@@ -6,6 +6,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
+use Illuminate\Testing\TestResponse;
 
 it('returns item filter values with counts', function (): void {
     $version = GameVersion::factory()->create([
@@ -106,49 +107,47 @@ it('returns item filter values with counts', function (): void {
 
     $this->getJson(route('items.filters'))
         ->assertOk()
-        ->assertExactJson([
-            'filters' => [
-                'type' => [
-                    ['value' => 'Unknown', 'label' => 'Unknown', 'count' => 1],
-                    ['value' => 'Weapon', 'label' => 'Weapon', 'count' => 3],
-                ],
-                'sub_type' => [
-                    ['value' => 'Ballistic', 'label' => 'Ballistic', 'count' => 1],
-                    ['value' => 'Laser', 'label' => 'Laser', 'count' => 1],
-                    ['value' => 'Plasma', 'label' => 'Plasma', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'classification' => [
-                    ['value' => 'FPS.Weapon', 'label' => 'Weapon', 'count' => 3],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'size' => [
-                    ['value' => 1, 'label' => '1', 'count' => 2],
-                    ['value' => 2, 'label' => '2', 'count' => 1],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'grade' => [
-                    ['value' => 2, 'label' => 'B', 'count' => 1],
-                    ['value' => 3, 'label' => 'C', 'count' => 2],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'class' => [
-                    ['value' => 'A', 'label' => 'A', 'count' => 1],
-                    ['value' => 'B', 'label' => 'B', 'count' => 2],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
-                'event_source' => [],
-                'manufacturer' => [
-                    ['value' => 'Acme', 'label' => 'Acme', 'count' => 3],
-                    ['value' => 'Nova', 'label' => 'Nova', 'count' => 1],
-                ],
-                'rarity' => [
-                    ['value' => 'Common', 'label' => 'Common', 'count' => 1],
-                    ['value' => 'Rare', 'label' => 'Rare', 'count' => 2],
-                    ['value' => null, 'label' => 'Unknown', 'count' => 1],
-                ],
+        ->tap(fn (TestResponse $response) => assertFacetsEqual($response, [
+            'type' => [
+                ['value' => 'Unknown', 'label' => 'Unknown', 'count' => 1],
+                ['value' => 'Weapon', 'label' => 'Weapon', 'count' => 3],
             ],
-        ]);
+            'sub_type' => [
+                ['value' => 'Ballistic', 'label' => 'Ballistic', 'count' => 1],
+                ['value' => 'Laser', 'label' => 'Laser', 'count' => 1],
+                ['value' => 'Plasma', 'label' => 'Plasma', 'count' => 1],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+            'classification' => [
+                ['value' => 'FPS.Weapon', 'label' => 'Weapon', 'count' => 3],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+            'size' => [
+                ['value' => 1, 'label' => '1', 'count' => 2],
+                ['value' => 2, 'label' => '2', 'count' => 1],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+            'grade' => [
+                ['value' => 2, 'label' => 'B', 'count' => 1],
+                ['value' => 3, 'label' => 'C', 'count' => 2],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+            'class' => [
+                ['value' => 'A', 'label' => 'A', 'count' => 1],
+                ['value' => 'B', 'label' => 'B', 'count' => 2],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+            'event_source' => [],
+            'manufacturer' => [
+                ['value' => 'Acme', 'label' => 'Acme', 'count' => 3],
+                ['value' => 'Nova', 'label' => 'Nova', 'count' => 1],
+            ],
+            'rarity' => [
+                ['value' => 'Common', 'label' => 'Common', 'count' => 1],
+                ['value' => 'Rare', 'label' => 'Rare', 'count' => 2],
+                ['value' => null, 'label' => 'Unknown', 'count' => 1],
+            ],
+        ]));
 });
 
 it('filters item filter values by a single dimension', function (array $filter, array $matchData, array $otherData, array $expectedFilters): void {
@@ -178,7 +177,7 @@ it('filters item filter values by a single dimension', function (array $filter, 
 
     $this->getJson(route('items.filters', ['filter' => $filter]))
         ->assertOk()
-        ->assertExactJson(['filters' => $expectedFilters]);
+        ->tap(fn (TestResponse $response) => assertFacetsEqual($response, $expectedFilters));
 })->with([
     'by category' => [
         'filter' => ['category' => 'food'],
@@ -331,5 +330,3 @@ it('resolves classification labels correctly', function (): void {
             ->and($entry['label'])->toBe($c['expected_label'], "Label for {$c['classification']}");
     }
 });
-
-

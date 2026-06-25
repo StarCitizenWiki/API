@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\Game\Faction;
+use App\Models\Game\Mission\Mission;
+use App\Models\Game\Mission\MissionData;
 
 beforeEach(function (): void {
     $this->gameVersion = createDefaultGameVersion();
@@ -55,8 +57,8 @@ it('shows mission without faction', function (): void {
 });
 
 it('resolves a mission by slug', function (): void {
-    $mission = \App\Models\Game\Mission\Mission::factory()->create(['slug' => 'bounty-hunt-target']);
-    \App\Models\Game\Mission\MissionData::factory()
+    $mission = Mission::factory()->create(['slug' => 'bounty-hunt-target']);
+    MissionData::factory()
         ->forVersion($this->gameVersion)
         ->forMission($mission)
         ->create(['faction_id' => null, 'title' => 'Bounty Hunt Target']);
