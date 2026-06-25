@@ -60,7 +60,8 @@
             "tests/Support/ImportTestHelper.php",
             "tests/Support/MissionFactionFactory.php",
             "tests/Support/BlueprintDataHelper.php",
-            "tests/Support/ShipMatrixReferenceDataFactory.php"
+            "tests/Support/ShipMatrixReferenceDataFactory.php",
+            "tests/Support/FacetAssertionHelper.php"
         ]
     },
     "scripts": {

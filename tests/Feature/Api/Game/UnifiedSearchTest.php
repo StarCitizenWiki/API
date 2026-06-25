@@ -15,6 +15,7 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use Illuminate\Support\Facades\DB;
 
 it('returns grouped results for a query matching multiple domains', function (): void {
     $version = GameVersion::factory()->create([
@@ -139,7 +140,7 @@ it('returns 422 for missing query', function (): void {
         ->assertStatus(422);
 });
 
-it('returns 422 for query shorter than 2 characters', function (): void {
+it('returns 422 for query shorter than 3 characters', function (): void {
     GameVersion::factory()->create([
         'code' => '1.0.0-LIVE',
         'channel' => 'live',
@@ -148,6 +149,31 @@ it('returns 422 for query shorter than 2 characters', function (): void {
     ]);
 
     $this->getJson('/api/search?filter[query]=A')
+        ->assertStatus(422);
+});
+
+it('returns 422 for a query exceeding the length cap', function (): void {
+    GameVersion::factory()->create([
+        'code' => '1.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $this->getJson('/api/search?filter[query]='.str_repeat('a', 65))
+        ->assertStatus(422);
+});
+
+it('returns 422 for a query containing characters outside the allowed charset', function (): void {
+    GameVersion::factory()->create([
+        'code' => '1.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    // SQL-ish punctuation is rejected to keep trigram scans tractable.
+    $this->getJson('/api/search?filter[query]=arrow%27_or_1')
         ->assertStatus(422);
 });
 
@@ -355,4 +381,43 @@ it('returns empty data array when nothing matches', function (): void {
 
     $response->assertSuccessful()
         ->assertJson(['data' => []]);
+});
+
+it('serves repeated queries from the result cache without hitting the database', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '1.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create();
+
+    $item = Item::factory()->create(['slug' => 'cached-item']);
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'CacheableItem',
+            'class_name' => 'cacheable_item',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    // First request hydrates the cache.
+    $first = $this->getJson('/api/search?filter[query]=CacheableItem')->assertSuccessful()->json('data');
+
+    $selectCount = 0;
+    DB::listen(static function ($query) use (&$selectCount): void {
+        if (str_contains($query->sql, 'ILIKE')) {
+            $selectCount++;
+        }
+    });
+
+    // Second request must come from cache: no search SQL executes.
+    $second = $this->getJson('/api/search?filter[query]=CacheableItem')->assertSuccessful()->json('data');
+
+    expect($selectCount)->toBe(0)
+        ->and($second)->toBe($first);
 });

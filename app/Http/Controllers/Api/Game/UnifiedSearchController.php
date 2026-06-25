@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -25,6 +26,8 @@ use OpenApi\Attributes as OA;
 class UnifiedSearchController extends Controller
 {
     use ResolvesGameVersion;
+
+    private const int SEARCH_CACHE_TTL_SECONDS = 86400;
 
     #[OA\Get(
         path: '/api/search',
@@ -102,15 +105,21 @@ class UnifiedSearchController extends Controller
     public function search(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'filter.query' => ['required', 'string', 'min:3'],
+            'filter.query' => ['required', 'string', 'min:3', 'max:64', 'regex:/^[\pL\pN\s._-]+$/u'],
         ]);
 
         $query = $validated['filter']['query'];
-        $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $query);
-        $like = "%{$escaped}%";
+        $like = '%'.$this->escapeLike($query).'%';
         $versionId = $this->gameVersion()->id;
 
-        $rows = DB::select($this->buildSearchSql(), $this->buildSearchBindings($versionId, $like));
+        $rows = Cache::remember(
+            'unified_search:v1:'.$versionId.':'.$query
+                |> trim(...)
+                |> mb_strtolower(...)
+                |> sha1(...),
+            now()->addSeconds(self::SEARCH_CACHE_TTL_SECONDS),
+            fn (): array => DB::select($this->buildSearchSql(), $this->buildSearchBindings($versionId, $like)),
+        );
 
         $grouped = collect($rows)
             ->groupBy('type')
@@ -207,7 +216,7 @@ class UnifiedSearchController extends Controller
      */
     private function resolveByText(string $query, int $versionId): ?object
     {
-        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query);
+        $escaped = $this->escapeLike($query);
         $fuzzy = "%{$escaped}%";
 
         return $this->firstMatch([
@@ -295,6 +304,11 @@ class UnifiedSearchController extends Controller
         return $query;
     }
 
+    private function escapeLike(string $query): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query);
+    }
+
     private function buildSearchSql(): string
     {
         $nt = '::text';
@@ -307,7 +321,7 @@ class UnifiedSearchController extends Controller
               JOIN game_vehicles gv ON gv.id = gvd.vehicle_id
               WHERE gvd.game_version_id = ? AND (gvd.name ILIKE ? OR gvd.display_name ILIKE ? OR gvd.class_name ILIKE ?)
               AND gvd.is_player_relevant = TRUE
-              LIMIT 5)
+              LIMIT 5) as vehicles
 
              UNION ALL
 
@@ -317,7 +331,7 @@ class UnifiedSearchController extends Controller
              JOIN game_items gi ON gi.id = gid.item_id
              WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>' AND (gid.name ILIKE ? OR gid.class_name ILIKE ? OR gid.type ILIKE ?)
              AND gid.is_player_relevant = TRUE
-             LIMIT 5)
+             LIMIT 5) as items
 
              UNION ALL
 
@@ -326,7 +340,7 @@ class UnifiedSearchController extends Controller
               FROM game_starmap_location_data gsld
               JOIN game_starmap_locations gsl ON gsl.id = gsld.starmap_location_id
               WHERE gsld.game_version_id = ? AND gsld.system IS NOT NULL AND gsld.name != '<= PLACEHOLDER =>' AND gsld.name ILIKE ?
-              LIMIT 5)
+              LIMIT 5) as locations
 
              UNION ALL
 
@@ -334,7 +348,7 @@ class UnifiedSearchController extends Controller
                      gc.slug, {$uuidCast('gc.uuid')} AS uuid, gc.key AS extra_label, NULL{$nt} AS item_type
               FROM game_commodities gc
               WHERE (gc.name ILIKE ? OR gc.key ILIKE ?)
-              LIMIT 5)
+              LIMIT 5) as commodities
 
              UNION ALL
 
@@ -343,7 +357,7 @@ class UnifiedSearchController extends Controller
               FROM game_blueprint_data gbd
               JOIN game_blueprints gb ON gb.id = gbd.blueprint_id
               WHERE gbd.game_version_id = ? AND (gbd.output_name ILIKE ? OR gbd.output_class ILIKE ? OR gbd.key ILIKE ?)
-              LIMIT 5)
+              LIMIT 5) as blieprints
 
              UNION ALL
 
@@ -365,7 +379,7 @@ class UnifiedSearchController extends Controller
                AND gmd.title IS NOT NULL AND gmd.title != ''
              ORDER BY gmd.game_version_id, gmd.title, gmd.generator_class,
                       gmd.mission_giver, gmd.faction_id, gmd.illegal, gmd.mission_key, gmd.id ASC
-             LIMIT 5)";
+             LIMIT 5) as grouped_missions";
     }
 
     private function buildSearchBindings(int $versionId, string $like): array

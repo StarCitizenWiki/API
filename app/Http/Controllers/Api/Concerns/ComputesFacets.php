@@ -8,6 +8,7 @@ use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -78,16 +79,29 @@ trait ComputesFacets
     }
 
     /**
-     * Compute all facets with caching and return as a JSON response.
+     * Compute all facets with caching.
      */
     protected function computeFacetsResponse(Request $request): JsonResponse
     {
         $resolver = function () use ($request): array {
             $baseQuery = $this->facetBaseQuery($request);
+            $facets = $this->facetDefinitions($request);
 
-            $out = array_map(function ($facet) use ($baseQuery) {
-                return $this->computeFacet(clone $baseQuery, $facet);
-            }, $this->facetDefinitions($request));
+            $deferKeys = array_flip(['join', 'label_expr', 'count_expr', 'group_by', 'order_by', 'group_column']);
+
+            $computed = $this->computeConsolidatedFacets(
+                clone $baseQuery,
+                array_filter(
+                    $facets,
+                    static fn (array $facet): bool => isset($facet['expr']) && array_intersect_key($facet, $deferKeys) === [],
+                ),
+            );
+
+            $out = [];
+            foreach ($facets as $name => $facet) {
+                $out[$name] = $computed[$name]
+                    ?? $this->computeFacet(clone $baseQuery, $facet);
+            }
 
             return $out + $this->extraFacets($request);
         };
@@ -108,7 +122,7 @@ trait ComputesFacets
     }
 
     /**
-     * @param  array<string, mixed>  $facet
+     * @param  array<string, array<string, mixed>>  $facet
      */
     private function computeFacet(QueryBuilder $query, array $facet): array
     {
@@ -141,5 +155,63 @@ trait ComputesFacets
             $facet['labelResolver'] ?? null,
             groupColumn: $facet['group_column'] ?? null,
         );
+    }
+
+    /**
+     * One GROUPING SETS pass over every plain facet.
+     *
+     * @param  array<string, array<string, mixed>>  $facets
+     * @return array<string, array<int, array{value: mixed, label: string, count: int, group?: string}>>
+     */
+    private function computeConsolidatedFacets(QueryBuilder $query, array $facets): array
+    {
+        if ($facets === []) {
+            return [];
+        }
+
+        $names = array_keys($facets);
+        $select = [];
+        $groupingSets = [];
+
+        foreach ($names as $i => $name) {
+            $expr = $facets[$name]['expr'];
+            $select[] = DB::raw("{$expr} AS f{$i}");
+            $select[] = DB::raw("GROUPING({$expr}) AS f{$i}_grp");
+            $groupingSets[] = "({$expr})";
+        }
+
+        $select[] = DB::raw('count(*) AS count');
+
+        $rows = $query
+            ->select($select)
+            ->groupByRaw('GROUPING SETS ('.implode(', ', $groupingSets).')')
+            ->get();
+
+        $buckets = array_fill_keys($names, []);
+
+        foreach ($rows as $row) {
+            foreach ($names as $i => $name) {
+                if (((int) $row->{"f{$i}_grp"}) === 0) {
+                    $buckets[$name][] = (object) [
+                        'value' => $row->{"f{$i}"},
+                        'count' => $row->count,
+                    ];
+
+                    break;
+                }
+            }
+        }
+
+        $out = [];
+
+        foreach ($facets as $name => $facet) {
+            $out[$name] = FilterValues::fromRows(
+                new Collection($buckets[$name]),
+                $facet['cast'] ?? null,
+                $facet['labelResolver'] ?? null,
+            );
+        }
+
+        return $out;
     }
 }
