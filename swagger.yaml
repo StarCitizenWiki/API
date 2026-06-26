@@ -15614,6 +15614,12 @@ components:
               concurrent_amount:
                 type: integer
                 nullable: true
+              ships:
+                description: 'ship models resolved for this spawn pool.'
+                type: array
+                items:
+                  properties: { class_name: { description: 'Base-hull class name. Null for hulls with no player equivalent.', type: string, example: AEGS_Avenger_Stalker, nullable: true }, name: { description: 'In-game display name.', type: string, example: 'Aegis Avenger Stalker', nullable: true } }
+                  type: object
             type: object
         aggregated_spawns:
           description: 'Spawns grouped by role, group_name, and spawn_kind with aggregated concurrent ranges'
@@ -15637,6 +15643,12 @@ components:
               weight:
                 type: integer
                 nullable: true
+              ships:
+                description: 'Deduped union of ship models over the spawn options in this wave.'
+                type: array
+                items:
+                  properties: { class_name: { description: 'Base-hull class name. Null for hulls with no player equivalent.', type: string, example: AEGS_Avenger_Stalker, nullable: true }, name: { type: string, example: 'Aegis Avenger Stalker', nullable: true } }
+                  type: object
             type: object
       type: object
     mission_cooldown:
@@ -16165,6 +16177,12 @@ components:
           items:
             $ref: '#/components/schemas/mission_reward_item'
           nullable: true
+          deprecated: true
+        reward_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_reward_group'
+          nullable: true
         combat:
           oneOf:
             -
@@ -16215,6 +16233,50 @@ components:
               nullable: true
             min_reputation:
               type: integer
+              nullable: true
+          type: object
+          nullable: true
+        reputation_prerequisite:
+          description: 'Faction-scoped acceptance gate. Distinct from the generic min_standing/max_standing: gates on a specific faction reputation scope, which may differ from the issuing faction (see faction_uuid).'
+          properties:
+            faction:
+              description: 'Reputation faction name. May differ from the mission issuing faction.'
+              type: string
+              example: 'Citizens For Prosperity'
+              nullable: true
+            faction_uuid:
+              description: 'Faction UUID resolving the faction show page (see GET /api/factions).'
+              type: string
+              example: cd2b32d1-0362-41fb-8cfd-d29781daf789
+              nullable: true
+            scope:
+              description: 'Reputation scope name (e.g. FactionReputation, ShipCombat_HeadHunters).'
+              type: string
+              example: FactionReputation
+              nullable: true
+            scope_uuid:
+              type: string
+              example: d31bd373-35ab-4ea4-b0a7-0ccc867ef082
+              nullable: true
+            min_standing:
+              properties:
+                name:
+                  type: string
+                  nullable: true
+                min_reputation:
+                  type: integer
+                  nullable: true
+              type: object
+              nullable: true
+            max_standing:
+              properties:
+                name:
+                  type: string
+                  nullable: true
+                min_reputation:
+                  type: integer
+                  nullable: true
+              type: object
               nullable: true
           type: object
           nullable: true
@@ -16391,6 +16453,7 @@ components:
       type: object
     mission_reward_item:
       title: 'Mission Reward Item'
+      description: 'Legacy flat representation, prefer reward_groups.'
       properties:
         name:
           type: string
@@ -16413,6 +16476,25 @@ components:
           type: string
           format: uri
           nullable: true
+      type: object
+      deprecated: true
+    mission_reward_group:
+      title: 'Mission Reward Group'
+      properties:
+        group_index:
+          type: integer
+        weight:
+          description: 'Source weighting (0 = disabled, 1 = active). Future-proofed as a float.'
+          type: number
+          format: float
+          nullable: true
+        award_only_to_mission_owner:
+          type: boolean
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/mission_reward_item'
       type: object
     mission_reputation:
       title: 'Mission Reputation'
@@ -20135,10 +20217,29 @@ components:
     vehicle_sku:
       title: 'Vehicle SKU'
       properties:
+        source:
+          type: string
+          enum:
+            - upgrade_api
+            - pledge_store
+        cig_id:
+          type: integer
         title:
           type: string
+        url:
+          type: string
+          nullable: true
         price:
           type: integer
+        discounted_price:
+          type: integer
+          nullable: true
+        is_warbond:
+          type: boolean
+          nullable: true
+        is_package:
+          type: boolean
+          nullable: true
         available:
           type: boolean
         imported_at:

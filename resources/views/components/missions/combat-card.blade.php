@@ -30,12 +30,6 @@
 <section {{ $attributes->merge(['class' => 'space-y-4', 'data-testid' => 'mission-combat-section']) }}>
     <div class="flex items-center gap-3 flex-wrap">
         <h2 class="text-lg font-semibold tracking-tight">Combat</h2>
-        @if ($totalMin !== null || $totalMax !== null)
-            <span class="badge badge-soft badge-sm">{{ Format::range($totalMin, $totalMax, '', 0) }} Total Enemies</span>
-        @endif
-        @foreach ($combatByGroup as $group)
-            <span class="badge badge-soft badge-sm">{{ Format::range(data_get($group, 'min'), data_get($group, 'max'), '', 0) }} {{ data_get($group, 'group_name', '-') }}</span>
-        @endforeach
         @if ($hasDefendObjective)
             <span class="badge badge-warning badge-sm">Defend Objective</span>
         @endif
@@ -54,6 +48,7 @@
                                     <th>Group</th>
                                     <th>Kind</th>
                                     <th>Concurrent</th>
+                                    <th>Ships</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -92,6 +87,16 @@
                                             @else
                                                 -
                                             @endif
+                                        </td>
+                                        <td>
+                                            @foreach ($spawn['ships'] ?? [] as $i => $ship)
+                                                @if ($i > 0), @endif
+                                                @if (! empty($ship['class_name']))
+                                                    <a href="{{ route('web.vehicles.show', $ship['class_name']) }}" class="link-primary">{{ $ship['name'] }}</a>
+                                                @else
+                                                    <span class="text-subtle">{{ $ship['name'] }}</span>
+                                                @endif
+                                            @endforeach
                                         </td>
                                     </tr>
                                 @endforeach

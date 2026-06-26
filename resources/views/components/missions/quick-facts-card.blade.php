@@ -24,6 +24,24 @@
     $minCrimeStat = data_get($resource, 'min_crime_stat');
     $maxCrimeStat = data_get($resource, 'max_crime_stat');
 
+    $reputationPrerequisite = data_get($resource, 'reputation_prerequisite');
+    $repPrereqLabel = null;
+
+    if ($reputationPrerequisite !== null) {
+        $minName = data_get($reputationPrerequisite, 'min_standing.name');
+        $maxName = data_get($reputationPrerequisite, 'max_standing.name');
+
+        $standingRange = [$minName, $maxName]
+                |> array_filter(...)
+                |> array_unique(...)
+                |> (static fn($x) => implode(' - ', $x))
+                |> trim(...);
+
+        if ($standingRange !== '') {
+            $repPrereqLabel = data_get($reputationPrerequisite, 'faction') . ': ' . $standingRange;
+        }
+    }
+
     $cost = data_get($resource, 'cost');
     $maxPlayersPerInstance = data_get($resource, 'max_players_per_instance');
     $reacceptFailing = data_get($resource, 'reaccept_after_failing');
@@ -54,6 +72,9 @@
             'rows' => [
                 ['label' => 'Rank', 'value' => $rankIndex],
                 ['label' => 'Faction', 'value' => $factionName],
+                $repPrereqLabel !== null
+                    ? ['label' => 'Rep. Required', 'value' => $repPrereqLabel]
+                    : null,
                 ['label' => 'Type', 'value' => $rewardScope],
                 ['label' => 'Blueprints', 'value' => $hasBlueprints ? 'Yes' : null],
                 ['label' => 'Illegal', 'value' => $illegal ? 'Yes' : null],

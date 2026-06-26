@@ -111,6 +111,36 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'reputation_prerequisite',
+            description: 'Faction-scoped acceptance gate. I.e. the required min / max standing.',
+            properties: [
+                new OA\Property(property: 'faction', description: 'Reputation faction name. May differ from the mission issuing faction.', type: 'string', example: 'Citizens For Prosperity', nullable: true),
+                new OA\Property(property: 'faction_uuid', description: 'Faction UUID resolving the faction show page (see GET /api/factions).', type: 'string', example: 'cd2b32d1-0362-41fb-8cfd-d29781daf789', nullable: true),
+                new OA\Property(property: 'scope', description: 'Reputation scope name (e.g. FactionReputation, ShipCombat_HeadHunters).', type: 'string', example: 'FactionReputation', nullable: true),
+                new OA\Property(property: 'scope_uuid', type: 'string', example: 'd31bd373-35ab-4ea4-b0a7-0ccc867ef082', nullable: true),
+                new OA\Property(
+                    property: 'min_standing',
+                    properties: [
+                        new OA\Property(property: 'name', type: 'string', nullable: true),
+                        new OA\Property(property: 'min_reputation', type: 'integer', nullable: true),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+                new OA\Property(
+                    property: 'max_standing',
+                    properties: [
+                        new OA\Property(property: 'name', type: 'string', nullable: true),
+                        new OA\Property(property: 'min_reputation', type: 'integer', nullable: true),
+                    ],
+                    type: 'object',
+                    nullable: true
+                ),
+            ],
+            type: 'object',
+            nullable: true
+        ),
+        new OA\Property(
             property: 'mission_tokens',
             description: 'Resolved mission token values. Keys are token identifiers (e.g. "Location|Address", "Danger", "Contractor"). Values are arrays of possible resolved strings. Keys preserve original case and pipe syntax exactly.',
             type: 'object',
@@ -398,6 +428,7 @@ class MissionResource extends AbstractBaseResource
             'fail_if_became_criminal' => $this->parseNullableBool(Arr::get($data, 'FailIfBecameCriminal')),
             'min_standing' => MissionDataBlockResource::mapStanding(Arr::get($data, 'MinStanding')),
             'max_standing' => MissionDataBlockResource::mapStanding(Arr::get($data, 'MaxStanding')),
+            'reputation_prerequisite' => MissionDataBlockResource::mapReputationPrerequisite(Arr::get($data, 'ReputationPrerequisite')),
             'mission_tokens' => $tokens,
             'deadline' => MissionDataBlockResource::mapDeadline(Arr::get($data, 'Deadline')),
             'broker_reputation_prerequisites' => MissionDataBlockResource::mapBrokerReputationPrerequisites(Arr::get($data, 'BrokerReputationPrerequisites')),

@@ -76,6 +76,25 @@ class MissionDataBlockResource extends AbstractBaseResource
         ];
     }
 
+    /**
+     * Faction-scoped acceptance gate.
+     */
+    public static function mapReputationPrerequisite(mixed $prerequisite): ?array
+    {
+        if (! is_array($prerequisite)) {
+            return null;
+        }
+
+        return [
+            'faction' => $prerequisite['Faction'] ?? null,
+            'faction_uuid' => $prerequisite['FactionUUID'] ?? null,
+            'scope' => $prerequisite['Scope'] ?? null,
+            'scope_uuid' => $prerequisite['ScopeUUID'] ?? null,
+            'min_standing' => self::mapStanding($prerequisite['MinStanding'] ?? null),
+            'max_standing' => self::mapStanding($prerequisite['MaxStanding'] ?? null),
+        ];
+    }
+
     public static function mapEntitySpawns(mixed $spawns): ?array
     {
         if (! is_array($spawns) || empty($spawns)) {
