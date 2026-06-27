@@ -158,7 +158,10 @@ class ImportFactions extends Command
             $this->buildFactionAttributes($data, $name, true, $properties, $reputation),
         );
 
-        $factionScopeUuid = $hostilityScopeUuid
+        // The ladder scope is the context's resolved PrimaryScope (faction-specific when one exists, else the allied Contractor ladder).
+        // Fall back to the hostility/allied scope when the faction record carries no context block.
+        $factionScopeUuid = $reputation['Context']['PrimaryScope']['UUID']
+            ?? $hostilityScopeUuid
             ?? $reputation['Allied']['ScopeUUID']
             ?? null;
 
@@ -180,7 +183,7 @@ class ImportFactions extends Command
             ['uuid' => $scopeData['UUID']],
             [
                 'scope_name' => $scopeData['ScopeName'],
-                'display_name' => $scopeData['DisplayName'],
+                'display_name' => $scopeData['DisplayName'] ?? $scopeData['ScopeName'],
                 'reputation_ceiling' => (int) ($scopeData['ReputationCeiling'] ?? 0),
                 'initial_reputation' => (int) ($scopeData['InitialReputation'] ?? 0),
             ],

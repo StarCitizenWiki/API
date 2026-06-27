@@ -160,9 +160,9 @@ it('imports a reputation faction with scopes, standings, and refs', function ():
         ->and($hostileStanding->name)->toBe('FactionRep_Negative');
 
     $repRef = FactionReputationRef::query()->where('faction_id', $faction->id)->first();
-    $factionRepScope = FactionScope::query()->where('uuid', 'd31bd373-35ab-4ea4-b0a7-0ccc867ef082')->first();
+    $primaryScope = FactionScope::query()->where('uuid', 'f340b011-c40c-4229-b9c1-ce6a3eb1df77')->first();
     expect($repRef)->not->toBeNull()
-        ->and($repRef->faction_scope_id)->toBe($factionRepScope->id);
+        ->and($repRef->faction_scope_id)->toBe($primaryScope->id);
 });
 
 it('skips uninitialized factions without display name', function (): void {
