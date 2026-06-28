@@ -38,10 +38,10 @@ class UnifiedSearchController extends Controller
         parameters: [
             new OA\Parameter(
                 name: 'filter[query]',
-                description: 'Search query (minimum 3 characters). Searches names, class names, and other identifiers.',
+                description: 'Search query (minimum 2 characters). Searches names, class names, and other identifiers.',
                 in: 'query',
                 required: true,
-                schema: new OA\Schema(type: 'string', minLength: 3, example: 'Carrack'),
+                schema: new OA\Schema(type: 'string', minLength: 2, example: 'Carrack'),
                 examples: [
                     new OA\Examples(example: 'ship_search', summary: 'Search for a ship', value: 'carrack'),
                     new OA\Examples(example: 'item_search', summary: 'Search for an item', value: 'arrow'),
@@ -105,7 +105,7 @@ class UnifiedSearchController extends Controller
     public function search(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'filter.query' => ['required', 'string', 'min:3', 'max:64', 'regex:/^[\pL\pN\s._-]+$/u'],
+            'filter.query' => ['required', 'string', 'min:2', 'max:64', 'regex:/^[\pL\pN\s._-]+$/u'],
         ]);
 
         $query = $validated['filter']['query'];
@@ -118,8 +118,10 @@ class UnifiedSearchController extends Controller
                 |> mb_strtolower(...)
                 |> sha1(...),
             now()->addSeconds(self::SEARCH_CACHE_TTL_SECONDS),
-            fn (): array => DB::select($this->buildSearchSql(), $this->buildSearchBindings($versionId, $like)),
+            fn (): array => array_map(static fn ($r) => (array) $r, DB::select($this->buildSearchSql(), $this->buildSearchBindings($versionId, $like))),
         );
+
+        $rows = array_map(static fn ($r) => (object) $r, $rows);
 
         $grouped = collect($rows)
             ->groupBy('type')
