@@ -93,7 +93,7 @@ class CommLinkController extends Controller
             AllowedFilter::exact('channel', 'channel.name'),
             AllowedFilter::exact('category', 'category.name'),
             AllowedFilter::exact('series', 'series.name'),
-            AllowedFilter::custom('created_at', new DateFilter('created_at')),
+            AllowedFilter::custom('created_at', new DateFilter('comm_links.created_at')),
         ];
     }
 

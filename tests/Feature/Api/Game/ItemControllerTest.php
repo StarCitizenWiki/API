@@ -987,17 +987,56 @@ it('returns full blueprint data when include=blueprints is requested on show rou
         ->assertJsonPath('data.blueprint.0.craft_time_seconds', 120)
         ->assertJsonPath('data.blueprint.0.is_available_by_default', true);
 
-    expect($response->json('data.blueprint.0'))->toHaveKey('ingredients');
-    expect($response->json('data.blueprint.0'))->toHaveKey('dismantle_returns');
-    expect($response->json('data.blueprint.0'))->toHaveKey('output');
-    expect($response->json('data.blueprint.0'))->toHaveKey('link');
-    expect($response->json('data.blueprint.0'))->toHaveKey('dismantle');
-    expect($response->json('data.blueprint.0'))->toHaveKey('requirement_groups');
-    expect($response->json('data.blueprint.0'))->toHaveKey('summary_properties');
-    expect($response->json('data.blueprint.0'))->toHaveKey('unlocking_missions');
-    expect($response->json('data.blueprint.0'))->toHaveKey('tiers');
-    expect($response->json('data.blueprint.0.unlocking_missions'))->toBe([]);
-    expect($response->json('data.blueprint.0.tiers'))->toBe([]);
+    expect($response->json('data.blueprint.0'))->toHaveKey('ingredients')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('dismantle_returns')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('output')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('link')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('dismantle')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('requirement_groups')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('summary_properties')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('unlocking_missions')
+        ->and($response->json('data.blueprint.0'))->toHaveKey('tiers')
+        ->and($response->json('data.blueprint.0.unlocking_missions'))->toBe([])
+        ->and($response->json('data.blueprint.0.tiers'))->toBe([]);
+});
+
+it('accepts include as array param notation on the show route', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Bracket Include Item',
+            'type' => 'Widget',
+            'class_name' => 'bracket_include_item',
+            'classification' => 'Test.Widget',
+            'is_craftable' => true,
+            'data' => ['stdItem' => []],
+        ]);
+
+    $blueprint = Blueprint::factory()->create();
+
+    BlueprintData::factory()
+        ->for($blueprint, 'blueprint')
+        ->for($this->gameVersion, 'gameVersion')
+        ->create([
+            'key' => 'BP_BRACKET_INCLUDE',
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Bracket Include Item',
+            'output_class' => 'bracket_include_item',
+            'data' => [
+                'output' => ['uuid' => $item->uuid, 'name' => 'Bracket Include Item', 'class' => 'bracket_include_item'],
+                'tiers' => [],
+            ],
+        ]);
+
+    $this->getJson("/api/items/{$item->uuid}?include[]=blueprints")
+        ->assertSuccessful()
+        ->assertJsonPath('data.is_craftable', true)
+        ->assertJsonCount(1, 'data.blueprint')
+        ->assertJsonPath('data.blueprint.0.uuid', $blueprint->uuid);
 });
 
 it('returns link-only blueprint data without include=blueprints', function (): void {

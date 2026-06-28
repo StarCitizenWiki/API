@@ -1011,7 +1011,8 @@ class ItemController extends Controller
                 throw new ModelNotFoundException;
             }
 
-            $includeBlueprint = collect(explode(',', (string) $request->input('include', '')))
+            $includeInput = $request->input('include', '');
+            $includeBlueprint = collect(is_array($includeInput) ? $includeInput : explode(',', (string) $includeInput))
                 ->map(fn (string $value): string => trim($value))
                 ->contains('blueprints');
 
