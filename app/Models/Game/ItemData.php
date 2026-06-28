@@ -49,6 +49,7 @@ class ItemData extends Model
         'event_source',
         'is_craftable',
         'is_lootable',
+        'has_required_tags',
     ];
 
     protected $casts = [
@@ -63,6 +64,7 @@ class ItemData extends Model
         'event_source' => 'array',
         'is_craftable' => 'boolean',
         'is_lootable' => 'boolean',
+        'has_required_tags' => 'boolean',
     ];
 
     public function scopeCategory(Builder $query, string $category): Builder

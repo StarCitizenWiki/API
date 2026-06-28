@@ -495,8 +495,8 @@ class ItemController extends Controller
                 $query->where(static function (Builder $q) use ($tags): void {
                     self::whereAnyRequiredTagMatches($q, $tags);
                     $q->orWhere(static function (Builder $inner) use ($tags): void {
-                        self::whereNoRequiredTags($inner);
-                        $inner->where('is_bespoke', false);
+                        $inner->where('has_required_tags', false)
+                            ->where('is_bespoke', false);
                         self::whereAnyTagMatches($inner, $tags);
                     });
                 });
@@ -515,8 +515,8 @@ class ItemController extends Controller
                 $query->where(static function (Builder $q) use ($tags): void {
                     // 1: Universal items
                     $q->where(static function (Builder $inner): void {
-                        self::whereNoRequiredTags($inner);
-                        $inner->where('is_bespoke', false);
+                        $inner->where('has_required_tags', false)
+                            ->where('is_bespoke', false);
                     });
 
                     // 2: Bespoke items matching via RequiredTags
@@ -1326,17 +1326,6 @@ class ItemController extends Controller
         }, $tags)
                 |> (static fn ($x) => array_filter($x, static fn (?string $item): bool => $item !== null))
                 |> array_values(...);
-    }
-
-    /**
-     * Add a constraint that matches items with no RequiredTags (universal items).
-     */
-    private static function whereNoRequiredTags(Builder $query): void
-    {
-        $query->where(static function (Builder $q): void {
-            $q->whereNull('data->stdItem->RequiredTags')
-                ->orWhereJsonLength('data->stdItem->RequiredTags', 0);
-        });
     }
 
     /**
