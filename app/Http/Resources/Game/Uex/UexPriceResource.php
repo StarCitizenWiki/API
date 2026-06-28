@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Uex;
 
-use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Starmap\StarmapLocationLinkResource;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Http\Request;
@@ -28,33 +27,29 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class UexPriceResource extends AbstractBaseResource
+final class UexPriceResource
 {
-    public function __construct(
-        $resource,
-        private readonly ?StarmapLocationData $locationData = null,
-    ) {
-        parent::__construct($resource);
-    }
-
-    public function toArray(Request $request): array
+    /**
+     * @param  array<string, mixed>  $price
+     * @return array<string, mixed>
+     */
+    public static function toPriceArray(array $price, ?StarmapLocationData $locationData, ?Request $request = null): array
     {
-        $res = $this->resource;
-        $locationUuid = $res['starmap_location_uuid'] ?? null;
+        $locationUuid = $price['starmap_location_uuid'] ?? null;
 
         return [
-            'price_buy' => $res['price_buy'] ?? null,
-            'price_sell' => $res['price_sell'] ?? null,
-            'price_rent' => $res['price_rent'] ?? null,
-            'terminal_id' => $res['terminal_id'] ?? null,
-            'terminal_code' => $res['terminal_code'] ?? null,
-            'terminal_name' => $res['terminal_name'] ?? null,
-            'starmap_location' => $this->locationData !== null
-                ? new StarmapLocationLinkResource($this->locationData, $locationUuid)->resolve($request)
+            'price_buy' => $price['price_buy'] ?? null,
+            'price_sell' => $price['price_sell'] ?? null,
+            'price_rent' => $price['price_rent'] ?? null,
+            'terminal_id' => $price['terminal_id'] ?? null,
+            'terminal_code' => $price['terminal_code'] ?? null,
+            'terminal_name' => $price['terminal_name'] ?? null,
+            'starmap_location' => $locationData !== null
+                ? StarmapLocationLinkResource::toLinkArray($locationData, $locationUuid, $request)
                 : null,
-            'date_updated' => $res['date_updated'] ?? null,
-            'game_version' => $res['game_version'] ?? null,
-            'uex_link' => $res['uex_link'] ?? null,
+            'date_updated' => $price['date_updated'] ?? null,
+            'game_version' => $price['game_version'] ?? null,
+            'uex_link' => $price['uex_link'] ?? null,
         ];
     }
 }

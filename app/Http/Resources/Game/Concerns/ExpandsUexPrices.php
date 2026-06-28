@@ -45,19 +45,19 @@ trait ExpandsUexPrices
 
         $locationDataLookup = $this->resolveLocationDataLookup($prices);
 
-        return collect($prices)
-            ->map(function (array $price) use ($locationDataLookup): UexPriceResource {
-                $locationDataId = $price['starmap_location_data_id'] ?? null;
-                $locationData = $locationDataId !== null ? $locationDataLookup->get($locationDataId) : null;
+        $mapped = array_map(static function (array $price) use ($locationDataLookup): array {
+            $locationDataId = $price['starmap_location_data_id'] ?? null;
+            $locationData = $locationDataId !== null ? $locationDataLookup->get($locationDataId) : null;
 
-                unset($price['starmap_location_data_id']);
+            unset($price['starmap_location_data_id']);
 
-                return new UexPriceResource($price, $locationData);
-            })
-            ->map(fn (UexPriceResource $r) => $r->resolve())
+            return UexPriceResource::toPriceArray($price, $locationData);
+        }, $prices);
+
+        return collect($mapped)
             ->sortBy([['starmap_location.star_system_name', 'asc'], ['date_updated', 'desc']])
             ->values()
-            ->toArray();
+            ->all();
     }
 
     private function resolveLocationDataLookup(array $prices): Collection

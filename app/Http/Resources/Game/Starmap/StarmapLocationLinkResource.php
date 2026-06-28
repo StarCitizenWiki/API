@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Starmap;
 
-use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
@@ -25,33 +24,40 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-class StarmapLocationLinkResource extends AbstractBaseResource
+final class StarmapLocationLinkResource
 {
-    public function __construct(
-        $resource,
-        private readonly ?string $locationUuid = null,
-    ) {
-        parent::__construct($resource);
-    }
-
-    public function toArray(Request $request): array
+    /**
+     * @return array<string, mixed>
+     */
+    public static function toLinkArray(StarmapLocationData $locationData, ?string $locationUuid = null, ?Request $request = null): array
     {
-        /** @var StarmapLocationData $locationData */
-        $locationData = $this->resource;
+        $request ??= request();
+        $uuid = $locationUuid ?? $locationData->location_uuid;
 
         return [
-            'uuid' => $locationUuid = $this->locationUuid ?? $locationData->location_uuid,
+            'uuid' => $uuid,
             'name' => $locationData->name,
             'slug' => $locationData->location_slug,
             'type_name' => $locationData->type_name,
             'parent_name' => $locationData->parent_name,
             'star_system_name' => $locationData->star_system_name,
-            'link' => $locationUuid !== null
-                ? route('locations.show', ['identifier' => $locationUuid])
+            'link' => $uuid !== null
+                ? route('locations.show', ['identifier' => $uuid])
                 : null,
-            'web_url' => $locationUuid !== null
-                ? $this->urlWithVersion(route('web.locations.show', ['identifier' => $locationUuid]), $request)
+            'web_url' => $uuid !== null
+                ? self::appendVersion(route('web.locations.show', ['identifier' => $uuid]), $request)
                 : null,
         ];
+    }
+
+    private static function appendVersion(string $url, Request $request): string
+    {
+        $version = $request->query('version');
+
+        if (! is_string($version) || $version === '') {
+            return $url;
+        }
+
+        return url()->query($url, ['version' => $version]);
     }
 }

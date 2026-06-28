@@ -22,6 +22,8 @@ class ItemData extends Model
     use HasFactory;
     use HasGameVersion;
 
+    private mixed $dataMemo = null;
+
     protected $table = 'game_item_data';
 
     protected $perPage = 50;
@@ -70,6 +72,21 @@ class ItemData extends Model
     public function scopeCategory(Builder $query, string $category): Builder
     {
         return $query->forCategory($category);
+    }
+
+    public function getDataAttribute(mixed $value): mixed
+    {
+        if ($this->dataMemo === null) {
+            $this->dataMemo = is_string($value) ? json_decode($value, true) : $value;
+        }
+
+        return $this->dataMemo;
+    }
+
+    public function setDataAttribute(mixed $value): void
+    {
+        $this->attributes['data'] = is_array($value) ? json_encode($value) : $value;
+        $this->dataMemo = is_array($value) ? $value : null;
     }
 
     public function getDescriptionDatum(string $name)
