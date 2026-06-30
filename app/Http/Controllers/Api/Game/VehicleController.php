@@ -476,6 +476,7 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[is_vehicle]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_gravlev]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_spaceship]', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[is_power_suit]', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[mass_total]', in: 'query', schema: new OA\Schema(type: 'number')),
             new OA\Parameter(name: 'filter[cargo_capacity]', in: 'query', schema: new OA\Schema(type: 'number')),
             new OA\Parameter(name: 'filter[vehicle_inventory]', in: 'query', schema: new OA\Schema(type: 'number')),
@@ -608,6 +609,10 @@ class VehicleController extends Controller
             ],
             'is_spaceship' => [
                 'expr' => 'game_vehicle_data.is_spaceship',
+                'cast' => static fn ($value) => $value === null ? null : (bool) $value,
+            ],
+            'is_power_suit' => [
+                'expr' => 'game_vehicle_data.is_power_suit',
                 'cast' => static fn ($value) => $value === null ? null : (bool) $value,
             ],
             'size' => [
@@ -844,6 +849,7 @@ class VehicleController extends Controller
             AllowedFilter::exact('is_vehicle'),
             AllowedFilter::exact('is_gravlev'),
             AllowedFilter::exact('is_spaceship'),
+            AllowedFilter::exact('is_power_suit'),
             AllowedFilter::callback('include_irrelevant', static function (Builder $query): void {
                 // noop
             }),
@@ -912,6 +918,7 @@ class VehicleController extends Controller
                 'is_vehicle',
                 'is_gravlev',
                 'is_spaceship',
+                'is_power_suit',
                 'size',
                 AllowedSort::custom('manufacturer', new SortByRelation, 'manufacturer.name'),
                 AllowedSort::custom('manufacturer.name', new SortByRelation, 'manufacturer.name'),

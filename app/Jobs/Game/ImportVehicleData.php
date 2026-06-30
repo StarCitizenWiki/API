@@ -161,6 +161,7 @@ class ImportVehicleData implements ShouldQueue
             'is_vehicle' => (bool) Arr::get($payload, 'IsVehicle', false),
             'is_gravlev' => (bool) Arr::get($payload, 'IsGravlev', false),
             'is_spaceship' => (bool) Arr::get($payload, 'IsSpaceship', false),
+            'is_power_suit' => (bool) Arr::get($payload, 'IsPowerSuit', false),
 
             'is_player_relevant' => ItemRelevanceChecker::isVehiclePlayerRelevant($payload['ClassName'] ?? ''),
 

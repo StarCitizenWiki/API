@@ -38,6 +38,7 @@ class VehicleData extends Model
         'is_vehicle',
         'is_gravlev',
         'is_spaceship',
+        'is_power_suit',
 
         'is_player_relevant',
 

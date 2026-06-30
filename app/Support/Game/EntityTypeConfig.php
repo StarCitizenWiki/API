@@ -51,7 +51,7 @@ class EntityTypeConfig
                 'model' => Vehicle::class,
                 'data_model' => VehicleData::class,
                 'foreign_key' => 'vehicle_id',
-                'columns' => ['class_name', 'name', 'display_name', 'career', 'role', 'is_vehicle', 'is_gravlev', 'is_spaceship', 'size'],
+                'columns' => ['class_name', 'name', 'display_name', 'career', 'role', 'is_vehicle', 'is_gravlev', 'is_spaceship', 'is_power_suit', 'size'],
                 'route_name' => 'web.vehicles.show',
                 'route_param' => 'vehicle',
                 'label' => 'Vehicles',

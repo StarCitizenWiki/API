@@ -139,6 +139,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'is_vehicle', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'is_gravlev', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'is_spaceship', type: 'boolean', example: true, nullable: true),
+        new OA\Property(property: 'is_power_suit', description: 'Actor-based power suit (e.g. ATLS).', type: 'boolean', example: false, nullable: true),
         new OA\Property(property: 'health', description: 'Total vehicle health pool.', type: 'number', example: 2500, nullable: true),
         new OA\Property(property: 'shield_hp', description: 'Use shield.hp property instead.', type: 'number', example: 12000, nullable: true, deprecated: true),
         new OA\Property(property: 'shield_face_type', description: 'Use shield.face_type property instead.', type: 'string', example: 'FourFaces', nullable: true, deprecated: true),
@@ -994,6 +995,7 @@ class VehicleResource extends AbstractBaseResource
             'is_vehicle' => $payload['IsVehicle'] ?? null,
             'is_gravlev' => $payload['IsGravlev'] ?? null,
             'is_spaceship' => $payload['IsSpaceship'] ?? null,
+            'is_power_suit' => $payload['IsPowerSuit'] ?? null,
 
             'signature' => [
                 'ir_quantum' => $emission['IrQuantum'] ?? null,

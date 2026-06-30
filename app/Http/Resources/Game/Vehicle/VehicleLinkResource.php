@@ -56,6 +56,7 @@ class VehicleLinkResource extends AbstractBaseResource
             'is_vehicle' => $vehicleData->is_vehicle,
             'is_gravlev' => $vehicleData->is_gravlev,
             'is_spaceship' => $vehicleData->is_spaceship,
+            'is_power_suit' => $vehicleData->is_power_suit,
             'manufacturer' => $vehicleData->relationLoaded('manufacturer') && $vehicleData->manufacturer !== null
                 ? new ManufacturerLinkResource($vehicleData->manufacturer)
                 : null,
