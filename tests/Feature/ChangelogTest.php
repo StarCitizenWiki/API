@@ -189,3 +189,72 @@ describe('show', function (): void {
             ->assertNotFound();
     });
 });
+
+describe('version persistence', function (): void {
+    beforeEach(function (): void {
+        $this->oldestVersion = GameVersion::factory()->create([
+            'code' => '4.7.2-LIVE.77777777',
+            'channel' => 'live',
+            'released_at' => now()->subMonths(2),
+            'is_hidden' => false,
+        ]);
+
+        $this->middleVersion = GameVersion::factory()->create([
+            'code' => '4.8.2-LIVE.88888888',
+            'channel' => 'live',
+            'released_at' => now()->subMonth(),
+            'is_hidden' => false,
+        ]);
+
+        $this->currentVersion = GameVersion::factory()->create([
+            'code' => '4.9.0-LIVE.99999999',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+            'is_hidden' => false,
+        ]);
+
+        VersionDiff::factory()->create([
+            'from_version_id' => $this->oldestVersion->id,
+            'to_version_id' => $this->middleVersion->id,
+        ]);
+
+        VersionDiff::factory()
+            ->count(51)
+            ->sequence(fn ($sequence) => ['entity_id' => $sequence->index + 1])
+            ->create([
+                'from_version_id' => $this->middleVersion->id,
+                'to_version_id' => $this->currentVersion->id,
+            ]);
+    });
+
+    it('does not redirect when paginating while a different version is persisted in session', function (): void {
+        // Simulates having previously selected the middle version on some
+        // ?version=... page, which stores it in the session.
+        $this->withSession(['game_version_code' => $this->middleVersion->code]);
+
+        $response = $this->get(route('web.changelog.show', [
+            'version' => $this->currentVersion->code,
+            'page' => 2,
+        ]));
+
+        // Regression: previously the session version was injected as ?version=,
+        // triggering ChangelogController's canonicalization redirect, which
+        // switched the version and dropped the page param.
+        $response->assertSuccessful();
+        $response->assertHeaderMissing('Location');
+    });
+
+    it('does not self-redirect when the path version matches the persisted session version', function (): void {
+        $this->withSession(['game_version_code' => $this->middleVersion->code]);
+
+        $response = $this->get(route('web.changelog.show', [
+            'version' => $this->middleVersion->code,
+        ]));
+
+        // Regression: with path and session versions equal, the controller
+        // redirected to the identical URL forever.
+        $response->assertSuccessful();
+        $response->assertHeaderMissing('Location');
+    });
+});
