@@ -207,7 +207,7 @@ class ImportItemData implements ShouldQueue
             'event_source' => Arr::get($itemPayload, 'event_source') ?? null,
             'is_lootable' => $this->computeIsLootable($itemPayload),
 
-            'has_required_tags' => !empty($itemPayload['stdItem']['RequiredTags']),
+            'has_required_tags' => ! empty($itemPayload['stdItem']['RequiredTags']),
 
             'data' => $itemPayload,
         ];
