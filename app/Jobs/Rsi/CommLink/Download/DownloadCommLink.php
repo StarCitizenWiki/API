@@ -7,6 +7,7 @@ namespace App\Jobs\Rsi\CommLink\Download;
 use App\Services\RsiDownloadClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -41,7 +42,16 @@ class DownloadCommLink implements ShouldQueue
             return;
         }
 
-        $response = $client->base()->get($this->buildUrl());
+        try {
+            $response = $client->base()->get($this->buildUrl());
+        } catch (ConnectionException $e) {
+            Log::info('Comm-Link download skipped due to connection error.', [
+                'id' => $this->commLinkId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return;
+        }
 
         if ($response->serverError()) {
             Log::warning('Comm-Link download failed with server error.', [

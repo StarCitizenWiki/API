@@ -15,7 +15,9 @@ final class RsiDownloadClient
     {
         return Http::withHeaders([
             'X-RSI-Token' => self::RSI_TOKEN,
-        ])->timeout(60);
+        ])
+            ->timeout(60)
+            ->maxRedirects(10);
     }
 
     public function forRsi(): PendingRequest

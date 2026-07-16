@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Jobs\Rsi\CommLink\Download\DownloadCommLink;
 use App\Services\RsiDownloadClient;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -49,4 +50,18 @@ it('keeps only the oldest and newest comm-link files per folder', function () {
     Storage::disk('comm_links')->assertMissing('12663/2020-01-03_000000.html');
 
     Carbon::setTestNow();
+});
+
+describe('connection errors', function () {
+    it('skips storing and does not throw when the request hits a redirect loop', function () {
+        Storage::fake('comm_links');
+
+        Http::fake([
+            '*' => static fn () => throw new ConnectionException('Will not follow more than 5 redirects'),
+        ]);
+
+        (new DownloadCommLink(17758, false))->handle(app(RsiDownloadClient::class));
+
+        expect(Storage::disk('comm_links')->allFiles('17758'))->toBeEmpty();
+    });
 });
