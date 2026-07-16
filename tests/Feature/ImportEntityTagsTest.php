@@ -190,6 +190,54 @@ it('accepts custom path option', function (): void {
     expect(EntityTag::query()->where('uuid', $tag1)->exists())->toBeTrue();
 });
 
+it('links parent tags even when a child precedes its parent in the file', function (): void {
+    Storage::fake('scunpacked');
+
+    $grandchild = fake()->uuid();
+    $child = fake()->uuid();
+    $parent = fake()->uuid();
+
+    // Forward-ordered chain: each row references a parent declared later in the
+    // file, mirroring the real scunpacked data that broke single-pass import.
+    $tags = [
+        $grandchild => ['name' => 'Grandchild', 'parent_uuid' => $child],
+        $child => ['name' => 'Child', 'parent_uuid' => $parent],
+        $parent => ['name' => 'Parent', 'parent_uuid' => null],
+    ];
+
+    Storage::disk('scunpacked')->put('tags.json', json_encode($tags, JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-tags')
+        ->assertExitCode(Command::SUCCESS)
+        ->expectsOutput('Imported 3 entity tags (3 new, 0 updated). Skipped 0 invalid.');
+
+    expect(EntityTag::count())->toBe(3)
+        ->and(EntityTag::where('uuid', $grandchild)->value('parent_uuid'))->toBe($child)
+        ->and(EntityTag::where('uuid', $child)->value('parent_uuid'))->toBe($parent)
+        ->and(EntityTag::where('uuid', $parent)->value('parent_uuid'))->toBeNull();
+});
+
+it('leaves parent_uuid null when the referenced parent is not in the file', function (): void {
+    Storage::fake('scunpacked');
+
+    $child = fake()->uuid();
+    $orphan = fake()->uuid();
+
+    $tags = [
+        $child => ['name' => 'Child Tag', 'parent_uuid' => $orphan],
+    ];
+
+    Storage::disk('scunpacked')->put('tags.json', json_encode($tags, JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-tags')
+        ->assertExitCode(Command::SUCCESS)
+        ->expectsOutput('Imported 1 entity tags (1 new, 0 updated). Skipped 0 invalid.');
+
+    $childTag = EntityTag::query()->where('uuid', $child)->first();
+    expect($childTag)->not->toBeNull()
+        ->and($childTag->parent_uuid)->toBeNull();
+});
+
 it('imports large datasets across the 10,000-row boundary', function (): void {
     Storage::fake('scunpacked');
 

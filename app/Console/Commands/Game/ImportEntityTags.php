@@ -4,6 +4,7 @@ namespace App\Console\Commands\Game;
 
 use App\Models\Game\EntityTag;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 
@@ -120,24 +121,61 @@ class ImportEntityTags extends Command
         $totalCreated = 0;
         $totalUpdated = 0;
 
-        foreach ($tags->chunk(500) as $batch) {
-            $batchUuids = $batch->pluck('uuid')->all();
+        DB::transaction(static function () use ($tags, $now, &$totalCreated, &$totalUpdated): void {
+            // Parent tags first
+            foreach ($tags->chunk(500) as $batch) {
+                $batchUuids = $batch->pluck('uuid')->all();
 
-            $existing = EntityTag::query()
-                ->whereIn('uuid', $batchUuids)
-                ->pluck('uuid')
-                ->all();
+                $existing = EntityTag::query()
+                    ->whereIn('uuid', $batchUuids)
+                    ->pluck('uuid')
+                    ->all();
 
-            EntityTag::query()->upsert(
-                $batch->values()->all(),
-                ['uuid'],
-                ['name', 'parent_uuid', 'updated_at']
-            );
+                EntityTag::query()->upsert(
+                    $batch->map(static fn (array $tag): array => [
+                        'uuid' => $tag['uuid'],
+                        'name' => $tag['name'],
+                        'parent_uuid' => null,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ])->values()->all(),
+                    ['uuid'],
+                    ['name', 'parent_uuid', 'updated_at']
+                );
 
-            $batchCreated = count(array_diff($batchUuids, $existing));
-            $totalCreated += $batchCreated;
-            $totalUpdated += $batch->count() - $batchCreated;
-        }
+                $batchCreated = count(array_diff($batchUuids, $existing));
+                $totalCreated += $batchCreated;
+                $totalUpdated += $batch->count() - $batchCreated;
+            }
+
+            // child tags second
+            $linked = $tags->filter(static fn (array $tag): bool => $tag['parent_uuid'] !== null)->values();
+
+            if ($linked->isNotEmpty()) {
+                $validParentUuids = array_flip(
+                    EntityTag::query()
+                        ->whereIn('uuid', $linked->pluck('parent_uuid')->unique()->values()->all())
+                        ->pluck('uuid')
+                        ->all()
+                );
+
+                $linked = $linked->filter(
+                    static fn (array $tag): bool => isset($validParentUuids[$tag['parent_uuid']])
+                );
+
+                foreach ($linked->chunk(500) as $batch) {
+                    EntityTag::query()->upsert(
+                        $batch->map(static fn (array $tag): array => [
+                            'uuid' => $tag['uuid'],
+                            'name' => $tag['name'],
+                            'parent_uuid' => $tag['parent_uuid'],
+                        ])->values()->all(),
+                        ['uuid'],
+                        ['parent_uuid']
+                    );
+                }
+            }
+        });
 
         $this->info(sprintf(
             'Imported %d entity tags (%d new, %d updated). Skipped %d invalid.',
