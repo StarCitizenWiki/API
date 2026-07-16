@@ -80,6 +80,13 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(type: 'string'),
             example: ['IAE'],
         ),
+        new OA\Property(
+            property: 'ammo_feed',
+            description: 'Ammo feeder target for ammo-feeder backpacks. Resolves the magazine this item feeds to an item link. Only present for game data >= 4.9.0.',
+            ref: '#/components/schemas/item_link',
+            nullable: true,
+            x: ['since' => '4.9.0']
+        ),
         new OA\Property(property: 'is_base_variant', description: 'Whether this item is the base variant (has no parent variant).', type: 'boolean'),
         new OA\Property(property: 'is_craftable', description: 'Whether this item can be crafted via blueprints.', type: 'boolean'),
         new OA\Property(property: 'is_lootable', description: 'Whether this item can be generated as loot.', type: 'boolean'),
@@ -473,6 +480,8 @@ class ItemResource extends AbstractBaseResource
         $eventSource = $itemData->event_source ?? [];
         $eventSource = is_array($eventSource) ? array_values($eventSource) : [];
 
+        $ammoFeed = $this->mapAmmoFeed($itemData, $request);
+
         return [
             'uuid' => $this->item->uuid,
             'slug' => $this->item->slug,
@@ -487,6 +496,7 @@ class ItemResource extends AbstractBaseResource
                 'rarity' => $itemData->rarity,
             ]),
             'event_source' => $eventSource,
+            $this->mergeWhen($ammoFeed !== null, ['ammo_feed' => $ammoFeed]),
             'is_base_variant' => $itemData->base_id === null,
             'is_craftable' => $itemData->is_craftable,
             'is_lootable' => $itemData->is_lootable,
@@ -619,6 +629,23 @@ class ItemResource extends AbstractBaseResource
             route('items.show', ['identifier' => $this->item->uuid]),
             $request,
         );
+    }
+
+    /**
+     * Resolve an ammo-feeder backpack's magazine reference to an item link.
+     * Returns null when the item has no feeder or the magazine can't be resolved.
+     */
+    private function mapAmmoFeed(ItemData $itemData, Request $request): ?array
+    {
+        $reference = data_get($itemData->data, 'ammo_feed.magazine_reference');
+
+        if (! is_string($reference) || $reference === '') {
+            return null;
+        }
+
+        $magazine = $this->loadItemDataForVersion($reference);
+
+        return $magazine !== null ? new ItemLinkResource($magazine)->resolve($request) : null;
     }
 
     /**

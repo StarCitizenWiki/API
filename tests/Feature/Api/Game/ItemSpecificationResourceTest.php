@@ -185,3 +185,105 @@ describe('seat specification', function (): void {
             ->assertJsonPath('data.seat.ejection', null);
     });
 });
+
+describe('food specification', function (): void {
+    it('exposes resource and gas effects for food items', function (): void {
+        $item = Item::factory()->create();
+
+        ItemData::factory()
+            ->for($item)
+            ->for($this->version, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test Snack',
+                'class_name' => 'FOOD_TEST_01',
+                'type' => 'Food',
+                'sub_type' => 'UNDEFINED',
+                'classification' => 'Food',
+                'data' => [
+                    'stdItem' => [
+                        'Food' => [
+                            'ResourceEffects' => [
+                                ['consumableResourceType' => 'Water', 'perMicroSCU' => 0.5, 'total' => 1.25],
+                            ],
+                            'GasEffects' => [
+                                ['gas' => 'Oxygen', 'mass' => 0.012],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->getJson("/api/items/{$item->uuid}")
+            ->assertSuccessful()
+            ->assertJsonPath('data.food.resource_effects.0.consumable_resource_type', 'Water')
+            ->assertJsonPath('data.food.resource_effects.0.per_micro_scu', 0.5)
+            ->assertJsonPath('data.food.resource_effects.0.total', 1.25)
+            ->assertJsonPath('data.food.gas_effects.0.gas', 'Oxygen')
+            ->assertJsonPath('data.food.gas_effects.0.mass', 0.012);
+    });
+
+    it('returns null resource and gas effects when absent', function (): void {
+        $item = Item::factory()->create();
+
+        ItemData::factory()
+            ->for($item)
+            ->for($this->version, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Plain Water',
+                'class_name' => 'FOOD_PLAIN_01',
+                'type' => 'Food',
+                'sub_type' => 'UNDEFINED',
+                'classification' => 'Food',
+                'data' => [
+                    'stdItem' => [
+                        'Food' => [],
+                    ],
+                ],
+            ]);
+
+        $this->getJson("/api/items/{$item->uuid}")
+            ->assertSuccessful()
+            ->assertJsonPath('data.food.resource_effects', null)
+            ->assertJsonPath('data.food.gas_effects', null);
+    });
+});
+
+describe('medicine specification', function (): void {
+    it('exposes inherited resource effects for medical items', function (): void {
+        // Medical items carry @Type=Food / @SubType=Medical, so both the food and
+        // medical predicates match. Only stdItem.Medical is populated (Food returns
+        // null for medical subtypes), so data.food renders empty and data.medical
+        // carries the inherited resource/gas effects from the shared consumable data.
+        $item = Item::factory()->create();
+
+        ItemData::factory()
+            ->for($item)
+            ->for($this->version, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test MedPen',
+                'class_name' => 'MED_TEST_01',
+                'type' => 'Food',
+                'sub_type' => 'Medical',
+                'classification' => 'Medicine',
+                'data' => [
+                    'stdItem' => [
+                        'Medical' => [
+                            'ResourceEffects' => [
+                                ['consumableResourceType' => 'BloodDrugLevel', 'perMicroSCU' => 0.75, 'total' => 22.5],
+                            ],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $this->getJson("/api/items/{$item->uuid}")
+            ->assertSuccessful()
+            ->assertJsonPath('data.medical.resource_effects.0.consumable_resource_type', 'BloodDrugLevel')
+            ->assertJsonPath('data.medical.resource_effects.0.per_micro_scu', 0.75)
+            ->assertJsonPath('data.medical.resource_effects.0.total', 22.5)
+            ->assertJsonPath('data.medical.gas_effects', null);
+    });
+});

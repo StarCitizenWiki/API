@@ -43,6 +43,20 @@ it('lists commodities with versioned links', function (): void {
         ->assertJsonPath('data.0.link', route('commodities.show', ['commodity' => $alpha->uuid]));
 });
 
+it('exposes volatility fields in the commodity show response', function (): void {
+    $commodity = Commodity::factory()->create([
+        'key' => 'VolatileOre',
+        'name' => 'Volatile Ore',
+        'volatility' => 7.5,
+        'volatility_health_decay_per_second' => 1.25,
+    ]);
+
+    $this->getJson(route('commodities.show', ['commodity' => $commodity->uuid]))
+        ->assertSuccessful()
+        ->assertJsonPath('data.volatility', 7.5)
+        ->assertJsonPath('data.volatility_health_decay_per_second', 1.25);
+});
+
 it('can filter commodities to only those used by blueprints for the resolved game version', function (): void {
     $usedInDefault = Commodity::factory()->create([
         'key' => 'UsedDefault',

@@ -134,6 +134,8 @@ class ImportCommodities extends Command
                 'instability' => $commodity['Instability'] ?? null,
                 'resistance' => $commodity['Resistance'] ?? null,
                 'density_g_per_cc' => $commodity['DensityGPerCc'] ?? null,
+                'volatility' => $commodity['Volatility'] ?? null,
+                'volatility_health_decay_per_second' => $commodity['VolatilityHealthDecayPerSecond'] ?? null,
                 'data' => json_encode($commodity, JSON_THROW_ON_ERROR),
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -165,6 +167,8 @@ class ImportCommodities extends Command
                 'instability',
                 'resistance',
                 'density_g_per_cc',
+                'volatility',
+                'volatility_health_decay_per_second',
                 'data',
                 'updated_at',
             ]

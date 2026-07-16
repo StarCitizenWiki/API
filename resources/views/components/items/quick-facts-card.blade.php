@@ -96,6 +96,15 @@
         $linksRows[] = ['label' => 'Blueprints', 'value' => $matchedBlueprints, 'type' => 'links'];
     }
 
+    $ammoFeed = data_get($item, 'ammo_feed');
+    if ($ammoFeed !== null) {
+        $linksRows[] = [
+            'label' => 'Feeds',
+            'value' => [['name' => data_get($ammoFeed, 'name', 'Magazine'), 'url' => data_get($ammoFeed, 'web_url')]],
+            'type' => 'links',
+        ];
+    }
+
     $statsRows = [
         ['label' => 'UEX Listings', 'value' => $uexPricesCount > 0 ? (string) $uexPricesCount : '-'],
     ];

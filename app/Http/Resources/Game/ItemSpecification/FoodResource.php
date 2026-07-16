@@ -46,6 +46,29 @@ use OpenApi\Attributes as OA;
     type: 'object'
 )]
 #[OA\Schema(
+    schema: 'food_resource_effects',
+    title: 'Food Resource Effects',
+    description: 'Consumable resource effects from stdItem.Food.ResourceEffects. Only present for game data >= 4.9.0.',
+    properties: [
+        new OA\Property(property: 'consumable_resource_type', description: 'The consumable resource type affected.', type: 'string', nullable: true),
+        new OA\Property(property: 'per_micro_scu', description: 'Effect amount per microSCU of consumable volume.', type: 'double', nullable: true, x: ['suffix' => ' µSCU']),
+        new OA\Property(property: 'total', description: 'Total effect amount for the item volume.', type: 'double', nullable: true),
+    ],
+    type: 'object',
+    x: ['since' => '4.9.0']
+)]
+#[OA\Schema(
+    schema: 'food_gas_effects',
+    title: 'Food Gas Effects',
+    description: 'Gas emission effects from stdItem.Food.GasEffects. Only present for game data >= 4.9.0.',
+    properties: [
+        new OA\Property(property: 'gas', description: 'The emitted gas type.', type: 'string', nullable: true),
+        new OA\Property(property: 'mass', description: 'Mass of the emitted gas.', type: 'double', nullable: true),
+    ],
+    type: 'object',
+    x: ['since' => '4.9.0']
+)]
+#[OA\Schema(
     schema: 'food',
     title: 'Food',
     description: 'Consumable food or drink statistics sourced from stdItem.Food and description data.',
@@ -116,6 +139,22 @@ use OpenApi\Attributes as OA;
             items: new OA\Items(type: 'string'),
             nullable: true
         ),
+        new OA\Property(
+            property: 'resource_effects',
+            description: 'Consumable resource effects. Only present for game data >= 4.9.0; null otherwise.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/food_resource_effects'),
+            nullable: true,
+            x: ['since' => '4.9.0']
+        ),
+        new OA\Property(
+            property: 'gas_effects',
+            description: 'Gas emission effects. Only present for game data >= 4.9.0; null otherwise.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/food_gas_effects'),
+            nullable: true,
+            x: ['since' => '4.9.0']
+        ),
     ],
     type: 'object'
 )]
@@ -174,7 +213,53 @@ class FoodResource extends AbstractItemSpecificationResource
             'can_be_reclosed' => $this->toBool(Arr::get($food, 'Container.CanBeReclosed')),
             'discard_when_consumed' => $this->toBool(Arr::get($food, 'Container.DiscardWhenConsumed')),
             'effects' => $effects === [] ? null : $effects,
+            'resource_effects' => $this->mapResourceEffects($food),
+            'gas_effects' => $this->mapGasEffects($food),
         ];
+    }
+
+    /**
+     * Map consumable resource effects from stdItem.{type}.ResourceEffects.
+     *
+     * @return list<array{consumable_resource_type: ?string, per_micro_scu: ?float, total: ?float}>|null
+     */
+    private function mapResourceEffects(array $food): ?array
+    {
+        $effects = Arr::get($food, 'ResourceEffects');
+
+        if (! is_array($effects) || $effects === []) {
+            return null;
+        }
+
+        return collect($effects)->map(fn (array $effect): array => [
+            'consumable_resource_type' => $effect['consumableResourceType'] ?? null,
+            'per_micro_scu' => $this->numberOrNull($effect['perMicroSCU'] ?? null),
+            'total' => $this->numberOrNull($effect['total'] ?? null),
+        ])->values()->all();
+    }
+
+    /**
+     * Map gas emission effects from stdItem.{type}.GasEffects.
+     *
+     * @return list<array{gas: ?string, mass: ?float}>|null
+     */
+    private function mapGasEffects(array $food): ?array
+    {
+        $effects = Arr::get($food, 'GasEffects');
+
+        if (! is_array($effects) || $effects === []) {
+            return null;
+        }
+
+        return collect($effects)->map(fn (array $effect): array => [
+            'gas' => $effect['gas'] ?? null,
+            'mass' => $this->numberOrNull($effect['mass'] ?? null),
+        ])->values()->all();
+    }
+
+    private function numberOrNull(mixed $value): ?float
+    {
+        return is_numeric($value) ? (float) $value : null;
     }
 
     private function splitEffects(string $effects): array

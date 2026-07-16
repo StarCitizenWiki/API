@@ -42,6 +42,8 @@ class Commodity extends Model
         'instability',
         'resistance',
         'density_g_per_cc',
+        'volatility',
+        'volatility_health_decay_per_second',
         'data',
         'uex_prices',
     ];

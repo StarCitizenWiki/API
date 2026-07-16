@@ -47,6 +47,7 @@
     $reacceptFailing = data_get($resource, 'reaccept_after_failing');
     $reacceptAbandoning = data_get($resource, 'reaccept_after_abandoning');
     $starSystems = data_get($resource, 'star_systems') ?? [];
+    $rentalShips = data_get($resource, 'rental_ships') ?? [];
     $gameVersion = data_get($resource, 'game_version');
 
     $illegal = data_get($resource, 'illegal');
@@ -116,6 +117,9 @@
                 ['label' => 'Max Players', 'value' => $maxPlayersPerInstance],
                 $starSystems !== []
                     ? ['label' => 'Systems', 'value' => implode(', ', $starSystems)]
+                    : null,
+                $rentalShips !== []
+                    ? ['label' => 'Provided Ship', 'type' => 'links', 'value' => collect($rentalShips)->map(fn ($ship) => ['url' => $ship['web_url'], 'name' => $ship['name']])->all()]
                     : null,
                 $reacceptParts !== []
                     ? ['label' => 'Reaccept', 'value' => implode(' · ', $reacceptParts)]

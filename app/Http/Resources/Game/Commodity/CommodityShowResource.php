@@ -120,6 +120,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'density_g_per_cc', description: 'Density in grams per cubic centimeter.', type: 'number', nullable: true),
         new OA\Property(property: 'instability', description: 'Instability rating affecting mining behavior.', type: 'number', nullable: true),
         new OA\Property(property: 'resistance', description: 'Resistance rating affecting mining difficulty.', type: 'number', nullable: true),
+        new OA\Property(property: 'volatility', description: 'Volatility rating for this resource type.', type: 'number', nullable: true, x: ['since' => '4.9.0']),
+        new OA\Property(property: 'volatility_health_decay_per_second', description: 'Health decay per second associated with this resource type volatility.', type: 'number', nullable: true, x: ['since' => '4.9.0']),
         new OA\Property(
             property: 'box_sizes_scu',
             description: 'Standard cargo box sizes in SCU that this commodity fits into.',

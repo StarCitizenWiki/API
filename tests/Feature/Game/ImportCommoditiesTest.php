@@ -57,6 +57,8 @@ it('imports commodities and resolves refined versions', function (): void {
             'QualityDistributionUUID' => '4fb1e7e6-9b98-443a-8409-71b94a6e5d0f',
             'QualityLocationOverrideUUID' => '4867be55-137a-42ee-b41c-84b39ab29d00',
             'Tier' => 'uncommon',
+            'Volatility' => 7.5,
+            'VolatilityHealthDecayPerSecond' => 1.25,
         ],
     ];
 
@@ -77,6 +79,8 @@ it('imports commodities and resolves refined versions', function (): void {
         ->and($commodity->box_sizes_scu)->toBe([1, 2, 4])
         ->and($commodity->quality_distribution_uuid)->toBe('4fb1e7e6-9b98-443a-8409-71b94a6e5d0f')
         ->and($commodity->quality_location_override_uuid)->toBe('4867be55-137a-42ee-b41c-84b39ab29d00')
+        ->and((float) $commodity->volatility)->toBe(7.5)
+        ->and((float) $commodity->volatility_health_decay_per_second)->toBe(1.25)
         ->and(Arr::get($commodity->data, 'Name'))->toBe('Agricium (Ore)');
 });
 

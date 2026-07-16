@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game\Mission;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Http\Resources\Game\Vehicle\VehicleLinkResource;
 use App\Models\Game\Faction;
+use App\Models\Game\VehicleData;
 use App\Services\TagItemResolverService;
 use App\Support\Formatting\FormatMissionText;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -224,6 +227,14 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'has_blueprints', type: 'boolean'),
         new OA\Property(property: 'released', description: 'Whether this mission is released (not marked as not_for_release or work_in_progress).', type: 'boolean'),
         new OA\Property(property: 'link', type: 'string', format: 'uri'),
+        new OA\Property(
+            property: 'rental_ships',
+            description: 'Ships granted to the player as rentals for the mission, as vehicle links.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/vehicle_link'),
+            nullable: true,
+            x: ['since' => '4.9.0']
+        ),
     ],
     type: 'object'
 )]
@@ -430,6 +441,7 @@ class MissionResource extends AbstractBaseResource
             'max_standing' => MissionDataBlockResource::mapStanding(Arr::get($data, 'MaxStanding')),
             'reputation_prerequisite' => MissionDataBlockResource::mapReputationPrerequisite(Arr::get($data, 'ReputationPrerequisite')),
             'mission_tokens' => $tokens,
+            'rental_ships' => $this->mapRentalShips(Arr::get($data, 'RentalShipModifiers'), $request),
             'deadline' => MissionDataBlockResource::mapDeadline(Arr::get($data, 'Deadline')),
             'broker_reputation_prerequisites' => MissionDataBlockResource::mapBrokerReputationPrerequisites(Arr::get($data, 'BrokerReputationPrerequisites')),
             'entity_spawns' => MissionDataBlockResource::mapEntitySpawns(Arr::get($data, 'EntitySpawns')),
@@ -581,6 +593,61 @@ class MissionResource extends AbstractBaseResource
                 ? $this->urlWithVersion(route('web.items.show', ['item' => $item->slug ?? $uuid]), $request)
                 : null,
         ];
+    }
+
+    /**
+     * Resolve rental ship modifiers to vehicle links.
+     *
+     * ItemRecordGuid = vehicle UUID
+     */
+    private function mapRentalShips(mixed $modifiers, Request $request): ?array
+    {
+        if (! is_array($modifiers) || $modifiers === []) {
+            return null;
+        }
+
+        $versionId = $this->resource->gameVersion?->id;
+
+        if ($versionId === null) {
+            return null;
+        }
+
+        $guids = collect($modifiers)
+            ->map(fn (array $mod) => $mod['ItemRecordGuid'] ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if ($guids === []) {
+            return null;
+        }
+
+        $vehicles = VehicleData::query()
+            ->where('game_version_id', $versionId)
+            ->whereHas('vehicle', fn (Builder $q) => $q->whereIn('uuid', $guids))
+            ->with(['vehicle', 'manufacturer', 'gameVersion'])
+            ->get();
+
+        $byUuid = [];
+
+        foreach ($vehicles as $vehicleData) {
+            $uuid = $vehicleData->vehicle?->uuid;
+
+            if ($uuid !== null && ! isset($byUuid[$uuid])) {
+                $byUuid[$uuid] = $vehicleData;
+            }
+        }
+
+        $links = [];
+
+        foreach ($guids as $guid) {
+            if (isset($byUuid[$guid])) {
+                $links[] = new VehicleLinkResource($byUuid[$guid])->resolve($request);
+            }
+        }
+
+        return $links === [] ? null : $links;
     }
 
     private function mapReputation($entries): ?array

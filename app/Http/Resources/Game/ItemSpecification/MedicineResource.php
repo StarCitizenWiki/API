@@ -60,6 +60,22 @@ use OpenApi\Attributes as OA;
             type: 'object',
             additionalProperties: new OA\AdditionalProperties(type: 'boolean')
         ),
+        new OA\Property(
+            property: 'resource_effects',
+            description: 'Consumable resource effects (inherited from shared consumable data). Only present for game data >= 4.9.0; null otherwise.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/food_resource_effects'),
+            nullable: true,
+            x: ['since' => '4.9.0']
+        ),
+        new OA\Property(
+            property: 'gas_effects',
+            description: 'Gas emission effects (inherited from shared consumable data). Only present for game data >= 4.9.0; null otherwise.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/food_gas_effects'),
+            nullable: true,
+            x: ['since' => '4.9.0']
+        ),
     ],
     type: 'object'
 )]

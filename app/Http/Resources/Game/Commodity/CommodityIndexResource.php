@@ -73,6 +73,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'density_g_per_cc', description: 'Density in grams per cubic centimeter.', type: 'number', nullable: true),
         new OA\Property(property: 'instability', description: 'Instability rating affecting mining behavior.', type: 'number', nullable: true),
         new OA\Property(property: 'resistance', description: 'Resistance rating affecting mining difficulty.', type: 'number', nullable: true),
+        new OA\Property(property: 'volatility', description: 'Volatility rating for this resource type.', type: 'number', nullable: true, x: ['since' => '4.9.0']),
+        new OA\Property(property: 'volatility_health_decay_per_second', description: 'Health decay per second associated with this resource type volatility.', type: 'number', nullable: true, x: ['since' => '4.9.0']),
         new OA\Property(
             property: 'box_sizes_scu',
             description: 'Standard cargo box sizes in SCU that this commodity fits into.',
@@ -181,6 +183,8 @@ class CommodityIndexResource extends AbstractBaseResource
             'density_g_per_cc' => $this->formatDecimal($this->resource->density_g_per_cc, 2),
             'instability' => $this->formatDecimal($this->resource->instability, 0),
             'resistance' => $this->formatDecimal($this->resource->resistance, 2),
+            'volatility' => $this->formatDecimal($this->resource->volatility, 2),
+            'volatility_health_decay_per_second' => $this->formatDecimal($this->resource->volatility_health_decay_per_second, 2),
             'box_sizes_scu' => $this->resource->box_sizes_scu ?? [],
             'validate_default_cargo_box' => $this->resource->validate_default_cargo_box,
             'has_default_cargo_containers' => $this->resource->has_default_cargo_containers,

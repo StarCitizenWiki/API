@@ -34,6 +34,8 @@ class CommodityFactory extends Factory
             'instability' => fake()->optional()->randomFloat(4, 0, 1000),
             'resistance' => fake()->optional()->randomFloat(4, -1, 1),
             'density_g_per_cc' => fake()->optional()->randomFloat(4, 1, 25),
+            'volatility' => fake()->optional()->randomFloat(4, 0, 10),
+            'volatility_health_decay_per_second' => fake()->optional()->randomFloat(4, 0, 5),
             'data' => [
                 'uuid' => fake()->uuid(),
                 'key' => fake()->bothify('Data_####'),

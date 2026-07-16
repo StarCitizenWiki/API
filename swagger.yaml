@@ -2618,11 +2618,11 @@ paths:
         -
           name: 'filter[query]'
           in: query
-          description: 'Search query (minimum 3 characters). Searches names, class names, and other identifiers.'
+          description: 'Search query (minimum 2 characters). Searches names, class names, and other identifiers.'
           required: true
           schema:
             type: string
-            minLength: 3
+            minLength: 2
             example: Carrack
           examples:
             ship_search:
@@ -3569,6 +3569,11 @@ paths:
             type: boolean
         -
           name: 'filter[is_spaceship]'
+          in: query
+          schema:
+            type: boolean
+        -
+          name: 'filter[is_power_suit]'
           in: query
           schema:
             type: boolean
@@ -5983,6 +5988,16 @@ components:
           description: 'Resistance rating affecting mining difficulty.'
           type: number
           nullable: true
+        volatility:
+          description: 'Volatility rating for this resource type.'
+          type: number
+          nullable: true
+          x-since: 4.9.0
+        volatility_health_decay_per_second:
+          description: 'Health decay per second associated with this resource type volatility.'
+          type: number
+          nullable: true
+          x-since: 4.9.0
         box_sizes_scu:
           description: 'Standard cargo box sizes in SCU that this commodity fits into.'
           type: array
@@ -6290,6 +6305,16 @@ components:
               description: 'Resistance rating affecting mining difficulty.'
               type: number
               nullable: true
+            volatility:
+              description: 'Volatility rating for this resource type.'
+              type: number
+              nullable: true
+              x-since: 4.9.0
+            volatility_health_decay_per_second:
+              description: 'Health decay per second associated with this resource type volatility.'
+              type: number
+              nullable: true
+              x-since: 4.9.0
             box_sizes_scu:
               description: 'Standard cargo box sizes in SCU that this commodity fits into.'
               type: array
@@ -7729,6 +7754,13 @@ components:
             type: string
           example:
             - IAE
+        ammo_feed:
+          oneOf:
+            -
+              $ref: '#/components/schemas/item_link'
+          nullable: true
+          description: 'Ammo feeder target for ammo-feeder backpacks. Resolves the magazine this item feeds to an item link. Only present for game data >= 4.9.0.'
+          x-since: 4.9.0
         is_base_variant:
           description: 'Whether this item is the base variant (has no parent variant).'
           type: boolean
@@ -10568,6 +10600,42 @@ components:
           type: boolean
           nullable: true
       type: object
+    food_resource_effects:
+      title: 'Food Resource Effects'
+      description: 'Consumable resource effects from stdItem.Food.ResourceEffects. Only present for game data >= 4.9.0.'
+      properties:
+        consumable_resource_type:
+          description: 'The consumable resource type affected.'
+          type: string
+          nullable: true
+        per_micro_scu:
+          description: 'Effect amount per microSCU of consumable volume.'
+          type: number
+          format: double
+          nullable: true
+          x-suffix: ' µSCU'
+        total:
+          description: 'Total effect amount for the item volume.'
+          type: number
+          format: double
+          nullable: true
+      type: object
+      x-since: 4.9.0
+    food_gas_effects:
+      title: 'Food Gas Effects'
+      description: 'Gas emission effects from stdItem.Food.GasEffects. Only present for game data >= 4.9.0.'
+      properties:
+        gas:
+          description: 'The emitted gas type.'
+          type: string
+          nullable: true
+        mass:
+          description: 'Mass of the emitted gas.'
+          type: number
+          format: double
+          nullable: true
+      type: object
+      x-since: 4.9.0
     food:
       title: Food
       description: 'Consumable food or drink statistics sourced from stdItem.Food and description data.'
@@ -10616,6 +10684,20 @@ components:
           items:
             type: string
           nullable: true
+        resource_effects:
+          description: 'Consumable resource effects. Only present for game data >= 4.9.0; null otherwise.'
+          type: array
+          items:
+            $ref: '#/components/schemas/food_resource_effects'
+          nullable: true
+          x-since: 4.9.0
+        gas_effects:
+          description: 'Gas emission effects. Only present for game data >= 4.9.0; null otherwise.'
+          type: array
+          items:
+            $ref: '#/components/schemas/food_gas_effects'
+          nullable: true
+          x-since: 4.9.0
       type: object
     fuel_intake:
       title: 'Fuel Intake'
@@ -10840,6 +10922,20 @@ components:
               type: object
               additionalProperties:
                 type: boolean
+            resource_effects:
+              description: 'Consumable resource effects (inherited from shared consumable data). Only present for game data >= 4.9.0; null otherwise.'
+              type: array
+              items:
+                $ref: '#/components/schemas/food_resource_effects'
+              nullable: true
+              x-since: 4.9.0
+            gas_effects:
+              description: 'Gas emission effects (inherited from shared consumable data). Only present for game data >= 4.9.0; null otherwise.'
+              type: array
+              items:
+                $ref: '#/components/schemas/food_gas_effects'
+              nullable: true
+              x-since: 4.9.0
           type: object
     melee_weapon_attack_damages:
       title: 'Melee Weapon Attack Damages'
@@ -16237,7 +16333,7 @@ components:
           type: object
           nullable: true
         reputation_prerequisite:
-          description: 'Faction-scoped acceptance gate. Distinct from the generic min_standing/max_standing: gates on a specific faction reputation scope, which may differ from the issuing faction (see faction_uuid).'
+          description: 'Faction-scoped acceptance gate. I.e. the required min / max standing.'
           properties:
             faction:
               description: 'Reputation faction name. May differ from the mission issuing faction.'
@@ -16398,6 +16494,13 @@ components:
         link:
           type: string
           format: uri
+        rental_ships:
+          description: 'Ships granted to the player as rentals for the mission, as vehicle links.'
+          type: array
+          items:
+            $ref: '#/components/schemas/vehicle_link'
+          nullable: true
+          x-since: 4.9.0
       type: object
     mission_blueprints:
       title: 'Mission Blueprints'
@@ -18162,6 +18265,11 @@ components:
         is_spaceship:
           type: boolean
           example: true
+          nullable: true
+        is_power_suit:
+          description: 'Actor-based power suit (e.g. ATLS).'
+          type: boolean
+          example: false
           nullable: true
         health:
           description: 'Total vehicle health pool.'
