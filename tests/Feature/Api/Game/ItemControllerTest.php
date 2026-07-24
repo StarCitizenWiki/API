@@ -449,6 +449,39 @@ it('excludes vehicle items from the items index', function (): void {
     $response->assertJsonPath('data.0.name', 'Normal Item');
 });
 
+it('scopes the armor index to armor classifications only', function (): void {
+    $armorItem = Item::factory()->create();
+    $nonArmorItem = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($armorItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Armor Core',
+            'type' => 'Armor',
+            'class_name' => 'cds_armor_medium_core_01',
+            'classification' => 'FPS.Armor.Torso',
+        ]);
+
+    ItemData::factory()
+        ->for($nonArmorItem)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Ship Paint',
+            'type' => 'Paints',
+            'class_name' => 'paint_100i_red',
+            'classification' => 'Ship.Paints',
+        ]);
+
+    $response = $this->getJson('/api/armor');
+
+    $response->assertOk();
+    $response->assertJsonCount(1, 'data');
+    $response->assertJsonPath('data.0.name', 'Armor Core');
+});
+
 it('includes related items when requested', function (): void {
     $baseItem = Item::factory()->create();
     $baseData = ItemData::factory()

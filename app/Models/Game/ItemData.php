@@ -282,6 +282,7 @@ class ItemData extends Model
             'weapons' => $query->personalWeapons(),
             'mining-modifiers' => $query->miningModifiers(),
             'clothes' => $query->clothes(),
+            'armor' => $query->armor(),
             'fps-armor' => $query->armor(),
             'fps-items' => $query->fpsItems(),
             'vehicle-weapons' => $query->vehicleWeapons(),
