@@ -26,6 +26,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
@@ -319,6 +320,27 @@ class ItemController extends Controller
     private function allowedIncludes(): array
     {
         return IncludeDefinition::toSpatieIncludes($this->includeDefinitions());
+    }
+
+    /**
+     * @throws \JsonException
+     */
+    private function cachedPaginationCount(Request $request, QueryBuilder $query): int
+    {
+        $filters = Arr::sortRecursive((array) $request->input('filter', []));
+
+        $key = sprintf(
+            'items:count:%s:%s:%s',
+            strtolower((string) ($this->gameVersionCode() ?: 'default')),
+            $request->route()->defaults['category'] ?? 'items',
+            md5(json_encode($filters, JSON_THROW_ON_ERROR)),
+        );
+
+        return (int) FilterCache::rememberForever(
+            FilterCache::NAMESPACE_ITEMS,
+            $key,
+            static fn () => $query->toBase()->getCountForPagination(),
+        );
     }
 
     /**
@@ -796,7 +818,8 @@ class ItemController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = $this->buildBaseQuery($request);
-        $items = $query->jsonPaginate();
+
+        $items = $query->jsonPaginate(null, null, $this->cachedPaginationCount($request, $query));
 
         ItemData::loadCraftingBlueprints($items->getCollection());
 

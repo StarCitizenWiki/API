@@ -6,6 +6,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function (): void {
     $this->gameVersion = GameVersion::factory()->create([
@@ -940,5 +941,57 @@ describe('filter[vehicle]', function (): void {
             ->assertSuccessful()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.uuid', $noTags->uuid);
+    });
+});
+
+describe('pagination count cache', function (): void {
+    beforeEach(function (): void {
+        // FilterCache only engages in production, so exercise its real path.
+        $this->app->detectEnvironment(fn () => 'production');
+    });
+
+    it('reuses the total across pages without recounting', function (): void {
+        ItemData::factory()
+            ->for(Item::factory())
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create(['name' => 'Widget One', 'type' => 'Widget', 'classification' => 'Test', 'data' => []]);
+
+        $countQueries = fn () => collect(DB::getQueryLog())
+            ->pluck('query')
+            ->filter(fn (string $sql) => str_contains($sql, 'count(*) as "aggregate"'))
+            ->count();
+
+        DB::enableQueryLog();
+
+        $first = $this->getJson('/api/items?filter[type]=Widget')->assertSuccessful();
+
+        expect($countQueries())->toBe(1);
+
+        DB::flushQueryLog();
+        $second = $this->getJson('/api/items?filter[type]=Widget&page[number]=2')->assertSuccessful();
+
+        expect($countQueries())->toBe(0)
+            ->and($second->json('meta.total'))->toBe($first->json('meta.total'));
+
+        DB::disableQueryLog();
+    });
+
+    it('recounts for a different filter set', function (): void {
+        ItemData::factory()
+            ->for(Item::factory())
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create(['name' => 'Widget One', 'type' => 'Widget', 'classification' => 'Test', 'data' => []]);
+
+        DB::enableQueryLog();
+        $this->getJson('/api/items?filter[type]=Widget')->assertSuccessful();
+
+        DB::flushQueryLog();
+        $this->getJson('/api/items?filter[type]=Other')->assertSuccessful();
+
+        expect(collect(DB::getQueryLog())->pluck('query')->filter(fn (string $sql) => str_contains($sql, 'count(*) as "aggregate"'))->count())->toBe(1);
+
+        DB::disableQueryLog();
     });
 });
