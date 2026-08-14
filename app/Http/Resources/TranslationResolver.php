@@ -8,6 +8,7 @@ use App\Models\System\Language;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\MissingValue;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Translatable\HasTranslations;
 
 final class TranslationResolver
@@ -64,7 +65,10 @@ final class TranslationResolver
         $locales = $request->attributes->get($cacheKey);
 
         if (! $locales instanceof Collection) {
-            $locales = Language::query()->pluck('code');
+            $locales = collect(Cache::rememberForever(
+                Language::LOCALES_CACHE_KEY,
+                static fn () => Language::query()->pluck('code')->all(),
+            ));
             $request->attributes->set($cacheKey, $locales);
         }
 

@@ -10,6 +10,7 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Models\Rsi\CommLink\Link;
 use App\Models\Rsi\CommLink\Series;
 use App\Models\System\Language;
+use Illuminate\Database\QueryException;
 
 describe('index', function (): void {
     it('sorts by images and links count and filters by publication date', function (): void {
@@ -145,6 +146,13 @@ describe('index', function (): void {
 });
 
 describe('show', function (): void {
+    it('enforces unique cig ids', function (): void {
+        CommLink::factory()->create(['cig_id' => 14001]);
+
+        expect(fn () => CommLink::factory()->create(['cig_id' => 14001]))
+            ->toThrow(QueryException::class);
+    });
+
     it('returns the comm-link show response contract', function (): void {
         $channel = Channel::factory()->create([
             'name' => 'News',

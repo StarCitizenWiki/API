@@ -77,7 +77,8 @@ class CelestialObjectController extends Controller
                 'sensor_population',
                 'sensor_economy',
                 'sensor_danger'
-            );
+            )
+            ->with('jumppointEntry', 'jumppointExit');
 
         if ($code !== null) {
             $query->whereRaw('upper(code) = ?', [$code]);

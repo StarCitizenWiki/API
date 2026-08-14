@@ -12,7 +12,7 @@ it('coerces fractional numeric fields to fit integer columns', function (): void
     $payload = 'framework/testing/shipmatrix/aurora_es.json'
             |> storage_path(...)
             |> file_get_contents(...)
-            |> (static fn($x) => json_decode($x, true, 512, JSON_THROW_ON_ERROR));
+            |> (static fn ($x) => json_decode($x, true, 512, JSON_THROW_ON_ERROR));
 
     // RSI emits fractional values for fields bound to integer columns (e.g. mass "2339240.06"). Postgres rejects those for bigint, so the import must coerce.
     $payload['id'] = '99999';
@@ -41,7 +41,7 @@ it('imports vehicle components from ship matrix data', function (): void {
     $payload = 'framework/testing/shipmatrix/aurora_es.json'
             |> storage_path(...)
             |> file_get_contents(...)
-            |> (fn($x) => json_decode($x, true, 512, JSON_THROW_ON_ERROR));
+            |> (fn ($x) => json_decode($x, true, 512, JSON_THROW_ON_ERROR));
 
     ProductionNote::query()->create([
         'translation' => ['en' => 'None'],

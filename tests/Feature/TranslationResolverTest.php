@@ -7,6 +7,7 @@ use App\Models\Game\Item;
 use App\Models\System\Language;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\MissingValue;
+use Illuminate\Support\Facades\Cache;
 
 it('returns locale specific translations with english fallback', function (): void {
     Language::query()->insert([
@@ -77,4 +78,42 @@ it('returns original locale keys when no locales are stored', function (): void 
         Language::ENGLISH => 'Hello',
         Language::GERMAN => 'Hallo',
     ]);
+});
+
+it('purges the locale cache when a language is saved or deleted', function (): void {
+    Language::query()->insert([['code' => Language::ENGLISH]]);
+
+    $item = Item::factory()->make([
+        'translation' => [Language::ENGLISH => 'Hello'],
+    ]);
+
+    TranslationResolver::resolve($item, Request::create('/translations', 'GET'));
+
+    expect(Cache::has(Language::LOCALES_CACHE_KEY))->toBeTrue();
+
+    $language = Language::query()->first();
+    $language->code = Language::ENGLISH;
+    $language->save();
+
+    expect(Cache::has(Language::LOCALES_CACHE_KEY))->toBeFalse();
+
+    TranslationResolver::resolve($item, Request::create('/translations', 'GET'));
+
+    expect(Cache::has(Language::LOCALES_CACHE_KEY))->toBeTrue();
+
+    $language->delete();
+
+    expect(Cache::has(Language::LOCALES_CACHE_KEY))->toBeFalse();
+});
+
+it('stores the locale cache as primitives', function (): void {
+    Language::query()->insert([['code' => Language::ENGLISH]]);
+
+    $item = Item::factory()->make([
+        'translation' => [Language::ENGLISH => 'Hello'],
+    ]);
+
+    TranslationResolver::resolve($item, Request::create('/translations', 'GET'));
+
+    expect(Cache::get(Language::LOCALES_CACHE_KEY))->toBeArray();
 });

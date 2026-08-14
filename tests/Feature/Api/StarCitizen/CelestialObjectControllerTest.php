@@ -6,6 +6,8 @@ use App\Models\Game\GameVersion;
 use App\Models\StarCitizen\Starmap\CelestialObject;
 use App\Models\StarCitizen\Starmap\Jumppoint;
 use App\Models\StarCitizen\Starmap\Starsystem;
+use App\Models\System\Language;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function (): void {
     GameVersion::factory()->create([
@@ -116,6 +118,57 @@ describe('search', function (): void {
 
         expect($response->json('meta.deprecated'))->toBeTrue()
             ->and(collect($response->json('data'))->pluck('id')->all())->toBe([$matchingObject->cig_id]);
+    });
+
+    it('keeps the query count flat as rows grow', function (): void {
+        $system = Starsystem::factory()->create(['code' => 'FLAT']);
+
+        CelestialObject::factory()->count(3)->create([
+            'starsystem_id' => $system->cig_id,
+            'translation' => [Language::ENGLISH => 'Object'],
+        ]);
+
+        $queries = fn () => collect(DB::getQueryLog())->pluck('query');
+        DB::enableQueryLog();
+
+        // Warm the languages cache so the measured window only contains row-dependent queries.
+        $this->getJson(route('celestial-objects.index'))->assertSuccessful();
+
+        DB::flushQueryLog();
+        $this->getJson(route('celestial-objects.index'))->assertSuccessful();
+        $before = $queries()->count();
+
+        CelestialObject::factory()->count(4)->create([
+            'starsystem_id' => $system->cig_id,
+            'translation' => [Language::ENGLISH => 'Object'],
+        ]);
+
+        DB::flushQueryLog();
+        $this->getJson(route('celestial-objects.index'))->assertSuccessful();
+        $after = $queries()->count();
+
+        DB::disableQueryLog();
+
+        expect($after)->toBe($before);
+    });
+
+    it('queries the languages table once across requests', function (): void {
+        $system = Starsystem::factory()->create(['code' => 'CACHED']);
+
+        CelestialObject::factory()->create([
+            'starsystem_id' => $system->cig_id,
+            'translation' => [Language::ENGLISH => 'Object'],
+        ]);
+
+        DB::enableQueryLog();
+        $this->getJson(route('celestial-objects.index'))->assertSuccessful();
+        $this->getJson(route('celestial-objects.index'))->assertSuccessful();
+        $languageQueries = collect(DB::getQueryLog())->pluck('query')->filter(
+            static fn (string $sql): bool => str_contains($sql, 'from "languages"')
+        )->count();
+        DB::disableQueryLog();
+
+        expect($languageQueries)->toBe(1);
     });
 
     it('searches celestial objects by numeric cig id', function (): void {

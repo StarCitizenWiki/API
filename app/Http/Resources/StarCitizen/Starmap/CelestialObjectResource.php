@@ -61,9 +61,9 @@ class CelestialObjectResource extends AbstractBaseResource
 {
     public function toArray($request): array
     {
-        $jumppointEntry = $this->whenLoaded('jumppointEntry');
-        $jumppointExit = $this->whenLoaded('jumppointExit');
-        $jumppoint = $jumppointEntry instanceof Jumppoint ? $jumppointEntry : ($jumppointExit instanceof Jumppoint ? $jumppointExit : $this->jumppoint());
+        $jumppoint = $this->relationLoaded('jumppointEntry') || $this->relationLoaded('jumppointExit')
+            ? $this->jumppointEntry ?? $this->jumppointExit
+            : $this->jumppoint();
 
         return [
             'id' => $this->cig_id,

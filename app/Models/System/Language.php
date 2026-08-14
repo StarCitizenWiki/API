@@ -6,6 +6,7 @@ namespace App\Models\System;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Language
@@ -13,6 +14,14 @@ use Illuminate\Database\Eloquent\Model;
 class Language extends Model
 {
     use HasFactory;
+
+    public const LOCALES_CACHE_KEY = 'translation_locales';
+
+    protected static function booted(): void
+    {
+        static::saved(static fn () => Cache::forget(self::LOCALES_CACHE_KEY));
+        static::deleted(static fn () => Cache::forget(self::LOCALES_CACHE_KEY));
+    }
 
     public const ENGLISH = 'en';
 
