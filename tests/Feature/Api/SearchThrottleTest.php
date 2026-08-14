@@ -7,20 +7,18 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 
-beforeEach(static function (): void {
-    GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-
-    // The real limiter allows 60/min
-    RateLimiter::for('search', static fn (Request $request) => Limit::perMinute(2)->by($request->ip()));
-});
-
 describe('search throttling', function (): void {
     it('rate limits expensive search endpoints', function (string $method, string $uri): void {
+        GameVersion::factory()->create([
+            'code' => '4.0.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
+
+        // The real limiter allows 60/min
+        RateLimiter::for('search', static fn (Request $request) => Limit::perMinute(2)->by($request->ip()));
+
         $call = fn () => $this->{$method}($uri, $method === 'postJson' ? ['query' => 'Test'] : []);
 
         $call();
@@ -42,5 +40,6 @@ describe('search throttling', function (): void {
         'celestial objects search' => ['postJson', 'api/celestial-objects/search'],
         'shipmatrix vehicles search' => ['postJson', 'api/shipmatrix/vehicles/search'],
         'starmap positions' => ['getJson', 'api/locations/positions'],
+        'comm-link images random' => ['getJson', 'api/comm-link-images/random'],
     ]);
 });
