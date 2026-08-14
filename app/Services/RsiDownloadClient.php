@@ -16,6 +16,7 @@ final class RsiDownloadClient
         return Http::withHeaders([
             'X-RSI-Token' => self::RSI_TOKEN,
         ])
+            ->withUserAgent(config('services.rsi_user_agent'))
             ->timeout(60)
             ->maxRedirects(10);
     }

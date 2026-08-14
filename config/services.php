@@ -18,6 +18,8 @@ return [
 
     'rsi_url' => env('RSI_URL', 'https://robertsspaceindustries.com'),
 
+    'rsi_user_agent' => env('RSI_USER_AGENT', 'starcitizen-wiki-api/1.0 (+https://api.starcitizen.wiki)'),
+
     'deepl' => [
         'auth_key' => env('DEEPL_AUTH_KEY'),
         'target_locale' => env('DEEPL_TARGET_LOCALE', 'de'),

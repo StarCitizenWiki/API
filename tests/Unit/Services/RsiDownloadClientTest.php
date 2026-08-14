@@ -20,6 +20,7 @@ it('builds a client with base url and token header', function (): void {
     Http::assertSentCount(1);
     Http::assertSent(function (Request $request): bool {
         return $request->hasHeader('X-RSI-Token', 'STAR-CITIZEN.WIKI_DE_API_REQUEST')
+            && $request->hasHeader('User-Agent', 'starcitizen-wiki-api/1.0 (+https://api.starcitizen.wiki)')
             && $request->url() === 'https://api.example.test/galactapedia/graphql';
     });
 });
@@ -34,7 +35,23 @@ it('builds a base client that preserves full urls', function (): void {
     Http::assertSentCount(1);
     Http::assertSent(function (Request $request): bool {
         return $request->hasHeader('X-RSI-Token', 'STAR-CITIZEN.WIKI_DE_API_REQUEST')
+            && $request->hasHeader('User-Agent', 'starcitizen-wiki-api/1.0 (+https://api.starcitizen.wiki)')
             && $request->url() === 'https://robertsspaceindustries.com/comm-link';
+    });
+});
+
+it('sends a custom user agent when configured', function (): void {
+    config()->set('services.rsi_user_agent', 'my-custom-agent/2.0');
+
+    Http::fake();
+
+    $client = app(RsiDownloadClient::class);
+
+    $client->base()->get('https://robertsspaceindustries.com/comm-link');
+
+    Http::assertSentCount(1);
+    Http::assertSent(function (Request $request): bool {
+        return $request->hasHeader('User-Agent', 'my-custom-agent/2.0');
     });
 });
 
