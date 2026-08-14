@@ -52,6 +52,7 @@ it('returns matching similar image contract when authenticated', function (): vo
         ->getJson("/api/comm-link-images/{$queryImage->id}/similar?similarity=95");
 
     $response->assertSuccessful()
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertJsonCount(1, 'data')
         ->assertJson(fn (AssertableJson $json) => $json
             ->has('data', 1)

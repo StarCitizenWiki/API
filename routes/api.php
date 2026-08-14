@@ -26,7 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', UserController::class)->middleware('auth:sanctum');
+Route::get('/user', UserController::class)->middleware(['auth:sanctum', 'cache.headers:no_store;private']);
 
 Route::get('/v2/openapi', static function () {
     return response(
@@ -180,7 +180,7 @@ Route::group(
         Route::get('comm-link-images/{image}', [ImageController::class, 'show'])->whereNumber('image')->name('comm-link-images.show');
         Route::get('comm-link-images/random', [ImageController::class, 'random'])->middleware('throttle:search')->name('comm-link-images.random');
         Route::post('comm-link-images/search', [ImageController::class, 'search'])->middleware('throttle:search')->name('comm-link-images.search');
-        Route::get('comm-link-images/{image}/similar', [CommLinkSearchController::class, 'similarSearch'])->whereNumber('image')->middleware(['auth:sanctum', 'throttle:similar-image-search'])->name('comm-link-images.similar');
+        Route::get('comm-link-images/{image}/similar', [CommLinkSearchController::class, 'similarSearch'])->whereNumber('image')->middleware(['auth:sanctum', 'throttle:similar-image-search', 'cache.headers:no_store;private'])->name('comm-link-images.similar');
 
         // Galactapedia
         Route::get('galactapedia', [GalactapediaController::class, 'index'])->name('galactapedia.index');

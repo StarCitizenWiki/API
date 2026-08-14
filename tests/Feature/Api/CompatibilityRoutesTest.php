@@ -67,6 +67,9 @@ it('returns the authenticated user contract on get /api/user', function (): void
         'language_id' => $language->id,
         'password' => 'secret-password',
         'remember_token' => 'sensitive-token',
+        'two_factor_secret' => 'secret-ciphertext',
+        'two_factor_recovery_codes' => json_encode(['code1', 'code2']),
+        'two_factor_confirmed_at' => now(),
     ]);
 
     Sanctum::actingAs($user, ['*']);
@@ -74,13 +77,29 @@ it('returns the authenticated user contract on get /api/user', function (): void
     $response = $this->getJson('/api/user');
 
     $response->assertSuccessful()
+        ->assertHeader('Cache-Control', 'no-store, private')
         ->assertJsonPath('id', $user->id)
         ->assertJsonPath('name', 'Compatibility Tester')
         ->assertJsonPath('email', 'compatibility.tester@example.test')
         ->assertJsonPath('is_admin', true)
         ->assertJsonPath('language_id', $language->id)
         ->assertJsonMissingPath('password')
-        ->assertJsonMissingPath('remember_token');
+        ->assertJsonMissingPath('remember_token')
+        ->assertJsonMissingPath('two_factor_secret')
+        ->assertJsonMissingPath('two_factor_recovery_codes')
+        ->assertJsonMissingPath('two_factor_confirmed_at');
+});
+
+it('rejects expired sanctum tokens on get /api/user', function (): void {
+    config(['sanctum.expiration' => 1]);
+
+    $user = User::factory()->create();
+    $token = $user->createToken('test-token')->plainTextToken;
+
+    $this->travel(2)->minutes();
+
+    $this->getJson('/api/user', ['Authorization' => "Bearer {$token}"])
+        ->assertUnauthorized();
 });
 
 it('redirects get /api/v2/{any?} to /api with 308 and preserves query string', function (): void {

@@ -81,3 +81,13 @@ it('reverse image search rejects non-image uploads', function () {
 
     $response->assertInvalid(['image']);
 });
+
+it('reverse image search rejects oversized image dimensions', function () {
+    $uploadedFile = UploadedFile::fake()->image('bomb.jpg', 7000, 10);
+
+    $response = $this->postJson('/api/comm-links/reverse-image-search', [
+        'image' => $uploadedFile,
+    ]);
+
+    $response->assertInvalid(['image']);
+});
