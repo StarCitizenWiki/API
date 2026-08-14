@@ -49,6 +49,7 @@ Route::group(
                     ->name('v2.vehicles.index');
                 Route::post('vehicles/search', [VehicleController::class, 'search'])
                     ->defaults('api_version', 'v2')
+                    ->middleware('throttle:search')
                     ->name('v2.vehicles.search');
                 Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])
                     ->defaults('api_version', 'v2')
@@ -73,6 +74,7 @@ Route::group(
                     ->name('v3.vehicles.index');
                 Route::post('vehicles/search', [VehicleController::class, 'search'])
                     ->defaults('api_version', 'v3')
+                    ->middleware('throttle:search')
                     ->name('v3.vehicles.search');
                 Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])
                     ->defaults('api_version', 'v3')
@@ -82,7 +84,7 @@ Route::group(
 
             Route::get('items', [ItemController::class, 'index'])->defaults('category', 'items')->name('items.index');
             Route::get('items/filters', [ItemController::class, 'filters'])->defaults('category', 'items')->name('items.filters');
-            Route::post('items/search', [ItemController::class, 'search'])->name('items.search');
+            Route::post('items/search', [ItemController::class, 'search'])->middleware('throttle:search')->name('items.search');
             Route::get('items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'items')->where('identifier', '.*')->name('items.show');
 
             Route::get('weapons', [ItemController::class, 'index'])->defaults('category', 'weapons')->name('weapons.index');
@@ -106,13 +108,13 @@ Route::group(
             Route::get('vehicle-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-items')->name('vehicle-items.index');
             Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');
 
-            Route::get('locations/positions', [StarmapPositionController::class, '__invoke'])->name('locations.positions');
+            Route::get('locations/positions', [StarmapPositionController::class, '__invoke'])->middleware('throttle:search')->name('locations.positions');
             Route::get('locations', [StarmapLocationController::class, 'index'])->name('locations.index');
             Route::get('locations/filters', [StarmapLocationController::class, 'filters'])->name('locations.filters');
             Route::get('locations/{identifier}', [StarmapLocationController::class, 'show'])->name('locations.show');
 
             Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
-            Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->name('manufacturers.search');
+            Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->middleware('throttle:search')->name('manufacturers.search');
             Route::get('manufacturers/{manufacturer}', [ManufacturerController::class, 'show'])->name('manufacturers.show');
 
             Route::get('resource-types', static fn (Request $request) => redirect()->route('commodities.index', $request->query(), 308));
@@ -137,7 +139,7 @@ Route::group(
 
             Route::get('vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
             Route::get('vehicles/filters', [VehicleController::class, 'filters'])->name('vehicles.filters');
-            Route::post('vehicles/search', [VehicleController::class, 'search'])->name('vehicles.search');
+            Route::post('vehicles/search', [VehicleController::class, 'search'])->middleware('throttle:search')->name('vehicles.search');
             Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])->where('vehicle', '.*')->name('vehicles.show');
 
             Route::get('ground-vehicles', [VehicleController::class, 'index'])
@@ -145,6 +147,7 @@ Route::group(
                 ->name('ground-vehicles.index');
             Route::post('ground-vehicles/search', [VehicleController::class, 'search'])
                 ->defaults('vehicle_type', 'ground-vehicles')
+                ->middleware('throttle:search')
                 ->name('ground-vehicles.search');
             Route::get('ground-vehicles/{vehicle}', [VehicleController::class, 'show'])
                 ->defaults('vehicle_type', 'ground-vehicles')
@@ -156,6 +159,7 @@ Route::group(
                 ->name('gravlev-vehicles.index');
             Route::post('gravlev-vehicles/search', [VehicleController::class, 'search'])
                 ->defaults('vehicle_type', 'gravlev-vehicles')
+                ->middleware('throttle:search')
                 ->name('gravlev-vehicles.search');
             Route::get('gravlev-vehicles/{vehicle}', [VehicleController::class, 'show'])
                 ->defaults('vehicle_type', 'gravlev-vehicles')
@@ -167,7 +171,7 @@ Route::group(
         Route::get('comm-links', [CommLinkController::class, 'index'])->name('comm-links.index');
         Route::get('comm-links/filters', [CommLinkController::class, 'filters'])->name('comm-links.filters');
         Route::get('comm-links/{id}', [CommLinkController::class, 'show'])->name('comm-links.show');
-        Route::post('comm-links/search', [CommLinkSearchController::class, 'searchByTitle'])->name('comm-links.search');
+        Route::post('comm-links/search', [CommLinkSearchController::class, 'searchByTitle'])->middleware('throttle:search')->name('comm-links.search');
         Route::post('comm-links/reverse-image-link-search', [CommLinkSearchController::class, 'reverseImageLinkSearch'])->middleware('throttle:reverse-image-search')->name('comm-links.reverse-link-search');
         Route::post('comm-links/reverse-image-search', [CommLinkSearchController::class, 'reverseImageSearch'])->middleware('throttle:reverse-image-search')->name('comm-links.reverse-image-search');
 
@@ -175,13 +179,13 @@ Route::group(
         Route::get('comm-link-images', [ImageController::class, 'index'])->name('comm-link-images.index');
         Route::get('comm-link-images/{image}', [ImageController::class, 'show'])->whereNumber('image')->name('comm-link-images.show');
         Route::get('comm-link-images/random', [ImageController::class, 'random'])->name('comm-link-images.random');
-        Route::post('comm-link-images/search', [ImageController::class, 'search'])->name('comm-link-images.search');
+        Route::post('comm-link-images/search', [ImageController::class, 'search'])->middleware('throttle:search')->name('comm-link-images.search');
         Route::get('comm-link-images/{image}/similar', [CommLinkSearchController::class, 'similarSearch'])->whereNumber('image')->middleware(['auth:sanctum', 'throttle:similar-image-search'])->name('comm-link-images.similar');
 
         // Galactapedia
         Route::get('galactapedia', [GalactapediaController::class, 'index'])->name('galactapedia.index');
         Route::get('galactapedia/filters', [GalactapediaController::class, 'filters'])->name('galactapedia.filters');
-        Route::post('galactapedia/search', [GalactapediaController::class, 'search'])->name('galactapedia.search');
+        Route::post('galactapedia/search', [GalactapediaController::class, 'search'])->middleware('throttle:search')->name('galactapedia.search');
         Route::get('galactapedia/{article}', [GalactapediaController::class, 'show'])->name('galactapedia.show');
 
         // Stats
@@ -191,17 +195,17 @@ Route::group(
         // Starmap
         Route::get('starsystems', [StarsystemController::class, 'index'])->name('starsystems.index');
         Route::get('starsystems/filters', [StarsystemController::class, 'filters'])->name('starsystems.filters');
-        Route::post('starsystems/search', [StarsystemController::class, 'search'])->name('starsystems.search');
+        Route::post('starsystems/search', [StarsystemController::class, 'search'])->middleware('throttle:search')->name('starsystems.search');
         Route::get('starsystems/{code}', [StarsystemController::class, 'show'])->name('starsystems.show');
         Route::get('celestial-objects', [CelestialObjectController::class, 'index'])->name('celestial-objects.index');
-        Route::post('celestial-objects/search', [CelestialObjectController::class, 'search'])->name('celestial-objects.search');
+        Route::post('celestial-objects/search', [CelestialObjectController::class, 'search'])->middleware('throttle:search')->name('celestial-objects.search');
         Route::get('celestial-objects/{code}', [CelestialObjectController::class, 'show'])->name('celestial-objects.show');
 
         Route::prefix('shipmatrix')->name('shipmatrix.')->group(function () {
             Route::prefix('vehicles')->name('vehicles.')->group(function () {
                 Route::get('/', [ShipMatrixVehicleController::class, 'index'])->name('index');
                 Route::get('/filters', [ShipMatrixVehicleController::class, 'filters'])->name('filters');
-                Route::post('/search', [ShipMatrixVehicleController::class, 'search'])->name('search');
+                Route::post('/search', [ShipMatrixVehicleController::class, 'search'])->middleware('throttle:search')->name('search');
                 Route::get('/{vehicle}', [ShipMatrixVehicleController::class, 'show'])
                     ->name('show')
                     ->where('vehicle', '.*');
