@@ -18,7 +18,7 @@ class ReverseImageSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['required', 'image', 'max:5120'],
+            'image' => ['required', 'image', 'max:5120', 'dimensions:max_width=6000,max_height=6000'],
             'similarity' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
