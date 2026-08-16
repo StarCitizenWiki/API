@@ -8,7 +8,7 @@ use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 
 /**
- * TRUSTED_PROXIES for CF IPs
+ * TRUSTED_PROXIES for CF IPs + internal docker network
  */
 class TrustCloudflareProxies extends TrustProxies
 {
@@ -42,6 +42,8 @@ class TrustCloudflareProxies extends TrustProxies
         '2405:8100::/32',
         '2a06:98c0::/29',
         '2c0f:f248::/32',
+        // Traefik container peer
+        '172.16.0.0/12',
     ];
 
     // no X-Forwarded-Host, Host must stay server-controlled

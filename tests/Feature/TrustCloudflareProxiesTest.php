@@ -35,4 +35,15 @@ describe('TrustCloudflareProxies', function (): void {
 
         expect($request->ip())->toBe('198.51.100.7');
     });
+
+    it('resolves the scheme from x-forwarded-proto when the request comes from the traefik docker network', function (): void {
+        $request = Request::create('/api/stats', 'GET', server: [
+            'REMOTE_ADDR' => '172.18.0.5',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+        ]);
+
+        $this->middleware->handle($request, fn () => response('ok'));
+
+        expect($request->isSecure())->toBeTrue();
+    });
 });
