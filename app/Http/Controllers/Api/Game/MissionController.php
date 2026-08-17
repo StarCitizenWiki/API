@@ -517,10 +517,14 @@ class MissionController extends Controller
                 }
             }),
             AllowedFilter::callback('blueprint_name', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
                 $query->whereHas('blueprints', static function (Builder $q) use ($value): void {
                     $q->where('game_blueprint_data.output_name', $value);
                 });
-            }),
+            })->delimiter(''),
             AllowedFilter::callback('min_enemies', static function (Builder $query, mixed $value): void {
                 if (! is_numeric($value)) {
                     return;
@@ -550,11 +554,19 @@ class MissionController extends Controller
                 $query->where('reward_max', '<=', (int) $value);
             }),
             AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
                 $query->whereLike('game_mission_data.title', "%{$value}%");
-            }),
+            })->delimiter(''),
             AllowedFilter::callback('description', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || $value === '') {
+                    return;
+                }
+
                 $query->whereLike('game_mission_data.description', "%{$value}%");
-            }),
+            })->delimiter(''),
             AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
@@ -565,9 +577,13 @@ class MissionController extends Controller
                         ->orWhereLike('game_mission_data.description', "%{$value}%")
                         ->orWhereLike('game_mission_data.debug_name', "%{$value}%");
                 });
-            }),
+            })->delimiter(''),
             AllowedFilter::exact('reward_scope', 'game_mission_data.reward_scope'),
             AllowedFilter::callback('location', static function (Builder $query, mixed $value): void {
+                if (! is_string($value) || ! Str::isUuid($value)) {
+                    return;
+                }
+
                 $query->whereHas('starmapLocations', static function (Builder $q) use ($value): void {
                     $q->where('game_starmap_location_data.location_uuid', $value);
                 });

@@ -11,6 +11,15 @@ beforeEach(function (): void {
     $this->version = createDefaultGameVersion();
 });
 
+it('ignores a location filter value that is not a uuid', function (): void {
+    MissionData::factory()->forVersion($this->version)->create(['title' => 'Anywhere']);
+
+    $response = $this->getJson('/api/missions?filter[location]=monox');
+
+    $response->assertSuccessful();
+    expect($response->json('data'))->toHaveCount(1);
+});
+
 it('filters missions by starmap location uuid', function (): void {
     $location = StarmapLocation::factory()->create();
     $locationData = StarmapLocationData::factory()
