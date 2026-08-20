@@ -8,6 +8,7 @@ use App\Attributes\CacheTag;
 use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
+use App\Http\Filters\IntegerExactFilter;
 use App\Http\Filters\NonEmptyExactFilter;
 use App\Http\Filters\SortByRelation;
 use App\Http\Includes\CustomEagerLoadInclude;
@@ -853,8 +854,8 @@ class VehicleController extends Controller
             AllowedFilter::callback('include_irrelevant', static function (Builder $query): void {
                 // noop
             }),
-            AllowedFilter::exact('size'),
-            AllowedFilter::exact('size_class', 'size'),
+            AllowedFilter::custom('size', new IntegerExactFilter, 'game_vehicle_data.size'),
+            AllowedFilter::custom('size_class', new IntegerExactFilter, 'game_vehicle_data.size'),
             AllowedFilter::custom('mass_total', new NonEmptyExactFilter),
             AllowedFilter::custom('cargo_capacity', new NonEmptyExactFilter),
             AllowedFilter::custom('vehicle_inventory', new NonEmptyExactFilter),

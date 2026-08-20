@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Enums\Game\ItemGrade;
 use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
+use App\Http\Filters\IntegerExactFilter;
 use App\Http\Filters\ItemVariantsFilter;
 use App\Http\Filters\NonEmptyExactFilter;
 use App\Http\Filters\SortByRelation;
@@ -454,8 +456,8 @@ class ItemController extends Controller
 
                 $query->whereLike('game_item_data.classification', "%{$value}%");
             }),
-            AllowedFilter::exact('size'),
-            AllowedFilter::exact('grade'),
+            AllowedFilter::custom('size', new IntegerExactFilter, 'game_item_data.size'),
+            AllowedFilter::custom('grade', new IntegerExactFilter(ItemGrade::labelMap()), 'game_item_data.grade'),
             AllowedFilter::exact('class'),
             AllowedFilter::callback('include_irrelevant', static function (Builder $query): void {
                 // noop
@@ -1256,16 +1258,7 @@ class ItemController extends Controller
             'grade' => [
                 'expr' => 'game_item_data.grade',
                 'cast' => static fn ($value) => $value === null ? null : (int) $value,
-                'labelResolver' => static fn ($value, $Lbl) => match ($value) {
-                    1 => 'A',
-                    2 => 'B',
-                    3 => 'C',
-                    4 => 'D',
-                    5 => 'E',
-                    6 => 'F',
-                    7 => 'G',
-                    default => null,
-                },
+                'labelResolver' => static fn ($value) => $value === null ? null : ItemGrade::tryFrom($value)?->name,
             ],
             'class' => [
                 'expr' => 'game_item_data.class',

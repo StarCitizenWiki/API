@@ -199,6 +199,45 @@ describe('query filter', function (): void {
     });
 });
 
+describe('size filter', function (): void {
+    it('filters vehicles by a numeric size', function (): void {
+        $match = Vehicle::factory()->create();
+        VehicleData::factory()
+            ->for($match)
+            ->for($this->version, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create(['name' => 'Arrow', 'class_name' => 'Anvil_Arrow', 'size' => 1, 'data' => []]);
+
+        $other = Vehicle::factory()->create();
+        VehicleData::factory()
+            ->for($other)
+            ->for($this->version, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create(['name' => 'Hornet', 'class_name' => 'Anvil_Hornet', 'size' => 2, 'data' => []]);
+
+        $response = $this->getJson('/api/vehicles?filter[size]=1');
+
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $match->uuid);
+    });
+
+    it('ignores a non-numeric size instead of erroring', function (): void {
+        foreach (['Arrow', 'Hornet'] as $name) {
+            VehicleData::factory()
+                ->for(Vehicle::factory()->create())
+                ->for($this->version, 'gameVersion')
+                ->for($this->manufacturer)
+                ->create(['name' => $name, 'class_name' => 'Anvil_'.$name, 'size' => 1, 'data' => []]);
+        }
+
+        $response = $this->getJson('/api/vehicles?filter[size]=small');
+
+        $response->assertSuccessful();
+        expect($response->json('data'))->toHaveCount(2);
+    });
+});
+
 describe('type filter', function (): void {
     it('filters ground-vehicles route to only ground vehicles', function (): void {
         $groundVehicle = Vehicle::factory()->create();

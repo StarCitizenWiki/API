@@ -22,6 +22,85 @@ beforeEach(function (): void {
     ]);
 });
 
+describe('integer column filters', function (): void {
+    beforeEach(function (): void {
+        $gradeA = Item::factory()->create();
+        ItemData::factory()
+            ->for($gradeA)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Grade A Small',
+                'size' => 1,
+                'grade' => 1,
+                'class_name' => 'GradeASmall',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
+
+        $gradeC = Item::factory()->create();
+        ItemData::factory()
+            ->for($gradeC)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Grade C Big',
+                'size' => 3,
+                'grade' => 3,
+                'class_name' => 'GradeCBig',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
+    });
+
+    it('maps a grade letter label to its integer value', function (): void {
+        $response = $this->getJson('/api/items?filter[grade]=A');
+
+        $response->assertSuccessful();
+        $names = collect($response->json('data'))->pluck('name');
+        expect($names)->toContain('Grade A Small')
+            ->and($names)->not->toContain('Grade C Big');
+    });
+
+    it('ignores an unknown grade letter instead of erroring', function (): void {
+        $response = $this->getJson('/api/items?filter[grade]=X');
+
+        $response->assertSuccessful();
+        expect($response->json('data'))->toHaveCount(2);
+    });
+
+    it('ignores a non-numeric size value instead of erroring', function (): void {
+        $response = $this->getJson("/api/items?filter[size]=1'");
+
+        $response->assertSuccessful();
+        expect($response->json('data'))->toHaveCount(2);
+    });
+
+    it('filters multiple numeric sizes at once', function (): void {
+        $middle = Item::factory()->create();
+        ItemData::factory()
+            ->for($middle)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Size Two',
+                'size' => 2,
+                'grade' => 1,
+                'class_name' => 'SizeTwo',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
+
+        $response = $this->getJson('/api/items?filter[size]=1,3');
+
+        $response->assertSuccessful();
+        $names = collect($response->json('data'))->pluck('name');
+        expect($names)->toContain('Grade A Small')
+            ->and($names)->toContain('Grade C Big')
+            ->and($names)->not->toContain('Size Two');
+    });
+});
+
 it('filters items by type and manufacturer', function (): void {
     $otherManufacturer = Manufacturer::factory()->create([
         'name' => 'Other',
