@@ -251,7 +251,8 @@ class VehicleController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = $this->buildBaseQuery($request);
-        $vehicles = $query->jsonPaginate();
+        // hard limit number of returned vehicles for now
+        $vehicles = $query->jsonPaginate(maxResults: 50);
         $this->preloadIndexResourceDependencies($this->paginatedVehicleCollection($vehicles));
 
         return VehicleResource::collection($vehicles)
@@ -531,7 +532,7 @@ class VehicleController extends Controller
                 }
             });
 
-        $vehicles = $query->jsonPaginate();
+        $vehicles = $query->jsonPaginate(maxResults: 50);
         $this->preloadIndexResourceDependencies($this->paginatedVehicleCollection($vehicles));
 
         return VehicleResource::collection($vehicles)
