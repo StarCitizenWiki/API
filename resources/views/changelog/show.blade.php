@@ -108,9 +108,13 @@
                         $webUrl = $diff->resolveWebUrl();
                         $className = $diff->resolveClassName();
                         $columnChanges = $diff->column_changes ? $diff->column_changes->toArray() : [];
+                        // data_changes is only hydrated for rows below the controller's render limit; oversized rows carry a SQL-computed count instead.
                         $dataChanges = $diff->data_changes ? $diff->data_changes->toArray() : [];
-                        $hasDetails = $diff->change_type === 'modified' && (count($columnChanges) > 0 || count($dataChanges) > 0);
-                        $changeTree = $hasDetails ? $diff->buildChangeTree() : [];
+                        $dataChangeCount = (int) ($diff->data_changes_count ?? 0);
+                        $totalChanges = count($columnChanges) + $dataChangeCount;
+                        $hasDetails = $diff->change_type === 'modified' && $totalChanges > 0;
+                        $diffTooLarge = $hasDetails && $diff->data_changes === null && $dataChangeCount > 0;
+                        $changeTree = $hasDetails && ! $diffTooLarge ? $diff->buildChangeTree() : [];
                     @endphp
 
                     <div class="card bg-base-100 shadow-sm border border-base-300">
@@ -140,14 +144,18 @@
 
                             @if($diff->change_type === 'modified' && $hasDetails)
                                 @php
-                                    $totalChanges = count($columnChanges) + count($dataChanges);
+                                    $totalChanges = count($columnChanges) + $dataChangeCount;
                                 @endphp
                                 <details class="mt-1">
                                     <summary class="text-xs font-medium cursor-pointer select-none px-2 py-1 rounded hover:bg-base-200 transition-colors">
                                         {{ $totalChanges }} change{{ $totalChanges !== 1 ? 's' : ''}}
                                     </summary>
                                     <div class="mt-2 max-h-96 overflow-y-auto">
-                                        @include('changelog.partials.change-tree', ['node' => $changeTree])
+                                        @if($diffTooLarge)
+                                            <div class="text-xs text-subtle">Diff too large to display ({{ $dataChangeCount }} changed fields).</div>
+                                        @else
+                                            @include('changelog.partials.change-tree', ['node' => $changeTree])
+                                        @endif
                                     </div>
                                 </details>
                             @endif
