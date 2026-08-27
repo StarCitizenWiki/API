@@ -179,11 +179,20 @@ class EnrichVehiclePrices implements ShouldQueue
         $jsonValues = [];
 
         if (is_array($purchaseData) && $purchaseData !== []) {
-            $jsonValues['uex_purchase_prices'] = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
+            $mapped = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
+
+            if ($mapped !== []) {
+                $jsonValues['uex_purchase_prices'] = $mapped;
+            }
         }
 
         if (is_array($rentalData) && $rentalData !== []) {
-            $jsonValues['uex_rental_prices'] = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
+            $mapped = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
+
+
+            if ($mapped !== []) {
+                $jsonValues['uex_rental_prices'] = $mapped;
+            }
         }
 
         if ($jsonValues !== []) {

@@ -19,7 +19,7 @@ trait FiltersUexVersions
         $map[$currentPrefix] = $currentVersionCode;
 
         if ($this->previousVersionCode !== null) {
-            $previousPrefix = GameVersion::patchFamily($this->previousVersionCode);
+            $previousPrefix = GameVersion::versionFamily($this->previousVersionCode);
 
             if ($previousPrefix !== null && ! array_key_exists($previousPrefix, $map)) {
                 $map[$previousPrefix] = $this->previousVersionCode;

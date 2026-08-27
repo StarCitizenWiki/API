@@ -104,7 +104,7 @@ it('enriches item prices from per-item API', function (): void {
     ]);
 });
 
-it('matches current-family prices with major.minor prefix and previous-family with exact patch', function (): void {
+it('matches current-family and previous-family prices with major.minor prefix', function (): void {
     Log::spy();
 
     $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.8.0-LIVE.11875683']);
@@ -196,16 +196,78 @@ it('matches current-family prices with major.minor prefix and previous-family wi
 
     $itemData->refresh();
 
-    // Should keep 4.8.0 (current family) and 4.7.2 (previous patch)
-    // Should drop 4.7.1 (wrong previous patch)
+    // Current family keeps 4.8.0, previous family keeps every 4.7.x patch
     expect($itemData->uex_prices)->toBeArray()
-        ->and($itemData->uex_prices)->toHaveCount(2)
+        ->and($itemData->uex_prices)->toHaveCount(3)
         ->and($itemData->uex_prices[0])->toMatchArray([
             'price_buy' => 15461,
             'game_version' => $version->code,
         ])
         ->and($itemData->uex_prices[1])->toMatchArray([
             'price_buy' => 14000,
+            'game_version' => $previousVersionCode,
+        ])
+        ->and($itemData->uex_prices[2])->toMatchArray([
+            'price_buy' => 13000,
+            'game_version' => $previousVersionCode,
+        ]);
+});
+
+it('keeps previous-family prices reported as x.y when the current version has no UEX data yet', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true, 'code' => '4.10.0-LIVE.12519617']);
+    $previousVersionCode = '4.9.0-LIVE.12232306';
+
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => [
+            [
+                'terminal_name' => 'CenterMass - Area18',
+                'price_buy' => 10000,
+                'price_sell' => 0,
+                'game_version' => $previousVersionCode,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    Http::fake(function ($request) {
+        if (str_contains($request->url(), 'items_prices?uuid')) {
+            return Http::response([
+                'data' => [
+                    [
+                        'id' => 1,
+                        'id_terminal' => 107,
+                        'terminal_name' => 'CenterMass - IO North Tower - Area 18',
+                        'terminal_code' => 'CMA18',
+                        'price_buy' => 15461,
+                        'price_sell' => 0,
+                        'game_version' => '4.9',
+                        'date_modified' => 1700000000,
+                    ],
+                ],
+            ]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response(['data' => []]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    $job = new EnrichItemPrices($version->id, [$item->uuid], [], [], $previousVersionCode);
+    $job->handle();
+
+    $itemData->refresh();
+
+    expect($itemData->uex_prices)->toBeArray()
+        ->and($itemData->uex_prices)->toHaveCount(1)
+        ->and($itemData->uex_prices[0])->toMatchArray([
+            'price_buy' => 15461,
             'game_version' => $previousVersionCode,
         ]);
 });
