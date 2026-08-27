@@ -14,6 +14,7 @@ use App\Support\Seo\MissionShowSeoData;
 use App\Traits\NormalizesFilterParams;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 #[CacheTag('missions')]
@@ -36,7 +37,7 @@ class MissionController extends Controller
         $locationUuid = $request->input('filter.location');
         $activeLocationFilter = null;
 
-        if (is_string($locationUuid) && $locationUuid !== '') {
+        if (is_string($locationUuid) && Str::isUuid($locationUuid)) {
             $location = StarmapLocation::where('uuid', $locationUuid)->first();
             $locationName = $location?->dataForVersion()?->value('name');
 

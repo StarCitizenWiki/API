@@ -80,6 +80,13 @@ it('does not show location filter badge when filter is not active', function ():
     $response->assertDontSee('Filtered by:');
 });
 
+it('does not 500 on a non-uuid location filter value', function (): void {
+    $response = $this->get('/missions?filter[location]=454231285');
+
+    $response->assertSuccessful();
+    $response->assertDontSee('data-testid="missions-location-filter-badge"', false);
+});
+
 it('does not include location filter in endpoint when not provided', function (): void {
     $response = $this->get('/missions');
 
