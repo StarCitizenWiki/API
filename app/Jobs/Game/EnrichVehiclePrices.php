@@ -189,7 +189,6 @@ class EnrichVehiclePrices implements ShouldQueue
         if (is_array($rentalData) && $rentalData !== []) {
             $mapped = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
 
-
             if ($mapped !== []) {
                 $jsonValues['uex_rental_prices'] = $mapped;
             }
