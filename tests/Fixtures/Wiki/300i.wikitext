@@ -1,0 +1,245 @@
+{{Vehicle
+| uuid                            = ce937681-caa2-4cfa-ab80-f5bf2a5b9a6c
+| name                            = 300i
+| image                           = 300i - Flying over cloudtops - cropped.jpg
+| manufacturer                    = ORIG
+| series                          = 300
+| career                          = Multi-role
+| role                            = Luxury Touring
+| size                            = small
+| productionstate                 = Flight ready
+| addedinversion             = Patch V0.8
+| mincrew                         = 1
+| maxcrew                         = 1
+| length                          = 27
+| width                           = 17
+| height                          = 8
+| mass                            = 77677
+| cargocapacity                   = 8
+| stowage                         =
+| pledgecost                      = 60
+| originalpledgecost              = 55
+| warbondcost                     = 55
+| pledgeavailability              = Always available
+| pledgeurl                     = https://robertsspaceindustries.com/pledge/ships/origin-300/300i
+| presentationurl = https://robertsspaceindustries.com/comm-link/transmission/17046-Origin-Celebration
+| brochureurl                     = https://robertsspaceindustries.com/media/0iplijfsgmlb8r/source/300series_brochure-1.pdf
+| trailerurl                      = https://www.youtube.com/watch?v=qDQ8dbE8qSo
+| galactapediaurl                 = https://robertsspaceindustries.com/galactapedia/article/0j46jjYgOn-origin-300i
+| whitleysguideurl                = https://robertsspaceindustries.com/comm-link/spectrum-dispatch/19171-Whitleys-Guide-300-Series
+| releasedate                     = 2899
+| conceptdate                     = 2013-06-21
+| saledate                        = 2013-06-21
+| queryimage                      =
+}}
+
+The '''300i''' serves as the foundational model within a series of luxury touring spacecraft created by [[Origin Jumpworks]]. This model is characterized by its premium features and aesthetic design, appealing to a wealthier clientele that values a visually appealing spacecraft over a more functional, utilitarian option.<ref>{{Cite RSI|url=pledge/ships/origin-300/300i|text=300i - Ship Page}}</ref>
+
+== Features ==
+{{List item
+|Comfort
+|If you're going to travel the stars, why not do it in style with a modern kitchen, bed and even a toilet.
+}}
+{{List item
+|FPS Gun rack
+|Personal defense is an important thing and safe and easy storage of your FPS weapons can help with that.
+}}
+{{List item
+|Weapons
+|With three size 3 gun hard-points and a pair of missile racks that can hold a single size 2 missile each, the 300i can defend itself if needed.
+}}
+{{List item
+|Cargo
+|The 300i has a drop down cargo hold that is easy to access and can carry up to 8 SCUs of cargo. Its capable of carrying [[PTV]], however due to height, the cargo bay must stay open during transportation.
+}}
+
+== Ports ==
+{{Entity/Ports}}
+
+== Model ==
+=== Ship profile ===
+<tabber>
+ In space=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+!Below
+|-
+|[[File:300i_in_space_-_Isometric.jpg|center|frameless|128x72px]]
+|[[File:300i_in_space_-_Above.jpg|center|frameless|128x72px]]
+|[[File:300i_in_space_-_Port.jpg|center|frameless|128x72px]]
+|[[File:300i_in_space_-_Front.jpg|center|frameless|128x72px]]
+|[[File:300i_in_space_-_Rear.jpg|center|frameless|128x72px]]
+|[[File:300i_in_space_-_Below.jpg|center|frameless|128x72px]]
+|}
+|-|
+ Landed=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+|-
+|[[File:300i_in_SelfLand_-_Isometric.jpg|center|frameless|128x72px]]
+|[[File:300i_in_SelfLand_-_Above.jpg|center|frameless|128x72px]]
+|[[File:300i_in_SelfLand_-_Port.jpg|center|frameless|128x72px]]
+|[[File:300i_in_SelfLand_-_Front.jpg|center|frameless|128x72px]]
+|[[File:300i_in_SelfLand_-_Rear.jpg|center|frameless|128x72px]]
+|}
+</tabber>
+
+=== Series variants ===
+{{Vehicle variants}}
+
+=== Paints ===
+{{for|more information|:300 series/Paints}}
+{| class="wikitable"
+![[300 series/Paints#"Citron"|"Citron"]]
+![[300 series/Paints#"Electric Blue"|"Electric Blue"]]
+![[300 series/Paints#"First Response"|"First Response"]] ✱
+![[300 series/Paints#"Golden Dawn"|"Golden Dawn"]] ✱
+![[300 series/Paints#"Imperial Red"|"Imperial Red"]] ✱
+![[300 series/Paints#"Monarch"|"Monarch"]]
+![[300 series/Paints#"Moonlight"|"Moonlight"]]
+![[300 series/Paints#"Obsidian"|"Obsidian"]]
+![[300 series/Paints#"Scarlet"|"Scarlet"]]
+![[300 series/Paints#"Sterling"|"Sterling"]]
+![[300 series/Paints#"Ultramarine"|"Ultramarine"]]
+|-
+|[[File:300i - Citron - cropped.png|center|frameless|128x72px]]
+|[[File:300i - Electric Blue - cropped.png|center|frameless|128x72px]]
+|[[File:300i First Response - Paint scheme.png|center|frameless|128x72px]]
+|[[File:300i Golden Dawn - Paint scheme.png|center|frameless|128x72px]]
+|[[File:300i Imperial Red - Paint scheme.png|center|frameless|128x72px]]
+|[[File:300i - Monarch - cropped.png|center|frameless|128x72px]]
+|[[File:300i - Moonlight - cropped.png|center|frameless|128x72px]]
+|[[File:300i Obsidian in space - Isometric.jpg|center|frameless|128x72px]]
+|[[File:300i - Scarlet - cropped.png|center|frameless|128x72px]]
+|[[File:300i - Sterling - cropped.png|center|frameless|128x72px]]
+|[[File:300i Ultramarine in space - Isometric.jpg|center|frameless|128x72px]]
+|}
+✱ Only compatible with the 300i.
+
+== Acquisition ==
+{{Entity/Availability}}
+
+== Lore ==
+<tabber>
+ Formation of the Design Team=
+In [[2889]], the wake of the [[X3|X3's]] success, the Lang brother built out his own teams: [[Otto Lang|Otto]] worked on the [[200 series]] observation craft and [[Andreas Lang|Andreas]] designed what the company saw as its crown jewel: the 300 series personal spacecraft. The design team consists of fanatics, idealists to make sure the 300's styling would carry some higher ideal. The resultant team was an eclectic mix: standard ship design specialists focused on areas like power plants, thrusters, and life support, while outsiders from other industries were brought in to work on aesthetics, comfort and the general feel of the ship.
+|-|
+ Early Prototype=
+In [[2897]]-08-03, the first hand-machined Origin 300 prototype (pre-production models lacked the closing alphabetic variant designators such as "-i" or "-p") took flight at [[Frankfurt Cosmodrome]]. The first flight was an enormous success from a technical standpoint: the prototype completed nine [[Earth]] orbits without a hitch. Additional early tests rapidly checked off the standard first flight objectives, including the Earth-[[Luna]] slingshot and the initial quantum to [[Io]]. Inside six months, 300-1 was ready to perform the first jump tests in real space. However, a complete materials manifest of the current metals, alloys and components indicated that the end retail cost of the ship would be over fifteen times that of an [[Aurora]]. The company's board, previously content to let Lang work without restrictions, stepped in. For the next fourteen months, the factions of the company fought a vicious internal battle over the 300's production model, with a chain of executives resigning in defiance of Lang's obstinance. Spacecraft designers and outside consultants were tasked with determining how to turn a perfect, expensive prototype into a working production model without sacrificing the soul of the machine. The result of these reworkings was a spacecraft with a lower price roughly four times that of the Aurora.
+|-|
+ Success of the 300 Series=
+In [[2898]], the [[UEE High Court|high court]] passed down a verdict in Pressman v. United Empire of Earth that allowed civilian craft to use the same speed safety standards that racing ships had been using for years. Pressman argued that with the current advances in avionics, the older safety regulations set by the [[UEE Department of Transportation and Navigation|Department of Transportation and Navigation]] were an unfair burden for modern pilots. The court agreed and the timing could not have been better for the 300 would be the first new spacecraft to take advantage of these new speed safety limits. As a result, in [[2899]], the 300 was one of the fastest ships available in its class. Although [[RSI]], [[Drake]] and others quickly followed suit and produced ships that were 'uncapped,' Origin won popular acclaim by getting there first.
+|-|
+ Premiere Reveal=
+On [[2899]]-12-18, the 300 series (only the 300i at the time) premiered at a special reveal ceremony at [[Baikonur]] to incredible acclaim. The combination of its stunning lines and incredible performance won over audiences immediately. The Origin 300 quickly became the 'look' of popular spaceflight - a symbol of success and a goal for everyone setting out into the galaxy.
+|-|
+ Present=
+After the introduction of the 300 series, over a dozen 300 series variants have been offered since the line's inception, with the majority being minor, one-off yearly models themed for particular events. Origin has expanded their production capabilities every year since the 300 launched, using the success of the design to finance more spacecraft that follow the same aesthetic philosophy. Origin continues to adhere to Andreas Lang's basic belief that the look and handling of spacecraft should speak to our deeper nature.<ref name="whitley"/>
+|-|
+ 320c Imperator's Edition=
+A one-off model themed for an [[Imperator]] event.<ref name="whitley">{{Cite RSI|url=media/6wbv4mow17cpfr/source/JumpPoint_06-04_Apr-18_Scoring-100.pdf|text=Jump Point 06-04: ''Whitley's Guide: 300i''}}</ref>
+</tabber>
+
+== Gallery ==
+{{for|related galleries|:Category:300i#mw-category-media|:Category:Origin Jumpworks 300#mw-category-media}}
+
+<tabber>
+ Official=
+{{gallery
+|300i_flying_in_space_with_bright_Nebula_-_Starboard.jpg
+|300i_promo_4K-Min.jpg
+|300i-rework-anniversary-2948.png
+|Cloud Imperium Games 300Series-1-Min.jpg
+|300i interior gb wip a wSCLogo.png
+|300i interior gb wip b wSCLogo.png
+|Cloud Imperium Games 300Series-2-Min.jpg
+|Cloud Imperium Games 300Series-3-Min.jpg
+|300i - Flying over cloudtops.jpg
+}}
+|-|
+ In-game=
+{{gallery
+|300i_in_quantum_-_Front_Port.jpg
+|Origin-300i-overhead-3.5.jpg
+|Origin-300i-front-left-3.5.jpg
+|Origin-300i-front-right-3.5.jpg
+|Origin-300i-top-3.5.jpg
+|Origin-300i-cockpit2-3.5.jpg
+|Origin-300i-cockpit-3.5.jpg
+|Origin-300i-front-section-3.5.jpg
+|Origin-300i-rear-section2-3.5.jpg
+|Origin-300i-rear-section1-3.5.jpg
+|Origin-300i-2948-expo-01.jpg
+|Origin-300i-2948-expo-02.jpg
+|Origin-300i-2948-expo-03.jpg
+|Origin-300i-2948-expo-05.jpg
+|Origin-300i-2948-expo-06.jpg
+|Origin-300i-2948-expo-07.jpg
+|Origin-300i-2948-expo-08.jpg
+|Origin-300i-2948-expo-09.jpg
+|Origin-300i-2948-expo-10.jpg
+|Origin-300i-2948-expo-11.jpg
+|Origin-300i-2948-expo-12.jpg
+|Origin-300i-2948-expo-13.jpg
+|IAE2950-day8-300i.jpg
+}}
+|-|
+ Original design=
+{{gallery
+|300i flyby.jpg
+|Origin-300i-old-07.jpg
+|Origin-300i-old-09.jpg
+|Origin-300i-old-10.jpg
+|Origin-300i-old-01.jpg
+|Origin-300i-old-02.jpg
+|Origin-300i-old-03.jpg
+|Origin-300i-old-04.jpg
+|Origin-300i-old-05.jpg
+|300icockpit.jpg
+|300icargo.jpg
+|Origin-300i-old-06.jpg
+|300i.jpg
+|300icom.png
+|300iback.jpg
+|300iengine.jpg
+}}
+</tabber>
+
+==Development==
+{{Timeline styles}}
+{| class="timeline"
+|-
+|2012-12
+|The initial concept of the 300i is described to be as a stylish BMW-esque ship that sends as much of a message with its silhouette as it does with its particle cannons. Its concept is designed by [[Kemp Remillard]] (Senior Conceptist) at Massive Black. In-game model is designed by [[Chris Smith]] (3D Artist) at [[CIG Los Angeles]] with the help of [[Elijah McNeal]] (Conceptist) at [[CIG Austin]].<ref>[[David Ladyman]],''Work in Progress: 300 series'', vol. 1, no. 7, pp. 3-36.</ref>
+|-
+|2013-06-21
+|The 300i (along with the 300 series) are officially introduced, although the ships have been teased during the Kickstarter pledge.<ref>{{Cite RSI|url=comm-link/transmission/13068-A|text=The 300 Series Revealed}}</ref> As of 2018-05-24, the 300 series is scheduled for a rework.{{fact}}
+|-
+|}
+
+==Trivia==
+
+== External links ==
+*{{Link RSI|url=media/yplyp9lbhie7br/source/JumpPoint-12-21-2012-Mayan-End-of-the-World-Edition.pdf|text=Work in Progress: 300i}}
+*[https://youtu.be/NVJIzAvMPQ4 Inside Cloud Imperium Games - The 300i Pipeline] on YouTube.com
+*{{Link RSI|url=source/media/0iplijfsgmlb8r/source/300series_brochure-1.pdf|text=300 series brochure}}
+*''Whitley's Guide: 300i'', [[Jump Point (magazine)|Jump Point]], vol. 6, no. 4, pp.&nbsp;35-38
+*[https://www.youtube.com/watch?v=JrQ0qMRZ_1Q Original Trailer]
+
+== References ==
+<references />
+
+{{Navplate manufacturers|ORIG}}
+{{Navplate vehicles}}
+
+[[Category:Touring ships]]
+[[Category:Couriers]]
+[[Category:Light fighters]]

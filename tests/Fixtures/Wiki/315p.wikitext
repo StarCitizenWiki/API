@@ -1,0 +1,202 @@
+{{Vehicle
+| uuid                            = dc537d66-2abb-43aa-9d37-4e963fc6e9e2
+| name                            = 315p
+| image                           = 315p - Flying high over clouds - cropped.png
+| manufacturer                    = ORIG
+| series                          = 300
+| size                            = small
+| career                          = Exploration
+| role                            = Pathfinder
+| productionstate                 = Flight ready
+| addedinversion             = Patch V0.9.2.1
+| mincrew                         = 1
+| maxcrew                         = 1
+| length                          = 27
+| width                           = 17
+| height                          = 8
+| mass                            = 
+| cargocapacity                   = 12
+| stowage                         = 
+| pledgecost                      = 65
+| originalpledgecost              = 65
+| pledgeavailability              = Always available
+| pledgeurl                     = https://robertsspaceindustries.com/pledge/ships/origin-300/315p
+| presentationurl = https://robertsspaceindustries.com/comm-link/transmission/17046-Origin-Celebration
+| brochureurl                     = https://robertsspaceindustries.com/media/exfjsh7mejoxir/source/300series_brochure.pdf
+| trailerurl                      = https://www.youtube.com/watch?v=qDQ8dbE8qSo
+| galactapediaurl                 = https://robertsspaceindustries.com/galactapedia/article/0j46jjAjK6-origin-315p
+| whitleysguideurl                = https://robertsspaceindustries.com/comm-link/spectrum-dispatch/19171-Whitleys-Guide-300-Series
+| releasedate                     = {{Start date and age|2930|sctime=yes|paren=yes}}
+| conceptdate                     = 2013-06-21
+| saledate                        = 2013-06-21
+| queryimage                      = 
+}}
+
+The '''315p''' represents a variant of the 300 touring spacecraft, which was created by [[Origin Jumpworks]]. It features upgraded engines that provide superior power performance, along with a custom communications system developed by [[Chimera Communications]]. Typically, the 315p serves as a support vessel for larger exploration teams or is utilized by individual owners seeking to embark on journeys in a spacecraft that embodies Origin's distinctive aesthetic.<ref>{{Cite RSI|url=pledge/ships/origin-300/315p|text=315p - Ship Page}}</ref>
+
+== Features ==
+{{List item|Tractor beam|The front nose hard-point replaces the standard gun with a size 2 [[tractor beam]].
+}}
+{{List item
+|Scanner
+|The 315p has a custom scanning package, exclusively designed by Chimera Communications.
+}}
+{{List item
+|Comfort
+|If you're going to travel the stars, why not do it in style with a modern kitchen, bed and even a toilet.
+}}
+{{List item
+|FPS Gun rack
+|Personal defense is an important thing and safe and easy storage of your FPS weapons can help with that.
+}}
+{{List item
+|Weapons
+|With two size 3 gun hard-points and a pair of missile racks that can hold a single size 2 missiles each, the 315p can defend itself if needed.
+}}
+{{List item
+|Cargo
+|The 315p has a drop down cargo hold that is easy to access and can carry up to 12 SCUs of cargo.
+}}
+
+== Ports ==
+{{Entity/Ports}}
+
+== Model ==
+
+===Ship profile===
+<tabber>
+ In space=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+!Below
+|-
+|[[File:315p_in_space_-_Isometric.jpg|center|frameless|128x72px]]
+|[[File:315p_in_space_-_Above.jpg|center|frameless|128x72px]]
+|[[File:315p_in_space_-_Port.jpg|center|frameless|128x72px]]
+|[[File:315p_in_space_-_Front.jpg|center|frameless|128x72px]]
+|[[File:315p_in_space_-_Rear.jpg|center|frameless|128x72px]]
+|[[File:315p_in_space_-_Below.jpg|center|frameless|128x72px]]
+|}
+|-|
+ Landed=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+|-
+|[[File:315p_in_SelfLand_-_Isometric.jpg|center|frameless|128x72px]]
+|[[File:315p_in_SelfLand_-_Above.jpg|center|frameless|128x72px]]
+|[[File:315p_in_SelfLand_-_Port.jpg|center|frameless|128x72px]]
+|[[File:315p_in_SelfLand_-_Front.jpg|center|frameless|128x72px]]
+|[[File:315p_in_SelfLand_-_Rear.jpg|center|frameless|128x72px]]
+|}
+</tabber>
+
+===Series variants===
+{{Vehicle variants}}
+
+=== Paints ===
+{{for|more information|:300 series/Paints}}
+{| class="wikitable"
+![[300 series/Paints#"Black Rose"|"Black Rose"]] ✱
+![[300 series/Paints#"Citron"|"Citron"]]
+![[300 series/Paints#"Electric Blue"|"Electric Blue"]]
+![[300 series/Paints#"Monarch"|"Monarch"]]
+![[300 series/Paints#"Moonlight"|"Moonlight"]]
+![[300 series/Paints#"Nightshade"|"Nightshade"]] ✱
+![[300 series/Paints#"Obsidian"|"Obsidian"]]
+![[300 series/Paints#"Scarlet"|"Scarlet"]]
+![[300 series/Paints#"Sterling"|"Sterling"]]
+![[300 series/Paints#"Ultramarine"|"Ultramarine"]]
+![[300 series/Paints#"White Lightning"|"White Lightning"]] ✱
+|-
+|[[File:315p Black Rose - Paint scheme.png|center|frameless|128x72px]]
+|[[File:300i - Citron - cropped.png|center|frameless|128x72px]]
+|[[File:300i - Electric Blue - cropped.png|center|frameless|128x72px]]
+|[[File:300i - Monarch - cropped.png|center|frameless|128x72px]]
+|[[File:300i - Moonlight - cropped.png|center|frameless|128x72px]]
+|[[File:315p Nightshade landed at Port Olisar - Above.jpg|center|frameless|128x72px]]
+|[[File:300i Obsidian in space - Isometric.jpg|center|frameless|128x72px]]
+|[[File:300i - Scarlet - cropped.png|center|frameless|128x72px]]
+|[[File:300i - Sterling - cropped.png|center|frameless|128x72px]]
+|[[File:300i Ultramarine in space - Isometric.jpg|center|frameless|128x72px]]
+|[[File:315p White Lightning - Paint scheme.png|center|frameless|128x72px]]
+|}
+✱ Only compatible with the 315p.
+
+== Acquisition ==
+{{Entity/Availability}}
+
+== Lore ==
+<tabber>
+ Developing variants=
+In [[2899]], the 300 series launched a single model: the 300i. The designer of the 300i, [[Andreas Lang]], was insistent that Origin would begin producing variants in the third model year by designing entirely new models to fulfill different specialized tasks. Origin, remembering the expense of the first prototype and the ensuing battle to lower production costs, balked at the idea. For all of the project's rhetoric, later amplified by the series' initial marketing, the company wanted to borrow an important aspect from [[RSI|RSI's]] [[Aurora]]: a
+modular space frame designed to easily adapt variants. Like the Aurora, the 300 series would adapt the initial version into a host of different
+factory models built atop the standard design. By all accounts, the decision to develop variants instead of bespoke models soured Lang on the project altogether.{{cite}}
+|-|
+ The launch of 315p=
+In [[2930]], the Origin 315p was launched in 2930 as a 'pocket explorer,' an unusual attempt to marry the 300i's lines with improved power output and a newly developed scanning package. Despite the odd duck nature of the design, the 315p proved a reliable performer, with much of the success coming because smaller prospecting outfits were happy to have a dedicated spacecraft that could perform just as well, but provide the comfort and style that was often overlooked by other manufacturers.{{cite}}
+</tabber>
+
+==Gallery==
+{{for|related galleries|:Category:315p#mw-category-media|:Category:Origin Jumpworks 300#mw-category-media}}
+
+<tabber>
+ Official=
+{{gallery
+|315p_and_350r_flying_over_moon_-_Above.png
+|315p_with_white_back_-_Isometric.png
+|315p_-_White_room_-_Above.png
+|315p_-_White_room_-_Front.png
+|315p_-_White_room_-_Rear_Port.png
+|315p_-_Cockpit.png
+|315p_-_Bed_and_Gun_rack.png
+|315p_-_Kitchen_area.jpg
+|315p - Flying high over clouds.jpg
+}}
+|-|
+ In-game=
+{{gallery
+|placeholderv2.png
+|IAE2950-day8-315p.jpg
+}}
+|-|
+ Original design=
+{{gallery
+|Old_315p_in_SelfLand_-_Isometric.jpg
+|Old_315p_in_SelfLand_-_Above.jpg
+|Old_315p_in_SelfLand_-_Port.jpg
+|Old_315p_in_SelfLand_-_Front.jpg
+|Old_315p_in_SelfLand_-_Rear.jpg
+|315pflight.jpg
+|315prear.jpg
+|315pcockpit.jpg
+|315pengine.jpg
+}}
+</tabber>
+
+==Development==
+{{Timeline styles}}
+{| class="timeline"
+|-
+|<!--DATE-->
+|<!--INFO-->
+|-
+|}
+
+==Trivia==
+
+==References==
+<references />
+
+{{Navplate manufacturers|ORIG}}
+{{Navplate vehicles}}
+
+[[Category:Reconnaissance ships]]
+[[Category:Couriers]]

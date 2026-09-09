@@ -1,0 +1,148 @@
+{{Vehicle
+| uuid = 38ae749f-d4fc-4dfd-907b-ed8db61f3d88
+| name = 600i Executive Edition
+| image = 600i_-_Legatus_Navium_Edition.jpg
+| role = Expedition
+| size = large
+| manufacturer = ORIG
+| career = Exploration
+| series = 600i
+| novariant = yes
+| productionstate = Flight ready
+| productionstatenote = Interior rework planned
+| mincrew = 2
+| maxcrew = 5
+| pledgecost = 475
+| originalpledgecost = 435
+| warbondcost = 435
+| originalwarbondcost = 400
+| length = 91.5
+| width = 52
+| height = 17
+| pledgeavailability = Reward - Not available for sale
+| conceptdate = 
+| saledate = <!-- THIS IS A REWARD ONLY. NOT SOLD -->
+| pledgeurl = <!-- THIS IS NO STORE PAGE FOR THIS VEHICLE -->
+| galactapediaurl = <!-- ORIGINAL --> https://robertsspaceindustries.com/galactapedia/article/0QxYA8xYLj-origin-600i-explorer
+| presentationurl = <!-- THERE IS NO PRESENTATION PAGE FOR THIS VEHICLE -->
+| brochureurl = <!-- ORIGINAL --> https://robertsspaceindustries.com/media/awfctcstfkykur/source/Origin600i-Brochure-Optimised.pdf
+| trailerurl = <!-- ORIGINAL --> https://youtu.be/gbCSQDhPOlk
+| qaurl = <!-- ORIGINAL --> https://robertsspaceindustries.com/comm-link/engineering/16093-Q-A-Origin-600i
+| whitleysguideurl = <!-- ORIGINAL --> https://robertsspaceindustries.com/comm-link/spectrum-dispatch/19554-Whitleys-Guide-600i
+| releasedate = 
+}}
+
+
+The limited '''600i Executive Edition''' is a multi-role luxury exploration vessel produced by [[Origin Jumpworks]]. They partnered with leading designers and influencers from the Chairman’s Club to elevate the already impressive 600i, resulting in an 'Executive Edition' that features a refined finish and stunning gold accents. This exceptional creation is exclusively available to the most esteemed members of the Chairman’s Club, known as the 'Legatus Navium', reflecting the high standards of its originators.
+
+It is equipped with numerous features tailored for exploration, including sophisticated scanning technology, ample cargo space to accommodate the requirements of extended missions, and dedicated storage for vehicles intended for planetary exploration.<ref name="Con-Lev&Rew">{{Cite RSI|url=https://support.robertsspaceindustries.com/hc/en-us/articles/360002542733-Concierge-Levels-and-Rewards|text=Concierge Levels and Rewards|accessdate=2024-09-19}}</ref>
+
+== Features  ==
+{{List item
+|Wraparound canopy
+|Like some of the Origin ships, 600i comes with a canopy without struts blocking the front view. It provides stunning vistas and better situation awareness for the bridge crew.<ref name=":0">{{Cite RSI|url=media/awfctcstfkykur/source/Origin600i-Brochure-Optimised.pdf|text=600i - Ship Brochure}}</ref>
+}}
+{{List item
+|Hull plating
+|The Origin's proprietary GLAX plating allows the ship to be much lighter than comparably sized ships.<ref name=":0" />
+}}
+{{List item
+|Exploration Module
+|The Exploration Module is designed to bring luxury and comfort to those long-haul exploration missions in deep space. In addition to the Explorer module's comprehensive scanning array and utility hardpoints, this module offers an increased cargo capacity to make sure you have all the room you need for extra supplies or for bringing back more discoveries. The bridge contains a mapping table and additional slots for avionics and utility systems.<ref name=":0" /> The Exploration Module also adds a garage with a deployable ramp for ground exploration.<ref name=":1">{{Cite RSI|url=comm-link//16082-600i-A-Symphony-In-Motion|text = 600i - A Symphony in Motion}}</ref>
+}}
+{{List item
+|Origin G12 Touring
+|The ship also comes with an Originː [[G12]] Touring rover.<ref>{{Cite RSI|url=https://robertsspaceindustries.com/comm-link/engineering/17631-Q-A-Origin-G12-Rover|text=Q&A: Origin G12 Rover}}</ref> 
+}}
+
+== Ports ==
+{{Entity/Ports}}
+
+== Model ==
+
+=== Ship profile ===
+
+<tabber>
+ In space=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+!Below
+|-
+|[[File:600i Executive in space - Isometric.jpg|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:600i Executive in space - Above.jpg|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:600i Executive in space - Port.jpg|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:600i Executive in space - Front.jpg|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:600i Executive in space - Rear.jpg|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:600i Executive in space - Below.jpg|center|frameless|128x72px|link=|class=noviewer]]
+|}
+|-|
+ Landed=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+|-
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|}
+</tabber>
+
+=== Series variants ===
+{{Vehicle variants}}
+
+===Paints===
+{{for|more information|:600i series/Paints}}
+
+== Acquisition ==
+{{Entity/Availability}}
+
+== Lore ==
+<tabber>
+ Beginnings=
+The 600i is based on the previous 600 line, manufactured in the [[29th century]]. The line originally began as a function first mid-sized transport. One heavily modified original 600 ship was used by Captain [[Iggy Decarlo]] in the [[Tohil Regatta]] race on [[Tohil III]], and served as a rescue ship during the environmental catastrophe at [[Amidon Island]].<ref>Jump Point, vol. 7, no. 5</ref> 
+|-|
+ Redesign=
+Only as Origin refined their version of luxury after moving to [[Terra (planet)|Terra]], they went back to the drawing board to bring the 600 in line with Origin's iconic aesthetic. Engineers used the same chassis as before but made major changes to the interior's shape language, used better materials, and added expensive diamond laminate panels to create an observation deck. It was put into full-scale production in 2947, and they added an "i" to the ships name to symbolize the upgrade.<ref>{{Cite RSI|text=Galactic Guide: Origin|url=comm-link/transmission/13157-Galactic-Guide-ORIGIN}}</ref>
+</tabber>
+
+== Gallery == 
+{{for|a full gallery|:Category:600i Executive Edition images}}
+
+<tabber>
+ Official=
+{{gallery
+|600i_-_Legatus_Navium_Edition.jpg
+}}
+|-|
+ In-game=
+{{gallery
+|600i-legatus-01.png
+|600i-legatus-02.png
+|600i-legatus-03.png
+|600i-legatus-04.png
+}}
+</tabber>
+
+== Development ==
+* This exclusive edition is available solely as a reward for [[Concierge]] backers who have attained the rank of '''Legatus Navium'''.<ref name="Con-Lev&Rew" />
+
+==Trivia==
+
+== References == 
+<references />
+
+{{Navplate manufacturers|ORIG}}
+{{Navplate vehicles}}
+[[Category:Concierge items]]
+[[Category:Modular]]
+[[Category:Refuel, rearm and repair capable ships]]
+[[Category:Executive Edition (cosmetic)]]

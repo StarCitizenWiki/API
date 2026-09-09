@@ -665,9 +665,22 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'warbond_price',
+            description: 'Current standalone warbond price in USD from the live pledge store; null when no warbond SKU is on sale',
+            type: 'integer',
+            example: 400,
+            nullable: true
+        ),
+        new OA\Property(
             property: 'pledge_url',
             description: 'Link to RSI pledge store',
             type: 'string',
+            nullable: true
+        ),
+        new OA\Property(
+            property: 'curated_data',
+            ref: '#/components/schemas/vehicle_curated_data',
+            description: 'Curated vehicle data synced from the starcitizen.tools wiki; null when no wiki page exists',
             nullable: true
         ),
         new OA\Property(
@@ -1100,8 +1113,12 @@ class VehicleResource extends AbstractBaseResource
             'msrp' => $vehicleData->relationLoaded('shipMatrixVehicle')
                 ? $vehicleData->shipMatrixVehicle?->msrp
                 : null,
+            'warbond_price' => $this->resolveWarbondPrice($vehicleData),
             'pledge_url' => $vehicleData->relationLoaded('shipMatrixVehicle')
                 ? $vehicleData->shipMatrixVehicle?->pledge_url
+                : null,
+            'curated_data' => $this->vehicle?->relationLoaded('curatedData') && $this->vehicle->curatedData !== null
+                ? new VehicleCuratedDataResource($this->vehicle->curatedData)
                 : null,
 
             'uex_prices' => [
@@ -1172,6 +1189,7 @@ class VehicleResource extends AbstractBaseResource
             'description' => TranslationResolver::resolve($shipMatrixVehicle, $request),
             'size' => TranslationResolver::resolve($shipMatrixVehicle->size, $request),
             'msrp' => $shipMatrixVehicle->msrp,
+            'warbond_price' => $this->resolveWarbondPrice($vehicleData),
             'pledge_url' => $shipMatrixVehicle->pledge_url !== null
                 ? sprintf('https://robertsspaceindustries.com%s', $shipMatrixVehicle->pledge_url)
                 : null,
@@ -1249,6 +1267,28 @@ class VehicleResource extends AbstractBaseResource
         );
 
         return PortResource::collection(array_values($filtered))->resolve($request);
+    }
+
+    /**
+     * Standalone warbond price in USD from the live pledge store
+     */
+    private function resolveWarbondPrice(VehicleData $vehicleData): ?int
+    {
+        if (! $vehicleData->relationLoaded('shipMatrixVehicle')) {
+            return null;
+        }
+
+        $shipMatrixVehicle = $vehicleData->shipMatrixVehicle;
+
+        if ($shipMatrixVehicle === null || ! $shipMatrixVehicle->relationLoaded('pledgeSkus')) {
+            return null;
+        }
+
+        $warbondSku = $shipMatrixVehicle->pledgeSkus->first(
+            static fn ($sku): bool => $sku->product_id === 72 && $sku->is_warbond && $sku->stock_available
+        );
+
+        return $warbondSku !== null ? intdiv((int) $warbondSku->native_price, 100) : null;
     }
 
     private function getLoaner(VehicleData $vehicleData): array

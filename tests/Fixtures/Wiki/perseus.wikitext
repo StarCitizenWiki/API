@@ -1,0 +1,275 @@
+{{Vehicle
+| uuid = 40a1f83b-3623-49e6-8168-ab8223998aa2
+| image = Perseus angled combat.jpg
+| name = Perseus
+| manufacturer = RSI
+| series = Perseus
+| career = Combat
+| role =
+| size = Large
+| productionstate = Flight ready
+| addedinversion = Alpha 4.4.0
+| mincrew = 1
+| maxcrew = 7
+| length = 100
+| width = 50
+| height = 25
+| retractedlength =
+| retractedwidth =
+| retractedheight =
+| mass = 4037000
+| novariant = yes
+| cargocapacity = 96
+| stowage = 8400K µSCU
+| pledgecost = 800
+| originalpledgecost = 675
+| warbondcost = 700
+| originalwarbondcost = 600
+| pledgeavailability = Time-limited sales
+| pledgeurl = https://robertsspaceindustries.com/pledge/ships/perseus/Perseus
+| presentationurl = https://robertsspaceindustries.com/comm-link/transmission/20738-RSI-Perseus; https://robertsspaceindustries.com/comm-link/transmission/17881-RSI-Perseus
+| trailerurl = https://youtu.be/ui921Uom_PY
+| brochureurl = https://media.robertsspaceindustries.com/7z87yphjoj2jk/source.pdf
+| qaurl = https://robertsspaceindustries.com/comm-link/engineering/20880-Q-A-RSI-Perseus; https://robertsspaceindustries.com/comm-link/engineering/17915-Q-A-RSI-Perseus
+| galactapediaurl = https://robertsspaceindustries.com/galactapedia/article/bEzXg6qGe6-perseus
+| releasedate = Late 2520s
+| conceptdate = 2020-11-28
+| saledate = 2020-11-28
+| queryimage = <!--Alternative image for variant thumbnails-->
+| smwqueryname =
+}}
+
+The '''Perseus''' is a large [[:Category:Patrol vessels|patrol gunship]] manufactured by [[Roberts Space Industries]]. Initially created in the late 2520s for the [[United Planets of Earth|UPE]] Navy, it underwent a redesign in 2950 to become a civilian model, incorporating contemporary components and focusing on enhanced utility. Originally designed for blockade operations and confrontations with sub-capital vessels, the Perseus is equipped with robust turrets and a torpedo launch bay.<ref name="PerseusStore">{{Cite RSI|url=https://robertsspaceindustries.com/pledge/ships/perseus/Perseus|text=RSI Perseus Store}}</ref><ref name="PerseusFlyable">{{Cite RSI|url=https://robertsspaceindustries.com/comm-link/transmission/20738-RSI-Perseus|text=RSI Perseus Flyable|accessdate=2025-11-20}}</ref><ref name="PerseusQ&A">{{Cite RSI|url=https://robertsspaceindustries.com/en/comm-link/engineering/20880-Q-A-RSI-Perseus|text=Q&A: RSI Perseus|accessdate=2025-11-20}}</ref>
+
+==Features==
+{{List item
+|Manned turrets
+|The Perseus is armed with two crewed turrets, each featuring two bespoke Size 8 ballistic cannons and two Size 3 [[gun]] hardpoints for improved fighter deterrence and defense.<ref name="PerseusStore"/>
+}}
+{{List item
+|Remote turrets
+|There is also two remote turrets for anti-fighter support, each with two Size 3 [[gun]]s with one on the bridge for pilot control, and the other on the keel. Additionally, it features six [[Point Defense Turret]]s for extra protection against ordnance.<ref name="PerseusStore"/>
+}}
+{{List item
+|Torpedoes
+|The ship has two internal torpedo bays for up to forty Size 5 [[torpedo]]es, with ten in each auto-loader and an additional twenty in nearby racks. These bays can be replenished from the cargo bay, enhancing the ship's ordinance capacity. The pilot can launch torpedoes traditionally or via a control console in the front section.<ref name="PerseusStore"/>
+}}
+{{List item
+|Cargo Bay
+|The internal bay serves as the nexus of surface access, docking access and cargo access. The bay has been engineered to support a range of payloads with a 96 SCU cargo grid that can store sizes of up to [[32-SCU container]]s. It can also accommodate vehicles like the [[Ursa]] or [[MTC]], and when not in use, it serves as a basketball half-court with illuminated markings and an automatic unstowing hoop.<ref name="PerseusStore"/><ref name="BtS:Perseus">[https://youtu.be/tqZ4jwhJs7o Behind the Ships: RSI Perseus]. ''YouTube.'' Retrieved 2025-11-20.</ref>
+}}
+{{List item
+|Crew areas
+|The Perseus features crew quarters for six, a separate Captain's Quarters, and a military-style galley to keep the crew well-fed and motivated. It also includes a comprehensive [[engineering]] bay for operations, maintenance, and repairs.<ref name="PerseusFlyable"/>
+}}
+{{List item
+|Stowage
+|There are personal lockers that can each hold up to 1000k µSCU of various items, with six located in the crew quarters and one located in the captains quarters. There are also suit lockers, six in the crew quarters and one in the captain's quarters, however as of Alpha 4.7.2 this functionality has yet to be implemented.<ref name="PerseusStore"/>
+}}
+{{List item
+|Weapon/Utility racks
+|In the crew quarters, there are FPS racks that can hold twelve Size 2-4 [[Personal weapon|weapons]] and/or [[:Category:Gadgets (Size 2)|tools]], twelve Size 1 [[:Category:Pistols|pistols]] and/or [[:Category:Medguns|medguns]], as well as twelve Size 1 [[:Category:Gadgets (Size 1)|tools]]. In the Captains Quarters there are racks that can hold two Size 2-4 weapons and/or tools, two Size 1 pistols and/or medguns, as well as two Size 1 tools. There is also weapons racks located on the bridge that can hold three Size 2-4 weapons and three Size 1 pistols and/or medguns.
+}}
+
+== Ports ==
+{{Entity/Ports}}
+
+==Model==
+
+===Ship profile===
+<tabber>
+ In-space=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+!Below
+|-
+|[[File:Perseus in space - Isometric.jpg|center|frameless|128x72px]]
+|[[File:Perseus in space -Above.jpg|center|frameless|128x72px]]
+|[[File:Perseus in space -Port.png|center|frameless|128x72px]]
+|[[File:Perseus in space -Front.jpg|center|frameless|128x72px]]
+|[[File:Perseus in space -Rear.jpg|center|frameless|128x72px]]
+|[[File:Perseus in space -Below.jpg|center|frameless|128x72px]]
+|}
+|-|
+ Landed=
+{| class="wikitable"
+!Isometric
+!Above
+!Port-side
+!Front
+!Rear
+|-
+|[[File:Perseus landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|[[File:placeholderv2.png|center|frameless|128x72px|link=|class=noviewer]]
+|}
+</tabber>
+<!--
+===Series variants===
+{{Vehicle variants}}-->
+
+===Paints===
+{{for|more information|:Perseus series/Paints}}
+
+{| class="wikitable"
+![[Perseus series/Paints#"Alliance Aid Camo"|"Alliance Aid Camo"]]
+![[Perseus series/Paints#"Deadfire"|"Deadfire"]]
+![[Perseus series/Paints#"Flintlock"|"Flintlock"]]
+![[Perseus series/Paints#"Hieron"|"Hieron"]]
+![[Perseus series/Paints#"Incite"|"Incite"]]
+![[Perseus series/Paints#"Repute"|"Repute"]]
+![[Perseus series/Paints#"Resilient"|"Resilient"]]
+![[Perseus series/Paints#"Thundercloud"|"Thundercloud"]]
+<!--![[Perseus series/Paints#"item_NamePerseus_Paint_beige_beige_beige"|"item_NamePerseus_Paint_beige_beige_beige"]]
+![[Perseus series/Paints#"item_NamePerseus_Paint_beige_blue_brown"|"item_NamePerseus_Paint_beige_blue_brown"]]
+![[Perseus series/Paints#"item_NamePerseus_Paint_beige_green_red"|"item_NamePerseus_Paint_beige_green_red"]]
+![[Perseus series/Paints#"item_NamePerseus_Paint_black_grey_grey"|"item_NamePerseus_Paint_black_grey_grey"]]
+![[Perseus series/Paints#"item_NamePerseus_Paint_blue_blue_black"|"item_NamePerseus_Paint_blue_blue_black"]]
+![[Perseus series/Paints#"item_NamePerseus_Paint_green_green_black"|"item_NamePerseus_Paint_green_green_black"]]
+![[Perseus series/Paints#"item_NamePerseus_Paint_grey_grey_orange"|"item_NamePerseus_Paint_grey_grey_orange"]]
+![[Perseus series/Paints#"item_NamePerseus_Paint_red_white_black"|"item_NamePerseus_Paint_red_white_black"]]-->
+|-
+|[[File:Perseus Alliance Aid Camo landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:Perseus Deadfire landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:Perseus Flintlock landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:Perseus Hieron landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:Perseus Incite landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:Perseus Repute landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:Perseus Resilient landed in hangar - cropped.png|center|frameless|128x72px]]
+|[[File:Perseus Thundercloud cutout stripe BG SCT logo.png|center|frameless|128x72px]]
+<!--|[[File:placeholderv2.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px]]
+|[[File:placeholderv2.png|center|frameless|128x72px]]
+-->
+|}
+
+==Acquisition==
+{{Entity/Availability}}
+
+==Lore==
+<tabber>
+ Beginnings=
+The Perseus was first constructed in the late 2520s, a few years before the [[Xi'an-Human Cold War]]. These gunships were frequently deployed along the [[Perry Line]], making them a regular fixture after Xi'an-Human first Contact in 2530.<ref name="PerseusBrochure">{{Cite RSI|url=https://media.robertsspaceindustries.com/7z87yphjoj2jk/source.pdf|text=Perseus - brochure|accessdate=2020-11-28}}</ref>
+|-|
+ Retired=
+In 2863, RSI retired the Perseus from production due to a lack of interest from the UEEN.<ref name="PerseusBrochure"/>
+|-|
+ Vanduul War=
+During [[Operation Mandrake]] in [[2946]] in the [[Vanduul War]], the aging Perseus ''[[UEES Achilles]]'' managed to take down two Vanduul destroyers when the ship was damaged beyond repair. Due to its performance, UEEN Admiral [[Ernst Bishop]] personally lobbied RSI to start producing Perseus models again for use against the [[Vanduul]].<ref name="PerseusBrochure"/>
+|-|
+ Civilian version=
+Following Perseus success against the Vanduul, RSI expanded development to include a civilian version under the [[Militia Mobilization Initiative]].<ref name="galactapedia">{{Cite RSI|url=https://robertsspaceindustries.com/galactapedia/article/bEzXg6qGe6-perseus|text=Galactapedia: Perseus|accessdate=2023-04-20}}</ref> The new Perseus, equipped with modernized weapons and a redesigned lower deck that could accommodate cargo vehicles<ref name="PerseusBrochure"/> was released on day 9 of the [[Intergalactic Aerospace Expo 2950]] <ref name="iae2950yt">[https://www.youtube.com/watch?v=oPO7lm84LWc Star Citizen: IAE 2950 - Roberts Space Industries] on YouTube</ref> event.
+</tabber>
+
+==Gallery==
+{{for|a full gallery|:Category:Roberts Space Industries Perseus#mw-category-media}}
+
+<tabber>
+ Official=
+{{gallery
+|Perseus angled combat top.jpg
+|Starcitizen-Perseus-Clouds.webp
+|Perseus cargo.jpg
+|Perseus torpedo bay.jpg
+|Perseus torpedo room - Sneak Peek WIP.png
+|Perseus torpedo control.jpg
+|Perseus bridge.jpg
+|Perseus looking into the bridge - Sneak Peek WIP.png
+|Perseus engineering.jpg
+|Perseus mess hall.jpg
+|Perseus captains quarters.jpg
+|Perseus crew quarters.jpg
+|Perseus elevator shaft - Monthly report WIP.jpg
+|Perseus angled combat below.jpg
+|IAE2500 SaveDate CARPlus H264 1920x860 30fps 251104.00.png
+|IAE2500 SaveDate CARPlus H264 1920x860 30fps 251104.02.png
+|IAE2500 SaveDate CARPlus H264 1920x860 30fps 251104.01.png
+|RSI-Perseus-promo 20.png
+|Perseus landed in hangar - cropped.png
+|Perseus angled combat.jpg
+}}
+|-|
+ In-game=
+{{gallery
+|placeholderv2.png
+}}
+|-|
+ Original designs=
+{{gallery
+|RSI-Perseus-promo 01.jpg
+|RSI-Perseus-promo 02.jpg
+|RSI-Perseus-promo 04.jpg
+|RSI-Perseus-promo 05.jpg
+|RSI-Perseus-promo 06.jpg
+|RSI-Perseus-promo 07.jpg
+|RSI-Perseus-promo 08.png
+|RSI-Perseus-promo 09.jpg
+|RSI-Perseus-promo 10.jpg
+|RSI-Perseus-promo 11.jpg
+|RSI-Perseus-promo 12.jpg
+|RSI-Perseus-promo 13.jpg
+|RSI-Perseus-promo 14.jpg
+|RSI-Perseus-promo 15.jpg
+|RSI-Perseus-promo 17.jpg
+|RSI-Perseus-promo 18.jpg
+|RSI-Perseus-promo 19.jpg
+|RSI-Perseus-promo 03.jpg
+|RSI-Perseus-promo 16.jpg
+|RSI-Perseus-underside.jpg
+|RSI Perseus Piece 09a Deck Top-2.png
+|RSI Perseus Piece 09b Deck Middle-2.png
+|RSI Perseus Piece 09c Deck Bottom-2.png
+|Perseus - Line Drawing - Above.png
+|Perseus - Line Drawing - Port.png
+|Perseus - Line Drawing - Front.png
+|Perseus - Line Drawing - Rear.png
+|Perseus - Line Drawing - Below.png
+|IAE2950-day9-holosuite-perseus-top.jpg
+|IAE2950-day9-holosuite-perseus-rear.jpg
+|IAE2950-day9-holosuite-perseus-front.jpg
+|Invictus-2952-rsi-holosuite-perseus.jpg
+}}</tabber>
+
+==Development==
+{{Timeline styles}}
+{| class="timeline"
+|-
+|2020-07
+|John Crewe put together the design brief. Paul Jones and Gavin Rothery created the concept artwork, with principle work beginning in July 2020.
+|-
+|2020-11-28
+|The Perseus was publicly revealed during [[Intergalactic Aerospace Expo 2950|IAE 2950]].
+|-
+|2020-12-18
+|Chris Roberts wanted a ship that stood apart from the standard battleship or the destroyers, torpedo boats, carriers, etc already added to the line-up. He chose the ironclad gunboat as the inspiration. In the initial stages, the Perseus' was referred to as "RSI Gunboat", not receiving its final name until very late in the concept development process.<ref name="JP812">{{Cite RSI|url=https://robertsspaceindustries.com/media/wcsmbufcvqphvr/source/JP08-12-DEC-Its-A-Gas.pdf|text=Jump Point Issue 8-12 December 2020: "It's A Gas"|accessdate=2023-07-21}}</ref>
+|-
+|2025-11-19
+|The Perseus became flyable with the launch of [[Update:Star Citizen Alpha 4.4.0|Alpha 4.4.0]], but is to be properly unveiled on RSI day of [[Intergalactic Aerospace Expo 2955|IAE 2955]].
+|-
+|}
+
+==Trivia==
+* In Greek mythology, Perseus, son of Danae and Zeus, is recognized as the fabled founder of the Perseid dynasty. Alongside figures such as Cadmus and Bellerophon, he stands as one of the most prominent Greek heroes and a renowned monster slayer prior to the era of Heracles. Perseus famously decapitated the Gorgon Medusa on behalf of Polydectes and rescued Andromeda from the clutches of the sea monster Cetus.<ref>Wikipedia Perseus https://en.wikipedia.org/wiki/Perseus</ref>
+* Perseus is also a constellation located in the northern hemisphere that is named after the legendary Greek hero. It features the luminous star [https://en.wikipedia.org/wiki/Alpha_Persei Mirfak], the variable star [https://en.wikipedia.org/wiki/Algol Algol], and serves as the radiant point for the yearly [https://en.wikipedia.org/wiki/Perseids Perseid meteor shower] which is observable between the months of July and August.
+
+==References==
+<references />
+
+{{Navplate manufacturers|RSI}}
+{{Navplate vehicles}}
+
+{{Short description|Large heavy gunship manufactured by RSI}}
+
+[[Category:Patrol vessels]]
+[[Category:Gunships]]

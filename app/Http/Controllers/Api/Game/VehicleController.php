@@ -393,6 +393,7 @@ class VehicleController extends Controller
                 'shipMatrixVehicle.pledgeSkus',
                 'shipMatrixVehicle.manufacturer',
                 'shipMatrixVehicle.components',
+                'vehicle.curatedData',
             ];
 
             $vehicleData->load($shipMatrixRelations);
@@ -681,6 +682,7 @@ class VehicleController extends Controller
             ->allowedIncludes(...$this->allowedIncludes())
             ->with([
                 'vehicle',
+                'vehicle.curatedData',
                 'gameVersion',
                 'manufacturer',
                 'shipMatrixVehicle.foci',

@@ -26,6 +26,11 @@ Schedule::command('pledge-store:import')
     ->daily()
     ->withoutOverlapping();
 
+// Vehicle curated data (starcitizen.tools wiki infobox sync)
+Schedule::command('vehicles:sync-curated-data')
+    ->daily()
+    ->withoutOverlapping();
+
 Schedule::command('vehicles:import-loaner')
     ->daily();
 

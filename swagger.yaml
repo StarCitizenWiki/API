@@ -17938,6 +17938,92 @@ components:
           type: string
           nullable: true
       type: object
+    vehicle_curated_data:
+      title: 'Vehicle Curated Data'
+      properties:
+        source:
+          type: string
+          enum:
+            - starcitizen.tools
+        page_url:
+          description: 'Wiki page this data was scraped from'
+          type: string
+          example: 'https://starcitizen.tools/Origin_300i'
+        synced_at:
+          description: 'Timestamp of the last successful wiki sync'
+          type: string
+          format: datetime
+          example: '2026-09-09T05:00:00+00:00'
+          nullable: true
+        trailer_url:
+          description: 'Official vehicle trailer video URL'
+          type: string
+          example: 'https://www.youtube.com/watch?v=qDQ8dbE8qSo'
+          nullable: true
+        original_pledge_price:
+          description: 'Original concept pledge price in USD'
+          type: integer
+          example: 55
+          nullable: true
+        original_warbond_price:
+          description: 'Original warbond pledge price in USD'
+          type: integer
+          example: 45
+          nullable: true
+        added_in_version:
+          description: 'Wiki-verbatim release patch label like "Patch V0.8"'
+          type: string
+          example: 'Patch V0.8'
+          nullable: true
+        concept_date:
+          description: 'Real-world concept announcement date'
+          type: string
+          format: date
+          example: '2013-06-21'
+          nullable: true
+        sale_date:
+          description: 'Date the vehicle first went on sale'
+          type: string
+          format: date
+          example: '2013-06-21'
+          nullable: true
+        retire_date:
+          description: 'Date the vehicle was retired from the pledge store'
+          type: string
+          format: date
+          nullable: true
+        pledge_availability:
+          description: 'Current pledge-store availability label'
+          type: string
+          example: 'Always available'
+          nullable: true
+        brochure_url:
+          description: 'Digital brochure PDF URL'
+          type: string
+          nullable: true
+        presentation_urls:
+          description: 'Manufacturer presentation page URLs'
+          type: array
+          items:
+            type: string
+          example:
+            - 'https://robertsspaceindustries.com/comm-link/transmission/17046-Origin-Celebration'
+        whitleys_guide_url:
+          description: "Whitley's Guide review article URL"
+          type: string
+          nullable: true
+        galactapedia_url:
+          description: 'Galactapedia article URL'
+          type: string
+          nullable: true
+        qa_urls:
+          description: 'QA forum thread URLs covering the vehicle'
+          type: array
+          items:
+            type: string
+          example:
+            - 'https://robertsspaceindustries.com/spectrum/community/SC/forum/50272/thread/origin-300-series-qa'
+      type: object
     vehicle_link:
       title: 'Vehicle Link'
       type: object
@@ -19224,10 +19310,21 @@ components:
           description: 'Ship-Matrix MSRP in USD'
           type: number
           nullable: true
+        warbond_price:
+          description: 'Current standalone warbond price in USD from the live pledge store; null when no warbond SKU is on sale'
+          type: integer
+          example: 400
+          nullable: true
         pledge_url:
           description: 'Link to RSI pledge store'
           type: string
           nullable: true
+        curated_data:
+          oneOf:
+            -
+              $ref: '#/components/schemas/vehicle_curated_data'
+          nullable: true
+          description: 'Curated vehicle data synced from the starcitizen.tools wiki; null when no wiki page exists'
         loaner:
           description: 'Ship-Matrix loaner vehicles'
           type: array
