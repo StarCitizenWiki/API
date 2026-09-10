@@ -39,9 +39,9 @@ class EnrichImages implements ShouldQueue
      * @param  array<int, string>  $idUuidMap  model ID => UUID
      */
     public function __construct(
-        private readonly string $modelClass,
-        private readonly array $idNameMap,
-        private readonly array $idUuidMap = [],
+        public readonly string $modelClass,
+        public readonly array $idNameMap,
+        public readonly array $idUuidMap = [],
     ) {}
 
     public function handle(): void

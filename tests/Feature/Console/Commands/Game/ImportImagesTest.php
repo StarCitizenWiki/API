@@ -10,6 +10,7 @@ use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
+use App\Models\Game\VehicleCuratedData;
 use App\Models\Game\VehicleData;
 use Illuminate\Support\Facades\Bus;
 
@@ -105,6 +106,32 @@ it('skips entity types with no records and logs a warning', function (): void {
 
     // Only 1 batch: items. The other 3 entity types are skipped.
     Bus::assertBatchCount(1);
+});
+
+it('prefers curated wiki page titles over display names for vehicles', function (): void {
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    $vehicle = Vehicle::factory()->create();
+    VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $version->id,
+        'display_name' => 'Vanduul Scythe',
+    ]);
+
+    VehicleCuratedData::query()->create([
+        'game_vehicle_id' => $vehicle->id,
+        'wiki_page_title' => 'Scythe',
+    ]);
+
+    Bus::fake();
+
+    $this->artisan('game:import-images')->assertSuccessful();
+
+    Bus::assertBatched(function ($batch) use ($vehicle): bool {
+        return $batch->jobs
+            ->filter(fn ($job): bool => $job instanceof EnrichImages)
+            ->contains(fn ($job): bool => $job->idNameMap === [$vehicle->id => 'Scythe']);
+    });
 });
 
 it('chunks jobs correctly', function (): void {

@@ -12,6 +12,7 @@ use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
+use App\Models\Game\VehicleCuratedData;
 use App\Models\Game\VehicleData;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
@@ -92,6 +93,11 @@ class ImportImages extends Command
 
             return;
         }
+
+        $idNameMap = VehicleCuratedData::query()
+            ->whereIn('game_vehicle_id', array_keys($idNameMap))
+            ->pluck('wiki_page_title', 'game_vehicle_id')
+            ->toArray() + $idNameMap;
 
         $idUuidMap = Vehicle::query()
             ->whereIn('id', $rows->keys())
