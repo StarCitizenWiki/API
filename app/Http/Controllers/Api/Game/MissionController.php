@@ -157,7 +157,14 @@ class MissionController extends Controller
         }
 
         return MissionIndexResource::collection($missions)
-            ->additional(['meta' => ['valid_relations' => []]]);
+            ->additional([
+                'meta' => [
+                    'valid_relations' => [],
+                    'deprecated_fields' => [
+                        'game_version' => 'Use version field instead.',
+                    ],
+                ],
+            ]);
     }
 
     #[OA\Get(

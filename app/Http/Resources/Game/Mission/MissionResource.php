@@ -20,6 +20,7 @@ use OpenApi\Attributes as OA;
     title: 'Mission',
     properties: [
         new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
+        new OA\Property(property: 'debug_name', description: 'Internal debug name of the mission definition', type: 'string', nullable: true),
         new OA\Property(property: 'title', type: 'string', nullable: true),
         new OA\Property(property: 'description', type: 'string', nullable: true),
         new OA\Property(
@@ -194,7 +195,8 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'notify_on_available', type: 'boolean', nullable: true),
         new OA\Property(property: 'reward_scope', type: 'string', nullable: true),
         new OA\Property(property: 'reputation_amount', type: 'integer'),
-        new OA\Property(property: 'game_version', type: 'string', nullable: true),
+        new OA\Property(property: 'version', type: 'string', nullable: true),
+        new OA\Property(property: 'game_version', type: 'string', nullable: true, deprecated: true),
         new OA\Property(
             property: 'starmap_locations',
             type: 'array',
@@ -354,6 +356,10 @@ class MissionResource extends AbstractBaseResource
             $this->resource->gameVersion?->code,
         );
 
+        $this->addMetadata('deprecated_fields', [
+            'game_version' => 'Use version instead. Will be removed in a future release.',
+        ]);
+
         $makeApiUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
         $makeWebUrl = fn (string $route, array $params, Request $req): string => $this->urlWithVersion(route($route, $params), $req);
 
@@ -370,6 +376,7 @@ class MissionResource extends AbstractBaseResource
 
         return [
             'uuid' => $mission?->uuid,
+            'debug_name' => $this->resource->debug_name,
             'title' => FormatMissionText::format($this->resource->title, $this->resource->debug_name),
             'description' => $this->resource->description,
             'description_html' => FormatMissionText::description($this->resource->description, $tokens),
@@ -449,7 +456,8 @@ class MissionResource extends AbstractBaseResource
             'notify_on_available' => $this->parseNullableBool(Arr::get($data, 'NotifyOnAvailable')),
             'reward_scope' => $this->resource->reward_scope,
             'reputation_amount' => $this->resource->reputation_amount,
-            'game_version' => $this->resource->gameVersion?->code,
+            'version' => $this->resource->gameVersion?->code,
+            'game_version' => $this->resource->gameVersion?->code, // deprecated: use version
             'starmap_locations' => $this->when(
                 $this->resource->relationLoaded('starmapLocations'),
                 fn (): array => $locationResource->mapStarmapLocations($this->resource->starmapLocations, $request),

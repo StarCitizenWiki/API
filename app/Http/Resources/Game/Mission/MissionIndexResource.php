@@ -133,7 +133,8 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(property: 'reward_scope', type: 'string', nullable: true),
         new OA\Property(property: 'reputation_amount', type: 'integer'),
-        new OA\Property(property: 'game_version', type: 'string', nullable: true),
+        new OA\Property(property: 'version', type: 'string', nullable: true),
+        new OA\Property(property: 'game_version', description: 'Deprecated: Use version', type: 'string', nullable: true, deprecated: true),
         new OA\Property(property: 'link', type: 'string', format: 'uri'),
         new OA\Property(property: 'web_url', type: 'string', format: 'uri'),
     ],
@@ -253,7 +254,8 @@ class MissionIndexResource extends AbstractBaseResource
             'hauling_summary' => $this->mapHaulingSummary($haulingOrders),
             'reward_scope' => $this->resource->reward_scope,
             'reputation_amount' => $this->resource->reputation_amount,
-            'game_version' => $this->resource->gameVersion?->code,
+            'version' => $this->resource->gameVersion?->code,
+            'game_version' => $this->resource->gameVersion?->code, // deprecated: use version
             'link' => $this->urlWithVersion(
                 route('missions.show', ['mission' => $mission?->uuid]),
                 $request,

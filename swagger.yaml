@@ -16127,6 +16127,10 @@ components:
         uuid:
           type: string
           format: uuid
+        debug_name:
+          description: 'Internal debug name of the mission definition'
+          type: string
+          nullable: true
         title:
           type: string
           nullable: true
