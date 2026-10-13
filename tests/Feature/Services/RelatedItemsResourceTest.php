@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Resources\Game\Item\RelatedItemsResource;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
+use App\Models\Game\EntityTag;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -49,6 +50,11 @@ describe('variants', function () {
                 'name' => 'Weapon Base',
                 'class_name' => 'WeaponBase',
                 'classification' => 'WeaponGun',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['weapon_family', 'Set_01', 'Color_01'],
+                    ],
+                ],
             ]);
 
         $variant1 = ItemData::factory()
@@ -58,7 +64,11 @@ describe('variants', function () {
                 'name' => 'Weapon Blue',
                 'class_name' => 'WeaponBlue',
                 'classification' => 'WeaponGun',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['weapon_family', 'Set_01', 'Color_02'],
+                    ],
+                ],
             ]);
 
         $variant2 = ItemData::factory()
@@ -68,7 +78,11 @@ describe('variants', function () {
                 'name' => 'Weapon Red',
                 'class_name' => 'WeaponRed',
                 'classification' => 'WeaponGun',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['weapon_family', 'Set_01', 'Color_03'],
+                    ],
+                ],
             ]);
 
         computeGroupsAndSetItems($this->gameVersion->id);
@@ -93,6 +107,11 @@ describe('variants', function () {
                 'name' => 'Test Base',
                 'class_name' => 'TestBase',
                 'classification' => 'TestClass',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['test_family', 'Set_01', 'Color_01'],
+                    ],
+                ],
             ]);
 
         $variant = ItemData::factory()
@@ -103,7 +122,11 @@ describe('variants', function () {
                 'name' => 'Test Variant',
                 'class_name' => 'TestVariant',
                 'classification' => 'TestClass',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['test_family', 'Set_01', 'Color_02'],
+                    ],
+                ],
             ]);
 
         computeGroupsAndSetItems($this->gameVersion->id);
@@ -132,6 +155,11 @@ describe('variants', function () {
                 'name' => 'Old Base',
                 'class_name' => 'OldBase',
                 'classification' => 'TestClass',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['old_family', 'Set_01', 'Color_01'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -142,7 +170,11 @@ describe('variants', function () {
                 'name' => 'Old Variant',
                 'class_name' => 'OldVariant',
                 'classification' => 'TestClass',
-                'base_id' => $oldBase->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['old_family', 'Set_01', 'Color_02'],
+                    ],
+                ],
             ]);
 
         $newBase = ItemData::factory()
@@ -153,6 +185,11 @@ describe('variants', function () {
                 'name' => 'New Base',
                 'class_name' => 'NewBase',
                 'classification' => 'TestClass',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['new_family', 'Set_01', 'Color_01'],
+                    ],
+                ],
             ]);
 
         $newVariant = ItemData::factory()
@@ -163,7 +200,11 @@ describe('variants', function () {
                 'name' => 'New Variant',
                 'class_name' => 'NewVariant',
                 'classification' => 'TestClass',
-                'base_id' => $newBase->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['new_family', 'Set_01', 'Color_02'],
+                    ],
+                ],
             ]);
 
         computeGroupsAndSetItems($oldVersion->id);
@@ -284,7 +325,7 @@ describe('set items', function () {
 });
 
 describe('naming', function () {
-    it('computes set names for variant groups', function (): void {
+    it('computes variant names for groups without entity tags', function (): void {
         $base = ItemData::factory()
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
@@ -292,6 +333,11 @@ describe('naming', function () {
                 'name' => 'Gemini A03 Sniper Rifle',
                 'class_name' => 'GeminiA03',
                 'classification' => 'WeaponPersonal',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['gemini_a03', 'Set_01', 'Color_01'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -301,7 +347,11 @@ describe('naming', function () {
                 'name' => 'Gemini A03 Sniper Rifle Eclipse',
                 'class_name' => 'GeminiA03Eclipse',
                 'classification' => 'WeaponPersonal',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['gemini_a03', 'Set_01', 'Color_02'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -311,14 +361,19 @@ describe('naming', function () {
                 'name' => 'Gemini A03 Sniper Rifle Pathfinder',
                 'class_name' => 'GeminiA03Pathfinder',
                 'classification' => 'WeaponPersonal',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['gemini_a03', 'Set_01', 'Color_03'],
+                    ],
+                ],
             ]);
 
         computeGroupsAndSetItems($this->gameVersion->id);
 
         $result = resolveRelatedItems($base);
 
-        expect($result['set_name'])->toBe('Gemini A03 Sniper')
+        // No Set-subtree entity tag exists, so set_name must be null
+        expect($result['set_name'])->toBeNull()
             ->and($result['base_item']['variant_name'])->toBe('Rifle')
             ->and($result['variant_items'][0]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder'])
             ->and($result['variant_items'][1]['variant_name'])->toBeIn(['Eclipse', 'Pathfinder']);
@@ -332,6 +387,11 @@ describe('naming', function () {
                 'name' => 'Lynx Arms',
                 'class_name' => 'LynxArms',
                 'classification' => 'Armor',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['lynx_armor', 'Set_01', 'Color_01'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -341,7 +401,11 @@ describe('naming', function () {
                 'name' => 'Lynx Arms Dark Green',
                 'class_name' => 'LynxArmsDarkGreen',
                 'classification' => 'Armor',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['lynx_armor', 'Set_01', 'Color_02'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -351,14 +415,18 @@ describe('naming', function () {
                 'name' => 'Lynx Arms Dark Red',
                 'class_name' => 'LynxArmsDarkRed',
                 'classification' => 'Armor',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['lynx_armor', 'Set_01', 'Color_03'],
+                    ],
+                ],
             ]);
 
         computeGroupsAndSetItems($this->gameVersion->id);
 
         $result = resolveRelatedItems($base);
 
-        expect($result['set_name'])->toBe('Lynx')
+        expect($result['set_name'])->toBeNull()
             ->and($result['base_item']['variant_name'])->toBe('Arms')
             ->and($result['variant_items'][0]['variant_name'])->toBeIn(['Dark Green', 'Dark Red'])
             ->and($result['variant_items'][1]['variant_name'])->toBeIn(['Dark Green', 'Dark Red']);
@@ -372,6 +440,11 @@ describe('naming', function () {
                 'name' => 'A03 Sniper Rifle',
                 'class_name' => 'A03',
                 'classification' => 'WeaponPersonal',
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['a03_family', 'Set_01', 'Color_01'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -381,7 +454,11 @@ describe('naming', function () {
                 'name' => 'A03 "Scorched" Sniper Rifle',
                 'class_name' => 'A03Scorched',
                 'classification' => 'WeaponPersonal',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['a03_family', 'Set_01', 'Color_02'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -391,7 +468,11 @@ describe('naming', function () {
                 'name' => 'A03 "Red Alert" Sniper Rifle',
                 'class_name' => 'A03RedAlert',
                 'classification' => 'WeaponPersonal',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['a03_family', 'Set_01', 'Color_03'],
+                    ],
+                ],
             ]);
 
         ItemData::factory()
@@ -401,14 +482,18 @@ describe('naming', function () {
                 'name' => 'A03 "Lodestone" Sniper Rifle',
                 'class_name' => 'A03Lodestone',
                 'classification' => 'WeaponPersonal',
-                'base_id' => $base->id,
+                'data' => [
+                    'stdItem' => [
+                        'Tags' => ['a03_family', 'Set_01', 'Color_04'],
+                    ],
+                ],
             ]);
 
         computeGroupsAndSetItems($this->gameVersion->id);
 
         $result = resolveRelatedItems($base);
 
-        expect($result['set_name'])->toBe('A03')
+        expect($result['set_name'])->toBeNull()
             ->and($result['base_item']['variant_name'])->toBe('Sniper Rifle');
 
         $variantNames = collect($result['variant_items'])->pluck('variant_name')->all();
@@ -482,7 +567,7 @@ describe('naming', function () {
         expect($variantUuids)->toContain($sweater->item->uuid);
     });
 
-    it('derives set name from set items when variant group is absent', function (): void {
+    it('returns null set name when no variant group exists', function (): void {
         ItemData::factory()
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
@@ -523,7 +608,7 @@ describe('naming', function () {
 
         $result = resolveRelatedItems($core);
 
-        expect($result['set_name'])->toBe('Monde HighSec')
+        expect($result['set_name'])->toBeNull()
             ->and($result['set_items'])->toHaveCount(3);
     });
 
@@ -565,8 +650,16 @@ describe('naming', function () {
     it('resolves set name via entity tags when manufacturer name collides', function (): void {
         // Regression: "Lynx" is both an armor set name and a manufacturer name.
         // Entity tags for Lynx items include: Light, Common, FPS, Legs, Human,
-        // KastakArms, Lynx, Grey - where only "Lynx" is the set identifier.
-        // The manufacturer exclusion must not strip it during set-name resolution.
+        // KastakArms, Lynx, Grey - where only "Lynx" qualifies: its parent
+        // chain passes the unique 'Set' row and its name appears in the
+        // member names (KastakArms passes the chain but never the name check).
+        $setUuid = fake()->uuid();
+        EntityTag::query()->create(['uuid' => $setUuid, 'name' => 'Set']);
+        $kastakUuid = fake()->uuid();
+        EntityTag::query()->create(['uuid' => $kastakUuid, 'name' => 'KastakArms', 'parent_uuid' => $setUuid]);
+        $lynxUuid = fake()->uuid();
+        EntityTag::query()->create(['uuid' => $lynxUuid, 'name' => 'Lynx', 'parent_uuid' => $kastakUuid]);
+
         $base = ItemData::factory()
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
@@ -576,14 +669,14 @@ describe('naming', function () {
                 'classification' => 'FPS.Armor.Light',
                 'is_player_relevant' => true,
                 'data' => ['entity_tag_map' => [
-                    ['tag' => 'f1c9b063', 'name' => 'Light'],
-                    ['tag' => '59ca5e36', 'name' => 'Common'],
-                    ['tag' => 'ba75cc73', 'name' => 'FPS'],
-                    ['tag' => '4cd7531a', 'name' => 'Legs'],
-                    ['tag' => 'ba81fd42', 'name' => 'Human'],
-                    ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
-                    ['tag' => '9c28b7ae', 'name' => 'Lynx'],
-                    ['tag' => 'dd7bfcdd', 'name' => 'Grey'],
+                    ['tag' => 'f1c9b063-0000-0000-0000-000000000001', 'name' => 'Light'],
+                    ['tag' => '59ca5e36-0000-0000-0000-000000000001', 'name' => 'Common'],
+                    ['tag' => 'ba75cc73-0000-0000-0000-000000000001', 'name' => 'FPS'],
+                    ['tag' => '4cd7531a-0000-0000-0000-000000000001', 'name' => 'Legs'],
+                    ['tag' => 'ba81fd42-0000-0000-0000-000000000001', 'name' => 'Human'],
+                    ['tag' => $kastakUuid, 'name' => 'KastakArms'],
+                    ['tag' => $lynxUuid, 'name' => 'Lynx'],
+                    ['tag' => 'dd7bfcdd-0000-0000-0000-000000000001', 'name' => 'Grey'],
                 ]],
             ]);
 
@@ -596,14 +689,14 @@ describe('naming', function () {
                 'classification' => 'FPS.Armor.Light',
                 'is_player_relevant' => true,
                 'data' => ['entity_tag_map' => [
-                    ['tag' => 'f1c9b063', 'name' => 'Light'],
-                    ['tag' => '59ca5e36', 'name' => 'Common'],
-                    ['tag' => 'ba75cc73', 'name' => 'FPS'],
-                    ['tag' => '4cd7531a', 'name' => 'Legs'],
-                    ['tag' => 'ba81fd42', 'name' => 'Human'],
-                    ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
-                    ['tag' => '9c28b7ae', 'name' => 'Lynx'],
-                    ['tag' => 'a1d4429d', 'name' => 'Red'],
+                    ['tag' => 'f1c9b063-0000-0000-0000-000000000001', 'name' => 'Light'],
+                    ['tag' => '59ca5e36-0000-0000-0000-000000000001', 'name' => 'Common'],
+                    ['tag' => 'ba75cc73-0000-0000-0000-000000000001', 'name' => 'FPS'],
+                    ['tag' => '4cd7531a-0000-0000-0000-000000000001', 'name' => 'Legs'],
+                    ['tag' => 'ba81fd42-0000-0000-0000-000000000001', 'name' => 'Human'],
+                    ['tag' => $kastakUuid, 'name' => 'KastakArms'],
+                    ['tag' => $lynxUuid, 'name' => 'Lynx'],
+                    ['tag' => 'a1d4429d-0000-0000-0000-000000000001', 'name' => 'Red'],
                 ]],
             ]);
 
@@ -616,14 +709,14 @@ describe('naming', function () {
                 'classification' => 'FPS.Armor.Light',
                 'is_player_relevant' => true,
                 'data' => ['entity_tag_map' => [
-                    ['tag' => 'f1c9b063', 'name' => 'Light'],
-                    ['tag' => '59ca5e36', 'name' => 'Common'],
-                    ['tag' => 'ba75cc73', 'name' => 'FPS'],
-                    ['tag' => '4cd7531a', 'name' => 'Legs'],
-                    ['tag' => 'ba81fd42', 'name' => 'Human'],
-                    ['tag' => 'b9e5b0da', 'name' => 'KastakArms'],
-                    ['tag' => '9c28b7ae', 'name' => 'Lynx'],
-                    ['tag' => 'dd7bfcdd', 'name' => 'Blue'],
+                    ['tag' => 'f1c9b063-0000-0000-0000-000000000001', 'name' => 'Light'],
+                    ['tag' => '59ca5e36-0000-0000-0000-000000000001', 'name' => 'Common'],
+                    ['tag' => 'ba75cc73-0000-0000-0000-000000000001', 'name' => 'FPS'],
+                    ['tag' => '4cd7531a-0000-0000-0000-000000000001', 'name' => 'Legs'],
+                    ['tag' => 'ba81fd42-0000-0000-0000-000000000001', 'name' => 'Human'],
+                    ['tag' => $kastakUuid, 'name' => 'KastakArms'],
+                    ['tag' => $lynxUuid, 'name' => 'Lynx'],
+                    ['tag' => 'dd7bfcdd-0000-0000-0000-000000000001', 'name' => 'Blue'],
                 ]],
             ]);
 
@@ -639,9 +732,9 @@ describe('naming', function () {
         expect($variantResult['set_name'])->toBe('Lynx');
     });
 
-    it('falls back to LCP on class-name prefix when entity tags are absent', function (): void {
-        // Without entity tags the resolver falls back to longest-common-prefix
-        // on class names, producing "Lynx" from the variant group.
+    it('persists null set name when entity tags are absent', function (): void {
+        // Without entity tags there is no game-data set name, so set_name
+        // must be null even though the group itself still forms.
         $base = ItemData::factory()
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
@@ -674,16 +767,15 @@ describe('naming', function () {
 
         computeGroupsAndSetItems($this->gameVersion->id);
 
-        // After the job runs, set_name should be 'Lynx' in the DB
         $result = resolveRelatedItems($base);
 
-        expect($result['set_name'])->toBe('Lynx');
+        expect($result['set_name'])->toBeNull();
     });
 
-    it('derives set name from set items when player-relevant filter applies', function (): void {
+    it('persists null set name for ungrouped player-relevant set items', function (): void {
         // The "Monde" armor set has items across Helmet/Core/Arms/Legs.
-        // With no entity tags and a common suffix ("HighSec"), the LCP should
-        // produce the set name from cross-slot item names.
+        // With no entity tags there is no game-data set name; set items are
+        // still linked, but set_name must stay null.
         ItemData::factory()
             ->for($this->gameVersion, 'gameVersion')
             ->for($this->manufacturer)
@@ -728,6 +820,6 @@ describe('naming', function () {
 
         $result = resolveRelatedItems($core);
 
-        expect($result['set_name'])->toBe('Monde HighSec');
+        expect($result['set_name'])->toBeNull();
     });
 });

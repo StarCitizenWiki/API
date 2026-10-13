@@ -6,7 +6,6 @@ namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\ItemData;
-use App\Services\ItemVariantResolver;
 use Illuminate\Http\Request;
 
 class RelatedItemsResource extends AbstractBaseResource
@@ -20,7 +19,7 @@ class RelatedItemsResource extends AbstractBaseResource
 
         if ($pivotItem === null || ! $pivotItem->relationLoaded('variantGroup') || $pivotItem->variantGroup === null) {
             return [
-                'set_name' => $this->deriveSetNameFromSetItems($itemData),
+                'set_name' => null,
                 'base_item' => null,
                 'variant_items' => [],
                 'set_items' => $this->formatSetItems($itemData, $request),
@@ -111,36 +110,6 @@ class RelatedItemsResource extends AbstractBaseResource
                 'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $setItemData->item->slug ?? $setItemData->item->uuid]), $request),
             ])
             ->all();
-    }
-
-    private function deriveSetNameFromSetItems(ItemData $itemData): ?string
-    {
-        if (! $itemData->relationLoaded('setItems') || $itemData->setItems->isEmpty()) {
-            return null;
-        }
-
-        $names = array_merge(
-            [$itemData->name ?? ''],
-            $itemData->setItems->map(fn (ItemData $s): string => $s->name ?? '')->all(),
-        )
-                |> (static fn ($x) => array_filter($x, static fn (string $n): bool => $n !== ''))
-                |> array_values(...);
-
-        if (count($names) < 2) {
-            return null;
-        }
-
-        $slotPattern = '/\s+('.implode('|', array_map(
-            static fn (string $w): string => preg_quote($w, '/'),
-            ItemVariantResolver::SLOT_WORDS,
-        )).')\s+/iu';
-
-        $strippedNames = array_map(
-            static fn (string $name): string => trim(preg_replace($slotPattern, ' ', $name) ?? $name),
-            $names,
-        );
-
-        return ItemVariantResolver::deriveSetNameFromNames($strippedNames);
     }
 
     private function formatManufacturerLink(ItemData $itemData): ?array

@@ -425,7 +425,7 @@ use OpenApi\Attributes as OA;
     title: 'Related Items',
     description: 'Aggregated related information for base/variants and set items',
     properties: [
-        new OA\Property(property: 'set_name', type: 'string', nullable: true),
+        new OA\Property(property: 'set_name', description: 'Set name from game data set tags; null when none exists', type: 'string', nullable: true),
         new OA\Property(property: 'base_item', ref: '#/components/schemas/item_related_link', nullable: true),
         new OA\Property(
             property: 'variant_items',
