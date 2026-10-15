@@ -429,9 +429,28 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'base_item', ref: '#/components/schemas/item_related_link', nullable: true),
         new OA\Property(
             property: 'variant_items',
+            description: 'Unlabeled variant list. Superseded by by_size/by_grade/by_color.',
             type: 'array',
             items: new OA\Items(ref: '#/components/schemas/item_related_link'),
             nullable: true,
+        ),
+        new OA\Property(
+            property: 'by_size',
+            description: 'Group members that differ from this item only in size (same grade), base included. Empty when none.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_related_link'),
+        ),
+        new OA\Property(
+            property: 'by_grade',
+            description: 'Items in the same classification, manufacturer and size at other grades (persisted grade links). Empty when none.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_related_link'),
+        ),
+        new OA\Property(
+            property: 'by_color',
+            description: 'Group members sharing this item\'s size and grade (colorways), base included. Empty when none.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/item_related_link'),
         ),
         new OA\Property(
             property: 'set_items',

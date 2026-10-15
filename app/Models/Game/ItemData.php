@@ -253,6 +253,11 @@ class ItemData extends Model
         );
     }
 
+    public function gradeLinks(): HasMany
+    {
+        return $this->hasMany(VariantGradeItem::class, 'item_data_id');
+    }
+
     public function missions(): BelongsToMany
     {
         return $this->belongsToMany(

@@ -120,6 +120,10 @@ class ItemController extends Controller
             'variantGroupItem.variantGroup.items.itemData.manufacturer' => fn ($query) => $query->select($this->manufacturerColumns()),
             'setItems' => fn ($query) => $query->select($this->setItemDataColumns()),
             'setItems.item' => fn ($query) => $query->select($this->itemIdentityColumns()),
+            'gradeLinks' => fn ($query) => $query->select($this->variantGradeItemColumns()),
+            'gradeLinks.gradeItem' => fn ($query) => $query->select($this->itemDataLinkColumns()),
+            'gradeLinks.gradeItem.item' => fn ($query) => $query->select($this->itemIdentityColumns()),
+            'gradeLinks.gradeItem.manufacturer' => fn ($query) => $query->select($this->manufacturerColumns()),
         ];
     }
 
@@ -276,6 +280,18 @@ class ItemController extends Controller
             'game_item_variant_group_items.variant_name',
             'game_item_variant_group_items.sort_order',
             'game_item_variant_group_items.is_base',
+        ];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function variantGradeItemColumns(): array
+    {
+        return [
+            'game_item_variant_grade_items.id',
+            'game_item_variant_grade_items.item_data_id',
+            'game_item_variant_grade_items.grade_item_data_id',
         ];
     }
 

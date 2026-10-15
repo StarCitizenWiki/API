@@ -42,10 +42,11 @@
         $version = data_get($item, 'version');
 
         $ports = data_get($item, 'ports', []);
-        $baseVariant = data_get($item, 'related_items.base_item');
-        $variants = data_get($item, 'related_items.variant_items', []);
         $setItems = data_get($item, 'related_items.set_items');
         $setName = data_get($item, 'related_items.set_name');
+        $bySize = data_get($item, 'related_items.by_size', []);
+        $byGrade = data_get($item, 'related_items.by_grade', []);
+        $byColor = data_get($item, 'related_items.by_color', []);
 
         if (is_array($setItems) && $setItems !== []) {
             $currentItemInSet = array_filter($setItems, fn (array $s): bool => ($s['uuid'] ?? null) === $uuid);
@@ -120,11 +121,10 @@
         );
 
         $setItemCount = is_array($setItems) ? count($setItems) : 0;
-        $variantCount = is_array($variants) ? count($variants) : 0;
-        $baseVariantUuid = data_get($baseVariant, 'uuid');
-        $isSelfReferential = $baseVariantUuid === $uuid;
-        $baseVariantCount = (! empty($baseVariant) && (! $isSelfReferential || $variantCount > 0)) ? 1 : 0;
-        $relatedItemsCount = $type === 'Cargo' ? 0 : ($setItemCount + $variantCount + $baseVariantCount);
+        $bySizeCount = is_array($bySize) ? count($bySize) : 0;
+        $byGradeCount = is_array($byGrade) ? count($byGrade) : 0;
+        $byColorCount = is_array($byColor) ? count($byColor) : 0;
+        $relatedItemsCount = $type === 'Cargo' ? 0 : ($setItemCount + $bySizeCount + $byGradeCount + $byColorCount);
         $portsCount = is_array($ports) ? count($ports) : 0;
         $uexPricesCount = is_array($uexPrices) ? count($uexPrices) : 0;
 
@@ -171,10 +171,11 @@
                             <x-items.related-items-card
                                 :set-items="$setItems"
                                 :set-name="$setName"
-                                :variants="$variants"
-                                :base-variant="$baseVariant"
+                                :by-size="$bySize"
+                                :by-grade="$byGrade"
+                                :by-color="$byColor"
                                 :current-item-uuid="$uuid"
-                                :classification="$classification"
+                                :current-item="$item"
                             />
                         @endif
 

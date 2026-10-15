@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGradeLinks as ComputeItemVariantGradeLinksJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Models\Game\EntityTag;
 use App\Models\Game\GameVersion;
@@ -12,6 +13,7 @@ use App\Models\Game\Manufacturer;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
 beforeEach(function (): void {
@@ -48,6 +50,22 @@ it('dispatches a compute job for the default game version', function (): void {
 
     Queue::assertPushedTimes(ComputeItemVariantGroupsJob::class, 1);
     Queue::assertPushedTimes(ComputeItemSetItemsJob::class, 1);
+});
+
+it('dispatches the grade link job with the other compute jobs', function (): void {
+    Queue::fake();
+
+    GameVersion::query()->create([
+        'code' => '3.24.1-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    $this->artisan('game:compute-item-groups')
+        ->assertExitCode(Command::SUCCESS);
+
+    Queue::assertPushedTimes(ComputeItemVariantGradeLinksJob::class, 1);
 });
 
 it('computes variant groups from stditem tags when class names do not match', function (): void {
@@ -2172,4 +2190,167 @@ it('collapses inverted armor grammar onto the shared line', function (): void {
         ->and($groups->first()->items()->orderBy('variant_name')->pluck('variant_name')->all())
         ->toBe(['Base', 'Galena', 'Tamarack'])
         ->and($bokto->fresh()->base_id)->toBeNull();
+});
+
+describe('variant grade links', function (): void {
+    beforeEach(function (): void {
+        $this->version = GameVersion::query()->create([
+            'code' => '4.10.2-grade-LIVE',
+            'channel' => 'live',
+            'released_at' => now(),
+            'is_default' => true,
+        ]);
+    });
+
+    it('links grade peers across stems and for single-size lines', function (): void {
+        $make = function (string $name, string $className, int $size, int $grade): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $this->version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => $name,
+                'class_name' => $className,
+                'classification' => 'Ship.Cooler',
+                'size' => $size,
+                'grade' => $grade,
+                'is_player_relevant' => true,
+                'data' => [],
+            ]);
+        };
+
+        $cryoS0 = $make('Cryo-Star SL', 'COOL_JSPN_S00_CryoStarSL_SCItem', 0, 2);
+        $cryoS1 = $make('Cryo-Star', 'COOL_JSPN_S01_CryoStar_SCItem', 1, 2);
+        $frostS0 = $make('Frost-Star SL', 'COOL_JSPN_S00_FrostStarSL_SCItem', 0, 3);
+        $frostS1 = $make('Frost-Star', 'COOL_JSPN_S01_FrostStar_SCItem', 1, 3);
+        // Single-size line: no variant group, but its grade cell still links.
+        $winterS0 = $make('Winter-Star SL', 'COOL_JSPN_S00_WinterStarSL_SCItem', 0, 4);
+
+        new ComputeItemVariantGroupsJob($this->version->id)->handle();
+        new ComputeItemVariantGradeLinksJob($this->version->id)->handle();
+
+        $peerCount = fn (ItemData $item): int => DB::table('game_item_variant_grade_items')
+            ->where('item_data_id', $item->id)
+            ->count();
+
+        // Both size cells have one item per grade: 3*2 + 2*1 directed rows.
+        expect(DB::table('game_item_variant_grade_items')->count())->toBe(8)
+            ->and($peerCount($cryoS0))->toBe(2)
+            ->and($peerCount($cryoS1))->toBe(1)
+            ->and($peerCount($winterS0))->toBe(2)
+            // The single-size line has no group; grade links exist regardless.
+            ->and(VariantGroupItem::query()->where('item_data_id', $winterS0->id)->exists())->toBeFalse();
+    });
+
+    it('emits no grade links for ship paints', function (): void {
+        $makePaint = function (int $grade): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $this->version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => 'Gladius Paint '.$grade,
+                'class_name' => 'paint_aegis_gladius_'.$grade,
+                'classification' => 'Ship.Paints',
+                'size' => 0,
+                'grade' => $grade,
+                'is_player_relevant' => true,
+                'data' => ['stdItem' => ['Tags' => ['Paint_AEGS_Gladius']]],
+            ]);
+        };
+
+        $makePaint(1);
+        $makePaint(2);
+
+        new ComputeItemVariantGradeLinksJob($this->version->id)->handle();
+
+        expect(DB::table('game_item_variant_grade_items')->count())->toBe(0);
+    });
+
+    it('skips ambiguous cells whole', function (): void {
+        $make = function (int $size, int $grade, string $suffix): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $this->version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => 'Test Power Plant '.$size.' '.$grade.$suffix,
+                'class_name' => 'PWR_TEST_S'.$size.'_G'.$grade.$suffix,
+                'classification' => 'Ship.PowerPlant.Power',
+                'size' => $size,
+                'grade' => $grade,
+                'is_player_relevant' => true,
+                'data' => [],
+            ]);
+        };
+
+        // Clean cell: one item per grade.
+        $make(1, 1, '');
+        $make(1, 2, '');
+
+        // Ambiguous cell: a tweak twin duplicates grade 2, so the cell
+        // cannot say which spelling represents the grade.
+        $twin = $make(0, 2, '');
+        $make(0, 2, '_ResistGasclouds');
+        $make(0, 1, '');
+
+        new ComputeItemVariantGradeLinksJob($this->version->id)->handle();
+
+        $rows = DB::table('game_item_variant_grade_items')->get();
+
+        expect($rows)->toHaveCount(2)
+            ->and($rows->pluck('item_data_id')->unique()->all())->not->toContain($twin->id);
+    });
+
+    it('ignores non-player-relevant items in cells', function (): void {
+        $make = function (int $grade, bool $relevant): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $this->version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => 'Test Shield '.$grade,
+                'class_name' => 'SHLD_TEST_G'.$grade,
+                'classification' => 'Ship.Shield',
+                'size' => 1,
+                'grade' => $grade,
+                'is_player_relevant' => $relevant,
+                'data' => [],
+            ]);
+        };
+
+        $make(1, true);
+        $make(2, false);
+
+        new ComputeItemVariantGradeLinksJob($this->version->id)->handle();
+
+        expect(DB::table('game_item_variant_grade_items')->count())->toBe(0);
+    });
+
+    it('is idempotent when run twice', function (): void {
+        $make = function (int $size, int $grade): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $this->version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => 'Test Cooler '.$size.' '.$grade,
+                'class_name' => 'COOL_TEST_S'.$size.'_G'.$grade,
+                'classification' => 'Ship.Cooler',
+                'size' => $size,
+                'grade' => $grade,
+                'is_player_relevant' => true,
+                'data' => [],
+            ]);
+        };
+
+        foreach ([0, 1] as $size) {
+            $make($size, 2);
+            $make($size, 3);
+        }
+
+        $job = new ComputeItemVariantGradeLinksJob($this->version->id);
+        $job->handle();
+        $first = DB::table('game_item_variant_grade_items')->count();
+
+        $job->handle();
+
+        expect($first)->toBe(4)
+            ->and(DB::table('game_item_variant_grade_items')->count())->toBe($first);
+    });
 });

@@ -10,6 +10,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
+use App\Models\Game\VariantGradeItem;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
 use Illuminate\Testing\TestResponse;
@@ -351,7 +352,7 @@ it('renders ports-heavy item with collapsible ports section', function (): void 
     assertTechnicalMetadataVisible($response, $item->uuid, 'Ship.Component', 'ship_core', '4.0.0-LIVE');
 });
 
-it('renders variant-heavy item with variants section', function (): void {
+it('renders variant-heavy item with a flat colors axis', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',
         'channel' => 'live',
@@ -377,10 +378,12 @@ it('renders variant-heavy item with variants section', function (): void {
             'class_name' => 'laser_cannon',
             'classification' => 'Weapon.Personal',
             'type' => 'Laser',
+            'size' => 2,
+            'grade' => 1,
             'data' => [],
         ]);
 
-    // Create 4 variants
+    // Create 4 variants sharing the base's size and grade -> by_color peers
     for ($i = 1; $i <= 4; $i++) {
         $variant = Item::factory()->create([
             'translation' => ['en' => "Variant {$i} description"],
@@ -395,6 +398,8 @@ it('renders variant-heavy item with variants section', function (): void {
                 'class_name' => "laser_cannon_v{$i}",
                 'classification' => 'Weapon.Personal',
                 'type' => 'Laser',
+                'size' => 2,
+                'grade' => 1,
                 'base_id' => $baseItemData->id,
                 'data' => [],
             ]);
@@ -437,9 +442,162 @@ it('renders variant-heavy item with variants section', function (): void {
 
     $relatedItemsCard = itemRelatedItemsCard($response);
 
+    // Single populated axis renders flat, no tabs
     expect($relatedItemsCard->count())->toBe(1)
+        ->and($relatedItemsCard->filter('[role="tablist"]')->count())->toBe(0)
+        ->and($relatedItemsCard->filter('[data-testid="item-related-axis-colors"]')->count())->toBe(1)
+        // Current item is the base, so all color peers link out
+        ->and($relatedItemsCard->filter('[data-testid="item-related-axis-colors"] a')->count())->toBe(4)
+        ->and($relatedItemsCard->filter('[data-testid="item-related-axis-colors"] span.opacity-60')->count())->toBe(0)
         ->and(itemShowCrawler($response)->filter('[data-testid="item-description-data-card"]')->count())->toBe(0)
         ->and($relatedItemsCard->attr('class'))->not->toContain('xl:col-span-2');
+});
+
+it('tabs the related item axes when multiple are populated', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Aegis Dynamics',
+        'code' => 'AEGS',
+    ]);
+
+    $baseItem = Item::factory()->create([
+        'translation' => ['en' => 'Frost cooler description'],
+    ]);
+
+    $baseItemData = ItemData::factory()
+        ->for($baseItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Frost Cooler',
+            'class_name' => 'frost_cooler',
+            'classification' => 'Ship.Cooler',
+            'type' => 'Cooler',
+            'size' => 2,
+            'grade' => 1,
+            'data' => [],
+        ]);
+
+    // Same grade, other size -> by_size
+    $sizeItem = Item::factory()->create();
+
+    $sizeItemData = ItemData::factory()
+        ->for($sizeItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Frost Cooler XL',
+            'class_name' => 'frost_cooler_xl',
+            'classification' => 'Ship.Cooler',
+            'type' => 'Cooler',
+            'size' => 3,
+            'grade' => 1,
+            'data' => [],
+        ]);
+
+    // Same size and grade -> by_color
+    $colorItem = Item::factory()->create();
+
+    $colorItemData = ItemData::factory()
+        ->for($colorItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Frost Cooler Arctic',
+            'class_name' => 'frost_cooler_arctic',
+            'classification' => 'Ship.Cooler',
+            'type' => 'Cooler',
+            'size' => 2,
+            'grade' => 1,
+            'data' => [],
+        ]);
+
+    $variantGroup = VariantGroup::query()->create([
+        'game_version_id' => $version->id,
+        'set_name' => 'Frost Cooler',
+    ]);
+
+    foreach ([
+        [$baseItemData, 'Base', true],
+        [$sizeItemData, 'XL', false],
+        [$colorItemData, 'Arctic', false],
+    ] as $index => [$groupItemData, $variantName, $isBase]) {
+        VariantGroupItem::query()->create([
+            'variant_group_id' => $variantGroup->id,
+            'item_data_id' => $groupItemData->id,
+            'variant_name' => $variantName,
+            'sort_order' => $index,
+            'is_base' => $isBase,
+        ]);
+    }
+
+    // Same classification, manufacturer and size at another grade -> by_grade
+    $gradeItem = Item::factory()->create();
+
+    $gradeItemData = ItemData::factory()
+        ->for($gradeItem)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Frost Cooler Steady',
+            'class_name' => 'frost_cooler_steady',
+            'classification' => 'Ship.Cooler',
+            'type' => 'Cooler',
+            'size' => 2,
+            'grade' => 2,
+            'data' => [],
+        ]);
+
+    foreach ([$baseItemData->id => $gradeItemData->id, $gradeItemData->id => $baseItemData->id] as $itemId => $gradeId) {
+        VariantGradeItem::query()->create([
+            'item_data_id' => $itemId,
+            'grade_item_data_id' => $gradeId,
+        ]);
+    }
+
+    $response = $this->get(route('web.items.show', $baseItem->uuid));
+
+    $response->assertOk();
+
+    $card = itemRelatedItemsCard($response);
+
+    // Three populated axes render as tabs, first one active
+    expect($card->filter('[role="tablist"]')->count())->toBe(1)
+        ->and($card->filter('input[role="tab"]')->count())->toBe(3)
+        ->and($card->filter('input[role="tab"]:checked')->count())->toBe(1)
+        ->and($card->filter('input[role="tab"]:checked')->attr('aria-label'))->toBe('Sizes (2)')
+        ->and($card->filter('[data-testid="item-related-axis-sizes"]')->count())->toBe(1)
+        ->and($card->filter('[data-testid="item-related-axis-grades"]')->count())->toBe(1)
+        ->and($card->filter('[data-testid="item-related-axis-colors"]')->count())->toBe(1);
+
+    // Sizes: self spliced in greyed (size 2), peer links out (size 3)
+    $sizesPanel = $card->filter('[data-testid="item-related-axis-sizes"]');
+
+    expect($sizesPanel->filter('li')->count())->toBe(2)
+        ->and($sizesPanel->filter('a')->count())->toBe(1)
+        ->and($sizesPanel->filter('a')->text())->toContain('Frost Cooler XL')
+        ->and($sizesPanel->filter('li')->eq(0)->text())->toContain('Frost Cooler');
+
+    // Grades: ladder includes own rung greyed ('A'), peer at 'B'
+    $gradesPanel = $card->filter('[data-testid="item-related-axis-grades"]');
+
+    expect($gradesPanel->filter('li')->count())->toBe(2)
+        ->and($gradesPanel->filter('a')->count())->toBe(1)
+        ->and($gradesPanel->filter('a')->text())->toContain('Frost Cooler Steady')
+        ->and($gradesPanel->filter('li')->eq(0)->text())->toContain('Frost Cooler')
+        ->and(trim($gradesPanel->filter('li')->eq(1)->filter('span.text-subtle')->text()))->toBe('B');
+
+    // Colors: colorway chips labeled by variant name
+    $colorsPanel = $card->filter('[data-testid="item-related-axis-colors"]');
+
+    expect($colorsPanel->filter('a')->count())->toBe(1)
+        ->and(trim($colorsPanel->filter('a')->text()))->toBe('Arctic');
 });
 
 it('renders spec-heavy item with dynamic component sections', function (): void {

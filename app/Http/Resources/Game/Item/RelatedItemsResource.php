@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Item;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Models\Game\ItemData;
+use App\Models\Game\VariantGradeItem;
 use Illuminate\Http\Request;
 
 class RelatedItemsResource extends AbstractBaseResource
@@ -22,6 +23,9 @@ class RelatedItemsResource extends AbstractBaseResource
                 'set_name' => null,
                 'base_item' => null,
                 'variant_items' => [],
+                'by_size' => [],
+                'by_grade' => $this->formatGradeItems($itemData, $request),
+                'by_color' => [],
                 'set_items' => $this->formatSetItems($itemData, $request),
             ];
         }
@@ -48,10 +52,38 @@ class RelatedItemsResource extends AbstractBaseResource
             ->values()
             ->all();
 
+        $sizePeers = [];
+        $colorPeers = [];
+
+        foreach ($groupItems as $groupItem) {
+            if ($groupItem->item_data_id === $itemData->id
+                || $groupItem->itemData->grade != $itemData->grade) {
+                continue;
+            }
+
+            if ($groupItem->itemData->size == $itemData->size) {
+                $colorPeers[] = $groupItem;
+            } else {
+                $sizePeers[] = $groupItem;
+            }
+        }
+
+        $formatPeers = fn (array $peers): array => collect($peers)
+            ->sortBy([
+                ['itemData.size', 'asc'],
+                ['itemData.grade', 'asc'],
+            ])
+            ->map(fn ($gi): array => $this->formatRelatedLink($gi->itemData, $gi->variant_name ?? 'Base', false, $itemData->gameVersion->code, $request))
+            ->values()
+            ->all();
+
         return [
             'set_name' => $variantGroup->set_name,
             'base_item' => $base,
             'variant_items' => $variants,
+            'by_size' => $formatPeers($sizePeers),
+            'by_grade' => $this->formatGradeItems($itemData, $request),
+            'by_color' => $formatPeers($colorPeers),
             'set_items' => $this->formatSetItems($itemData, $request),
         ];
     }
@@ -86,6 +118,22 @@ class RelatedItemsResource extends AbstractBaseResource
         }
 
         return $link;
+    }
+
+    private function formatGradeItems(ItemData $itemData, Request $request): array
+    {
+        if (! $itemData->relationLoaded('gradeLinks')) {
+            return [];
+        }
+
+        return $itemData->gradeLinks
+            ->sortBy([
+                ['gradeItem.grade', 'asc'],
+                ['gradeItem.id', 'asc'],
+            ])
+            ->map(fn (VariantGradeItem $gradeLink): array => $this->formatRelatedLink($gradeLink->gradeItem, null, false, $itemData->gameVersion->code, $request))
+            ->values()
+            ->all();
     }
 
     private function formatSetItems(ItemData $itemData, Request $request): array

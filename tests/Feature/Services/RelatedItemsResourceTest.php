@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Resources\Game\Item\RelatedItemsResource;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGradeLinks as ComputeItemVariantGradeLinksJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Models\Game\EntityTag;
 use App\Models\Game\GameVersion;
@@ -17,6 +18,7 @@ function resolveRelatedItems(ItemData $itemData): array
         ->with([
             'gameVersion',
             'variantGroupItem.variantGroup.items.itemData.item',
+            'gradeLinks.gradeItem.item',
             'setItems.item',
         ])
         ->find($itemData->id);
@@ -28,6 +30,7 @@ function computeGroupsAndSetItems(int $gameVersionId): void
 {
     (new ComputeItemVariantGroupsJob($gameVersionId))->handle();
     (new ComputeItemSetItemsJob($gameVersionId))->handle();
+    (new ComputeItemVariantGradeLinksJob($gameVersionId))->handle();
 }
 
 beforeEach(function (): void {
@@ -821,5 +824,182 @@ describe('naming', function () {
         $result = resolveRelatedItems($core);
 
         expect($result['set_name'])->toBeNull();
+    });
+});
+
+describe('variant axes', function (): void {
+    it('labels by_size, by_grade and by_color for ship lines', function (): void {
+        $make = function (string $name, string $className, int $size, int $grade): ItemData {
+            return ItemData::factory()
+                ->for($this->gameVersion, 'gameVersion')
+                ->for($this->manufacturer)
+                ->create([
+                    'name' => $name,
+                    'class_name' => $className,
+                    'classification' => 'Ship.Cooler',
+                    'size' => $size,
+                    'grade' => $grade,
+                    'is_player_relevant' => true,
+                    'data' => [],
+                ]);
+        };
+
+        // J-Span shape: three grade families, Frost-Star spanning all sizes.
+        $frostSl = $make('Frost-Star SL', 'COOL_JSPN_S00_FrostStarSL_SCItem', 0, 3);
+        $frost = $make('Frost-Star', 'COOL_JSPN_S01_FrostStar_SCItem', 1, 3);
+        $frostEx = $make('Frost-Star EX', 'COOL_JSPN_S02_FrostStarEX_SCItem', 2, 3);
+        $frostXl = $make('Frost-Star XL', 'COOL_JSPN_S03_FrostStarXL_SCItem', 3, 3);
+        $cryoSl = $make('Cryo-Star SL', 'COOL_JSPN_S00_CryoStarSL_SCItem', 0, 2);
+        $winterSl = $make('Winter-Star SL', 'COOL_JSPN_S00_WinterStarSL_SCItem', 0, 4);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($frostSl);
+
+        expect($result['by_size'])->toHaveCount(3)
+            ->and(collect($result['by_size'])->pluck('uuid')->all())
+            ->toBe([$frost->item->uuid, $frostEx->item->uuid, $frostXl->item->uuid])
+            ->and($result['by_grade'])->toHaveCount(2)
+            ->and(collect($result['by_grade'])->pluck('uuid')->all())
+            ->toBe([$cryoSl->item->uuid, $winterSl->item->uuid])
+            ->and($result['by_color'])->toBe([]);
+
+        // The base is a peer like any other member: a non-base member's
+        // by_size must include the base item.
+        $s1 = resolveRelatedItems($frost);
+
+        expect($s1['by_size'])->toHaveCount(3)
+            ->and(collect($s1['by_size'])->pluck('uuid')->all())
+            ->toBe([$frostSl->item->uuid, $frostEx->item->uuid, $frostXl->item->uuid]);
+    });
+
+    it('labels paint groups as by_color without grade links', function (): void {
+        $makePaint = function (string $name, string $className): ItemData {
+            return ItemData::factory()
+                ->for($this->gameVersion, 'gameVersion')
+                ->for($this->manufacturer)
+                ->create([
+                    'name' => $name,
+                    'class_name' => $className,
+                    'classification' => 'Ship.Paints',
+                    'size' => 0,
+                    'grade' => 1,
+                    'is_player_relevant' => true,
+                    'data' => ['stdItem' => ['Tags' => ['Paint_AEGS_Gladius']]],
+                ]);
+        };
+
+        $base = $makePaint('Gladius Lighthouse Paint', 'paint_aegis_gladius_lighthouse');
+        $red = $makePaint('Gladius Red Paint', 'paint_aegis_gladius_red');
+        $blue = $makePaint('Gladius Blue Paint', 'paint_aegis_gladius_blue');
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($base);
+
+        expect($result['by_color'])->toHaveCount(2)
+            ->and(collect($result['by_color'])->pluck('uuid')->sort()->values()->all())
+            ->toBe(collect([$red->item->uuid, $blue->item->uuid])->sort()->values()->all())
+            ->and($result['by_size'])->toBe([])
+            ->and($result['by_grade'])->toBe([]);
+    });
+
+    it('emits by_grade only for ungrouped cell members', function (): void {
+        $make = function (string $name, int $grade): ItemData {
+            return ItemData::factory()
+                ->for($this->gameVersion, 'gameVersion')
+                ->for($this->manufacturer)
+                ->create([
+                    'name' => $name,
+                    'class_name' => 'COOL_TEST_S00_'.str($name)->snake().'_SCItem',
+                    'classification' => 'Ship.Cooler',
+                    'size' => 0,
+                    'grade' => $grade,
+                    'is_player_relevant' => true,
+                    'data' => [],
+                ]);
+        };
+
+        // Single-size lines never form variant groups; their grade cell
+        // still links.
+        $sl = $make('Argo SL', 2);
+        $argoB = $make('Argo B', 3);
+        $argoC = $make('Argo C', 4);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($sl);
+
+        expect($result['set_name'])->toBeNull()
+            ->and($result['base_item'])->toBeNull()
+            ->and($result['variant_items'])->toBe([])
+            ->and($result['by_size'])->toBe([])
+            ->and($result['by_color'])->toBe([])
+            ->and($result['by_grade'])->toHaveCount(2)
+            ->and(collect($result['by_grade'])->pluck('uuid')->all())
+            ->toBe([$argoB->item->uuid, $argoC->item->uuid]);
+    });
+
+    it('labels FPS color lanes as by_color', function (): void {
+        $make = function (string $name, string $className): ItemData {
+            return ItemData::factory()
+                ->for($this->gameVersion, 'gameVersion')
+                ->for($this->manufacturer)
+                ->create([
+                    'name' => $name,
+                    'class_name' => $className,
+                    'classification' => 'FPS.Armor.Light',
+                    'size' => 1,
+                    'grade' => 1,
+                    'is_player_relevant' => true,
+                ]);
+        };
+
+        // ADP-style colorway lane: same line and slot, differing colorway
+        // index only.
+        $base = $make('ADP Arms', 'adp_arms_01_01_01');
+        $grey = $make('ADP Arms Grey', 'adp_arms_01_01_02');
+        $tan = $make('ADP Arms Tan', 'adp_arms_01_01_07');
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($base);
+
+        expect($result['by_color'])->toHaveCount(2)
+            ->and(collect($result['by_color'])->pluck('uuid')->sort()->values()->all())
+            ->toBe(collect([$grey->item->uuid, $tan->item->uuid])->sort()->values()->all())
+            ->and($result['by_size'])->toBe([])
+            ->and($result['by_grade'])->toBe([]);
+    });
+
+    it('labels pure size ladders as by_size', function (): void {
+        $make = function (string $name, string $className, int $size): ItemData {
+            return ItemData::factory()
+                ->for($this->gameVersion, 'gameVersion')
+                ->for($this->manufacturer)
+                ->create([
+                    'name' => $name,
+                    'class_name' => $className,
+                    'classification' => 'Ship.Weapon.Gun',
+                    'size' => $size,
+                    'grade' => 1,
+                    'is_player_relevant' => true,
+                    'data' => [],
+                ]);
+        };
+
+        $m3a = $make('M3A Cannon', 'BEHR_LaserCannon_S1', 1);
+        $m4a = $make('M4A Cannon', 'BEHR_LaserCannon_S2', 2);
+        $m5a = $make('M5A Cannon', 'BEHR_LaserCannon_S3', 3);
+
+        computeGroupsAndSetItems($this->gameVersion->id);
+
+        $result = resolveRelatedItems($m4a);
+
+        expect($result['by_size'])->toHaveCount(2)
+            ->and(collect($result['by_size'])->pluck('uuid')->all())
+            ->toBe([$m3a->item->uuid, $m5a->item->uuid])
+            ->and($result['by_color'])->toBe([])
+            ->and($result['by_grade'])->toBe([]);
     });
 });

@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGradeLinks as ComputeItemVariantGradeLinksJob;
+use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
@@ -13,6 +16,7 @@ use App\Models\Game\Manufacturer;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
 use App\Models\Game\Vehicle;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->gameVersion = GameVersion::factory()->create([
@@ -563,6 +567,178 @@ it('includes related items when requested', function (): void {
         ->assertJsonPath('data.related_items.variant_items.0.uuid', $variantSiblingItem->uuid)
         ->assertJsonPath('data.related_items.variant_items.0.name', 'Test Variant Item Beta')
         ->assertJsonCount(0, 'data.related_items.set_items');
+});
+
+it('emits labeled variant axes with related items', function (): void {
+    $make = function (string $name, string $className, int $size, int $grade): array {
+        $item = Item::factory()->create();
+
+        $itemData = ItemData::factory()
+            ->for($item)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => $name,
+                'type' => 'Cooler',
+                'class_name' => $className,
+                'classification' => 'Ship.Cooler',
+                'size' => $size,
+                'grade' => $grade,
+                'data' => ['stdItem' => []],
+            ]);
+
+        return [$item, $itemData];
+    };
+
+    [$baseItem, $baseData] = $make('Frost-Star SL', 'COOL_JSPN_S00_FrostStarSL_SCItem', 0, 3);
+    [$sizeItem, $sizeData] = $make('Frost-Star', 'COOL_JSPN_S01_FrostStar_SCItem', 1, 3);
+    [$gradeItem, $gradeData] = $make('Cryo-Star SL', 'COOL_JSPN_S00_CryoStarSL_SCItem', 0, 2);
+
+    $variantGroup = VariantGroup::query()->create([
+        'game_version_id' => $this->gameVersion->id,
+        'set_name' => 'J-Span',
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $baseData->id,
+        'variant_name' => 'SL',
+        'sort_order' => 0,
+        'is_base' => true,
+    ]);
+
+    VariantGroupItem::query()->create([
+        'variant_group_id' => $variantGroup->id,
+        'item_data_id' => $sizeData->id,
+        'variant_name' => 'Base',
+        'sort_order' => 1,
+        'is_base' => false,
+    ]);
+
+    DB::table('game_item_variant_grade_items')->insert([
+        'item_data_id' => $baseData->id,
+        'grade_item_data_id' => $gradeData->id,
+    ]);
+
+    $response = $this->getJson("/api/items/{$baseItem->uuid}?include=related_items");
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data.related_items.by_size')
+        ->assertJsonPath('data.related_items.by_size.0.uuid', $sizeItem->uuid)
+        ->assertJsonPath('data.related_items.by_size.0.size', 1)
+        ->assertJsonCount(1, 'data.related_items.by_grade')
+        ->assertJsonPath('data.related_items.by_grade.0.uuid', $gradeItem->uuid)
+        ->assertJsonPath('data.related_items.by_grade.0.grade_label', 'B')
+        ->assertJsonCount(0, 'data.related_items.by_color');
+});
+
+it('emits by_grade for items without a variant group', function (): void {
+    $make = function (int $grade): array {
+        $item = Item::factory()->create();
+
+        $itemData = ItemData::factory()
+            ->for($item)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test Cooler Grade '.$grade,
+                'type' => 'Cooler',
+                'class_name' => 'COOL_TEST_S00_G'.$grade,
+                'classification' => 'Ship.Cooler',
+                'size' => 0,
+                'grade' => $grade,
+                'is_player_relevant' => true,
+                'data' => ['stdItem' => []],
+            ]);
+
+        return [$item, $itemData];
+    };
+
+    [$item, $itemData] = $make(1);
+    [$gradeB] = $make(2);
+    [$gradeC] = $make(3);
+
+    (new ComputeItemVariantGradeLinksJob($this->gameVersion->id))->handle();
+
+    $response = $this->getJson("/api/items/{$item->uuid}?include=related_items");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.related_items.set_name', null)
+        ->assertJsonCount(0, 'data.related_items.variant_items')
+        ->assertJsonCount(2, 'data.related_items.by_grade')
+        ->assertJsonPath('data.related_items.by_grade.0.uuid', $gradeB->uuid)
+        ->assertJsonPath('data.related_items.by_grade.1.uuid', $gradeC->uuid);
+
+    $this->getJson("/api/items/{$item->uuid}")
+        ->assertSuccessful()
+        ->assertJsonMissingPath('data.related_items');
+});
+
+it('adds exactly four queries for the grade link eager chain on the item index', function (): void {
+    // The eager chains must return rows or Laravel skips their nested
+    // hops, so the fixture needs variant groups, set items and grade
+    // links -- the compute jobs build all three.
+    $makeCooler = function (string $name, string $className, int $size, int $grade): ItemData {
+        return ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => $name,
+                'type' => 'Cooler',
+                'class_name' => $className,
+                'classification' => 'Ship.Cooler',
+                'size' => $size,
+                'grade' => $grade,
+                'is_player_relevant' => true,
+                'data' => [],
+            ]);
+    };
+
+    $makeCooler('Cryo-Star SL', 'COOL_JSPN_S00_CryoStarSL_SCItem', 0, 2);
+    $makeCooler('Frost-Star SL', 'COOL_JSPN_S00_FrostStarSL_SCItem', 0, 3);
+    $makeCooler('Cryo-Star', 'COOL_JSPN_S01_CryoStar_SCItem', 1, 2);
+    $makeCooler('Frost-Star', 'COOL_JSPN_S01_FrostStar_SCItem', 1, 3);
+
+    foreach (['helmet', 'core', 'arms', 'legs'] as $part) {
+        ItemData::factory()
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test Armor '.ucfirst($part),
+                'class_name' => 'char_armor_test_'.$part.'_01',
+                'classification' => 'Char_Armor',
+                'data' => [],
+            ]);
+    }
+
+    ItemData::factory()
+        ->count(192)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    (new ComputeItemVariantGroupsJob($this->gameVersion->id))->handle();
+    (new ComputeItemSetItemsJob($this->gameVersion->id))->handle();
+    (new ComputeItemVariantGradeLinksJob($this->gameVersion->id))->handle();
+
+    $count = 0;
+    DB::listen(static function () use (&$count): void {
+        $count++;
+    });
+
+    $this->getJson('/api/items?page[size]=200')->assertSuccessful();
+    $withoutInclude = $count;
+
+    $count = 0;
+    $this->getJson('/api/items?include=related_items&page[size]=200')->assertSuccessful();
+
+    // The include costs one query per eager hop: eight before the grade
+    // chain, twelve with gradeLinks.gradeItem.item.manufacturer.
+    expect($count - $withoutInclude)->toBe(12);
 });
 
 it('includes variant names for items equipped in ports', function (): void {

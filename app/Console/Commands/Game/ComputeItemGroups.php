@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGradeLinks as ComputeItemVariantGradeLinksJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Models\Game\GameVersion;
 use Illuminate\Console\Command;
@@ -36,6 +37,7 @@ class ComputeItemGroups extends Command
 
         ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
         ComputeItemSetItemsJob::dispatch($gameVersion->id);
+        ComputeItemVariantGradeLinksJob::dispatch($gameVersion->id);
 
         $this->info(sprintf('Dispatched compute jobs for version %s.', $gameVersion->code));
 

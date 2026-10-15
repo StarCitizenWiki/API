@@ -7,6 +7,7 @@ namespace App\Console\Commands\Game;
 use App\Jobs\Game\AddBatchJobs;
 use App\Jobs\Game\ComputeBespokeItems as ComputeBespokeItemsJob;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
+use App\Jobs\Game\ComputeItemVariantGradeLinks as ComputeItemVariantGradeLinksJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportStarmapData;
@@ -123,6 +124,7 @@ class SyncGameData extends Command
     {
         ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
         ComputeItemSetItemsJob::dispatch($gameVersion->id);
+        ComputeItemVariantGradeLinksJob::dispatch($gameVersion->id);
 
         Artisan::call('game:backfill-shipmatrix-ids', ['--game-version' => $gameVersion->code]);
 
