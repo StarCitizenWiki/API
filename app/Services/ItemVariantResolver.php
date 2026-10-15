@@ -228,7 +228,7 @@ class ItemVariantResolver
         }
 
         // CIG leaves stray members untagged (a bare Set row where siblings carry the named set)
-        //, so the tag must cover two thirds of the group, not every member.
+        // , so the tag must cover two thirds of the group, not every member.
         $total = count($candidatesPerItem);
         $coverage = [];
         foreach ($candidatesPerItem as $candidates) {
@@ -255,7 +255,7 @@ class ItemVariantResolver
      * Canonical line families across all armor lanes, keyed by line.
      *
      * @return array{0: array<string, array<int, ItemData>>, 1: array<string, string>}
-     *         line key => members (all lanes), line key => display line
+     *                                                                                 line key => members (all lanes), line key => display line
      */
     public function armorLineFamilies(): array
     {
@@ -263,7 +263,7 @@ class ItemVariantResolver
         $display = [];
 
         foreach (array_keys(self::ARMOR_LANE_SLOT) as $classification) {
-            [$laneBuckets, $laneDisplay, ] = $this->armorLaneBuckets($classification);
+            [$laneBuckets, $laneDisplay] = $this->armorLaneBuckets($classification);
 
             foreach ($laneBuckets as $key => $members) {
                 $buckets[$key] = array_merge($buckets[$key] ?? [], $members);
@@ -357,7 +357,7 @@ class ItemVariantResolver
         // stable because they are part of CIG's class-name grammar, not
         // product spellings.
         $segments = explode('_', $className)
-                |> (fn($x) => array_filter($x, static fn(string $segment): bool => $segment !== '' && !in_array($segment, ['SCItem', 'Flight', 'Blade', 'HND', 'SPD'], true),))
+                |> (fn ($x) => array_filter($x, static fn (string $segment): bool => $segment !== '' && ! in_array($segment, ['SCItem', 'Flight', 'Blade', 'HND', 'SPD'], true)))
                 |> array_values(...);
 
         $identity = [];
@@ -965,7 +965,7 @@ class ItemVariantResolver
      * ("Bokto") stay alone.
      *
      * @return array{0: array<string, array<int, ItemData>>, 1: array<string, string>, 2: array<int, string>}
-     *         line key => members, line key => display line, item id => line key
+     *                                                                                                        line key => members, line key => display line, item id => line key
      */
     private function armorLaneBuckets(string $classification): array
     {
@@ -1723,9 +1723,9 @@ class ItemVariantResolver
 
     /**
      * @return array<string, string> tag uuid => name of entries passing the
-     *         Set row. Deliberately unlike roleLeafNames('Set'): bare
-     *         'Set'-named rows stay counted toward the 2/3 coverage when
-     *         CIG leaves a member untagged next to named siblings.
+     *                               Set row. Deliberately unlike roleLeafNames('Set'): bare
+     *                               'Set'-named rows stay counted toward the 2/3 coverage when
+     *                               CIG leaves a member untagged next to named siblings.
      */
     private function extractSetTagCandidates(ItemData $itemData, string $setTagUuid): array
     {
@@ -1742,7 +1742,7 @@ class ItemVariantResolver
 
     /**
      * @return array<string, string> named leaf uuid => name, whose chain
-     *         passes a row named $role (bare role-named rows stay out)
+     *                               passes a row named $role (bare role-named rows stay out)
      */
     private function roleLeafNames(ItemData $itemData, string $role): array
     {
@@ -1767,7 +1767,7 @@ class ItemVariantResolver
 
     /**
      * @return array<int, string> row uuids named $role; 'Set' needs the
-     *         unique-row memo, every role's taxonomy lookup runs once
+     *                            unique-row memo, every role's taxonomy lookup runs once
      */
     private function roleRowUuids(string $role): array
     {
@@ -1914,7 +1914,7 @@ class ItemVariantResolver
      * @param  array<string, string>  $originalNames  uuid => original name
      * @param  array<string, bool>  $preStrippedUuids
      * @param  array<string, bool>  $ownLabeled  uuids labeled from their own name parse;
-     *        the restore fallback must not overwrite them
+     *                                           the restore fallback must not overwrite them
      */
     private static function stripMajorityLeadingWord(array &$map, ?array $base, array $preStrippedUuids, array $originalNames, array $ownLabeled = []): void
     {

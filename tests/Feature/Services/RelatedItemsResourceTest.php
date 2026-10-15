@@ -51,7 +51,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Weapon Base',
-                'class_name' => 'WeaponBase',
+                'class_name' => 'test_weapon_01_01_01',
                 'classification' => 'WeaponGun',
                 'data' => [
                     'stdItem' => [
@@ -65,7 +65,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Weapon Blue',
-                'class_name' => 'WeaponBlue',
+                'class_name' => 'test_weapon_01_01_02',
                 'classification' => 'WeaponGun',
                 'data' => [
                     'stdItem' => [
@@ -79,7 +79,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Weapon Red',
-                'class_name' => 'WeaponRed',
+                'class_name' => 'test_weapon_01_01_03',
                 'classification' => 'WeaponGun',
                 'data' => [
                     'stdItem' => [
@@ -108,7 +108,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Test Base',
-                'class_name' => 'TestBase',
+                'class_name' => 'test_module_01_01_01',
                 'classification' => 'TestClass',
                 'data' => [
                     'stdItem' => [
@@ -123,7 +123,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Test Variant',
-                'class_name' => 'TestVariant',
+                'class_name' => 'test_module_01_01_02',
                 'classification' => 'TestClass',
                 'data' => [
                     'stdItem' => [
@@ -156,7 +156,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Old Base',
-                'class_name' => 'OldBase',
+                'class_name' => 'test_module_01_01_01',
                 'classification' => 'TestClass',
                 'data' => [
                     'stdItem' => [
@@ -171,7 +171,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Old Variant',
-                'class_name' => 'OldVariant',
+                'class_name' => 'test_module_01_01_02',
                 'classification' => 'TestClass',
                 'data' => [
                     'stdItem' => [
@@ -186,7 +186,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'New Base',
-                'class_name' => 'NewBase',
+                'class_name' => 'test_module_01_01_01',
                 'classification' => 'TestClass',
                 'data' => [
                     'stdItem' => [
@@ -201,7 +201,7 @@ describe('variants', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'New Variant',
-                'class_name' => 'NewVariant',
+                'class_name' => 'test_module_01_01_02',
                 'classification' => 'TestClass',
                 'data' => [
                     'stdItem' => [
@@ -334,7 +334,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Gemini A03 Sniper Rifle',
-                'class_name' => 'GeminiA03',
+                'class_name' => 'gemini_a03_01_01_01',
                 'classification' => 'WeaponPersonal',
                 'data' => [
                     'stdItem' => [
@@ -348,7 +348,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Gemini A03 Sniper Rifle Eclipse',
-                'class_name' => 'GeminiA03Eclipse',
+                'class_name' => 'gemini_a03_01_01_02',
                 'classification' => 'WeaponPersonal',
                 'data' => [
                     'stdItem' => [
@@ -362,7 +362,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Gemini A03 Sniper Rifle Pathfinder',
-                'class_name' => 'GeminiA03Pathfinder',
+                'class_name' => 'gemini_a03_01_01_03',
                 'classification' => 'WeaponPersonal',
                 'data' => [
                     'stdItem' => [
@@ -388,7 +388,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Lynx Arms',
-                'class_name' => 'LynxArms',
+                'class_name' => 'lynx_arms_01_01_01',
                 'classification' => 'Armor',
                 'data' => [
                     'stdItem' => [
@@ -402,7 +402,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Lynx Arms Dark Green',
-                'class_name' => 'LynxArmsDarkGreen',
+                'class_name' => 'lynx_arms_01_01_02',
                 'classification' => 'Armor',
                 'data' => [
                     'stdItem' => [
@@ -416,7 +416,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'Lynx Arms Dark Red',
-                'class_name' => 'LynxArmsDarkRed',
+                'class_name' => 'lynx_arms_01_01_03',
                 'classification' => 'Armor',
                 'data' => [
                     'stdItem' => [
@@ -441,7 +441,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'A03 Sniper Rifle',
-                'class_name' => 'A03',
+                'class_name' => 'a03_rifle_01_01_01',
                 'classification' => 'WeaponPersonal',
                 'data' => [
                     'stdItem' => [
@@ -455,7 +455,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'A03 "Scorched" Sniper Rifle',
-                'class_name' => 'A03Scorched',
+                'class_name' => 'a03_rifle_01_01_02',
                 'classification' => 'WeaponPersonal',
                 'data' => [
                     'stdItem' => [
@@ -469,7 +469,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'A03 "Red Alert" Sniper Rifle',
-                'class_name' => 'A03RedAlert',
+                'class_name' => 'a03_rifle_01_01_03',
                 'classification' => 'WeaponPersonal',
                 'data' => [
                     'stdItem' => [
@@ -483,7 +483,7 @@ describe('naming', function () {
             ->for($this->manufacturer)
             ->create([
                 'name' => 'A03 "Lodestone" Sniper Rifle',
-                'class_name' => 'A03Lodestone',
+                'class_name' => 'a03_rifle_01_01_04',
                 'classification' => 'WeaponPersonal',
                 'data' => [
                     'stdItem' => [
