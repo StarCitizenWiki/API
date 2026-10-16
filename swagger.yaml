@@ -8398,10 +8398,26 @@ components:
               $ref: '#/components/schemas/item_related_link'
           nullable: true
         variant_items:
+          description: 'Unlabeled variant list. Superseded by by_size/by_grade/by_color.'
           type: array
           items:
             $ref: '#/components/schemas/item_related_link'
           nullable: true
+        by_size:
+          description: 'Group members that differ from this item only in size (same grade), base included. Empty when none.'
+          type: array
+          items:
+            $ref: '#/components/schemas/item_related_link'
+        by_grade:
+          description: 'Items in the same classification, manufacturer and size at other grades (persisted grade links). Empty when none.'
+          type: array
+          items:
+            $ref: '#/components/schemas/item_related_link'
+        by_color:
+          description: "Group members sharing this item's size and grade (colorways), base included. Empty when none."
+          type: array
+          items:
+            $ref: '#/components/schemas/item_related_link'
         set_items:
           type: array
           items:
@@ -16047,9 +16063,14 @@ components:
           nullable: true
         reputation_amount:
           type: integer
-        game_version:
+        version:
           type: string
           nullable: true
+        game_version:
+          description: 'Deprecated: Use version'
+          type: string
+          nullable: true
+          deprecated: true
         link:
           type: string
           format: uri
@@ -16460,9 +16481,13 @@ components:
           nullable: true
         reputation_amount:
           type: integer
+        version:
+          type: string
+          nullable: true
         game_version:
           type: string
           nullable: true
+          deprecated: true
         starmap_locations:
           type: array
           items:
