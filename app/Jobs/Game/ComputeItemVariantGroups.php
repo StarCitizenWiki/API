@@ -169,10 +169,31 @@ class ComputeItemVariantGroups implements ShouldQueue
             $line ??= $memberLine;
         }
 
-        $setName = $line ?? $resolver->resolveSetNameFromEntityTags($group);
+        $setName = $line ?? $resolver->resolveSetNameFromEntityTags($group) ?? $this->deriveSetNameFromMemberNames($group, $names);
         [, $variantNames] = ItemVariantResolver::computeSetNameAndVariantNames($names, $baseInfo, $groupInfo, $setName);
 
         return [$setName, $variantNames];
+    }
+
+    /**
+     * Name-prefix fallback for lanes without their own naming source
+     *
+     * @param  array<int, ItemData>  $group
+     * @param  array<int, string>  $names
+     */
+    private function deriveSetNameFromMemberNames(array $group, array $names): ?string
+    {
+        $classification = (string) ($group[0]->classification ?? '');
+
+        $namePrefixLane = $classification === 'Ship.Paints'
+            || str_starts_with($classification, 'FPS.Clothing.')
+            || str_starts_with($classification, 'Char.Clothing.');
+
+        if (! $namePrefixLane) {
+            return null;
+        }
+
+        return ItemVariantResolver::deriveSetNameFromNames($names);
     }
 
     /** @param array<string, string> $variantNames */

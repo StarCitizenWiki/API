@@ -133,21 +133,6 @@ class ItemVariantResolver
 
     private ?SetTagTaxonomy $taxonomy;
 
-    // null = not resolved yet; false = unique 'Set' lookup failed
-    private string|false|null $setTagUuid = null;
-
-    // null = not resolved yet; [] = no 'Part' rows at all, merge disabled
-    private ?array $partTagUuids = null;
-
-    /** @var array<string, string|null> uuid -> parent_uuid */
-    private array $tagParentCache = [];
-
-    /** @var array<string, array<string, string>> "Role|item id" => tag uuid => name */
-    private array $leafNameCache = [];
-
-    /** @var array<string, array<int, string>> role name -> taxonomy row uuids */
-    private array $roleRowUuidCache = [];
-
     // item id -> its >=2-member weapon component; computed once per domain because the name/family composition is domain-wide.
     /** @var array<int, array<int, ItemData>>|null */
     private ?array $weaponComponents = null;
@@ -215,7 +200,7 @@ class ItemVariantResolver
             return null;
         }
 
-        $setTagUuid = $this->resolveSetTagUuid();
+        $setTagUuid = $this->setTagTaxonomy()->setRowUuid();
 
         if ($setTagUuid === null) {
             return null;
@@ -224,7 +209,7 @@ class ItemVariantResolver
         $candidatesPerItem = [];
 
         foreach ($group as $item) {
-            $candidatesPerItem[] = $this->extractSetTagCandidates($item, $setTagUuid);
+            $candidatesPerItem[] = $this->setTagTaxonomy()->setTagCandidates($item, $setTagUuid);
         }
 
         // CIG leaves stray members untagged (a bare Set row where siblings carry the named set)
@@ -297,10 +282,12 @@ class ItemVariantResolver
 
     /**
      * The colorway after the line and slot words ("Venture Arms Tan" ->
-     * "Tan"). Pass the canonical line to also handle the inverted shape
-     * ("Neoni Tamarack Helmet" with line "Neoni" -> "Tamarack").
+     * "Tan"); with the canonical line also the inverted shape ("Neoni
+     * Tamarack Helmet" with line "Neoni" -> "Tamarack"). Callers whose
+     * armor line is null skip the call: without it the slot word never
+     * matched, so there is no colorway to extract.
      */
-    public static function armorColorway(?string $classification, ?string $name, ?string $line = null): ?string
+    public static function armorColorway(?string $classification, ?string $name, string $line): ?string
     {
         $slot = self::ARMOR_LANE_SLOT[(string) $classification] ?? null;
 
@@ -310,23 +297,13 @@ class ItemVariantResolver
 
         $normalized = str_replace("\u{00A0}", ' ', $name);
 
-        if ($line !== null) {
-            $pattern = '/^'.preg_quote($line, '/').'\s+(.*?)\s*'.preg_quote($slot, '/').'(?:\s+(.+))?$/iu';
+        $pattern = '/^'.preg_quote($line, '/').'\s+(.*?)\s*'.preg_quote($slot, '/').'(?:\s+(.+))?$/iu';
 
-            if (preg_match($pattern, $normalized, $m) !== 1) {
-                return null;
-            }
-
-            return implode(' ', array_filter([trim($m[2] ?? ''), trim($m[1])], static fn (string $part): bool => $part !== ''));
-        }
-
-        if (preg_match('/^.+?\s+'.preg_quote($slot, '/').'(?:\s|$)/iu', $normalized) !== 1) {
+        if (preg_match($pattern, $normalized, $m) !== 1) {
             return null;
         }
 
-        $remainder = preg_replace('/^.+?\s+'.preg_quote($slot, '/').'/iu', '', $normalized);
-
-        return trim((string) $remainder);
+        return implode(' ', array_filter([trim($m[2] ?? ''), trim($m[1])], static fn (string $part): bool => $part !== ''));
     }
 
     /**
@@ -415,7 +392,7 @@ class ItemVariantResolver
      * Cross-lane armor spelling: the display name carries a foreign slot
      * word and not the lane's own. CIG shipped "ADP-mk4 Core Justified"
      * classed as both Helmet and Legs; the classification is the bug, so
-     * the name is the signal. Fires on exactly those two items in 4.10.2.
+     * the name is the signal.
      */
     public static function isCrossLaneArmorSpelling(?string $classification, ?string $name): bool
     {
@@ -824,7 +801,7 @@ class ItemVariantResolver
     }
 
     /** Fixed hull structure: no variant groups, ever. */
-    private function noGroup(ItemData $itemData): array
+    private function noGroup(): array
     {
         return [];
     }
@@ -943,16 +920,20 @@ class ItemVariantResolver
     {
         $paintPrefix = $this->extractPaintPrefix($itemData);
 
-        if ($paintPrefix === null) {
-            return [];
+        if ($paintPrefix !== null) {
+            $cacheKey = sprintf('paint|%d|%s|%s', $this->gameVersionId, $paintPrefix, strtolower((string) $itemData->classification));
+
+            $tagGroup = $this->cachedQuery($cacheKey, fn (): Builder => ItemData::query()
+                ->where('game_version_id', $this->gameVersionId)
+                ->where('classification', $itemData->classification)
+                ->whereJsonContains('data->stdItem->Tags', $paintPrefix), 2);
+
+            if (count($tagGroup) > 1) {
+                return $tagGroup;
+            }
         }
 
-        $cacheKey = sprintf('paint|%d|%s|%s', $this->gameVersionId, $paintPrefix, strtolower((string) $itemData->classification));
-
-        return $this->cachedQuery($cacheKey, fn (): Builder => ItemData::query()
-            ->where('game_version_id', $this->gameVersionId)
-            ->where('classification', $itemData->classification)
-            ->whereJsonContains('data->stdItem->Tags', $paintPrefix), 2);
+        return $this->findVariantGroupFromClassName($itemData);
     }
 
     /**
@@ -1055,6 +1036,31 @@ class ItemVariantResolver
             }
         }
 
+        foreach ($laneItems as $member) {
+            if (isset($assign[$member->id])) {
+                continue;
+            }
+
+            $normalized = mb_strtolower(str_replace("\u{00A0}", ' ', (string) $member->name));
+            $bestKey = null;
+            $bestLength = 0;
+
+            foreach ($display as $key => $line) {
+                $lineLower = mb_strtolower($line);
+
+                if (($normalized === $lineLower || str_starts_with($normalized, $lineLower.' '))
+                    && mb_strlen($lineLower) > $bestLength) {
+                    $bestKey = $key;
+                    $bestLength = mb_strlen($lineLower);
+                }
+            }
+
+            if ($bestKey !== null) {
+                $buckets[$bestKey][] = $member;
+                $assign[$member->id] = $bestKey;
+            }
+        }
+
         return $this->lineBucketCache[$cacheKey] = [$buckets, $display, $assign];
     }
 
@@ -1074,6 +1080,14 @@ class ItemVariantResolver
         if ($line === null) {
             if (self::isCrossLaneArmorSpelling($itemData->classification, $itemData->name)) {
                 return [];
+            }
+
+            [$buckets, , $assign] = $this->armorLaneBuckets((string) $itemData->classification);
+
+            $joined = $buckets[$assign[$itemData->id] ?? ''] ?? [];
+
+            if (count($joined) > 1) {
+                return $joined;
             }
 
             // Unparseable names keep the routing from before armor lines
@@ -1131,18 +1145,11 @@ class ItemVariantResolver
             ->orderBy('id')
             ->get()->all();
 
-        $parent = [];
-        $union = function (ItemData $left, ItemData $right) use (&$parent): void {
-            $parent[self::findRoot($parent, $right->id)] = self::findRoot($parent, $left->id);
-        };
-
         $stemById = [];
         $stemBuckets = [];
         $familyBuckets = [];
 
         foreach ($domain as $item) {
-            $parent[$item->id] = $item->id;
-
             [$stem, $kind] = $this->extractWeaponNameStemAndKind($item->name);
             $stemById[$item->id] = $stem;
 
@@ -1163,11 +1170,7 @@ class ItemVariantResolver
             }
         }
 
-        foreach ($stemBuckets as $bucket) {
-            foreach (array_slice($bucket, 1) as $member) {
-                $union($bucket[0], $member);
-            }
-        }
+        $unionBuckets = array_values($stemBuckets);
 
         foreach ($familyBuckets as ['family' => $family, 'members' => $members]) {
             $hasAnchor = false;
@@ -1181,19 +1184,17 @@ class ItemVariantResolver
             // The anchor requirement dissolves buckets of sibling products
             // with no base among them (the five grin_multitool_01
             // attachments).
-            if (! $hasAnchor || count($stems) < 2) {
-                continue;
-            }
-
-            foreach (array_slice($members, 1) as $member) {
-                $union($members[0], $member);
+            if ($hasAnchor && count($stems) >= 2) {
+                $unionBuckets[] = $members;
             }
         }
+
+        $roots = self::rootAssignments($domain, $unionBuckets);
 
         $components = [];
 
         foreach ($domain as $item) {
-            $components[self::findRoot($parent, $item->id)][] = $item;
+            $components[$roots[$item->id]][] = $item;
         }
 
         $componentsById = [];
@@ -1452,7 +1453,7 @@ class ItemVariantResolver
 
         $leavesById = [];
         foreach ($bucket as $member) {
-            $leavesById[$member->id] = $this->roleLeafNames($member, 'Set');
+            $leavesById[$member->id] = $this->setTagTaxonomy()->roleLeafNames($member, 'Set');
         }
 
         $parent = [];
@@ -1462,17 +1463,20 @@ class ItemVariantResolver
 
         $tagged = array_values(array_filter($bucket, static fn (ItemData $member): bool => $leavesById[$member->id] !== []));
 
+        $pairBuckets = [];
         for ($i = 0, $max = count($tagged); $i < $max; $i++) {
             for ($j = $i + 1; $j < $max; $j++) {
                 if (array_intersect_key($leavesById[$tagged[$i]->id], $leavesById[$tagged[$j]->id]) !== []) {
-                    $parent[self::findRoot($parent, $tagged[$j]->id)] = self::findRoot($parent, $tagged[$i]->id);
+                    $pairBuckets[] = [$tagged[$i], $tagged[$j]];
                 }
             }
         }
 
+        $rootsById = self::rootAssignments($tagged, $pairBuckets);
+
         $components = [];
         foreach ($tagged as $member) {
-            $components[self::findRoot($parent, $member->id)][] = $member;
+            $components[$rootsById[$member->id]][] = $member;
         }
 
         $majorityRoot = null;
@@ -1489,10 +1493,10 @@ class ItemVariantResolver
         }
 
         $subjectComponent = [];
-        $subjectRoot = $leavesById[$subject->id] !== [] ? self::findRoot($parent, $subject->id) : $majorityRoot;
+        $subjectRoot = $leavesById[$subject->id] !== [] ? $rootsById[$subject->id] : $majorityRoot;
 
         foreach ($bucket as $member) {
-            $root = $leavesById[$member->id] !== [] ? self::findRoot($parent, $member->id) : $majorityRoot;
+            $root = $leavesById[$member->id] !== [] ? $rootsById[$member->id] : $majorityRoot;
 
             if ($root === $subjectRoot) {
                 $subjectComponent[] = $member;
@@ -1513,7 +1517,7 @@ class ItemVariantResolver
      */
     private function mergeComponentsByLeaf(array $component): array
     {
-        $partTagUuids = $this->resolvePartTagUuids();
+        $partTagUuids = $this->setTagTaxonomy()->roleRowUuids('Part');
 
         if ($partTagUuids === []) {
             Log::warning('game_entity_tags has no "Part" rows; cross-stem leaf merge disabled');
@@ -1523,7 +1527,7 @@ class ItemVariantResolver
 
         $common = null;
         foreach ($component as $member) {
-            $leaves = $this->roleLeafNames($member, 'Set');
+            $leaves = $this->setTagTaxonomy()->roleLeafNames($member, 'Set');
 
             if ($leaves === []) {
                 continue;
@@ -1541,14 +1545,14 @@ class ItemVariantResolver
         // CIG doubles some manufacturers into a same-named Set leaf (Artimex
         // and Testudo both carry Set leaf "QuirinusTech").
         foreach ($component as $member) {
-            if (in_array($common[$leafUuid], $this->roleLeafNames($member, 'Manufacturer'), true)) {
+            if (in_array($common[$leafUuid], $this->setTagTaxonomy()->roleLeafNames($member, 'Manufacturer'), true)) {
                 return $component;
             }
         }
 
         $partNames = [];
         foreach ($component as $member) {
-            foreach ($this->roleLeafNames($member, 'Part') as $name) {
+            foreach ($this->setTagTaxonomy()->roleLeafNames($member, 'Part') as $name) {
                 $partNames[$name] = true;
             }
         }
@@ -1575,11 +1579,11 @@ class ItemVariantResolver
                 continue;
             }
 
-            if (! isset($this->roleLeafNames($peer, 'Set')[$leafUuid])) {
+            if (! isset($this->setTagTaxonomy()->roleLeafNames($peer, 'Set')[$leafUuid])) {
                 continue;
             }
 
-            $peerPartNames = array_values($this->roleLeafNames($peer, 'Part'));
+            $peerPartNames = array_values($this->setTagTaxonomy()->roleLeafNames($peer, 'Part'));
 
             $partsCompatible = $partName === null
                 ? $peerPartNames === []
@@ -1721,151 +1725,6 @@ class ItemVariantResolver
             : null;
     }
 
-    /**
-     * @return array<string, string> tag uuid => name of entries passing the
-     *                               Set row. Deliberately unlike roleLeafNames('Set'): bare
-     *                               'Set'-named rows stay counted toward the 2/3 coverage when
-     *                               CIG leaves a member untagged next to named siblings.
-     */
-    private function extractSetTagCandidates(ItemData $itemData, string $setTagUuid): array
-    {
-        $candidates = [];
-
-        foreach ($this->entityTagMapEntries($itemData) as $uuid => $name) {
-            if ($this->tagChainPassesSetRow($uuid, $setTagUuid)) {
-                $candidates[$uuid] = $name;
-            }
-        }
-
-        return $candidates;
-    }
-
-    /**
-     * @return array<string, string> named leaf uuid => name, whose chain
-     *                               passes a row named $role (bare role-named rows stay out)
-     */
-    private function roleLeafNames(ItemData $itemData, string $role): array
-    {
-        $cacheKey = $role.'|'.$itemData->id;
-
-        if (array_key_exists($cacheKey, $this->leafNameCache)) {
-            return $this->leafNameCache[$cacheKey];
-        }
-
-        $leaves = [];
-
-        foreach ($this->entityTagMapEntries($itemData) as $uuid => $name) {
-            foreach ($this->roleRowUuids($role) as $rowUuid) {
-                if ($name !== $role && $this->tagChainPassesSetRow($uuid, $rowUuid)) {
-                    $leaves[$uuid] = $name;
-                }
-            }
-        }
-
-        return $this->leafNameCache[$cacheKey] = $leaves;
-    }
-
-    /**
-     * @return array<int, string> row uuids named $role; 'Set' needs the
-     *                            unique-row memo, every role's taxonomy lookup runs once
-     */
-    private function roleRowUuids(string $role): array
-    {
-        if ($role === 'Set') {
-            return array_filter([$this->resolveSetTagUuid()]);
-        }
-
-        if ($role === 'Part') {
-            return $this->resolvePartTagUuids();
-        }
-
-        return $this->roleRowUuidCache[$role] ??= $this->setTagTaxonomy()->tagUuidsNamed($role);
-    }
-
-    /** @return array<string, string> tag uuid => name */
-    private function entityTagMapEntries(ItemData $itemData): array
-    {
-        $tagMap = $itemData->data['entity_tag_map'] ?? null;
-
-        if (! is_array($tagMap)) {
-            return [];
-        }
-
-        $entries = [];
-
-        foreach ($tagMap as $entry) {
-            if (! is_array($entry)) {
-                continue;
-            }
-
-            $uuid = $entry['tag'] ?? null;
-            $name = $entry['name'] ?? null;
-
-            if (is_string($uuid) && $uuid !== '' && is_string($name) && $name !== '') {
-                $entries[$uuid] = $name;
-            }
-        }
-
-        return $entries;
-    }
-
-    private function tagChainPassesSetRow(string $uuid, string $setTagUuid): bool
-    {
-        $visited = [];
-        $current = $uuid;
-
-        while ($current !== null) {
-            if ($current === $setTagUuid) {
-                return true;
-            }
-
-            if (isset($visited[$current])) {
-                return false;
-            }
-
-            $visited[$current] = true;
-
-            if (! array_key_exists($current, $this->tagParentCache)) {
-                $this->tagParentCache[$current] = $this->setTagTaxonomy()->parentUuidOf($current);
-            }
-
-            $current = $this->tagParentCache[$current];
-        }
-
-        return false;
-    }
-
-    private function resolveSetTagUuid(): ?string
-    {
-        if ($this->setTagUuid !== null) {
-            return $this->setTagUuid === false ? null : $this->setTagUuid;
-        }
-
-        $uuids = $this->setTagTaxonomy()->setTagUuids();
-
-        if (count($uuids) !== 1) {
-            Log::warning('game_entity_tags has no unique "Set" row; entity-tag set names disabled', [
-                'set_tag_uuid_count' => count($uuids),
-            ]);
-
-            $this->setTagUuid = false;
-
-            return null;
-        }
-
-        return $this->setTagUuid = $uuids[0];
-    }
-
-    private function resolvePartTagUuids(): array
-    {
-        if ($this->partTagUuids !== null) {
-            return $this->partTagUuids;
-        }
-
-        // 'Part' is a role name; FPS and ship subtrees each carry a row.
-        return $this->partTagUuids = $this->setTagTaxonomy()->tagUuidsNamed('Part');
-    }
-
     private function setTagTaxonomy(): SetTagTaxonomy
     {
         return $this->taxonomy ??= SetTagTaxonomy::fromDatabase();
@@ -1899,6 +1758,11 @@ class ItemVariantResolver
         }
 
         $line = self::armorLine($member['classification'] ?? null, $name);
+
+        if ($line === null) {
+            return null;
+        }
+
         $colorway = self::armorColorway($member['classification'] ?? null, $name, $line);
 
         return ($colorway !== null && $colorway !== '') ? $colorway : null;
@@ -2092,6 +1956,37 @@ class ItemVariantResolver
     }
 
     /** Union-find root with path halving, shared by both partition passes. */
+    /**
+     * Union-find over item ids: every member seeds as its own root, then
+     * bucket mates merge onto their bucket head.
+     *
+     * @param  array<int, ItemData>  $members
+     * @param  array<int, array<int, ItemData>>  $buckets
+     * @return array<int, int> item id -> root id
+     */
+    private static function rootAssignments(array $members, array $buckets): array
+    {
+        $parent = [];
+
+        foreach ($members as $member) {
+            $parent[$member->id] = $member->id;
+        }
+
+        foreach ($buckets as $bucket) {
+            foreach (array_slice($bucket, 1) as $member) {
+                $parent[self::findRoot($parent, $member->id)] = self::findRoot($parent, $bucket[0]->id);
+            }
+        }
+
+        $roots = [];
+
+        foreach ($members as $member) {
+            $roots[$member->id] = self::findRoot($parent, $member->id);
+        }
+
+        return $roots;
+    }
+
     private static function findRoot(array &$parent, int $id): int
     {
         while ($parent[$id] !== $id) {

@@ -2354,3 +2354,116 @@ describe('variant grade links', function (): void {
             ->and(DB::table('game_item_variant_grade_items')->count())->toBe($first);
     });
 });
+
+describe('spliced fallbacks', function (): void {
+    it('groups paint lines without Paint_ tags by class-name family', function (): void {
+        $version = GameVersion::query()->create(['code' => '4.10.3-paint-LIVE', 'channel' => 'live', 'released_at' => now(), 'is_default' => true]);
+
+        $makePaint = function (string $name, string $className, array $tags) use ($version): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => $name,
+                'class_name' => $className,
+                'type' => 'Paints',
+                'classification' => 'Ship.Paints',
+                'is_player_relevant' => true,
+                'data' => ['stdItem' => ['Tags' => $tags]],
+            ]);
+        };
+
+        // CIG tags the 300-series hulls "300i_Paint", never "Paint_300";
+        // each colorway only adds its unique "@" tag.
+        $makePaint('300 Series Citron Paint', 'Paint_300_Series_Solid_Yellow', ['ORIG_300i_Base', 'webcustom', '300i_Paint', '@300_Series_Solid_Yellow']);
+        $makePaint('300 Series Electric Blue Paint', 'Paint_300_Series_Solid_Blue', ['ORIG_300i_Base', 'webcustom', '300i_Paint', '@300_Series_Solid_Blue']);
+        $makePaint('300 Series Moonlight Paint', 'Paint_300_Series_Metallic_White', ['ORIG_300i_Base', 'webcustom', '300i_Paint', '@300_Series_Metallic_White']);
+        $makePaint('300 Series Sterling Paint', 'Paint_300_Series_Metallic_Silver', ['ORIG_300i_Base', 'webcustom', '300i_Paint', '@300_Series_Metallic_Silver']);
+        // "Paint_300i_*" has no numeric class anchor and must stay ungrouped.
+        $outsider = $makePaint('300 Series Golden Dawn Paint', 'Paint_300i_White_Red_Stripe', ['ORIG_300i_Base', 'webcustom', '300i_Paint', '@300i_White_Red_Stripe']);
+
+        new ComputeItemVariantGroupsJob($version->id)->handle();
+
+        $groups = VariantGroup::query()->where('game_version_id', $version->id)->get();
+        expect($groups)->toHaveCount(1)
+            ->and($groups->first()->set_name)->toBe('300 Series')
+            ->and($groups->first()->items()->count())->toBe(4)
+            ->and(VariantGroupItem::query()->where('item_data_id', $outsider->id)->exists())->toBeFalse()
+            ->and($outsider->fresh()->base_id)->toBeNull();
+    });
+
+    it('derives a clothing set name from the member name prefix', function (): void {
+        $version = GameVersion::query()->create(['code' => '4.10.3-clothing-LIVE', 'channel' => 'live', 'released_at' => now(), 'is_default' => true]);
+
+        $makeShoes = function (string $name, string $className) use ($version): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => $name,
+                'class_name' => $className,
+                'type' => 'Char_Clothing_Feet',
+                'classification' => 'FPS.Clothing.Shoes',
+                'is_player_relevant' => true,
+                'data' => [],
+            ]);
+        };
+
+        $makeShoes('Prim Shoes', 'fio_shoes_01_01_01');
+        $makeShoes('Prim Shoes Aqua', 'fio_shoes_01_01_02');
+        $makeShoes('Prim Shoes Black', 'fio_shoes_01_01_03');
+
+        new ComputeItemVariantGroupsJob($version->id)->handle();
+
+        $group = VariantGroup::query()->where('game_version_id', $version->id)->first();
+        expect($group)->not->toBeNull()
+            ->and($group->set_name)->toBe('Prim Shoes')
+            ->and($group->items()->count())->toBe(3);
+    });
+
+    it('joins slot-word-less armor names into the family their line extends', function (): void {
+        $version = GameVersion::query()->create(['code' => '4.10.3-armor-LIVE', 'channel' => 'live', 'released_at' => now(), 'is_default' => true]);
+
+        $make = function (string $name, string $className, string $type, string $classification) use ($version): ItemData {
+            return ItemData::query()->create([
+                'item_id' => Item::query()->create(['uuid' => fake()->uuid()])->id,
+                'game_version_id' => $version->id,
+                'manufacturer_id' => $this->manufacturer->id,
+                'name' => $name,
+                'class_name' => $className,
+                'type' => $type,
+                'classification' => $classification,
+                'is_player_relevant' => true,
+                'data' => [],
+            ]);
+        };
+
+        // Torso lane: two anchored "Carnifex Armor" colorways, one relaxed
+        // "Carnifex" line, and the slot-word-less stl edition.
+        $core = $make('Carnifex Armor Core', 'gys_jacket_01_01_01', 'Char_Armor_Torso', 'FPS.Armor.Torso');
+        $make('Carnifex Armor Core Brassy', 'gys_jacket_01_01_14', 'Char_Armor_Torso', 'FPS.Armor.Torso');
+        $make('Carnifex Core Windfall', 'gys_jacket_stl01_01_01', 'Char_Armor_Torso', 'FPS.Armor.Torso');
+        $luckyBreak = $make('Carnifex Armor Lucky Break', 'gys_jacket_stl01_02_01', 'Char_Armor_Torso', 'FPS.Armor.Torso');
+
+        // Legs lane: "Carnifex Pants Windfall" extends no anchored line.
+        $make('Carnifex Armor Legs', 'gys_pants_01_01_01', 'Char_Armor_Legs', 'FPS.Armor.Legs');
+        $make('Carnifex Armor Legs Brassy', 'gys_pants_01_01_14', 'Char_Armor_Legs', 'FPS.Armor.Legs');
+        $pantsWindfall = $make('Carnifex Pants Windfall', 'gys_pants_stl01_01_01', 'Char_Armor_Legs', 'FPS.Armor.Legs');
+
+        new ComputeItemVariantGroupsJob($version->id)->handle();
+
+        $torsoGroup = VariantGroup::query()->where('game_version_id', $version->id)
+            ->whereHas('items', fn ($query) => $query->where('item_data_id', $core->id))
+            ->first();
+
+        expect($torsoGroup)->not->toBeNull()
+            ->and($torsoGroup->set_name)->toBe('Carnifex Armor')
+            ->and($torsoGroup->items()->count())->toBe(4)
+            ->and($torsoGroup->items()->firstWhere('item_data_id', $luckyBreak->id))->not->toBeNull()
+            ->and($torsoGroup->items()->firstWhere('item_data_id', $core->id)->is_base)->toBeTrue();
+
+        $legsGroups = VariantGroupItem::query()->whereIn('item_data_id', [$pantsWindfall->id])->exists();
+        expect($legsGroups)->toBeFalse()
+            ->and($pantsWindfall->fresh()->base_id)->toBeNull();
+    });
+});
