@@ -64,7 +64,7 @@ class ImportItemPrices implements ShouldQueue
 
             $exception = $response->toException();
             if ($exception !== null) {
-                $this->fail($exception);
+                throw $exception;
             }
 
             return;

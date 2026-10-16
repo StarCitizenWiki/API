@@ -104,3 +104,26 @@ it('queues article properties after the import batch completes', function (): vo
     Queue::assertPushedTimes(ImportCategories::class, 1);
     Queue::assertPushedTimes(DispatchArticleProperties::class, 1);
 });
+
+it('derives the article slug from the title when the graphql response omits it', function (): void {
+    Http::fake([
+        '*' => Http::response([
+            'data' => [
+                'Article' => [
+                    'id' => '42',
+                    'title' => 'Banu Defender',
+                    'body' => '',
+                    'template' => [],
+                    'thumbnail' => null,
+                    'categories' => [],
+                    'tags' => [],
+                    'relatedArticles' => [],
+                ],
+            ],
+        ], 200),
+    ]);
+
+    (new ImportArticle('42'))->handle(new RsiDownloadClient);
+
+    expect(Article::query()->where('cig_id', '42')->value('slug'))->toBe('banu-defender');
+});

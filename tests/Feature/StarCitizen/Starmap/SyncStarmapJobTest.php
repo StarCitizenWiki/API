@@ -174,6 +174,50 @@ it('dispatches downloads in a batch and imports jumppoints', function (): void {
     Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
 });
 
+it('dispatches separate import and download batches in the same run', function (): void {
+    Storage::fake('starmap');
+    Bus::fake();
+
+    Storage::disk('starmap')->put(
+        now()->format('Y-m-d').'/bootup.json',
+        json_encode(bootupPayload(), JSON_THROW_ON_ERROR)
+    );
+    // SOL comes from disk, PYRO needs a download.
+    Storage::disk('starmap')->put(
+        now()->format('Y-m-d').'/sol_system.json',
+        json_encode([
+            'id' => 1,
+            'code' => 'SOL',
+            'name' => 'Sol',
+            'description' => '',
+            'affiliation' => [],
+            'celestial_objects' => [],
+        ], JSON_THROW_ON_ERROR)
+    );
+
+    $job = new SyncStarmap;
+    $job->handle(new RsiDownloadClient);
+
+    Http::assertNothingSent();
+
+    assertJumppointDispatched();
+
+    Bus::assertBatched(function (PendingBatch $batch): bool {
+        return $batch->jobs->count() === 1
+            && $batch->hasJobs([
+                fn (ImportStarsystem $job): bool => $job->getData()->get('code') === 'SOL',
+            ]);
+    });
+
+    Bus::assertBatched(function (PendingBatch $batch): bool {
+        return $batch->jobs->count() === 1
+            && $batch->hasJobs([
+                fn (DownloadStarsystem $job): bool => $job->systemCode === 'PYRO'
+                    && $job->folder === now()->format('Y-m-d'),
+            ]);
+    });
+});
+
 it('skips starsystem downloads and imports from disk when data already exists', function (): void {
     Storage::fake('starmap');
     Bus::fake();

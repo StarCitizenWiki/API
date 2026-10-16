@@ -45,25 +45,25 @@ class ImportMissionData implements ShouldQueue
     private static ?array $starmapLocationLookup = null;
 
     /** @var array<int, int>|null */
-    private static ?array $starmapLocationDataLookup = null;
+    private ?array $starmapLocationDataLookup = null;
 
     /** @var array<string, int>|null */
     private static ?array $itemLookup = null;
 
     /** @var array<int, int>|null */
-    private static ?array $itemDataLookup = null;
+    private ?array $itemDataLookup = null;
 
     /** @var array<string, int>|null */
     private static ?array $blueprintLookup = null;
 
     /** @var array<int, int>|null */
-    private static ?array $blueprintDataLookup = null;
+    private ?array $blueprintDataLookup = null;
 
     /** @var array<string, int>|null */
     private static ?array $commodityLookup = null;
 
     /** @var array<int, string>|null */
-    private static ?array $systemLookup = null;
+    private ?array $systemLookup = null;
 
     /** @var array<string, Mission>|null */
     private static ?array $missionCache = null;
@@ -96,14 +96,14 @@ class ImportMissionData implements ShouldQueue
 
     private function starmapLocationDataLookup(): array
     {
-        if (self::$starmapLocationDataLookup === null) {
-            self::$starmapLocationDataLookup = StarmapLocationData::query()
+        if ($this->starmapLocationDataLookup === null) {
+            $this->starmapLocationDataLookup = StarmapLocationData::query()
                 ->where('game_version_id', $this->gameVersionId)
                 ->pluck('id', 'starmap_location_id')
                 ->all();
         }
 
-        return self::$starmapLocationDataLookup;
+        return $this->starmapLocationDataLookup;
     }
 
     private function resolveItemId(?string $uuid): ?int
@@ -132,22 +132,22 @@ class ImportMissionData implements ShouldQueue
             return null;
         }
 
-        if (self::$itemDataLookup === null) {
-            self::$itemDataLookup = ItemData::query()
+        if ($this->itemDataLookup === null) {
+            $this->itemDataLookup = ItemData::query()
                 ->where('game_version_id', $this->gameVersionId)
                 ->pluck('id', 'item_id')
                 ->all();
         }
 
-        $id = self::$itemDataLookup[$itemId] ?? null;
+        $id = $this->itemDataLookup[$itemId] ?? null;
 
         if ($id === null) {
             // Lazy-reload: item data may have been created after the cache was primed (e.g. in tests).
-            self::$itemDataLookup = ItemData::query()
+            $this->itemDataLookup = ItemData::query()
                 ->where('game_version_id', $this->gameVersionId)
                 ->pluck('id', 'item_id')
                 ->all();
-            $id = self::$itemDataLookup[$itemId] ?? null;
+            $id = $this->itemDataLookup[$itemId] ?? null;
         }
 
         return $id;
@@ -164,14 +164,14 @@ class ImportMissionData implements ShouldQueue
 
     private function blueprintDataLookup(): array
     {
-        if (self::$blueprintDataLookup === null) {
-            self::$blueprintDataLookup = BlueprintData::query()
+        if ($this->blueprintDataLookup === null) {
+            $this->blueprintDataLookup = BlueprintData::query()
                 ->where('game_version_id', $this->gameVersionId)
                 ->pluck('id', 'blueprint_id')
                 ->all();
         }
 
-        return self::$blueprintDataLookup;
+        return $this->blueprintDataLookup;
     }
 
     private function commodityLookup(): array
@@ -188,15 +188,15 @@ class ImportMissionData implements ShouldQueue
 
     private function systemLookup(): array
     {
-        if (self::$systemLookup === null) {
-            self::$systemLookup = StarmapLocationData::query()
+        if ($this->systemLookup === null) {
+            $this->systemLookup = StarmapLocationData::query()
                 ->where('game_version_id', $this->gameVersionId)
                 ->whereNotNull('system')
                 ->pluck('system', 'starmap_location_id')
                 ->all();
         }
 
-        return self::$systemLookup;
+        return $this->systemLookup;
     }
 
     public function handle(): void

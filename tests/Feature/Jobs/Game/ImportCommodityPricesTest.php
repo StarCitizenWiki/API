@@ -7,6 +7,7 @@ use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -239,7 +240,9 @@ describe('handle', function (): void {
         $commodity = Commodity::factory()->create(['name' => 'Agricium', 'uex_prices' => [['terminal_name' => 'Old']]]);
 
         $job = new ImportCommodityPrices($version->id);
-        $job->handle();
+
+        // The job throws so the queue retries it instead of permanently failing.
+        expect(fn () => $job->handle())->toThrow(RequestException::class);
 
         expect($commodity->refresh()->uex_prices)->toBe([['terminal_name' => 'Old']]);
 
@@ -256,5 +259,63 @@ describe('handle', function (): void {
         $job->handle();
 
         Log::shouldHaveReceived('error')->with('Game version not found', ['game_version_id' => 999999]);
+    });
+
+    it('imports prices on the retry after a failed api request', function (): void {
+        Log::spy();
+
+        $version = GameVersion::factory()->create(['code' => '4.8.0-LIVE.1182', 'is_default' => true]);
+        $commodity = Commodity::factory()->create(['name' => 'Laranite']);
+
+        $failedOnce = false;
+
+        Http::fake(function ($request) use (&$failedOnce) {
+            if (str_contains($request->url(), 'commodities_prices_all')) {
+                if (! $failedOnce) {
+                    $failedOnce = true;
+
+                    return Http::response(status: 500);
+                }
+
+                return Http::response([
+                    'data' => [
+                        [
+                            'id_commodity' => 1,
+                            'commodity_name' => 'Laranite',
+                            'id_terminal' => 1,
+                            'terminal_name' => 'Test Terminal',
+                            'price_buy' => 100,
+                            'price_sell' => 50,
+                            'date_modified' => 1700000000,
+                        ],
+                    ],
+                ]);
+            }
+
+            if (str_contains($request->url(), 'terminals')) {
+                return Http::response(['data' => []]);
+            }
+
+            return Http::response(['data' => []]);
+        });
+
+        $job = new ImportCommodityPrices($version->id);
+
+        // Attempt 1: API fails, the job throws so the queue can retry it.
+        expect(fn () => $job->handle())->toThrow(RequestException::class)
+            ->and($commodity->refresh()->uex_prices)->toBeNull();
+
+        // Attempt 2 (queue retry): the API recovers and the data lands.
+        $job->handle();
+
+        expect($commodity->refresh()->uex_prices)->toBeArray()
+            ->and($commodity->uex_prices)->toHaveCount(1)
+            ->and($commodity->uex_prices[0])->toMatchArray([
+                'terminal_id' => 1,
+                'terminal_name' => 'Test Terminal',
+                'price_buy' => 100,
+                'price_sell' => 50,
+                'game_version' => $version->code,
+            ]);
     });
 });

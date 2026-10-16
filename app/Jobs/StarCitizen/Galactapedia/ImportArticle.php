@@ -93,7 +93,7 @@ QUERY,
             ],
             [
                 'title' => Article::normalizeContent($data['title']),
-                'slug' => $data['slug'] ?? Str::slug($data['name']),
+                'slug' => $data['slug'] ?? Str::slug($data['title']),
                 'thumbnail' => $data['thumbnail']['url'] ?? null,
             ]
         );

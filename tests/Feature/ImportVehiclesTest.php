@@ -423,6 +423,102 @@ it('syncs description translations when DescriptionKey is present', function ():
         ->and($vehicle->getTranslation('translation', 'fr', false))->toBeEmpty();
 });
 
+describe('cross-version cache isolation', function (): void {
+    it('matches against the current ship matrix after it was re-synced between versions', function (): void {
+        Storage::fake('scunpacked');
+
+        $versionA = GameVersion::query()->create([
+            'code' => '4.0.0',
+            'channel' => 'live',
+            'released_at' => now(),
+            'is_default' => false,
+        ]);
+
+        $versionB = GameVersion::query()->create([
+            'code' => '4.0.1',
+            'channel' => 'live',
+            'released_at' => now(),
+            'is_default' => false,
+        ]);
+
+        $gameManufacturer = Manufacturer::query()->create([
+            'uuid' => fake()->uuid(),
+            'name' => 'Anvil Aerospace',
+            'code' => 'ANV',
+        ]);
+
+        $shipmatrixManufacturer = ShipMatrixManufacturer::query()->create([
+            'cig_id' => 200,
+            'name' => 'Anvil Aerospace',
+            'name_short' => 'ANV',
+        ]);
+
+        $productionStatus = ProductionStatus::query()->create(['slug' => 'in-production']);
+        $productionNote = ProductionNote::query()->create(['translation' => ['en' => 'None']]);
+        $size = ShipSize::query()->create(['slug' => 'small']);
+        $type = ShipType::query()->create(['slug' => 'explorer']);
+
+        $aurora = ShipMatrixVehicle::query()->create([
+            'cig_id' => 300,
+            'name' => 'Aurora',
+            'slug' => 'aurora',
+            'manufacturer_id' => $shipmatrixManufacturer->id,
+            'production_status_id' => $productionStatus->id,
+            'production_note_id' => $productionNote->id,
+            'size_id' => $size->id,
+            'type_id' => $type->id,
+            'chassis_id' => 300,
+        ]);
+
+        $vehicleUuid = fake()->uuid();
+        $payload = [
+            'UUID' => $vehicleUuid,
+            'ClassName' => 'ANVL_Aurora',
+            'Name' => 'Aurora',
+            'Manufacturer' => [
+                'UUID' => $gameManufacturer->uuid,
+                'Name' => $gameManufacturer->name,
+                'Code' => $gameManufacturer->code,
+            ],
+        ];
+
+        Storage::disk('scunpacked')->put('ships/aurora.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+        // Same worker process: the first import primes the matcher's static caches.
+        (new ImportVehicleData($versionA->id, 'ships/aurora.json'))->handle();
+
+        $vehicle = Vehicle::query()->firstWhere('uuid', $vehicleUuid);
+
+        $shipmatrixId = fn (int $versionId): ?int => VehicleData::query()
+            ->where('vehicle_id', $vehicle->id)
+            ->where('game_version_id', $versionId)
+            ->firstOrFail()
+            ->shipmatrix_id;
+
+        expect($shipmatrixId($versionA->id))->toBe($aurora->id);
+
+        // Ship matrix re-sync between game versions replaces the rows, so the
+        // same ship now carries a different matrix id.
+        $aurora->delete();
+
+        $resyncedAurora = ShipMatrixVehicle::query()->create([
+            'cig_id' => 301,
+            'name' => 'Aurora',
+            'slug' => 'aurora',
+            'manufacturer_id' => $shipmatrixManufacturer->id,
+            'production_status_id' => $productionStatus->id,
+            'production_note_id' => $productionNote->id,
+            'size_id' => $size->id,
+            'type_id' => $type->id,
+            'chassis_id' => 301,
+        ]);
+
+        (new ImportVehicleData($versionB->id, 'ships/aurora.json'))->handle();
+
+        expect($shipmatrixId($versionB->id))->toBe($resyncedAurora->id);
+    });
+});
+
 it('skips translation sync when DescriptionKey is null', function (): void {
     Storage::fake('scunpacked');
 

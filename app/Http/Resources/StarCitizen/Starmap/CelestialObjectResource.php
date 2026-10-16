@@ -63,7 +63,7 @@ class CelestialObjectResource extends AbstractBaseResource
     {
         $jumppoint = $this->relationLoaded('jumppointEntry') || $this->relationLoaded('jumppointExit')
             ? $this->jumppointEntry ?? $this->jumppointExit
-            : $this->jumppoint();
+            : null;
 
         return [
             'id' => $this->cig_id,

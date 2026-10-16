@@ -17,7 +17,7 @@ class SearchRequest extends FormRequest
         }
 
         $this->merge([
-            'query' => trim(str_replace('_', ' ', urldecode($query))),
+            'query' => trim(str_replace('_', ' ', $query)),
         ]);
     }
 

@@ -12,8 +12,6 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\Vehicle;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\StarCitizen\Galactapedia\Article;
-use App\Models\StarCitizen\Starmap\CelestialObject;
-use App\Models\StarCitizen\Starmap\Starsystem;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Spatie\Sitemap\Sitemap;
@@ -36,8 +34,6 @@ class GenerateSitemap extends Command
         'commodities',
         'missions',
         'locations',
-        'starsystems',
-        'celestial-objects',
     ];
 
     private const array SITEMAP_FILES = [
@@ -50,8 +46,6 @@ class GenerateSitemap extends Command
         'commodities' => 'sitemap-commodities.xml',
         'missions' => 'sitemap-missions.xml',
         'locations' => 'sitemap-locations.xml',
-        'starsystems' => 'sitemap-starsystems.xml',
-        'celestial-objects' => 'sitemap-celestial-objects.xml',
     ];
 
     private const int CHUNK_SIZE = 1000;
@@ -97,8 +91,6 @@ class GenerateSitemap extends Command
             'commodities' => $this->addCommodities($sitemap),
             'missions' => $this->addMissions($sitemap),
             'locations' => $this->addLocations($sitemap),
-            'starsystems' => $this->addStarsystems($sitemap),
-            'celestial-objects' => $this->addCelestialObjects($sitemap),
         };
 
         $sitemap->writeToFile(storage_path('app/sitemaps/'.self::SITEMAP_FILES[$segment]));
@@ -273,40 +265,6 @@ class GenerateSitemap extends Command
                             ->setLastModificationDate($location->updated_at)
                             ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                             ->setPriority(1.0)
-                    );
-                }
-            });
-    }
-
-    private function addStarsystems(Sitemap $sitemap): void
-    {
-        Starsystem::query()
-            ->select(['id', 'code', 'time_modified'])
-            ->without(['affiliation'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $system) {
-                    $sitemap->add(
-                        Url::create(route('web.starmap.systems.show', $system->code))
-                            ->setLastModificationDate($system->time_modified)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(0.5)
-                    );
-                }
-            });
-    }
-
-    private function addCelestialObjects(Sitemap $sitemap): void
-    {
-        CelestialObject::query()
-            ->select(['id', 'code', 'time_modified'])
-            ->without(['subtype', 'affiliation'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $object) {
-                    $sitemap->add(
-                        Url::create(route('web.starmap.celestial-objects.show', $object->code))
-                            ->setLastModificationDate($object->time_modified)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(0.5)
                     );
                 }
             });

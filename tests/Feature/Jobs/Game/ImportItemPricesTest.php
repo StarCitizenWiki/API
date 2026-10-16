@@ -8,6 +8,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -234,7 +235,9 @@ it('logs api failures and leaves existing prices untouched', function (): void {
     ]);
 
     $job = new ImportItemPrices($version->id);
-    $job->handle();
+
+    // The job throws so the queue retries it instead of permanently failing.
+    expect(fn () => $job->handle())->toThrow(RequestException::class);
 
     $prices = $itemData->refresh()->uex_prices;
 
@@ -560,4 +563,59 @@ it('updates item prices when the UEX source data changes', function (): void {
 
     expect($itemData->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
         ->and($itemData->uex_prices[0]['price_buy'])->toBe(999);
+});
+
+it('imports prices on the retry after a failed api request', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+    ]);
+
+    $failedOnce = false;
+
+    Http::fake(function ($request) use ($item, &$failedOnce) {
+        if (str_contains($request->url(), 'items_prices_all')) {
+            if (! $failedOnce) {
+                $failedOnce = true;
+
+                return Http::response(status: 500);
+            }
+
+            return Http::response(['data' => [
+                [
+                    'item_uuid' => $item->uuid,
+                    'id_terminal' => 1,
+                    'terminal_name' => 'Test Terminal',
+                    'price_buy' => 100,
+                    'price_sell' => 50,
+                    'date_modified' => 1700000000,
+                ],
+            ]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+
+    $job = new ImportItemPrices($version->id);
+
+    // Attempt 1: API fails, the job throws so the queue can retry it.
+    expect(fn () => $job->handle())->toThrow(RequestException::class)
+        ->and($itemData->refresh()->uex_prices)->toBeNull();
+
+    // Attempt 2 (queue retry): the API recovers and the data lands.
+    $job->handle();
+
+    expect($itemData->refresh()->uex_prices)->toBeArray()
+        ->and($itemData->uex_prices)->toHaveCount(1)
+        ->and($itemData->uex_prices[0])->toMatchArray([
+            'terminal_id' => 1,
+            'terminal_name' => 'Test Terminal',
+            'price_buy' => 100,
+            'price_sell' => 50,
+            'game_version' => $version->code,
+        ]);
 });

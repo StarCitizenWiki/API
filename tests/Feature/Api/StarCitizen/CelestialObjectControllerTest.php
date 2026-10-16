@@ -231,7 +231,9 @@ describe('jumppoints include', function (): void {
             'include' => 'jumppoints',
         ]));
 
-        $response->assertSuccessful();
+        $response->assertSuccessful()
+            ->assertJsonPath('data.jumppoints.entry.system_api_url', route('starsystems.show', ['code' => 'ELLIS']))
+            ->assertJsonPath('data.jumppoints.exit.system_api_url', route('starsystems.show', ['code' => 'NYX']));
 
         $jp = $response->json('data.jumppoints');
 
@@ -300,6 +302,35 @@ describe('jumppoints include', function (): void {
         expect($item)->not->toBeNull()
             ->and($item['jumppoints']['id'])->toBe($jumppoint->cig_id)
             ->and($item['jumppoints']['entry']['code'])->toBe($entryCO->code)
+            ->and($item['jumppoints']['entry']['system_api_url'])->toBe(route('starsystems.show', ['code' => 'ELLIS']))
             ->and($item['jumppoints']['exit']['code'])->toBe($exitCO->code);
+    });
+
+    it('returns a null system api url when the jumppoint system is missing', function (): void {
+        $entryCO = CelestialObject::factory()->create([
+            'starsystem_id' => 987654321,
+            'code' => 'ORPHAN.JUMPPOINTS.ENTRY',
+            'type' => 'JUMPPOINT',
+        ]);
+
+        $exitCO = CelestialObject::factory()->create([
+            'starsystem_id' => 987654321,
+            'code' => 'ORPHAN.JUMPPOINTS.EXIT',
+            'type' => 'JUMPPOINT',
+        ]);
+
+        Jumppoint::factory()->create([
+            'entry_id' => $entryCO->cig_id,
+            'exit_id' => $exitCO->cig_id,
+        ]);
+
+        $response = $this->getJson(route('celestial-objects.show', [
+            'code' => $entryCO->code,
+            'include' => 'jumppoints',
+        ]));
+
+        $response->assertSuccessful()
+            ->assertJsonPath('data.jumppoints.entry.system_api_url', null)
+            ->assertJsonPath('data.jumppoints.exit.system_api_url', null);
     });
 });

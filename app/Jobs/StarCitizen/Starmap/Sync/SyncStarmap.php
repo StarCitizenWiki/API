@@ -212,17 +212,11 @@ class SyncStarmap implements ShouldQueue
         }
 
         if (count($importJobs) > 0) {
-            try {
-                Bus::batch($importJobs)->dispatch();
-            } catch (\Throwable $e) {
-            }
+            Bus::batch($importJobs)->dispatch();
         }
 
         if (count($downloadJobs) > 0) {
-            try {
-                Bus::batch($downloadJobs)->dispatch();
-            } catch (\Throwable $e) {
-            }
+            Bus::batch($downloadJobs)->dispatch();
         }
     }
 

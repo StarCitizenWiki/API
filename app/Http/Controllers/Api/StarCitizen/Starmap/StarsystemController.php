@@ -59,7 +59,7 @@ class StarsystemController extends Controller
         return [
             IncludeDefinition::relationship('affiliation'),
             IncludeDefinition::relationship('celestialObjects'),
-            IncludeDefinition::custom('jumppoints', new CustomEagerLoadInclude(['jumppoints.entry', 'jumppoints.exit'])),
+            IncludeDefinition::custom('jumppoints', new CustomEagerLoadInclude(['jumppoints.entry.starsystem', 'jumppoints.exit.starsystem'])),
         ];
     }
 

@@ -57,6 +57,8 @@ class ImportVehicleData implements ShouldQueue
      */
     public function handle(): void
     {
+        VehicleMatchingService::resetState();
+
         $payload = $this->readPayload();
 
         if (! isset($payload['UUID'])) {

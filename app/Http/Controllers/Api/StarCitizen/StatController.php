@@ -42,7 +42,7 @@ class StatController extends Controller
     )]
     public function latest(Request $request): StatResource
     {
-        $stat = QueryBuilder::for(Stat::class, $request)->orderByDesc('created_at')->first();
+        $stat = QueryBuilder::for(Stat::class, $request)->orderByDesc('created_at')->firstOrFail();
 
         return new StatResource($stat);
     }

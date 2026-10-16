@@ -74,7 +74,6 @@ class ImageHash extends Model
                 }
             )
             ->filter()
-            ->sortByDesc('similarity')
             ->values();
     }
 

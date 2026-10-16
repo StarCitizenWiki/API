@@ -515,34 +515,20 @@ final class HardpointRow
     }
 
     /**
-     * Shield stats with regen secondary.
+     * Shield stats.
      *
      * @return array{stat: float|int|null, label: string, unit: string, icon: string, secondaries: list<string>}
      */
     private static function shieldStats(array $item): array
     {
-        $secondaries = [];
-        $regenRate = Arr::get($item, 'shield.regen_rate');
-
-        if ($regenRate !== null) {
-            $secondaries[] = Format::compact($regenRate, 0).'/s Regen';
-        }
-
-        $regenTime = Arr::get($item, 'shield.regen_time');
-        if ($regenTime !== null) {
-            $secondaries[] = Format::compact($regenTime, 0).'s Full';
-        }
-
         // Item level regen time changes based on ship pool size
         // As this value is dynamic we cannot really show the item level data here
-        $secondaries = [];
-
         return [
             'stat' => Arr::get($item, 'shield.max_health'),
             'label' => 'HP',
             'unit' => '',
             'icon' => 'shield',
-            'secondaries' => $secondaries,
+            'secondaries' => [],
         ];
     }
 

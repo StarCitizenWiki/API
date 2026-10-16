@@ -40,11 +40,12 @@ it('generates all sitemap segments when no --only flag is provided', function ()
         'sitemap-commodities.xml',
         'sitemap-missions.xml',
         'sitemap-locations.xml',
-        'sitemap-starsystems.xml',
-        'sitemap-celestial-objects.xml',
     ] as $file) {
         expect(storage_path('app/sitemaps/'.$file))->toBeFile();
     }
+
+    expect(storage_path('app/sitemaps/sitemap-starsystems.xml'))->not->toBeFile();
+    expect(storage_path('app/sitemaps/sitemap-celestial-objects.xml'))->not->toBeFile();
 });
 
 it('generates only specified segments with --only flag', function (): void {
@@ -147,7 +148,7 @@ it('excludes disabled galactapedia articles', function (): void {
 
 it('includes slug/uuid/code models in sitemap URLs', function (string $segment, string $route, string $model, string $param): void {
     // When slug is set the sitemap uses it; when null it falls back to uuid.
-    // Starsystem and CelestialObject use code. StarmapLocation and Mission use uuid.
+    // StarmapLocation and Mission use uuid.
     $instance = $model::factory()->create();
 
     $this->artisan('sitemap:generate', ['--only' => $segment])
@@ -163,8 +164,6 @@ it('includes slug/uuid/code models in sitemap URLs', function (string $segment, 
     'commodities' => ['commodities',       'web.commodities.show',                 Commodity::class,        'slug'],
     'missions' => ['missions',          'web.missions.show',                    Mission::class,          'slug'],
     'locations' => ['locations',          'web.locations.show',                   StarmapLocation::class,  'uuid'],
-    'starsystems' => ['starsystems',       'web.starmap.systems.show',             Starsystem::class,       'code'],
-    'celestial objects' => ['celestial-objects', 'web.starmap.celestial-objects.show', CelestialObject::class, 'code'],
 ]);
 
 it('falls back to uuid when slug is null', function (string $segment, string $route, string $model): void {
@@ -205,13 +204,37 @@ it('sets priority 0.8 for comm-links and galactapedia', function (): void {
     expect($content)->toContain('<priority>0.8</priority>');
 });
 
-it('sets priority 0.5 for starmap segments', function (): void {
-    Starsystem::factory()->create();
+describe('starmap show URLs', function (): void {
+    it('are excluded because their web pages return 204 No Content', function (): void {
+        Channel::factory()->create(['name' => 'General']);
+        $commLink = CommLink::factory()->create();
+        $system = Starsystem::factory()->create();
+        $object = CelestialObject::factory()->create();
 
-    $this->artisan('sitemap:generate', ['--only' => 'starsystems'])
-        ->assertExitCode(Command::SUCCESS);
+        $this->artisan('sitemap:generate')
+            ->assertExitCode(Command::SUCCESS);
 
-    $content = file_get_contents(storage_path('app/sitemaps/sitemap-starsystems.xml'));
+        foreach (glob(storage_path('app/sitemaps/sitemap*.xml')) as $file) {
+            $content = file_get_contents($file);
 
-    expect($content)->toContain('<priority>0.5</priority>');
+            expect($content)->not->toContain(route('web.starmap.systems.show', $system->code));
+            expect($content)->not->toContain(route('web.starmap.celestial-objects.show', $object->code));
+        }
+
+        // Index pages render real views and stay in the static segment.
+        $staticContent = file_get_contents(storage_path('app/sitemaps/sitemap-static.xml'));
+
+        expect($staticContent)->toContain(route('web.starmap.systems.index'));
+        expect($staticContent)->toContain(route('web.starmap.celestial-objects.index'));
+
+        // Other segments are still generated.
+        $commLinksContent = file_get_contents(storage_path('app/sitemaps/sitemap-comm-links.xml'));
+
+        expect($commLinksContent)->toContain(route('web.comm-links.show', $commLink->cig_id));
+    });
+
+    it('fail as invalid segments when requested via --only', function (string $segment): void {
+        $this->artisan('sitemap:generate', ['--only' => $segment])
+            ->assertExitCode(Command::FAILURE);
+    })->with(['starsystems', 'celestial-objects']);
 });

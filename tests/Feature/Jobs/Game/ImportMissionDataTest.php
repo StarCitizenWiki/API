@@ -3,11 +3,15 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\ImportMissionData;
+use App\Models\Game\Blueprint;
+use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
+use App\Models\Game\StarmapLocation;
+use App\Models\Game\StarmapLocationData;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
@@ -177,6 +181,140 @@ describe('reward items', function (): void {
         $group = $missionData->rewardGroups()->first();
         expect($group)->not->toBeNull()
             ->and($group->items()->count())->toBe(1);
+    });
+});
+
+describe('cross-version lookup isolation', function (): void {
+    beforeEach(function (): void {
+        $this->versionB = GameVersion::factory()->create();
+    });
+
+    it('resolves reward item data ids for the importing version, not a previously cached one', function (): void {
+        $item = Item::factory()->create([
+            'uuid' => '99999999-9999-9999-9999-999999999999',
+            'slug' => 'versioned-reward-item',
+        ]);
+
+        $itemDataA = ItemData::factory()->create([
+            'item_id' => $item->id,
+            'game_version_id' => $this->version->id,
+        ]);
+
+        $itemDataB = ItemData::factory()->create([
+            'item_id' => $item->id,
+            'game_version_id' => $this->versionB->id,
+        ]);
+
+        $payload = missionPayload();
+        $payload['RewardItems'] = [
+            ['Items' => [['UUID' => $item->uuid, 'Amount' => 1, 'SendToHome' => false]]],
+        ];
+
+        // Same worker process: version A primes the lookups, version B must get its own ids.
+        dispatchMissionImport($this->version->id, $payload);
+        dispatchMissionImport($this->versionB->id, $payload);
+
+        $dataA = MissionData::query()->where('game_version_id', $this->version->id)->firstOrFail();
+        $dataB = MissionData::query()->where('game_version_id', $this->versionB->id)->firstOrFail();
+
+        expect($dataA->rewardGroups()->firstOrFail()->items()->firstOrFail()->item_data_id)->toBe($itemDataA->id)
+            ->and($dataB->rewardGroups()->firstOrFail()->items()->firstOrFail()->item_data_id)->toBe($itemDataB->id);
+    });
+
+    it('links mission blueprint pivots to the importing version\'s blueprint data', function (): void {
+        $blueprint = Blueprint::factory()->create([
+            'uuid' => '88888888-8888-8888-8888-888888888888',
+        ]);
+
+        $blueprintDataA = BlueprintData::factory()->create([
+            'blueprint_id' => $blueprint->id,
+            'game_version_id' => $this->version->id,
+        ]);
+
+        $blueprintDataB = BlueprintData::factory()->create([
+            'blueprint_id' => $blueprint->id,
+            'game_version_id' => $this->versionB->id,
+        ]);
+
+        $item = Item::factory()->create([
+            'uuid' => '77777777-7777-7777-7777-777777777777',
+            'slug' => 'blueprint-pool-item',
+        ]);
+
+        $itemDataA = ItemData::factory()->create([
+            'item_id' => $item->id,
+            'game_version_id' => $this->version->id,
+        ]);
+
+        $itemDataB = ItemData::factory()->create([
+            'item_id' => $item->id,
+            'game_version_id' => $this->versionB->id,
+        ]);
+
+        $payload = missionPayload();
+        $payload['Blueprints'] = [
+            [
+                'PoolUUID' => '11111111-1111-1111-1111-111111111111',
+                'Chance' => 1.0,
+                'PoolContents' => [
+                    ['BlueprintUUID' => $blueprint->uuid, 'ItemUUID' => $item->uuid],
+                ],
+            ],
+        ];
+
+        dispatchMissionImport($this->version->id, $payload);
+        dispatchMissionImport($this->versionB->id, $payload);
+
+        $pivotA = MissionData::query()
+            ->where('game_version_id', $this->version->id)
+            ->firstOrFail()
+            ->blueprints()
+            ->firstOrFail();
+
+        $pivotB = MissionData::query()
+            ->where('game_version_id', $this->versionB->id)
+            ->firstOrFail()
+            ->blueprints()
+            ->firstOrFail();
+
+        expect($pivotA->id)->toBe($blueprintDataA->id)
+            ->and($pivotA->pivot->item_data_id)->toBe($itemDataA->id)
+            ->and($pivotB->id)->toBe($blueprintDataB->id)
+            ->and($pivotB->pivot->item_data_id)->toBe($itemDataB->id);
+    });
+
+    it('syncs starmap locations and derived star systems for the importing version', function (): void {
+        $location = StarmapLocation::factory()->create([
+            'uuid' => '66666666-6666-6666-6666-666666666666',
+        ]);
+
+        $locationDataA = StarmapLocationData::factory()->create([
+            'starmap_location_id' => $location->id,
+            'game_version_id' => $this->version->id,
+            'system' => 'Stanton System',
+        ]);
+
+        $locationDataB = StarmapLocationData::factory()->create([
+            'starmap_location_id' => $location->id,
+            'game_version_id' => $this->versionB->id,
+            'system' => 'Pyro System',
+        ]);
+
+        $payload = missionPayload();
+        $payload['LocationPools'] = [
+            ['Purpose' => 'target', 'ResolvedLocations' => [['UUID' => $location->uuid]]],
+        ];
+
+        dispatchMissionImport($this->version->id, $payload);
+        dispatchMissionImport($this->versionB->id, $payload);
+
+        $dataA = MissionData::query()->where('game_version_id', $this->version->id)->firstOrFail();
+        $dataB = MissionData::query()->where('game_version_id', $this->versionB->id)->firstOrFail();
+
+        expect($dataA->starmapLocations()->firstOrFail()->id)->toBe($locationDataA->id)
+            ->and($dataB->starmapLocations()->firstOrFail()->id)->toBe($locationDataB->id)
+            ->and($dataA->star_systems)->toBe(['Stanton'])
+            ->and($dataB->star_systems)->toBe(['Pyro']);
     });
 });
 

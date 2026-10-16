@@ -21,7 +21,7 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'id', type: 'integer'),
                 new OA\Property(property: 'system_id', type: 'string'),
-                new OA\Property(property: 'system_api_url', type: 'string'),
+                new OA\Property(property: 'system_api_url', type: 'string', nullable: true),
                 new OA\Property(property: 'celestial_object_api_url', type: 'string'),
                 new OA\Property(property: 'status', type: 'string'),
                 new OA\Property(property: 'code', type: 'string'),
@@ -33,7 +33,7 @@ use OpenApi\Attributes as OA;
             properties: [
                 new OA\Property(property: 'id', type: 'integer'),
                 new OA\Property(property: 'system_id', type: 'string'),
-                new OA\Property(property: 'system_api_url', type: 'string'),
+                new OA\Property(property: 'system_api_url', type: 'string', nullable: true),
                 new OA\Property(property: 'celestial_object_api_url', type: 'string'),
                 new OA\Property(property: 'status', type: 'string'),
                 new OA\Property(property: 'code', type: 'string'),
@@ -61,10 +61,9 @@ class JumppointResource extends AbstractBaseResource
         $entryData = $entry instanceof CelestialObject ? [
             'id' => $entry->cig_id,
             'system_id' => $entry->starsystem_id,
-            'system_api_url' => route(
-                'starsystems.show',
-                ['code' => $entry->starsystem_id]
-            ),
+            'system_api_url' => $entry->starsystem?->code !== null
+                ? route('starsystems.show', ['code' => $entry->starsystem->code])
+                : null,
             'celestial_object_api_url' => route(
                 'celestial-objects.show',
                 ['code' => $entry->code]
@@ -77,10 +76,9 @@ class JumppointResource extends AbstractBaseResource
         $exitData = $exit instanceof CelestialObject ? [
             'id' => $exit->cig_id,
             'system_id' => $exit->starsystem_id,
-            'system_api_url' => route(
-                'starsystems.show',
-                ['code' => $exit->starsystem_id]
-            ),
+            'system_api_url' => $exit->starsystem?->code !== null
+                ? route('starsystems.show', ['code' => $exit->starsystem->code])
+                : null,
             'celestial_object_api_url' => route(
                 'celestial-objects.show',
                 ['code' => $exit->code]
