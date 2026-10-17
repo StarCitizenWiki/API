@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\Game;
 
-use App\Traits\NormalizesBooleanFilters;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CommodityIndexRequest extends FormRequest
 {
-    use NormalizesBooleanFilters;
-
     protected function prepareForValidation(): void
     {
         $filters = $this->input('filter');
@@ -20,13 +17,13 @@ class CommodityIndexRequest extends FormRequest
             return;
         }
 
-        $normalized = $this->normalizeBoolean($filters['used']);
+        $used = filter_var($filters['used'], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
 
-        if ($normalized === null) {
+        if ($used === null) {
             return;
         }
 
-        $filters['used'] = $normalized;
+        $filters['used'] = $used;
 
         $this->merge([
             'filter' => $filters,

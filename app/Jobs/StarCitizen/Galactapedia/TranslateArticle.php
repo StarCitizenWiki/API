@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Galactapedia;
 
-use App\Exceptions\Translation\QuotaExceededException;
-use App\Exceptions\Translation\RateLimitException;
-use App\Exceptions\Translation\TranslationException;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
+use App\Traits\HandlesTranslationExceptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,6 +17,7 @@ use Illuminate\Queue\SerializesModels;
 class TranslateArticle implements ShouldQueue
 {
     use Dispatchable;
+    use HandlesTranslationExceptions;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
@@ -39,11 +38,7 @@ class TranslateArticle implements ShouldQueue
     public function handle(TranslationService $translator): void
     {
         app('Log')::info("Translating Galactapedia Article {$this->article->cig_id}");
-        $targetLocale = (string) config('services.deepl.target_locale', Language::GERMAN);
-        $configuredTranslationLocale = config('services.deepl.translation_locale');
-        $translationLocale = is_string($configuredTranslationLocale) && $configuredTranslationLocale !== ''
-            ? $configuredTranslationLocale
-            : (strtolower(substr($targetLocale, 0, 2)) ?: Language::GERMAN);
+        [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
 
         $english = $this->article->getTranslation('translation', Language::ENGLISH, false);
         $existingTranslation = $this->article->getTranslation('translation', $translationLocale, false);
@@ -59,19 +54,12 @@ class TranslateArticle implements ShouldQueue
             return;
         }
 
-        try {
-            $translation = $translator->translate($english, $targetLocale);
-        } catch (RateLimitException $e) {
-            $this->release(60);
+        $translation = $this->translateOrAbort(
+            fn (): string => $translator->translate($english, $targetLocale),
+            ['article_id' => $this->article->cig_id],
+        );
 
-            return;
-        } catch (QuotaExceededException $e) {
-            $this->fail($e);
-
-            return;
-        } catch (TranslationException $e) {
-            $this->fail($e);
-
+        if ($translation === null || $translation === false) {
             return;
         }
 

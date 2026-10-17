@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Collection;
 
 class VehicleData extends Model
 {
@@ -122,50 +121,6 @@ class VehicleData extends Model
             'shipmatrix_id',
             'id',
         )->withDefault();
-    }
-
-    /**
-     * Get the ItemData for this vehicle, matching the same game version.
-     * Returns null if no matching ItemData exists.
-     */
-    public function itemData(): ?ItemData
-    {
-        if (! $this->relationLoaded('vehicle') || $this->vehicle === null) {
-            return null;
-        }
-
-        if (! $this->vehicle->relationLoaded('item') || $this->vehicle->item === null) {
-            return null;
-        }
-
-        return $this->vehicle->item
-            ->data()
-            ->where('game_version_id', $this->game_version_id)
-            ->first();
-    }
-
-    /**
-     * Get ItemDescriptionData collection through the vehicle's item.
-     * Returns empty collection if no ItemData exists.
-     */
-    public function itemDescriptionData(): Collection
-    {
-        $itemData = $this->itemData();
-
-        if ($itemData === null) {
-            return collect();
-        }
-
-        if (! $itemData->relationLoaded('descriptionData')) {
-            return collect();
-        }
-
-        return $itemData->descriptionData;
-    }
-
-    public function scopePlayerRelevant(Builder $query): Builder
-    {
-        return $query->where($this->getTable().'.is_player_relevant', true);
     }
 
     public function scopeForVehicleType(Builder $query, string $vehicleType): Builder

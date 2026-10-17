@@ -55,4 +55,31 @@ trait NormalizesFilterParams
 
         return $normalized === '' ? null : $normalized;
     }
+
+    /**
+     * Build Tabulator initial filters from normalized API filters. API fields
+     * are mapped to column fields via the flipped header-filter options map.
+     *
+     * @param  array<string, string>  $filters
+     * @param  array<string, string>  $headerFilterOptionsMap
+     * @return array<int, array{field: string, value: string}>
+     */
+    private function buildInitialFilters(array $filters, array $headerFilterOptionsMap = []): array
+    {
+        if ($filters === []) {
+            return [];
+        }
+
+        $initialFilters = [];
+        $apiFieldToColumnFieldMap = array_flip($headerFilterOptionsMap);
+
+        foreach ($filters as $field => $value) {
+            $initialFilters[] = [
+                'field' => $apiFieldToColumnFieldMap[$field] ?? $field,
+                'value' => $value,
+            ];
+        }
+
+        return $initialFilters;
+    }
 }

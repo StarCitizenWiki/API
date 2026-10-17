@@ -88,22 +88,6 @@ class CommLink extends Model
     }
 
     /**
-     * Previous Comm-Link
-     *
-     * @return Builder|Model|object|null
-     *
-     * @deprecated Use prevId attribute instead
-     */
-    public function getPrevAttribute()
-    {
-        if ($this->relationLoaded('prev')) {
-            return $this->getRelation('prev');
-        }
-
-        return CommLink::query()->where('cig_id', '<', $this->cig_id)->orderBy('cig_id', 'desc')->first(['cig_id']);
-    }
-
-    /**
      * Next Comm-Link ID
      */
     protected function getNextIdAttribute(): ?int
@@ -112,22 +96,6 @@ class CommLink extends Model
             ->where('cig_id', '>', $this->cig_id)
             ->orderBy('cig_id')
             ->value('cig_id');
-    }
-
-    /**
-     * Next Comm-Link
-     *
-     * @return Builder|Model|object|null
-     *
-     * @deprecated Use nextId attribute instead
-     */
-    public function getNextAttribute()
-    {
-        if ($this->relationLoaded('next')) {
-            return $this->getRelation('next');
-        }
-
-        return CommLink::query()->where('cig_id', '>', $this->cig_id)->orderBy('cig_id')->first(['cig_id']);
     }
 
     /**

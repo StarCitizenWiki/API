@@ -7,6 +7,7 @@ namespace App\Jobs\StarCitizen\Galactapedia\Sync;
 use App\Jobs\StarCitizen\Galactapedia\ImportArticle;
 use App\Jobs\StarCitizen\Galactapedia\ImportCategories;
 use App\Services\RsiDownloadClient;
+use App\Support\Filters\FilterCache;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Bus;
@@ -22,6 +23,8 @@ class SyncGalactapedia implements ShouldQueue
      */
     public function handle(RsiDownloadClient $client): void
     {
+        FilterCache::bust(FilterCache::NAMESPACE_GALACTAPEDIA);
+
         ImportCategories::dispatch();
 
         $result = $client->forRsi()->post('galactapedia/graphql', [

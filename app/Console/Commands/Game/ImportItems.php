@@ -5,15 +5,16 @@ namespace App\Console\Commands\Game;
 use App\Jobs\Game\ImportItemData;
 use App\Models\Game\GameVersion;
 use App\Support\Filters\FilterCache;
+use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-use function Laravel\Prompts\select;
-
 class ImportItems extends Command implements PromptsForMissingInput
 {
+    use PromptsForGameVersion;
+
     /**
      * The name and signature of the console command.
      *
@@ -67,30 +68,6 @@ class ImportItems extends Command implements PromptsForMissingInput
         ));
 
         return self::SUCCESS;
-    }
-
-    protected function promptForMissingArgumentsUsing(): array
-    {
-        return [
-            'version' => function (): string {
-                $options = GameVersion::query()
-                    ->orderByDesc('released_at')
-                    ->orderBy('code')
-                    ->pluck('code', 'code')
-                    ->toArray();
-
-                if ($options === []) {
-                    $this->error('No game versions exist. Please create one before importing.');
-
-                    return '';
-                }
-
-                return select(
-                    label: 'Select game version to import',
-                    options: $options
-                );
-            },
-        ];
     }
 
     private function dispatchJobs(Collection $itemFiles, GameVersion $gameVersion): void

@@ -56,7 +56,6 @@ trait AlexandriaComponentExtractorTrait
             'Button' => $this->extractButtonComponent($componentProps),
             'CallToAction' => $this->extractCallToActionComponent($componentProps),
             'MiniGrid' => $this->extractMiniGridComponent($componentProps),
-            'Separator' => $this->extractSeparatorComponent($componentProps),
             'Background' => $this->extractBackgroundComponent($componentProps),
             'OrionCardsList' => $this->extractOrionCardsListComponent($componentProps),
             default => '',
@@ -285,14 +284,6 @@ trait AlexandriaComponentExtractorTrait
         }
 
         return '';
-    }
-
-    /**
-     * @param  array<string, mixed>  $componentProps
-     */
-    private function extractSeparatorComponent(array $componentProps): string
-    {
-        return ''; // Separator is visual - no content to extract
     }
 
     /**

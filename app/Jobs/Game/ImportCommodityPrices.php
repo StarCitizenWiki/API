@@ -6,9 +6,9 @@ namespace App\Jobs\Game;
 
 use App\Jobs\Game\Concerns\BuildsUexLinks;
 use App\Jobs\Game\Concerns\FiltersUexVersions;
+use App\Jobs\Game\Concerns\MapsUexPrices;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
-use App\Models\Game\StarmapLocationData;
 use App\Support\UEXcorp\TerminalLocationMapper;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -16,7 +16,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -28,6 +27,7 @@ class ImportCommodityPrices implements ShouldQueue
     use Dispatchable;
     use FiltersUexVersions;
     use InteractsWithQueue;
+    use MapsUexPrices;
     use Queueable;
     use SerializesModels;
 
@@ -101,12 +101,8 @@ class ImportCommodityPrices implements ShouldQueue
             ->pluck('id', 'name');
 
         $mapper = new TerminalLocationMapper($this->gameVersionId);
-        $locationMapping = $mapper->mapping;
 
-        $locationDataLookup = StarmapLocationData::query()
-            ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
-            ->where('game_starmap_location_data.game_version_id', $this->gameVersionId)
-            ->pluck('game_starmap_location_data.id', 'game_starmap_locations.uuid');
+        $locationDataLookup = $this->locationDataLookup();
 
         $grouped = $filtered->groupBy('commodity_name');
 
@@ -121,34 +117,15 @@ class ImportCommodityPrices implements ShouldQueue
 
             $uexLink = self::buildCommodityLink($commodityName);
 
-            $pricesData = $prices
-                ->unique('id_terminal')
-                ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $gameVersionCode, $versionPrefixMap, $uexLink): array {
-                    $terminalId = (int) $p['id_terminal'];
-                    $locationUuid = $locationMapping->get($terminalId);
-
-                    return [
-                        'terminal_id' => $terminalId,
-                        'terminal_code' => $mapper->terminalCodes()->get($terminalId),
-                        'terminal_name' => $p['terminal_name'],
-                        'starmap_location_uuid' => $locationUuid,
-                        'starmap_location_data_id' => $locationUuid !== null
-                            ? $locationDataLookup->get($locationUuid)
-                            : null,
-                        'price_buy' => $p['price_buy'],
-                        'price_sell' => $p['price_sell'],
-                        'scu_sell_stock' => $p['scu_sell_stock'] ?? null,
-                        'container_sizes' => $p['container_sizes'] ?? null,
-                        'status_buy' => $p['status_buy'] ?? null,
-                        'status_sell' => $p['status_sell'] ?? null,
-                        'game_version' => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap) ?? $gameVersionCode,
-                        'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
-                        'uex_link' => $uexLink,
-                        'uex_commodity_id' => (int) $p['id_commodity'],
-                    ];
-                })
-                ->values()
-                ->toArray();
+            $pricesData = $this->mapTerminalPrices(
+                $prices,
+                $mapper,
+                $locationDataLookup,
+                ['price_buy', 'price_sell'],
+                trailingFields: fn (array $p): array => ['uex_link' => $uexLink, 'uex_commodity_id' => (int) $p['id_commodity']],
+                gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap) ?? $gameVersionCode,
+                optionalFields: ['scu_sell_stock', 'container_sizes', 'status_buy', 'status_sell'],
+            );
 
             Commodity::where('id', $commodityId)->update(['uex_prices' => $pricesData]);
             $updatedCount++;

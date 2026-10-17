@@ -49,34 +49,6 @@ class PledgeStoreSku extends Model
     ];
 
     /**
-     * Build the full source image URL from the stored media key.
-     */
-    public function getThumbnailSourceUrl(): ?string
-    {
-        $key = $this->images['media_key'] ?? null;
-
-        if ($key === null) {
-            return null;
-        }
-
-        return "https://media.robertsspaceindustries.com/{$key}/source.jpg";
-    }
-
-    /**
-     * Build a specific image size URL from the stored media key.
-     */
-    public function getThumbnailUrl(string $size = 'store_small'): ?string
-    {
-        $key = $this->images['media_key'] ?? null;
-
-        if ($key === null) {
-            return null;
-        }
-
-        return "https://media.robertsspaceindustries.com/{$key}/{$size}.jpg";
-    }
-
-    /**
      * Get a value from the raw data payload using dot notation.
      */
     public function getData(string $key, mixed $default = null): mixed
@@ -127,40 +99,5 @@ class PledgeStoreSku extends Model
             'pledge_store_sku_id',
             'shipmatrix_vehicle_id',
         );
-    }
-
-    public function scopeStandaloneShips($query)
-    {
-        return $query->where('product_id', 72);
-    }
-
-    public function scopePaints($query)
-    {
-        return $query->where('product_id', 268);
-    }
-
-    public function scopeGear($query)
-    {
-        return $query->where('product_id', 289);
-    }
-
-    public function scopeGamePackages($query)
-    {
-        return $query->whereIn('product_id', [9, 45, 46]);
-    }
-
-    public function scopeAvailable($query)
-    {
-        return $query->where('stock_available', true);
-    }
-
-    public function scopeDiscounted($query)
-    {
-        return $query->whereNotNull('native_discounted');
-    }
-
-    public function scopeWarbond($query)
-    {
-        return $query->where('is_warbond', true);
     }
 }

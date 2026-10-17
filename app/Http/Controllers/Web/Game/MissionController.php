@@ -50,7 +50,6 @@ class MissionController extends Controller
         }
 
         return view('missions.index', [
-            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
@@ -88,29 +87,5 @@ class MissionController extends Controller
             'pageTitle' => Arr::get($data, 'title', 'Mission'),
             'seo' => $seo,
         ]);
-    }
-
-    /**
-     * @param  array<string, string>  $filters
-     * @param  array<string, string>  $headerFilterOptionsMap
-     * @return array<int, array{field: string, value: string}>
-     */
-    private function buildInitialFilters(array $filters, array $headerFilterOptionsMap): array
-    {
-        if ($filters === []) {
-            return [];
-        }
-
-        $initialFilters = [];
-        $apiFieldToColumnFieldMap = array_flip($headerFilterOptionsMap);
-
-        foreach ($filters as $field => $value) {
-            $initialFilters[] = [
-                'field' => $apiFieldToColumnFieldMap[$field] ?? $field,
-                'value' => $value,
-            ];
-        }
-
-        return $initialFilters;
     }
 }

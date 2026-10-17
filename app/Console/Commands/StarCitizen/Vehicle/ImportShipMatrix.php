@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands\StarCitizen\Vehicle;
 
 use App\Jobs\StarCitizen\Vehicle\ImportShipMatrix as ImportShipMatrixJob;
-use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 
 class ImportShipMatrix extends Command
@@ -32,7 +31,6 @@ class ImportShipMatrix extends Command
         $this->info('Dispatching Ship Matrix Download and Import Job');
 
         ImportShipMatrixJob::dispatch();
-        FilterCache::bust(FilterCache::NAMESPACE_SHIPMATRIX);
 
         return 0;
     }

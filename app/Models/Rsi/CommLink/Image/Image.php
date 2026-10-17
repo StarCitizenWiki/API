@@ -106,14 +106,6 @@ class Image extends Model
         );
     }
 
-    /**
-     * Check if the hash exists
-     */
-    public function isHashed(): bool
-    {
-        return ! empty($this->hash->pdq_hash);
-    }
-
     public function metadata(): HasOne
     {
         return $this->hasOne(ImageMetadata::class, 'comm_link_image_id')
@@ -146,63 +138,5 @@ class Image extends Model
         }
 
         return sprintf('%s%s', $url, $this->src);
-    }
-
-    /**
-     * Returns a local or remote url if the image is local or remote
-     */
-    public function getLocalOrRemoteUrl(): string
-    {
-        if ($this->local) {
-            return asset("storage/comm_link_images/{$this->dir}/{$this->name}");
-        }
-
-        return $this->url;
-    }
-
-    public function getExtension(): string
-    {
-        $ext = match ($this->metadata->mime) {
-            'image/jpeg' => 'jpg',
-            'image/webp' => 'webp',
-            'image/tiff' => 'tif',
-            'image/x-icon' => 'ico',
-            'video/x-m4v' => 'm4v',
-            'video/h264' => 'mp4',
-            default => explode('/', $this->metadata->mime)[1] ?? '',
-        };
-
-        return $ext !== '' ? sprintf('.%s', $ext) : '';
-    }
-
-    public function getLocalPathAttribute(): string
-    {
-        return storage_path("app/public/comm_link_images/{$this->dir}/{$this->name}");
-    }
-
-    /**
-     * Previous Image
-     */
-    public function getPrevAttribute()
-    {
-        return self::query()->where('id', '<', $this->id)
-            ->whereNull('base_image_id')
-            ->whereHas('metadata')
-            ->whereHas('commLinks')
-            ->orderBy('id', 'desc')
-            ->first(['id']);
-    }
-
-    /**
-     * Next Image
-     */
-    public function getNextAttribute()
-    {
-        return self::query()->where('id', '>', $this->id)
-            ->whereNull('base_image_id')
-            ->whereHas('metadata')
-            ->whereHas('commLinks')
-            ->orderBy('id')
-            ->first(['id']);
     }
 }

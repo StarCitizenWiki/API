@@ -92,26 +92,6 @@ class Article extends Model
     }
 
     /**
-     * Previous Comm-Link
-     *
-     * @return Builder|Model|object|null
-     */
-    public function getPrevAttribute()
-    {
-        return self::query()->where('id', '<', $this->id)->orderBy('id', 'desc')->first(['cig_id']);
-    }
-
-    /**
-     * Next Comm-Link
-     *
-     * @return Builder|Model|object|null
-     */
-    public function getNextAttribute()
-    {
-        return self::query()->where('id', '>', $this->id)->orderBy('id')->first(['cig_id']);
-    }
-
-    /**
      * Categories of the article
      */
     public function categories(): BelongsToMany

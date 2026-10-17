@@ -6,7 +6,6 @@ namespace App\Models\StarCitizen\Galactapedia;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Template extends Model
 {
@@ -17,9 +16,4 @@ class Template extends Model
     protected $fillable = [
         'template',
     ];
-
-    public function article(): BelongsToMany
-    {
-        return $this->belongsToMany(Article::class);
-    }
 }

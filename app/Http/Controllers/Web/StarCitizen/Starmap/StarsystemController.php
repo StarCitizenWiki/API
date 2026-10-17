@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Web\StarCitizen\Starmap;
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Models\StarCitizen\Starmap\Starsystem;
+use App\Support\Redirects;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -17,9 +18,7 @@ class StarsystemController extends Controller
 {
     public function index(Request $request): View
     {
-        return view('starmap.systems.index', [
-            'initialHeaderFilter' => [],
-        ]);
+        return view('starmap.systems.index');
     }
 
     public function show(string $code): Response
@@ -29,14 +28,6 @@ class StarsystemController extends Controller
 
     public function legacyRedirect(Request $request, string $id): RedirectResponse
     {
-        $system = Starsystem::where('cig_id', $id)->firstOrFail();
-        $target = route('web.starmap.systems.show', ['code' => $system->code]);
-        $queryString = $request->getQueryString();
-
-        if ($queryString !== null && $queryString !== '') {
-            $target .= '?'.$queryString;
-        }
-
-        return redirect($target, 301);
+        return Redirects::legacyCigId($request, $id, Starsystem::class, 'web.starmap.systems.show');
     }
 }

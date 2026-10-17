@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Jobs\Rsi\CommLink\Translate;
 
-use App\Exceptions\Translation\AuthenticationException;
-use App\Exceptions\Translation\QuotaExceededException;
-use App\Exceptions\Translation\RateLimitException;
-use App\Exceptions\Translation\TranslationException;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
+use App\Traits\HandlesTranslationExceptions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,6 +21,7 @@ use Illuminate\Support\Collection;
 class TranslateCommLinks implements ShouldQueue
 {
     use Dispatchable;
+    use HandlesTranslationExceptions;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
@@ -45,11 +43,7 @@ class TranslateCommLinks implements ShouldQueue
     {
         app('Log')::info('Translating Comm-Links');
 
-        $targetLocale = (string) config('services.deepl.target_locale', Language::GERMAN);
-        $configuredTranslationLocale = config('services.deepl.translation_locale');
-        $translationLocale = is_string($configuredTranslationLocale) && $configuredTranslationLocale !== ''
-            ? $configuredTranslationLocale
-            : (strtolower(substr($targetLocale, 0, 2)) ?: Language::GERMAN);
+        [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
 
         $query = CommLink::query()
             ->with(['category'])
@@ -79,33 +73,17 @@ class TranslateCommLinks implements ShouldQueue
                         $formality = 'more';
                     }
 
-                    try {
-                        app('Log')::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
-                        $translation = $translator->translate($english, $targetLocale, 'en', $formality);
-                    } catch (QuotaExceededException $e) {
-                        app('Log')::warning('DeepL quota exceeded');
+                    app('Log')::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
+                    $translation = $this->translateOrAbort(
+                        fn (): string => $translator->translate($english, $targetLocale, 'en', $formality),
+                        ['comm_link_id' => $commLink->cig_id],
+                    );
 
-                        $this->fail($e);
-
+                    if ($translation === false) {
                         return false;
-                    } catch (RateLimitException $e) {
-                        app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
+                    }
 
-                        $this->release(60);
-
-                        return false;
-                    } catch (AuthenticationException $e) {
-                        app('Log')::error('DeepL authentication failed', ['error' => $e->getMessage()]);
-
-                        $this->fail($e);
-
-                        return false;
-                    } catch (TranslationException $e) {
-                        app('Log')::warning('Translation failed', [
-                            'comm_link_id' => $commLink->cig_id,
-                            'error' => $e->getMessage(),
-                        ]);
-
+                    if ($translation === null) {
                         continue;
                     }
 

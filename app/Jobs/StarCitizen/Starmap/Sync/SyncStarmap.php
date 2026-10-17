@@ -8,6 +8,7 @@ use App\Jobs\StarCitizen\Starmap\Download\DownloadStarsystem;
 use App\Jobs\StarCitizen\Starmap\Import\ImportJumppoint;
 use App\Jobs\StarCitizen\Starmap\Import\ImportStarsystem;
 use App\Services\RsiDownloadClient;
+use App\Support\Filters\FilterCache;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\Client\Response;
@@ -57,6 +58,8 @@ class SyncStarmap implements ShouldQueue
      */
     public function handle(RsiDownloadClient $client): void
     {
+        FilterCache::bust(FilterCache::NAMESPACE_STARSYSTEMS);
+
         $bootupData = $this->loadBootupFromDisk();
 
         if ($bootupData === null) {

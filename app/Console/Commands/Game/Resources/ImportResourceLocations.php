@@ -11,17 +11,16 @@ use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceLocation;
 use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapLocationData;
+use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use JsonException;
-
-use function Laravel\Prompts\select;
 
 class ImportResourceLocations extends Command implements PromptsForMissingInput
 {
+    use PromptsForGameVersion;
+
     protected $signature = 'game:import-resource-locations {version : Game version code to import} {--path=resources/locations.json : Relative path to the locations JSON file on the scunpacked disk}';
 
     protected $description = 'Import game resource locations for a specific game version';
@@ -41,24 +40,9 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        if (Storage::disk($gameVersion->getStorageDiskName())->missing($path)) {
-            $this->error(sprintf('%s not found in scunpacked storage.', $path));
+        $payload = $this->readScunpackedJson($gameVersion, $path);
 
-            return self::FAILURE;
-        }
-
-        try {
-            $contents = Storage::disk($gameVersion->getStorageDiskName())->get($path);
-            $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            $this->error(sprintf('Failed to decode %s: %s', $path, $exception->getMessage()));
-
-            return self::FAILURE;
-        }
-
-        if (! is_array($payload)) {
-            $this->error(sprintf('%s must contain an array of location providers.', $path));
-
+        if ($payload === null) {
             return self::FAILURE;
         }
 
@@ -245,30 +229,6 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
         ));
 
         return self::SUCCESS;
-    }
-
-    protected function promptForMissingArgumentsUsing(): array
-    {
-        return [
-            'version' => function (): string {
-                $options = GameVersion::query()
-                    ->orderByDesc('released_at')
-                    ->orderBy('code')
-                    ->pluck('code', 'code')
-                    ->toArray();
-
-                if ($options === []) {
-                    $this->error('No game versions exist. Please create one before importing.');
-
-                    return '';
-                }
-
-                return select(
-                    label: 'Select game version to import',
-                    options: $options
-                );
-            },
-        ];
     }
 
     private function cleanPivotTables(int $gameVersionId): void

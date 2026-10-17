@@ -6,14 +6,15 @@ namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\ImportStarmapData;
 use App\Models\Game\GameVersion;
+use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Storage;
 
-use function Laravel\Prompts\select;
-
 class ImportStarmap extends Command implements PromptsForMissingInput
 {
+    use PromptsForGameVersion;
+
     protected $signature = 'game:import-starmap {version : Game version code to import}';
 
     protected $description = 'Import starmap data for a specific game version';
@@ -46,29 +47,5 @@ class ImportStarmap extends Command implements PromptsForMissingInput
         ));
 
         return self::SUCCESS;
-    }
-
-    protected function promptForMissingArgumentsUsing(): array
-    {
-        return [
-            'version' => function (): string {
-                $options = GameVersion::query()
-                    ->orderByDesc('released_at')
-                    ->orderBy('code')
-                    ->pluck('code', 'code')
-                    ->toArray();
-
-                if ($options === []) {
-                    $this->error('No game versions exist. Please create one before importing.');
-
-                    return '';
-                }
-
-                return select(
-                    label: 'Select game version to import',
-                    options: $options
-                );
-            },
-        ];
     }
 }

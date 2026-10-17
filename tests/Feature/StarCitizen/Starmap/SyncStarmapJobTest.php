@@ -7,8 +7,10 @@ use App\Jobs\StarCitizen\Starmap\Import\ImportJumppoint;
 use App\Jobs\StarCitizen\Starmap\Import\ImportStarsystem;
 use App\Jobs\StarCitizen\Starmap\Sync\SyncStarmap;
 use App\Services\RsiDownloadClient;
+use App\Support\Filters\FilterCache;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -129,6 +131,31 @@ it('uses existing bootup data when available', function (): void {
     });
 
     Storage::disk('starmap')->assertExists(now()->format('Y-m-d').'/bootup.json');
+});
+
+it('busts the starsystems filter cache when the job runs', function (): void {
+    Storage::fake('starmap');
+    Bus::fake();
+
+    Storage::disk('starmap')->put(
+        now()->format('Y-m-d').'/bootup.json',
+        json_encode(bootupPayload(), JSON_THROW_ON_ERROR)
+    );
+
+    $indexKey = 'filters:index:starsystems';
+    $firstCacheKey = FilterCache::starsystemsKey();
+    $secondCacheKey = 'filters:starsystems:filters-hash';
+
+    Cache::forever($indexKey, [$firstCacheKey, $secondCacheKey]);
+    Cache::forever($firstCacheKey, ['cached-starsystem-list']);
+    Cache::forever($secondCacheKey, ['cached-filtered-starsystem-list']);
+
+    $job = new SyncStarmap;
+    $job->handle(new RsiDownloadClient);
+
+    expect(Cache::get($indexKey))->toBeNull()
+        ->and(Cache::get($firstCacheKey))->toBeNull()
+        ->and(Cache::get($secondCacheKey))->toBeNull();
 });
 
 it('dispatches downloads in a batch and imports jumppoints', function (): void {

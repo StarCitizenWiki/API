@@ -619,3 +619,75 @@ it('imports prices on the retry after a failed api request', function (): void {
             'game_version' => $version->code,
         ]);
 });
+
+describe('mapped row shape', function (): void {
+    it('maps an item price row with the exact full field set', function (): void {
+        Log::spy();
+
+        $version = GameVersion::factory()->create(['is_default' => true]);
+
+        $item = Item::factory()->create();
+        $itemData = ItemData::factory()->create([
+            'item_id' => $item->id,
+            'game_version_id' => $version->id,
+        ]);
+
+        $locationUuid = 'b1b11111-2222-3333-4444-555566667787';
+        $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
+        $starmapLocationData = StarmapLocationData::factory()->create([
+            'starmap_location_id' => $starmapLocation->id,
+            'game_version_id' => $version->id,
+            'name' => 'Shape Test Station',
+        ]);
+
+        Http::fake(function ($request) use ($item) {
+            if (str_contains($request->url(), 'items_prices_all')) {
+                return Http::response(['data' => [
+                    [
+                        'item_uuid' => $item->uuid,
+                        'item_name' => 'Shape Test Item',
+                        'id_terminal' => 7,
+                        'terminal_name' => 'Shape Terminal',
+                        'price_buy' => 1234,
+                        'price_sell' => 617,
+                        'date_modified' => 1700000000,
+                    ],
+                ]]);
+            }
+
+            if (str_contains($request->url(), 'terminals')) {
+                return Http::response(['data' => [
+                    [
+                        'id' => 7,
+                        'displayname' => 'Shape Test Station',
+                        'name' => 'Admin - Shape Terminal',
+                        'code' => 'SHAPE7',
+                        'star_system_name' => 'Stanton',
+                    ],
+                ]]);
+            }
+
+            return Http::response(status: 404);
+        });
+
+        (new ImportItemPrices($version->id))->handle();
+
+        $row = $itemData->refresh()->uex_prices[0];
+
+        // jsonb storage normalizes key order, so assert the full key set and values instead of ordering.
+        expect($row)->toBeArray()
+            ->and(array_keys($row))->toHaveCount(10)
+            ->and($row)->toMatchArray([
+                'terminal_id' => 7,
+                'terminal_code' => 'SHAPE7',
+                'terminal_name' => 'Shape Terminal',
+                'starmap_location_uuid' => $locationUuid,
+                'starmap_location_data_id' => $starmapLocationData->id,
+                'price_buy' => 1234,
+                'price_sell' => 617,
+                'game_version' => $version->code,
+                'date_updated' => '2023-11-14T22:13:20+00:00',
+                'uex_link' => 'https://uexcorp.space/items/info?name=shape-test-item&tab=about',
+            ]);
+    });
+});

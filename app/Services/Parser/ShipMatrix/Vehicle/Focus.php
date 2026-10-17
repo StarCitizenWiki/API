@@ -62,13 +62,10 @@ class Focus extends BaseElement
         return $vehicleFociIDs;
     }
 
-    /**
-     * @return mixed|string
-     */
-    private function getNormalizedFocus(string $rawFocus)
+    private function getNormalizedFocus(string $rawFocus): string
     {
-        if ($rawFocus !== null && is_string($rawFocus) && in_array($rawFocus, self::FOCI)) {
-            $rawFocus = self::FOCUS_NORMALIZED;
+        if (in_array($rawFocus, self::FOCI, true)) {
+            return self::FOCUS_NORMALIZED;
         }
 
         return $rawFocus;
@@ -82,14 +79,9 @@ class Focus extends BaseElement
     private function createNewVehicleFocus(string $focus): VehicleFocus
     {
         /** @var VehicleFocus $vehicleFocus */
-        $vehicleFocus = VehicleFocus::query()->updateOrCreate(
-            [
-                'slug' => Str::slug($focus),
-            ],
-            [
-                'slug' => Str::slug($focus),
-            ]
-        );
+        $vehicleFocus = VehicleFocus::query()->updateOrCreate([
+            'slug' => Str::slug($focus),
+        ]);
 
         $vehicleFocus->setTranslation('translation', config('language.english'), $focus);
         $vehicleFocus->save();

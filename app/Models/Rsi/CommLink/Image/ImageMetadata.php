@@ -32,23 +32,4 @@ class ImageMetadata extends Model
     {
         return $this->belongsTo(Image::class);
     }
-
-    public function getMimeClassAttribute(): string
-    {
-        switch ($this->mime) {
-            case 'image/jpeg':
-                return 'success';
-
-            case 'image/png':
-                return 'primary';
-
-            case 'video/mp4':
-            case 'video/webm':
-            case 'image/gif':
-                return 'warning';
-
-            default:
-                return 'secondary';
-        }
-    }
 }

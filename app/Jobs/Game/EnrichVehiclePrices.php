@@ -6,8 +6,8 @@ namespace App\Jobs\Game;
 
 use App\Jobs\Game\Concerns\BuildsUexLinks;
 use App\Jobs\Game\Concerns\FiltersUexVersions;
+use App\Jobs\Game\Concerns\MapsUexPrices;
 use App\Models\Game\GameVersion;
-use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use App\Support\UEXcorp\TerminalLocationMapper;
@@ -17,7 +17,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +29,7 @@ class EnrichVehiclePrices implements ShouldQueue
     use Dispatchable;
     use FiltersUexVersions;
     use InteractsWithQueue;
+    use MapsUexPrices;
     use Queueable;
     use SerializesModels;
 
@@ -81,12 +81,8 @@ class EnrichVehiclePrices implements ShouldQueue
             ->keyBy('vehicle_id');
 
         $mapper = new TerminalLocationMapper($this->gameVersionId);
-        $locationMapping = $mapper->mapping;
 
-        $locationDataLookup = StarmapLocationData::query()
-            ->join('game_starmap_locations', 'game_starmap_location_data.starmap_location_id', '=', 'game_starmap_locations.id')
-            ->where('game_starmap_location_data.game_version_id', $this->gameVersionId)
-            ->pluck('game_starmap_location_data.id', 'game_starmap_locations.uuid');
+        $locationDataLookup = $this->locationDataLookup();
 
         $apiUrl = config('uexcorp.api_url');
         $updatedCount = 0;
@@ -104,18 +100,13 @@ class EnrichVehiclePrices implements ShouldQueue
                 continue;
             }
 
-            $uexUuid = $uuidMap->get($wikiUuid, $wikiUuid) ?? $wikiUuid;
-            $uexId = $idMap->get($wikiUuid);
-
-            if ($uexUuid === $wikiUuid && $uexId !== null) {
-                $uexUuid = '';
-            }
+            [$uexUuid, $uexId] = $this->resolveUexApiId($wikiUuid, $uuidMap, $idMap, collect());
 
             if ($uexUuid === '' && $uexId === null) {
                 continue;
             }
 
-            $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $uexId, $vehicleData, $locationMapping, $mapper, $locationDataLookup, $versionPrefixMap);
+            $enriched = $this->enrichVehicle($apiUrl, $uexUuid, $uexId, $vehicleData, $mapper, $locationDataLookup, $versionPrefixMap);
 
             if ($enriched) {
                 $updatedCount++;
@@ -132,8 +123,7 @@ class EnrichVehiclePrices implements ShouldQueue
     }
 
     /**
-     * @param  Collection<int, string>  $locationMapping
-     * @param  Collection<int, int|null>  $locationDataLookup
+     * @param  Collection<string, int>  $locationDataLookup
      * @param  array<string, string>  $versionPrefixMap
      */
     private function enrichVehicle(
@@ -141,7 +131,6 @@ class EnrichVehiclePrices implements ShouldQueue
         string $uexUuid,
         ?int $uexId,
         VehicleData $vehicleData,
-        Collection $locationMapping,
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
         array $versionPrefixMap,
@@ -179,7 +168,7 @@ class EnrichVehiclePrices implements ShouldQueue
         $jsonValues = [];
 
         if (is_array($purchaseData) && $purchaseData !== []) {
-            $mapped = $this->mapEnrichedPrices($purchaseData, $locationMapping, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
+            $mapped = $this->mapEnrichedPrices($purchaseData, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
 
             if ($mapped !== []) {
                 $jsonValues['uex_purchase_prices'] = $mapped;
@@ -187,7 +176,7 @@ class EnrichVehiclePrices implements ShouldQueue
         }
 
         if (is_array($rentalData) && $rentalData !== []) {
-            $mapped = $this->mapEnrichedPrices($rentalData, $locationMapping, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
+            $mapped = $this->mapEnrichedPrices($rentalData, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
 
             if ($mapped !== []) {
                 $jsonValues['uex_rental_prices'] = $mapped;
@@ -202,41 +191,26 @@ class EnrichVehiclePrices implements ShouldQueue
     }
 
     /**
-     * @param  Collection<int, string>  $locationMapping
-     * @param  Collection<int, int|null>  $locationDataLookup
+     * @param  Collection<string, int>  $locationDataLookup
      * @param  array<string, string>  $versionPrefixMap
+     * @return array<int, array<string, mixed>>
      */
     private function mapEnrichedPrices(
         array $apiPrices,
-        Collection $locationMapping,
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
         string $priceField,
         array $versionPrefixMap,
     ): array {
-        return collect($apiPrices)
-            ->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap))
-            ->unique('id_terminal')
-            ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceField, $versionPrefixMap): array {
-                $terminalId = (int) $p['id_terminal'];
-                $locationUuid = $locationMapping->get($terminalId);
-
-                return [
-                    'terminal_id' => $terminalId,
-                    'terminal_code' => $p['terminal_code'] ?? $mapper->terminalCodes()->get($terminalId),
-                    'terminal_name' => $p['terminal_name'],
-                    'starmap_location_uuid' => $locationUuid,
-                    'starmap_location_data_id' => $locationUuid !== null
-                        ? $locationDataLookup->get($locationUuid)
-                        : null,
-                    $priceField => $p[$priceField],
-                    'game_version' => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
-                    'date_updated' => Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String(),
-                    'uex_link' => $this->buildVehicleLink($terminalId, $priceField),
-                ];
-            })
-            ->values()
-            ->toArray();
+        return $this->mapTerminalPrices(
+            collect($apiPrices)->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap)),
+            $mapper,
+            $locationDataLookup,
+            [$priceField],
+            trailingFields: fn (array $p, int $terminalId): array => ['uex_link' => $this->buildVehicleLink($terminalId, $priceField)],
+            gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
+            rowsCarryTerminalCode: true,
+        );
     }
 
     public function failed(Throwable $exception): void

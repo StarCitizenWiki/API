@@ -45,7 +45,20 @@ class ProductionNote extends BaseElement
         } catch (ModelNotFoundException $e) {
             app('Log')::debug('Production Note not found in DB');
 
-            return $this->createNewProductionNote();
+            if ($note === '') {
+                return $this->defaultProductionNote();
+            }
+
+            /** @var ProductionNoteModel $productionNote */
+            $productionNote = ProductionNoteModel::query()->create([
+                'translation' => [
+                    (string) config('language.english') => $note,
+                ],
+            ]);
+
+            app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
+
+            return $productionNote;
         }
     }
 
@@ -65,36 +78,6 @@ class ProductionNote extends BaseElement
         }
 
         return $status;
-    }
-
-    private function createNewProductionNote(): ProductionNoteModel
-    {
-        $translation = $this->getNormalizedStatus();
-        $englishLocale = (string) config('language.english');
-
-        if ($translation === null || $translation === '') {
-            return $this->defaultProductionNote();
-        }
-
-        /** @var ProductionNoteModel|null $productionNote */
-        $productionNote = ProductionNoteModel::query()
-            ->where('translation->'.$englishLocale, $translation)
-            ->first();
-
-        if ($productionNote instanceof ProductionNoteModel) {
-            return $productionNote;
-        }
-
-        /** @var ProductionNoteModel $productionNote */
-        $productionNote = ProductionNoteModel::query()->create([
-            'translation' => [
-                $englishLocale => $translation,
-            ],
-        ]);
-
-        app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
-
-        return $productionNote;
     }
 
     private function defaultProductionNote(): ProductionNoteModel

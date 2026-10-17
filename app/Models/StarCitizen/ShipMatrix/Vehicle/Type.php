@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\ShipMatrix\Vehicle;
 
-use App\Traits\HasVehicleRelationsTrait as VehicleRelations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +13,6 @@ class Type extends Model
 {
     use HasFactory;
     use HasTranslations;
-    use VehicleRelations;
 
     public array $translatable = ['translation'];
 

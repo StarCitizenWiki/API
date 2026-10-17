@@ -6,12 +6,13 @@ namespace App\Console\Commands\Game;
 
 use App\Models\Game\Manufacturer;
 use App\Support\Filters\FilterCache;
+use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
-use JsonException;
 
 class ImportManufacturers extends Command
 {
+    use PromptsForGameVersion;
+
     /**
      * The name and signature of the console command.
      *
@@ -33,26 +34,9 @@ class ImportManufacturers extends Command
     {
         $path = (string) $this->option('path');
 
-        $disk = Storage::disk($this->option('disk'));
+        $payload = $this->readScunpackedJson((string) $this->option('disk'), $path);
 
-        if ($disk->missing($path)) {
-            $this->error(sprintf('%s not found in scunpacked storage.', $path));
-
-            return self::FAILURE;
-        }
-
-        try {
-            $contents = $disk->get($path);
-            $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            $this->error(sprintf('Failed to decode %s: %s', $path, $exception->getMessage()));
-
-            return self::FAILURE;
-        }
-
-        if (! is_array($payload)) {
-            $this->error(sprintf('%s must contain an array of manufacturers.', $path));
-
+        if ($payload === null) {
             return self::FAILURE;
         }
 

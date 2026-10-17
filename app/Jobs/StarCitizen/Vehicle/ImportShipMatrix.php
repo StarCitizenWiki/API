@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Vehicle;
 
 use App\Services\RsiDownloadClient;
+use App\Support\Filters\FilterCache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,6 +35,8 @@ class ImportShipMatrix implements ShouldQueue
 
     public function handle(RsiDownloadClient $client): void
     {
+        FilterCache::bust(FilterCache::NAMESPACE_SHIPMATRIX);
+
         app('Log')::info('Downloading and importing Ship Matrix');
 
         try {

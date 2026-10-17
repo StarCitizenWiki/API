@@ -32,7 +32,6 @@
             'filterOptionsEndpoint' => route('blueprints.filters', $versionParams),
             'pageSize' => $pageSize,
             'progressiveLoad' => 'scroll',
-            'initialHeaderFilter' => $initialHeaderFilter,
             'columnDefaults' => [
                 'headerSort' => false,
             ],

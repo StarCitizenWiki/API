@@ -8,16 +8,17 @@ use App\Jobs\Game\ImportMissionData;
 use App\Jobs\Game\LinkMissionChains;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocationData;
+use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-use function Laravel\Prompts\select;
-
 class ImportMissions extends Command implements PromptsForMissingInput
 {
+    use PromptsForGameVersion;
+
     protected $signature = 'game:import-missions {version : Game version code to import}';
 
     protected $description = 'Import missions for a specific game version using queued jobs with chain linking';
@@ -111,29 +112,5 @@ class ImportMissions extends Command implements PromptsForMissingInput
         ));
 
         return self::SUCCESS;
-    }
-
-    protected function promptForMissingArgumentsUsing(): array
-    {
-        return [
-            'version' => function (): string {
-                $options = GameVersion::query()
-                    ->orderByDesc('released_at')
-                    ->orderBy('code')
-                    ->pluck('code', 'code')
-                    ->toArray();
-
-                if ($options === []) {
-                    $this->error('No game versions exist. Please create one before importing.');
-
-                    return '';
-                }
-
-                return select(
-                    label: 'Select game version to import',
-                    options: $options
-                );
-            },
-        ];
     }
 }

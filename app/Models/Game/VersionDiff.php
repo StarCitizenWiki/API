@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Collection;
 
 class VersionDiff extends Model
 {
@@ -81,63 +80,6 @@ class VersionDiff extends Model
         }
 
         return $counts;
-    }
-
-    public function scopeForEntityType($query, string $type): void
-    {
-        $query->where('entity_type', EntityTypeConfig::modelClass($type));
-    }
-
-    public function scopeItems($query): void
-    {
-        $query->where('entity_type', Item::class);
-    }
-
-    public function scopeVehicles($query): void
-    {
-        $query->where('entity_type', Vehicle::class);
-    }
-
-    public function scopeAdded($query): void
-    {
-        $query->where('change_type', 'added');
-    }
-
-    public function scopeRemoved($query): void
-    {
-        $query->where('change_type', 'removed');
-    }
-
-    public function scopeModified($query): void
-    {
-        $query->where('change_type', 'modified');
-    }
-
-    public function isRegression(): bool
-    {
-        if ($this->change_type === 'removed') {
-            return true;
-        }
-
-        if ($this->change_type !== 'modified') {
-            return false;
-        }
-
-        foreach ($this->data_changes ?? [] as $path => $change) {
-            if ($change instanceof Collection) {
-                $change = $change->toArray();
-            }
-
-            if (! is_array($change)) {
-                continue;
-            }
-
-            if (array_key_exists('old', $change) && array_key_exists('new', $change) && $change['new'] === null && $change['old'] !== null) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

@@ -10,19 +10,8 @@ use Illuminate\Support\Facades\Cache;
 
 final class Labels
 {
-    /** @var array<string, Collection>|null */
-    private static ?array $localeCaches = null;
-
-    private static ?Collection $enLabelsLookup = null;
-
-    public function getData(): Collection
-    {
-        if (self::$enLabelsLookup === null) {
-            $this->loadFromDatabase();
-        }
-
-        return self::$enLabelsLookup;
-    }
+    /** @var array<string, Collection> */
+    private static array $localeCaches = [];
 
     public function getTranslation(string $localeCode, string $key): ?string
     {
@@ -33,8 +22,7 @@ final class Labels
 
     public static function flushCache(): void
     {
-        self::$localeCaches = null;
-        self::$enLabelsLookup = null;
+        self::$localeCaches = [];
     }
 
     private function getLocaleData(string $localeCode): ?Collection
@@ -45,36 +33,16 @@ final class Labels
             return null;
         }
 
-        if (self::$localeCaches === null) {
-            $this->loadFromDatabase();
-        }
-
-        return self::$localeCaches[$locale] ?? null;
+        return self::$localeCaches[$locale] ??= collect(Cache::remember("labels:{$locale}", now()->addHours(24), function () use ($locale): array {
+            return GameLabel::all(['key', 'translation'])->mapWithKeys(function (GameLabel $label) use ($locale) {
+                return [$label->key => $label->getTranslation('translation', $locale, false)];
+            })->filter()->all();
+        }));
     }
 
     private function normalizeLocale(string $localeCode): string
     {
         // 'zh_CN' -> 'zh', 'de_DE' -> 'de', 'fr_FR' -> 'fr'
         return substr($localeCode, 0, 2);
-    }
-
-    private function loadFromDatabase(): void
-    {
-        self::$enLabelsLookup = collect(Cache::remember('labels:all', now()->addHours(24), function (): array {
-            return GameLabel::all(['key', 'translation'])->mapWithKeys(function (GameLabel $label) {
-                return [$label->key => $label->getTranslation('translation', 'en')];
-            })->all();
-        }));
-
-        $locales = config('translations.locales', []);
-        self::$localeCaches = [];
-
-        foreach ($locales as $locale) {
-            self::$localeCaches[$locale] = collect(Cache::remember("labels:{$locale}", now()->addHours(24), function () use ($locale): array {
-                return GameLabel::all(['key', 'translation'])->mapWithKeys(function (GameLabel $label) use ($locale) {
-                    return [$label->key => $label->getTranslation('translation', $locale, false)];
-                })->filter()->all();
-            }));
-        }
     }
 }

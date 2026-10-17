@@ -39,7 +39,6 @@ class BlueprintController extends Controller
         $tableConfig = $this->blueprintTableConfig->build();
 
         return view('blueprints.index', [
-            'initialHeaderFilter' => [],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
             'pageSize' => $tableConfig['pageSize'],
             'pageTitle' => $tableConfig['title'],

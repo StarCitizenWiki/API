@@ -38,7 +38,6 @@ class MigrateTranslations extends Command
         $this->migrateSimple($from, $to, 'starmap_starsystems', 'starsystem_translations', 'starsystem_id', $chunk);
         $this->migrateSimple($from, $to, 'starmap_celestial_objects', 'celestial_object_translations', 'celestial_object_id', $chunk);
         $this->migrateSimple($from, $to, 'shipmatrix_vehicles', 'vehicle_translations', 'vehicle_id', $chunk);
-        // $this->migrateByKey($from, $to, 'game_items', 'sc_item_translations', 'item_uuid', 'uuid', $chunk);
         $this->migrateSimple($from, $to, 'comm_links', 'comm_link_translations', 'comm_link_id', $chunk);
 
         $this->migrateManufacturer($from, $to, $chunk);
@@ -113,43 +112,6 @@ class MigrateTranslations extends Command
                             'known_for' => $knownFor !== [] ? json_encode($knownFor) : null,
                             'description' => $description !== [] ? json_encode($description) : null,
                         ]);
-                }
-            }
-        );
-    }
-
-    private function migrateByKey(
-        ConnectionInterface $from,
-        ConnectionInterface $to,
-        string $parentTable,
-        string $translationTable,
-        string $translationKey,
-        string $parentKey,
-        int $chunk,
-    ): void {
-        $this->line("Migrating {$translationTable}...");
-
-        $to->table($parentTable)->select($parentKey)->orderBy($parentKey)->chunk(
-            $chunk,
-            function ($records) use ($from, $to, $translationTable, $translationKey, $parentTable, $parentKey) {
-                foreach ($records as $record) {
-                    $value = $record->{$parentKey};
-
-                    $translations = $from->table($translationTable)
-                        ->where($translationKey, $value)
-                        ->get()
-                        ->pluck('translation', 'locale_code')
-                        ->filter(fn ($translation) => $translation !== null && $translation !== '')
-                        ->mapWithKeys(fn ($translation, $locale) => [substr($locale, 0, 2) => $translation])
-                        ->toArray();
-
-                    if ($translations === []) {
-                        continue;
-                    }
-
-                    $to->table($parentTable)
-                        ->where($parentKey, $value)
-                        ->update(['translation' => json_encode($translations)]);
                 }
             }
         );

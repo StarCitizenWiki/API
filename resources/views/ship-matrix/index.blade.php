@@ -11,7 +11,6 @@
             'filterOptionsEndpoint' => route('shipmatrix.vehicles.filters'),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
-            'initialHeaderFilter' => $initialHeaderFilter,
             'columnDefaults' => [
                 'headerSortTristate' => true,
             ],

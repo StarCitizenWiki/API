@@ -13,6 +13,7 @@ use App\Models\Game\Vehicle;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\StarCitizen\Galactapedia\Article;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\SitemapIndex;
@@ -23,18 +24,6 @@ class GenerateSitemap extends Command
     protected $signature = 'sitemap:generate {--only= : Comma-separated list of segments to generate}';
 
     protected $description = 'Generate sitemap files for search engines';
-
-    private const array SEGMENTS = [
-        'static',
-        'comm-links',
-        'galactapedia',
-        'vehicles',
-        'items',
-        'blueprints',
-        'commodities',
-        'missions',
-        'locations',
-    ];
 
     private const array SITEMAP_FILES = [
         'static' => 'sitemap-static.xml',
@@ -52,12 +41,13 @@ class GenerateSitemap extends Command
 
     public function handle(): int
     {
+        $available = array_keys(self::SITEMAP_FILES);
         $only = (string) $this->option('only');
-        $segments = $only !== '' ? explode(',', $only) : self::SEGMENTS;
-        $segments = array_values(array_intersect($segments, self::SEGMENTS));
+        $segments = $only !== '' ? explode(',', $only) : $available;
+        $segments = array_values(array_intersect($segments, $available));
 
         if ($segments === []) {
-            $this->error('No valid segments specified. Available: '.implode(', ', self::SEGMENTS));
+            $this->error('No valid segments specified. Available: '.implode(', ', $available));
 
             return self::FAILURE;
         }
@@ -85,12 +75,12 @@ class GenerateSitemap extends Command
             'static' => $this->addStaticUrls($sitemap),
             'comm-links' => $this->addCommLinks($sitemap),
             'galactapedia' => $this->addGalactapedia($sitemap),
-            'vehicles' => $this->addVehicles($sitemap),
-            'items' => $this->addItems($sitemap),
-            'blueprints' => $this->addBlueprints($sitemap),
-            'commodities' => $this->addCommodities($sitemap),
-            'missions' => $this->addMissions($sitemap),
-            'locations' => $this->addLocations($sitemap),
+            'vehicles' => $this->addModelUrls($sitemap, Vehicle::class, 'web.vehicles.show'),
+            'items' => $this->addModelUrls($sitemap, Item::class, 'web.items.show'),
+            'blueprints' => $this->addModelUrls($sitemap, Blueprint::class, 'web.blueprints.show'),
+            'commodities' => $this->addModelUrls($sitemap, Commodity::class, 'web.commodities.show'),
+            'missions' => $this->addModelUrls($sitemap, Mission::class, 'web.missions.show'),
+            'locations' => $this->addModelUrls($sitemap, StarmapLocation::class, 'web.locations.show'),
         };
 
         $sitemap->writeToFile(storage_path('app/sitemaps/'.self::SITEMAP_FILES[$segment]));
@@ -126,7 +116,6 @@ class GenerateSitemap extends Command
             ['web.missions.index', 0.7, Url::CHANGE_FREQUENCY_WEEKLY],
             ['web.locations.index', 0.7, Url::CHANGE_FREQUENCY_WEEKLY],
             ['web.ship-matrix.vehicles.index', 0.6, Url::CHANGE_FREQUENCY_MONTHLY],
-            ['web.ship-matrix.ground-vehicles.index', 0.6, Url::CHANGE_FREQUENCY_MONTHLY],
             ['web.starmap.systems.index', 0.5, Url::CHANGE_FREQUENCY_MONTHLY],
             ['web.starmap.celestial-objects.index', 0.5, Url::CHANGE_FREQUENCY_MONTHLY],
         ];
@@ -174,95 +163,20 @@ class GenerateSitemap extends Command
             });
     }
 
-    private function addVehicles(Sitemap $sitemap): void
+    /**
+     * Add detail URLs for a slugged model, keyed by slug with uuid fallback.
+     *
+     * @param  class-string<Model>  $model
+     */
+    private function addModelUrls(Sitemap $sitemap, string $model, string $routeName): void
     {
-        Vehicle::query()
+        $model::query()
             ->select(['id', 'slug', 'uuid', 'updated_at'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $vehicle) {
+            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap, $routeName): void {
+                foreach ($chunk as $record) {
                     $sitemap->add(
-                        Url::create(route('web.vehicles.show', $vehicle->slug ?? $vehicle->uuid))
-                            ->setLastModificationDate($vehicle->updated_at)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(1.0)
-                    );
-                }
-            });
-    }
-
-    private function addItems(Sitemap $sitemap): void
-    {
-        Item::query()
-            ->select(['id', 'slug', 'uuid', 'updated_at'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $item) {
-                    $sitemap->add(
-                        Url::create(route('web.items.show', $item->slug ?? $item->uuid))
-                            ->setLastModificationDate($item->updated_at)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(1.0)
-                    );
-                }
-            });
-    }
-
-    private function addBlueprints(Sitemap $sitemap): void
-    {
-        Blueprint::query()
-            ->select(['id', 'slug', 'uuid', 'updated_at'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $blueprint) {
-                    $sitemap->add(
-                        Url::create(route('web.blueprints.show', $blueprint->slug ?? $blueprint->uuid))
-                            ->setLastModificationDate($blueprint->updated_at)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(1.0)
-                    );
-                }
-            });
-    }
-
-    private function addCommodities(Sitemap $sitemap): void
-    {
-        Commodity::query()
-            ->select(['id', 'slug', 'uuid', 'updated_at'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $commodity) {
-                    $sitemap->add(
-                        Url::create(route('web.commodities.show', $commodity->slug ?? $commodity->uuid))
-                            ->setLastModificationDate($commodity->updated_at)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(1.0)
-                    );
-                }
-            });
-    }
-
-    private function addMissions(Sitemap $sitemap): void
-    {
-        Mission::query()
-            ->select(['id', 'slug', 'uuid', 'updated_at'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $mission) {
-                    $sitemap->add(
-                        Url::create(route('web.missions.show', $mission->slug ?? $mission->uuid))
-                            ->setLastModificationDate($mission->updated_at)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(1.0)
-                    );
-                }
-            });
-    }
-
-    private function addLocations(Sitemap $sitemap): void
-    {
-        StarmapLocation::query()
-            ->select(['id', 'slug', 'uuid', 'updated_at'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap): void {
-                foreach ($chunk as $location) {
-                    $sitemap->add(
-                        Url::create(route('web.locations.show', $location->slug ?? $location->uuid))
-                            ->setLastModificationDate($location->updated_at)
+                        Url::create(route($routeName, $record->slug ?? $record->uuid))
+                            ->setLastModificationDate($record->updated_at)
                             ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                             ->setPriority(1.0)
                     );

@@ -39,7 +39,6 @@
             'filterOptionsEndpoint' => route('items.filters', $endpointParams),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
-            'initialHeaderFilter' => $initialHeaderFilter,
             'initialFilters' => $initialFilters ?? null,
             'columnDefaults' => [
                 'headerSortTristate' => true,

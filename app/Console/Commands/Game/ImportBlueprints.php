@@ -9,17 +9,16 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Services\Game\SlugService;
+use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use JsonException;
-
-use function Laravel\Prompts\select;
 
 class ImportBlueprints extends Command implements PromptsForMissingInput
 {
+    use PromptsForGameVersion;
+
     /**
      * The name and signature of the console command.
      *
@@ -52,24 +51,9 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
             return self::FAILURE;
         }
 
-        if (Storage::disk($gameVersion->getStorageDiskName())->missing($path)) {
-            $this->error(sprintf('%s not found in scunpacked storage.', $path));
+        $payload = $this->readScunpackedJson($gameVersion, $path);
 
-            return self::FAILURE;
-        }
-
-        try {
-            $contents = Storage::disk($gameVersion->getStorageDiskName())->get($path);
-            $payload = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            $this->error(sprintf('Failed to decode %s: %s', $path, $exception->getMessage()));
-
-            return self::FAILURE;
-        }
-
-        if (! is_array($payload)) {
-            $this->error(sprintf('%s must contain an array of blueprints.', $path));
-
+        if ($payload === null) {
             return self::FAILURE;
         }
 
@@ -163,30 +147,6 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
         ));
 
         return self::SUCCESS;
-    }
-
-    protected function promptForMissingArgumentsUsing(): array
-    {
-        return [
-            'version' => function (): string {
-                $options = GameVersion::query()
-                    ->orderByDesc('released_at')
-                    ->orderBy('code')
-                    ->pluck('code', 'code')
-                    ->toArray();
-
-                if ($options === []) {
-                    $this->error('No game versions exist. Please create one before importing.');
-
-                    return '';
-                }
-
-                return select(
-                    label: 'Select game version to import',
-                    options: $options
-                );
-            },
-        ];
     }
 
     private function isValidBlueprintPayload(array $blueprintPayload): bool

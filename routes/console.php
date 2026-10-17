@@ -1,5 +1,13 @@
 <?php
 
+use App\Jobs\StarCitizen\Galactapedia\Sync\SyncGalactapedia;
+use App\Jobs\StarCitizen\Starmap\Sync\SyncStarmap;
+use App\Jobs\StarCitizen\Stat\SyncStats;
+use App\Jobs\StarCitizen\Vehicle\ImportLoaner;
+use App\Jobs\StarCitizen\Vehicle\ImportMsrp;
+use App\Jobs\StarCitizen\Vehicle\ImportPledgeStore;
+use App\Jobs\StarCitizen\Vehicle\ImportShipMatrix;
+use App\Jobs\StarCitizen\Vehicle\SyncVehicleCuratedData;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
@@ -13,25 +21,25 @@ Schedule::command('comm-link:download-new-versions', ['--skip' => false])
     ->withoutOverlapping();
 
 // Stats
-Schedule::command('stats:sync')
+Schedule::job(new SyncStats)
     ->dailyAt('20:00');
 
 // Vehicles/Ship Matrix
-Schedule::command('vehicles:import-ship-matrix')
+Schedule::job(new ImportShipMatrix)
     ->daily()
-    ->then(fn () => Artisan::call('vehicles:import-msrp'))
+    ->then(fn () => ImportMsrp::dispatch())
     ->then(fn () => Artisan::call('sitemap:generate --only=vehicles'));
 
-Schedule::command('pledge-store:import')
+Schedule::job(new ImportPledgeStore)
     ->daily()
     ->withoutOverlapping();
 
 // Vehicle curated data (starcitizen.tools wiki infobox sync)
-Schedule::command('vehicles:sync-curated-data')
+Schedule::job(new SyncVehicleCuratedData)
     ->daily()
     ->withoutOverlapping();
 
-Schedule::command('vehicles:import-loaner')
+Schedule::job(new ImportLoaner)
     ->daily();
 
 Schedule::command('game:import-images')
@@ -43,12 +51,12 @@ Schedule::command('game:import-item-prices')
     ->then(fn () => Artisan::call('sitemap:generate --only=items,blueprints,commodities,missions,locations'));
 
 // Starmap
-Schedule::command('starmap:sync')
+Schedule::job(new SyncStarmap)
     ->monthly()
     ->then(fn () => Artisan::call('sitemap:generate --only=starsystems,celestial-objects'));
 
 // Galactapedia
-Schedule::command('galactapedia:sync')
+Schedule::job(new SyncGalactapedia)
     ->dailyAt('2:00')
     ->withoutOverlapping();
 

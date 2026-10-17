@@ -14,8 +14,6 @@ class ShipMatrixVehicleController extends Controller
 {
     public function index(Request $request): View
     {
-        return view('ship-matrix.index', [
-            'initialHeaderFilter' => [],
-        ]);
+        return view('ship-matrix.index');
     }
 }

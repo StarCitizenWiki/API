@@ -37,7 +37,6 @@
             'filterOptionsEndpoint' => route('vehicles.filters', $versionParams),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
-            'initialHeaderFilter' => $initialHeaderFilter,
             'initialFilters' => $initialFilters,
             'columnDefaults' => [
                 'headerSortTristate' => true,

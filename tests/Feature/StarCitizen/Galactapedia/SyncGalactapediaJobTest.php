@@ -8,9 +8,11 @@ use App\Jobs\StarCitizen\Galactapedia\Sync\DispatchArticleProperties;
 use App\Jobs\StarCitizen\Galactapedia\Sync\SyncGalactapedia;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Services\RsiDownloadClient;
+use App\Support\Filters\FilterCache;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 
@@ -46,6 +48,28 @@ it('dispatches categories and batches article imports', function (): void {
     });
 
     Bus::assertNotDispatched(DispatchArticleProperties::class);
+});
+
+it('busts the galactapedia filter cache when the sync job runs', function (): void {
+    Bus::fake();
+
+    Http::fake([
+        '*' => Http::response(['data' => ['allArticle' => ['edges' => []]]], 200),
+    ]);
+
+    $indexKey = 'filters:index:galactapedia';
+    $cacheKey = FilterCache::galactapediaKey();
+    $secondaryCacheKey = 'filters:galactapedia:filters-hash';
+
+    Cache::forever($indexKey, [$cacheKey, $secondaryCacheKey]);
+    Cache::forever($cacheKey, ['cached-galactapedia-list']);
+    Cache::forever($secondaryCacheKey, ['cached-filtered-galactapedia-list']);
+
+    (new SyncGalactapedia)->handle(new RsiDownloadClient);
+
+    expect(Cache::get($indexKey))->toBeNull()
+        ->and(Cache::get($cacheKey))->toBeNull()
+        ->and(Cache::get($secondaryCacheKey))->toBeNull();
 });
 
 it('queues article properties after the import batch completes', function (): void {

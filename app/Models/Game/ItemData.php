@@ -101,16 +101,6 @@ class ItemData extends Model
             ->first()?->value;
     }
 
-    public function getDescriptionTypeAttribute()
-    {
-        return $this->getDescriptionDatum('Type');
-    }
-
-    public function getDescriptionManufacturerAttribute()
-    {
-        return $this->getDescriptionDatum('Manufacturer');
-    }
-
     public function getTypeLabelAttribute(): ?string
     {
         return ItemFilterLabel::resolveType($this->type, null);
@@ -447,18 +437,6 @@ class ItemData extends Model
     public function scopePlayerRelevant(Builder $query): Builder
     {
         return $query->where($this->getTable().'.is_player_relevant', true);
-    }
-
-    public function scopeWithDescriptionValue(Builder $query, string $name, string $value): Builder
-    {
-        return $query->whereHas('descriptionData', function (Builder $builder) use ($name, $value) {
-            $builder->where('name', $name)->where('value', $value);
-        });
-    }
-
-    public function scopeWithUexPrices(Builder $query): Builder
-    {
-        return $query->whereNotNull('uex_prices');
     }
 
     /**

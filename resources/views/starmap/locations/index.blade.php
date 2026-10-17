@@ -31,7 +31,6 @@
             'filterOptionsEndpoint' => route('locations.filters', $versionParams),
             'pageSize' => 25,
             'progressiveLoad' => 'scroll',
-            'initialHeaderFilter' => $initialHeaderFilter,
             'initialFilters' => $initialFilters,
             'columnDefaults' => [
                 'headerSortTristate' => true,

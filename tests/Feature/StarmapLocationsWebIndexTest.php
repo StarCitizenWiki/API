@@ -20,7 +20,6 @@ it('normalizes incoming starmap location filters into initial filters for the ta
     $response = $this->get(route('web.locations.index', $request));
 
     $response->assertSuccessful()
-        ->assertViewHas('initialHeaderFilter', [])
         ->assertViewHas('headerFilterOptionsMap', fn (array $map): bool => $map['system'] === 'system'
             && $map['parent.name'] === 'parent_name'
             && $map['type.classification'] === 'type_classification'
@@ -42,7 +41,6 @@ it('exposes no initial filters when starmap location request filters are empty',
     $response = $this->get(route('web.locations.index'));
 
     $response->assertSuccessful()
-        ->assertViewHas('initialHeaderFilter', [])
         ->assertViewHas('initialFilters', [])
         ->assertSee('value="'.route('locations.index').'"', false);
 });

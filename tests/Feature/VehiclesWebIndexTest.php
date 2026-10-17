@@ -37,7 +37,6 @@ it('normalizes incoming filter values into initial filters for the table', funct
         'version' => '4.0.0-LIVE',
     ]);
     $response->assertSuccessful()
-        ->assertViewHas('initialHeaderFilter', [])
         ->assertViewHas('initialFilters', [
             ['field' => 'manufacturer.name', 'value' => 'RSI,Drake'],
             ['field' => 'role', 'value' => 'Cargo'],
@@ -60,7 +59,6 @@ it('exposes no initial filters when request filters are empty', function (): voi
     $response = $this->get(route('web.vehicles.index'));
 
     $response->assertSuccessful()
-        ->assertViewHas('initialHeaderFilter', [])
         ->assertViewHas('initialFilters', [])
         ->assertSeeText('Vehicles')
         ->assertSee('for="vehicles-api-url"', false)

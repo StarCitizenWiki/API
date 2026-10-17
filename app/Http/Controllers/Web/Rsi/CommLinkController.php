@@ -46,7 +46,6 @@ class CommLinkController extends Controller
         }
 
         return view('comm-links.index', [
-            'initialHeaderFilter' => [],
             'initialFilters' => $initialFilters,
             'searchType' => $searchType,
             'searchQuery' => $searchQuery,

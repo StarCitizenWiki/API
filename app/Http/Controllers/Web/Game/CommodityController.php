@@ -31,7 +31,6 @@ class CommodityController extends Controller
         $tableConfig = $this->commodityTableConfig->build();
 
         return view('commodities.index', [
-            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
@@ -60,29 +59,5 @@ class CommodityController extends Controller
             'pageTitle' => Arr::get($commodityData, 'display_name', Arr::get($commodityData, 'name', 'Commodity')),
             'seo' => $this->commodityShowSeoData->build($commodityData, $request),
         ]);
-    }
-
-    /**
-     * @param  array<string, string>  $filters
-     * @param  array<string, string>  $headerFilterOptionsMap
-     * @return array<int, array{field: string, value: string}>
-     */
-    private function buildInitialFilters(array $filters, array $headerFilterOptionsMap): array
-    {
-        if ($filters === []) {
-            return [];
-        }
-
-        $initialFilters = [];
-        $apiFieldToColumnFieldMap = array_flip($headerFilterOptionsMap);
-
-        foreach ($filters as $field => $value) {
-            $initialFilters[] = [
-                'field' => $apiFieldToColumnFieldMap[$field] ?? $field,
-                'value' => $value,
-            ];
-        }
-
-        return $initialFilters;
     }
 }

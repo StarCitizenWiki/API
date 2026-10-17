@@ -164,35 +164,9 @@ class Vehicle extends Model
             );
     }
 
-    public function componentsByClass(): array
-    {
-        $components = $this->components
-            ->keyBy('component_class')
-            ->keys()
-            ->flip()
-            ->map(
-                function () {
-                    return [];
-                }
-            )->toArray();
-
-        $this->components->each(
-            function (Component $component) use (&$components) {
-                $components[$component->component_class][] = $component;
-            }
-        );
-
-        return $components;
-    }
-
     public function size(): BelongsTo
     {
         return $this->belongsTo(Size::class);
-    }
-
-    public function getWidthAttribute()
-    {
-        return $this->beam;
     }
 
     /**
@@ -207,11 +181,6 @@ class Vehicle extends Model
         )
             ->withoutGlobalScopes()
             ->withDefault();
-    }
-
-    public function getForeignKey(): string
-    {
-        return 'vehicle_id';
     }
 
     public function getRouteKeyName(): string

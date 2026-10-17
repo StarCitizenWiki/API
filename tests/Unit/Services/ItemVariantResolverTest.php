@@ -766,34 +766,34 @@ describe('naming helpers', function () {
     });
 
     it('labels members from their own line parse and quoted editions', function (): void {
-    [, $map] = ItemVariantResolver::computeSetNameAndVariantNames(
-        ['Zeus Exploration Suit Helmet', 'Zeus Exploration Helmet Starscape'],
-        ['uuid' => 'suit', 'name' => 'Zeus Exploration Suit Helmet', 'classification' => 'FPS.Armor.Helmet'],
-        [
+        [, $map] = ItemVariantResolver::computeSetNameAndVariantNames(
+            ['Zeus Exploration Suit Helmet', 'Zeus Exploration Helmet Starscape'],
             ['uuid' => 'suit', 'name' => 'Zeus Exploration Suit Helmet', 'classification' => 'FPS.Armor.Helmet'],
-            ['uuid' => 'starscape', 'name' => 'Zeus Exploration Helmet Starscape', 'classification' => 'FPS.Armor.Helmet'],
-        ],
-        'Zeus Exploration Suit'
-    );
+            [
+                ['uuid' => 'suit', 'name' => 'Zeus Exploration Suit Helmet', 'classification' => 'FPS.Armor.Helmet'],
+                ['uuid' => 'starscape', 'name' => 'Zeus Exploration Helmet Starscape', 'classification' => 'FPS.Armor.Helmet'],
+            ],
+            'Zeus Exploration Suit'
+        );
 
-    expect($map['suit'])->toBe('Base')
-        ->and($map['starscape'])->toBe('Starscape');
+        expect($map['suit'])->toBe('Base')
+            ->and($map['starscape'])->toBe('Starscape');
 
-    [, $map] = ItemVariantResolver::computeSetNameAndVariantNames(
-        ['Novikov Backpack', 'Novikov "Expo" Backpack'],
-        ['uuid' => 'base', 'name' => 'Novikov Backpack', 'classification' => 'FPS.Armor.Backpack'],
-        [
+        [, $map] = ItemVariantResolver::computeSetNameAndVariantNames(
+            ['Novikov Backpack', 'Novikov "Expo" Backpack'],
             ['uuid' => 'base', 'name' => 'Novikov Backpack', 'classification' => 'FPS.Armor.Backpack'],
-            ['uuid' => 'expo', 'name' => 'Novikov "Expo" Backpack', 'classification' => 'FPS.Armor.Backpack'],
-        ],
-        'Novikov'
-    );
+            [
+                ['uuid' => 'base', 'name' => 'Novikov Backpack', 'classification' => 'FPS.Armor.Backpack'],
+                ['uuid' => 'expo', 'name' => 'Novikov "Expo" Backpack', 'classification' => 'FPS.Armor.Backpack'],
+            ],
+            'Novikov'
+        );
 
-    expect($map['base'])->toBe('Base')
-        ->and($map['expo'])->toBe('Expo');
-});
+        expect($map['base'])->toBe('Base')
+            ->and($map['expo'])->toBe('Expo');
+    });
 
-it('strips only slot words from the majority pass', function () {
+    it('strips only slot words from the majority pass', function () {
         // Venture Arms shape: after the anchor and LCP strips the labels are
         // single words except a paired modifier (Dark Red, Dark Green) --
         // "Dark" must not become a fake majority and nuke the clean labels.

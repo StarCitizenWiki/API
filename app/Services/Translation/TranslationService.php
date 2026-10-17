@@ -8,6 +8,7 @@ use App\Exceptions\Translation\AuthenticationException;
 use App\Exceptions\Translation\QuotaExceededException;
 use App\Exceptions\Translation\RateLimitException;
 use App\Exceptions\Translation\TranslationException;
+use App\Models\System\Language;
 use DeepL\DeepLException;
 use DeepL\Translator;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +20,21 @@ class TranslationService
      * We use a slightly smaller limit to account for encoding differences.
      */
     private const MAX_TEXT_LENGTH = 45000;
+
+    /**
+     * @return array{0: string, 1: string} the DeepL target locale and the locale key stored on the model
+     */
+    public static function resolveLocale(): array
+    {
+        $targetLocale = (string) config('services.deepl.target_locale', Language::GERMAN);
+        $configuredTranslationLocale = config('services.deepl.translation_locale');
+
+        $translationLocale = is_string($configuredTranslationLocale) && $configuredTranslationLocale !== ''
+            ? $configuredTranslationLocale
+            : (strtolower(substr($targetLocale, 0, 2)) ?: Language::GERMAN);
+
+        return [$targetLocale, $translationLocale];
+    }
 
     public function __construct(
         private readonly Translator $translator,

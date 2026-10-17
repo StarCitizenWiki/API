@@ -11,6 +11,7 @@ use App\Support\Items\ItemFieldCatalog;
 use App\Support\Items\ItemTableConfig;
 use App\Support\Seo\ItemIndexSeoData;
 use App\Support\Seo\ItemShowSeoData;
+use App\Traits\MergesIncludeParam;
 use App\Traits\NormalizesFilterParams;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ use Illuminate\View\View;
 #[CacheTag('items')]
 class ItemController extends Controller
 {
+    use MergesIncludeParam;
     use NormalizesFilterParams;
 
     public function __construct(
@@ -68,8 +70,7 @@ class ItemController extends Controller
         $manufacturer = $endpointFilters['manufacturer'] ?? null;
 
         return view('items.index', [
-            'initialHeaderFilter' => [],
-            'initialFilters' => $this->buildInitialFilters($endpointFilters),
+            'initialFilters' => $this->buildInitialFilters(Arr::except($endpointFilters, 'category')),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
             'headerFilterOptionsMap' => $tableConfig['headerFilterOptionsMap'],
@@ -91,15 +92,8 @@ class ItemController extends Controller
 
     public function show(Request $request, string $item): View|RedirectResponse
     {
-        $include = explode(',', (string) $request->query('include', ''))
-                |> (static fn ($x) => array_map('trim', $x))
-                |> array_filter(...);
-        $include = array_merge($include, ['related_items', 'blueprints', 'vehicles'])
-                |> array_unique(...)
-                |> array_values(...);
-
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', implode(',', $include));
+        $apiRequest->query->set('include', $this->mergeInclude($request, ['related_items', 'blueprints', 'vehicles']));
 
         $payload = $this->apiJsonRequest->request(route('items.show', ['identifier' => $item], false), $apiRequest);
 
@@ -124,27 +118,5 @@ class ItemController extends Controller
             'pageTitle' => Arr::get($itemData, 'name', 'Item'),
             'seo' => $this->itemShowSeoData->build($itemData, $request),
         ]);
-    }
-
-    private function buildInitialFilters(array $filters): array
-    {
-        if ($filters === []) {
-            return [];
-        }
-
-        $initialFilters = [];
-
-        foreach ($filters as $field => $value) {
-            if ($field === 'category') {
-                continue;
-            }
-
-            $initialFilters[] = [
-                'field' => $field,
-                'value' => $value,
-            ];
-        }
-
-        return $initialFilters;
     }
 }

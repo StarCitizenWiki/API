@@ -19,6 +19,7 @@ use App\Http\Controllers\Web\StarCitizen\Starmap\CelestialObjectController;
 use App\Http\Controllers\Web\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Web\StarCitizen\StatController;
 use App\Http\Controllers\Web\Tools\RoutePlannerController;
+use App\Support\Redirects;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,9 +37,6 @@ Route::get('/comm-links/images/search', [CommLinkController::class, 'searchImage
 Route::post('/comm-links/images/reverse-search', [CommLinkController::class, 'reverseImageSearch'])
     ->middleware('throttle:reverse-image-search')
     ->name('web.comm-links.images.reverse-search');
-Route::get('/comm-links/images/tag-{tag}', static function (): never {
-    abort(404);
-});
 Route::get('/comm-links/images/{image}', [CommLinkController::class, 'showImage'])
     ->whereNumber('image')
     ->name('web.comm-links.images.show');
@@ -87,8 +85,6 @@ Route::get('/search/{query}', [UnifiedSearchController::class, 'resolve'])
 
 Route::get('/ship-matrix/vehicles', [ShipMatrixVehicleController::class, 'index'])
     ->name('web.ship-matrix.vehicles.index');
-Route::get('/ship-matrix/ground-vehicles', [ShipMatrixVehicleController::class, 'index'])
-    ->name('web.ship-matrix.ground-vehicles.index');
 
 Route::get('/starmap/systems', [StarsystemController::class, 'index'])
     ->name('web.starmap.systems.index');
@@ -111,18 +107,7 @@ Route::middleware(['auth'])->group(function () {
 
 // Backwards compatibility
 
-/**
- * Intentionally uses the framework-normalized query string so legacy redirects keep a canonical URL format.
- */
-$legacyRedirect = static function (Request $request, string $target): RedirectResponse {
-    $queryString = $request->getQueryString();
-
-    if ($queryString !== null && $queryString !== '') {
-        $target .= '?'.$queryString;
-    }
-
-    return redirect($target, 301);
-};
+$legacyRedirect = static fn (Request $request, string $target): RedirectResponse => Redirects::withQueryString($request, $target);
 
 Route::any('/starcitizen/vehicles/ships', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/ship-matrix/vehicles'));
 Route::any('/starcitizen/vehicles/ground-vehicles', static fn (Request $request): RedirectResponse => $legacyRedirect($request, '/ship-matrix/vehicles'));

@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Jobs\StarCitizen\Vehicle;
 
+use App\Models\StarCitizen\ShipMatrix\ProductionStatus as ProductionStatusModel;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as VehicleSize;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as VehicleType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Services\Parser\ShipMatrix\Component;
 use App\Services\Parser\ShipMatrix\Manufacturer;
 use App\Services\Parser\ShipMatrix\ProductionNote;
-use App\Services\Parser\ShipMatrix\ProductionStatus;
+use App\Services\Parser\ShipMatrix\TranslatableLookup;
 use App\Services\Parser\ShipMatrix\Vehicle\Focus;
-use App\Services\Parser\ShipMatrix\Vehicle\Size;
-use App\Services\Parser\ShipMatrix\Vehicle\Type;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -154,17 +156,7 @@ class ImportVehicle implements ShouldQueue
 
     private function getProductionStatusId(): int
     {
-        $productionStatus = new ProductionStatus($this->rawData);
-
-        try {
-            $id = $productionStatus->getProductionStatus()->id;
-        } catch (ModelNotFoundException $e) {
-            $this->fail('Could not get default Production Status. Was the database seeded?');
-
-            return 0; // Does not happen
-        }
-
-        return $id;
+        return $this->lookupId(ProductionStatusModel::class, 'production_status', 'Could not get default Production Status. Was the database seeded?');
     }
 
     private function getProductionNoteId(): int
@@ -184,32 +176,26 @@ class ImportVehicle implements ShouldQueue
 
     private function getSizeId(): int
     {
-        $size = new Size($this->rawData);
-
-        try {
-            $id = $size->getVehicleSize()->id;
-        } catch (ModelNotFoundException $e) {
-            $this->fail('Could not get default Vehicle Size. Was the database seeded?');
-
-            return 0; // Does not happen
-        }
-
-        return $id;
+        return $this->lookupId(VehicleSize::class, 'size', 'Could not get default Vehicle Size. Was the database seeded?');
     }
 
     private function getTypeId(): int
     {
-        $type = new Type($this->rawData);
+        return $this->lookupId(VehicleType::class, 'type', 'Could not get default Vehicle Type. Was the database seeded?');
+    }
 
+    /**
+     * @param  class-string<Model>  $modelClass
+     */
+    private function lookupId(string $modelClass, string $arrayKey, string $notSeededMessage): int
+    {
         try {
-            $id = $type->getVehicleType()->id;
+            return (new TranslatableLookup($this->rawData, $modelClass, $arrayKey))->get()->id;
         } catch (ModelNotFoundException $e) {
-            $this->fail('Could not get default Vehicle Type. Was the database seeded?');
+            $this->fail($notSeededMessage);
 
             return 0; // Does not happen
         }
-
-        return $id;
     }
 
     /**

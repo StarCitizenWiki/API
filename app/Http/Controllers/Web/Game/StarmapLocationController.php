@@ -8,6 +8,7 @@ use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
 use App\Models\Game\StarmapLocation;
 use App\Services\ApiJsonRequest;
+use App\Support\Redirects;
 use App\Support\Seo\StarmapLocationIndexSeoData;
 use App\Support\Seo\StarmapLocationShowSeoData;
 use App\Support\Starmap\StarmapLocationShowViewData;
@@ -40,7 +41,6 @@ class StarmapLocationController extends Controller
         $tableConfig = $this->starmapLocationTableConfig->build();
 
         return view('starmap.locations.index', [
-            'initialHeaderFilter' => [],
             'initialFilters' => $this->buildInitialFilters($endpointFilters, $tableConfig['headerFilterOptionsMap']),
             'pageTitle' => $tableConfig['title'],
             'tableColumns' => $tableConfig['columns'],
@@ -119,36 +119,7 @@ class StarmapLocationController extends Controller
         }
 
         $target = route('web.locations.show', ['identifier' => $canonicalSlugs->first()]);
-        $queryString = $request->getQueryString();
 
-        if ($queryString !== null && $queryString !== '') {
-            $target .= '?'.$queryString;
-        }
-
-        return redirect($target, Response::HTTP_MOVED_PERMANENTLY);
-    }
-
-    /**
-     * @param  array<string, string>  $filters
-     * @param  array<string, string>  $headerFilterOptionsMap
-     * @return array<int, array{field: string, value: string}>
-     */
-    private function buildInitialFilters(array $filters, array $headerFilterOptionsMap): array
-    {
-        if ($filters === []) {
-            return [];
-        }
-
-        $initialFilters = [];
-        $apiFieldToColumnFieldMap = array_flip($headerFilterOptionsMap);
-
-        foreach ($filters as $field => $value) {
-            $initialFilters[] = [
-                'field' => $apiFieldToColumnFieldMap[$field] ?? $field,
-                'value' => $value,
-            ];
-        }
-
-        return $initialFilters;
+        return Redirects::withQueryString($request, $target);
     }
 }

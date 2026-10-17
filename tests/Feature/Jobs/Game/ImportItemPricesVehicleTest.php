@@ -389,3 +389,117 @@ it('updates vehicle prices when the UEX source data changes', function (): void 
     expect($vehicleData->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
         ->and($vehicleData->uex_purchase_prices[0]['price_buy'])->toBe(9999999);
 });
+
+describe('mapped row shape', function (): void {
+    it('maps vehicle purchase and rental rows with the exact full field set', function (): void {
+        Log::spy();
+
+        $version = GameVersion::factory()->create(['is_default' => true]);
+
+        $vehicleUuid = '21111111-2222-3333-4444-555566667777';
+        $vehicle = Vehicle::factory()->create(['uuid' => $vehicleUuid]);
+        $vehicleData = VehicleData::factory()->create([
+            'vehicle_id' => $vehicle->id,
+            'game_version_id' => $version->id,
+        ]);
+
+        $locationUuid = 'b3b3b3b3-2222-4333-8444-555566667781';
+        $starmapLocation = StarmapLocation::factory()->create(['uuid' => $locationUuid]);
+        $starmapLocationData = StarmapLocationData::factory()->create([
+            'starmap_location_id' => $starmapLocation->id,
+            'game_version_id' => $version->id,
+            'name' => 'Shape Vehicle Station',
+        ]);
+
+        Http::fake(function ($request) use ($vehicleUuid) {
+            if (str_contains($request->url(), 'items_prices_all')) {
+                return Http::response(['data' => []]);
+            }
+
+            if (str_contains($request->url(), '/vehicles_purchases_prices_all')) {
+                return Http::response(['data' => [
+                    [
+                        'id_vehicle' => 21,
+                        'id_terminal' => 60,
+                        'vehicle_name' => 'Shape Ship',
+                        'terminal_name' => 'Shape Vehicle Terminal',
+                        'price_buy' => 4321,
+                        'date_modified' => 1700000000,
+                    ],
+                ]]);
+            }
+
+            if (str_contains($request->url(), '/vehicles_rentals_prices_all')) {
+                return Http::response(['data' => [
+                    [
+                        'id_vehicle' => 21,
+                        'id_terminal' => 60,
+                        'vehicle_name' => 'Shape Ship',
+                        'terminal_name' => 'Shape Vehicle Terminal',
+                        'price_rent' => 432,
+                        'date_modified' => 1700000100,
+                    ],
+                ]]);
+            }
+
+            if (str_contains($request->url(), '/vehicles') && ! str_contains($request->url(), 'vehicles_')) {
+                return Http::response(['data' => [
+                    [
+                        'id' => 21,
+                        'uuid' => $vehicleUuid,
+                        'name' => 'Shape Ship',
+                    ],
+                ]]);
+            }
+
+            if (str_contains($request->url(), 'terminals')) {
+                return Http::response(['data' => [
+                    [
+                        'id' => 60,
+                        'displayname' => 'Shape Vehicle Station',
+                        'name' => 'Admin - Shape Vehicle Terminal',
+                        'code' => 'SHAPE60',
+                        'star_system_name' => 'Stanton',
+                    ],
+                ]]);
+            }
+
+            return Http::response(status: 404);
+        });
+
+        (new ImportItemPrices($version->id))->handle();
+
+        $vehicleData->refresh();
+
+        $purchaseRow = $vehicleData->uex_purchase_prices[0];
+        $rentalRow = $vehicleData->uex_rental_prices[0];
+
+        // jsonb storage normalizes key order, so assert the full key set and values instead of ordering.
+        expect($purchaseRow)->toBeArray()
+            ->and(array_keys($purchaseRow))->toHaveCount(9)
+            ->and($purchaseRow)->toMatchArray([
+                'terminal_id' => 60,
+                'terminal_code' => 'SHAPE60',
+                'terminal_name' => 'Shape Vehicle Terminal',
+                'starmap_location_uuid' => $locationUuid,
+                'starmap_location_data_id' => $starmapLocationData->id,
+                'price_buy' => 4321,
+                'game_version' => $version->code,
+                'date_updated' => '2023-11-14T22:13:20+00:00',
+                'uex_link' => 'https://uexcorp.space/vehicles/home/list/in_game_sell/?id_terminal=60',
+            ])
+            ->and($rentalRow)->toBeArray()
+            ->and(array_keys($rentalRow))->toHaveCount(9)
+            ->and($rentalRow)->toMatchArray([
+                'terminal_id' => 60,
+                'terminal_code' => 'SHAPE60',
+                'terminal_name' => 'Shape Vehicle Terminal',
+                'starmap_location_uuid' => $locationUuid,
+                'starmap_location_data_id' => $starmapLocationData->id,
+                'price_rent' => 432,
+                'game_version' => $version->code,
+                'date_updated' => '2023-11-14T22:15:00+00:00',
+                'uex_link' => 'https://uexcorp.space/vehicles/home/list/in_game_rent/?id_terminal=60',
+            ]);
+    });
+});
