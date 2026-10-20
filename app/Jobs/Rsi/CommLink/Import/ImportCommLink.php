@@ -42,6 +42,10 @@ class ImportCommLink implements ShouldQueue
 
     public int $timeout = 120;
 
+    public int $tries = 3;
+
+    public array $backoff = [60, 300];
+
     private Crawler $crawler;
 
     public function __construct(
@@ -68,15 +72,8 @@ class ImportCommLink implements ShouldQueue
         }
 
         if ($this->containsDynamicContent($content)) {
-            try {
-                $content = $this->processDynamicContent($content);
-                Storage::disk('comm_links')->put($this->filePath(), $content);
-            } catch (Exception $exception) {
-                Log::warning('Failed to process dynamic Comm-Link content.', [
-                    'id' => $this->commLinkId,
-                    'message' => $exception->getMessage(),
-                ]);
-            }
+            $content = $this->processDynamicContent($content);
+            Storage::disk('comm_links')->put($this->filePath(), $content);
         }
 
         $this->crawler = new Crawler;
@@ -152,7 +149,7 @@ class ImportCommLink implements ShouldQueue
 
             $alexandriaUrl = $matches[0];
 
-            $response = Http::timeout(30)->get($alexandriaUrl);
+            $response = Http::timeout(30)->retry(3, 300)->get($alexandriaUrl);
 
             if (! $response->successful()) {
                 throw new RuntimeException('Alexandria endpoint returned status code: '.$response->status());

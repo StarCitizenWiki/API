@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Parser\CommLink;
 
-use App\Services\Parser\CommLink\Content\ContentExtractorFactory;
 use Closure;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -33,9 +32,9 @@ class Content extends AbstractBaseElement
      */
     public function getContent(): string
     {
-        $content = ContentExtractorFactory::getParserFromCrawler($this->commLink)?->getContent();
+        $content = new ContentExtractor($this->commLink)->getContent();
 
-        return empty($content) ? '' : $this->cleanContent($content);
+        return $content === null ? '' : $this->cleanContent($content);
     }
 
     private function cleanContent(string $content): string

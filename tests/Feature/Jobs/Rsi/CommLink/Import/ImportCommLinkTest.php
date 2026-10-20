@@ -7,6 +7,8 @@ use App\Jobs\Rsi\CommLink\Image\DispatchImageHashes;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
 use App\Models\Rsi\CommLink\CommLink;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -70,6 +72,41 @@ $importCommLinks = function (): CommLink {
         ->firstOrFail();
 };
 
+$storeAlexandriaShellHtml = function (
+    string $path,
+    string $title = 'Alexandria Shell',
+): void {
+    $html = strtr(<<<'HTML'
+<html>
+<head>
+    <title>:title - Roberts Space Industries | Follow the development of Star Citizen and Squadron 42</title>
+    <meta property="og:url" content="https://robertsspaceindustries.com/comm-link/SCW/12663-API">
+</head>
+<body>
+<div class="title-bar">
+    <div class="title">
+        <h1>Transmission</h1>
+        <h2>General</h2>
+    </div>
+</div>
+<div class="presented-by"></div><div></div><h1>Series Name</h1>
+<div class="title-section">
+    <div class="details">
+        <div></div><div></div><div><p>January 1, 2020</p></div>
+    </div>
+</div>
+<span class="comment-count">5</span>
+<div id="layout-system"></div>
+<script>
+    window.__ALEXANDRIA__ = "https://robertsspaceindustries.com/alexandria/html/12663/en-us";
+</script>
+</body>
+</html>
+HTML, [':title' => $title]);
+
+    Storage::disk('comm_links')->put($path, $html);
+};
+
 it('imports the latest comm-link file and skips translation when auto translation is disabled', function () use ($storeCommLinkHtml, $importCommLinks): void {
     Storage::fake('comm_links');
     Queue::fake([CreateImageMetadata::class, DispatchImageHashes::class, TranslateCommLinks::class]);
@@ -110,4 +147,52 @@ it('dispatches comm-link translation for imported ids when auto translation is e
     });
 
     expect($commLink->title)->toBe('Test Comm-Link');
+});
+
+describe('dynamic content', function () use ($storeAlexandriaShellHtml): void {
+    it('does not persist a comm link when the alexandria fetch fails', function () use ($storeAlexandriaShellHtml): void {
+        Storage::fake('comm_links');
+
+        $storeAlexandriaShellHtml('12663/2020-01-01_000000.html');
+
+        Http::fake([
+            'robertsspaceindustries.com/alexandria/*' => Http::response('', 500),
+        ]);
+
+        expect(fn () => (new ImportCommLink(12663, '2020-01-01_000000.html'))->handle())
+            ->toThrow(RequestException::class);
+
+        expect(CommLink::query()->where('cig_id', 12663)->exists())->toBeFalse();
+
+        Http::assertSentCount(3);
+    });
+
+    it('fetches and splices alexandria content successfully', function () use ($storeAlexandriaShellHtml): void {
+        Storage::fake('comm_links');
+
+        $storeAlexandriaShellHtml('12663/2020-01-01_000000.html');
+
+        Http::fake([
+            'robertsspaceindustries.com/alexandria/*' => Http::response(
+                '<g-banner-advanced :content=\'{"text":{"title":"Alexandria Title","paragraph":"Alexandria paragraph"}}\'></g-banner-advanced>'
+            ),
+        ]);
+
+        (new ImportCommLink(12663, '2020-01-01_000000.html'))->handle();
+
+        $commLink = CommLink::query()->where('cig_id', 12663)->firstOrFail();
+
+        expect($commLink->title)->toBe('Alexandria Shell')
+            ->and($commLink->getTranslation('translation', 'en'))->toContain('Alexandria Title')
+            ->and(Storage::disk('comm_links')->get('12663/2020-01-01_000000.html'))->toContain('Alexandria Title');
+
+        Http::assertSentCount(1);
+    });
+
+    it('retries failed alexandria fetches before failing the job', function (): void {
+        $job = new ImportCommLink(12663, '2020-01-01_000000.html');
+
+        expect($job->tries)->toBe(3)
+            ->and($job->backoff)->toBe([60, 300]);
+    });
 });

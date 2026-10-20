@@ -6,7 +6,6 @@ namespace App\Services\Parser\CommLink;
 
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Models\Rsi\CommLink\Image\Image as ImageModel;
-use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Image extends AbstractBaseElement
@@ -82,156 +81,8 @@ class Image extends AbstractBaseElement
         $this->extractCssBackgrounds();
         $this->extractMediaImages();
         $this->extractRsiImages();
-        $this->extractGElementImages();
-        $this->extractAlexandriaImages();
-
-        if ($this->isSpecialPage($this->commLink)) {
-            $this->commLink->filterXPath('//template')->each(function (Crawler $crawler): void {
-                preg_match_all(
-                    "/'(https:\/\/(?:media\.)?robertsspaceindustries\.com.*?)'/",
-                    $crawler->html() ?? '',
-                    $matches
-                );
-
-                $this->addImages($matches);
-            });
-        }
-    }
-
-    private function extractImgTags(): void
-    {
-        $this->commLink->filter($this->getFilterSelector())->filterXPath('//img')->each(function (Crawler $crawler): void {
-            $src = $crawler->attr('src');
-
-            if ($src !== null && $src !== '') {
-                $this->images[] = [
-                    'src' => trim($src),
-                    'alt' => $crawler->attr('alt') ?? '',
-                ];
-            }
-        });
-    }
-
-    private function extractCFeatureTemplateImages(): void
-    {
-        $this->commLink->filter($this->getFilterSelector())->filterXPath('//c-feature')->each(function (Crawler $crawler): void {
-            $src = trim($crawler->attr('background-url') ?? '');
-
-            if ($src === '') {
-                return;
-            }
-
-            $this->images[] = [
-                'src' => $src,
-                'alt' => 'c-feature',
-            ];
-        });
-    }
-
-    private function extractGElementImages(): void
-    {
-        $defaultImageElements = [
-            ':image',
-            ':picture',
-            ':simple-image',
-            ':background-image',
-            ':main-responsive-image',
-        ];
-
-        $elements = [
-            'g-banner' => $defaultImageElements,
-            'g-illustration' => $defaultImageElements,
-            'g-feature' => $defaultImageElements,
-            'g-trailer' => $defaultImageElements,
-            'g-slideshow' => ':pictures',
-            'g-banner-advanced' => [':content', ':media'],
-        ];
-
-        foreach ($elements as $path => $attr) {
-            $this->commLink
-                ->filter($this->getFilterSelector())->filterXPath(sprintf('//%s', $path))
-                ->each(function (Crawler $crawler) use ($path, $attr): void {
-                    $attributes = $attr;
-                    if (! is_array($attributes)) {
-                        $attributes = [$attr];
-                    }
-
-                    foreach ($attributes as $attribute) {
-                        $images = trim($crawler->attr($attribute) ?? '');
-                        $data = [];
-
-                        try {
-                            $images = json_decode($images, true, 512, JSON_THROW_ON_ERROR);
-                        } catch (JsonException $exception) {
-                            continue;
-                        }
-
-                        if ($path === 'g-banner-advanced') {
-                            if ($attribute === ':content' && isset($images['logo']['picture'])) {
-                                $images = $images['logo']['picture'];
-                            } elseif ($attribute === ':media' && isset($images['background']['picture'])) {
-                                $images = $images['background']['picture'];
-                            }
-                        }
-
-                        if (! is_array($images)) {
-                            $images = [$images];
-                        }
-
-                        foreach ($images as $image) {
-                            if (isset($image['format']['webp']) || isset($image['format']['originalFormat'])) {
-                                $data = [
-                                    'src' => $image['format']['webp']['max'] ?? $image['format']['source'] ?? null,
-                                    'alt' => $image['alt'] ?? $path,
-                                ];
-                            }
-
-                            if (isset($image['max']) || isset($image['source'])) {
-                                $data = [
-                                    'src' => $image['max'] ?? $image['source'],
-                                    'alt' => $image['alt'] ?? $path,
-                                ];
-                            }
-
-                            if (isset($image['originalFormat']) || isset($image['webp'])) {
-                                $data = [
-                                    'src' => $image['webp']['max'] ?? $image['originalFormat']['max'],
-                                    'alt' => $image['alt'] ?? $path,
-                                ];
-                            }
-
-                            if (! empty($data) && $data['src'] !== null) {
-                                $this->images[] = $data;
-                            }
-                        }
-                    }
-                });
-        }
-    }
-
-    private function extractPostBackground(): void
-    {
-        if ($this->commLink->filter(self::POST_BACKGROUND)->count() === 0) {
-            return;
-        }
-
-        $background = $this->commLink->filter(self::POST_BACKGROUND);
-        $src = $background->attr('style');
-
-        if ($src === null || $src === '') {
-            return;
-        }
-
-        if (preg_match('/(\/media\/.*\.\w+)/', $src, $matches)) {
-            $src = $matches[1];
-        }
-
-        if ($src !== '') {
-            $this->images[] = [
-                'src' => trim($src),
-                'alt' => self::POST_BACKGROUND,
-            ];
-        }
+        $this->extractWalkerImages();
+        $this->extractOgImage();
     }
 
     private function extractSourceAttrs(): void
@@ -278,72 +129,85 @@ class Image extends AbstractBaseElement
         $this->addImages($matches);
     }
 
-    private function extractAlexandriaImages(): void
+    private function extractWalkerImages(): void
     {
-        $this->commLink->filterXPath('//g-platform-client-component')->each(function (Crawler $component): void {
-            try {
-                $properties = $component->attr(':properties');
-                if (! empty($properties)) {
-                    $this->extractImagesFromProperties($properties);
-                }
-            } catch (\InvalidArgumentException $exception) {
-                // Ignore invalid component.
-            }
-        });
+        foreach ((new JsonWalker)->collect($this->commLink)->images as $src) {
+            $this->images[] = [
+                'src' => $src,
+            ];
+        }
+    }
 
-        $this->commLink->filterXPath('//g-banner-advanced')->each(function (Crawler $banner): void {
-            try {
-                $mediaAttr = $banner->attr(':media');
-                if (! empty($mediaAttr)) {
-                    $mediaJson = json_decode($mediaAttr, true);
-                    if (isset($mediaJson['background']['picture']['originalFormat']['max'])) {
-                        $this->images[] = [
-                            'src' => trim($mediaJson['background']['picture']['originalFormat']['max']),
-                        ];
-                    }
-                }
-            } catch (\InvalidArgumentException $exception) {
-                // Ignore invalid banner.
+    private function extractImgTags(): void
+    {
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//img')->each(function (Crawler $crawler): void {
+            $src = $crawler->attr('src');
+
+            if ($src !== null && $src !== '') {
+                $this->images[] = [
+                    'src' => trim($src),
+                    'alt' => $crawler->attr('alt') ?? '',
+                ];
             }
         });
     }
 
-    private function extractImagesFromProperties(string $properties): void
+    private function extractCFeatureTemplateImages(): void
     {
-        $json = json_decode($properties, true);
+        $this->commLink->filter($this->getFilterSelector())->filterXPath('//c-feature')->each(function (Crawler $crawler): void {
+            $src = trim($crawler->attr('background-url') ?? '');
 
-        if (! $json || ! isset($json['componentProps'])) {
+            if ($src === '') {
+                return;
+            }
+
+            $this->images[] = [
+                'src' => $src,
+                'alt' => 'c-feature',
+            ];
+        });
+    }
+
+    private function extractPostBackground(): void
+    {
+        if ($this->commLink->filter(self::POST_BACKGROUND)->count() === 0) {
             return;
         }
 
-        if (isset($json['componentProps']['layers']) && is_array($json['componentProps']['layers'])) {
-            foreach ($json['componentProps']['layers'] as $layer) {
-                if (isset($layer['backgroundImage']['heapImage']['source'])) {
-                    $this->images[] = [
-                        'src' => trim($layer['backgroundImage']['heapImage']['source']),
-                    ];
-                }
+        $background = $this->commLink->filter(self::POST_BACKGROUND);
+        $src = $background->attr('style');
 
-                if (isset($layer['backgroundImage']['optimizedImage']['originalFormat']['max'])) {
-                    $this->images[] = [
-                        'src' => trim($layer['backgroundImage']['optimizedImage']['originalFormat']['max']),
-                    ];
-                }
-            }
+        if ($src === null || $src === '') {
+            return;
         }
 
-        if (isset($json['componentProps']['image'])) {
-            if (isset($json['componentProps']['image']['source'])) {
-                $this->images[] = [
-                    'src' => trim($json['componentProps']['image']['source']),
-                ];
-            }
+        if (preg_match('/(\/media\/.*\.\w+)/', $src, $matches)) {
+            $src = $matches[1];
+        }
 
-            if (isset($json['componentProps']['image']['originalFormat']['max'])) {
-                $this->images[] = [
-                    'src' => trim($json['componentProps']['image']['originalFormat']['max']),
-                ];
-            }
+        if ($src !== '') {
+            $this->images[] = [
+                'src' => trim($src),
+                'alt' => self::POST_BACKGROUND,
+            ];
+        }
+    }
+
+    private function extractOgImage(): void
+    {
+        $metaTags = $this->commLink->filterXPath('//meta[@property="og:image"]');
+
+        if ($metaTags->count() === 0) {
+            return;
+        }
+
+        $content = $metaTags->attr('content');
+
+        if ($content !== null && trim($content) !== '') {
+            $this->images[] = [
+                'src' => trim($content),
+                'alt' => 'og:image',
+            ];
         }
     }
 

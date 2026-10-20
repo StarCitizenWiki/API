@@ -59,19 +59,48 @@ class Link extends AbstractBaseElement
             });
 
             $this->commLink->filter($selector)->filterXPath('//iframe')->each(function (Crawler $crawler): void {
-                $src = $crawler->attr('src');
+                $src = $crawler->attr('data-src') ?? $crawler->attr('src');
 
                 if ($src !== null && parse_url($src, PHP_URL_HOST) !== null) {
                     if (parse_url($src, PHP_URL_SCHEME) === null) {
                         $src = 'https:'.$src;
                     }
 
+                    if (str_contains($src, 'consent.cookiebot.com')) {
+                        return;
+                    }
+
+                    $title = trim($crawler->attr('title') ?? '');
+
                     $this->links[] = [
                         'href' => $src,
-                        'text' => 'iframe',
+                        'text' => $title !== '' ? $title : 'iframe',
+                    ];
+                }
+            });
+
+            $this->commLink->filter($selector)->filterXPath('//*[@video-id]')->each(function (Crawler $crawler): void {
+                $videoId = trim($crawler->attr('video-id') ?? '');
+
+                if ($videoId !== '') {
+                    $this->links[] = [
+                        'href' => 'https://www.youtube.com/watch?v='.$videoId,
+                        'text' => 'video',
                     ];
                 }
             });
         });
+
+        $this->extractWalkerLinks();
+    }
+
+    private function extractWalkerLinks(): void
+    {
+        foreach ((new JsonWalker)->collect($this->commLink)->urls as $url) {
+            $this->links[] = [
+                'href' => $url,
+                'text' => 'json-walker',
+            ];
+        }
     }
 }
