@@ -11,10 +11,11 @@
     ],
     "sail": false,
     "skills": [
+        "infer-conventions",
         "fortify-development",
         "laravel-best-practices",
+        "testing-best-practices",
         "configure-nightwatch",
-        "pest-testing",
         "tailwindcss-development",
         "laravel-query-builder",
         "translatable-development"
