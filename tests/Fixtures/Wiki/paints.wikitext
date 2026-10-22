@@ -1,0 +1,128 @@
+{{InfoboxNeue|title=Gladius series paints|image=Gladius series paints.png}}
+{| class="wikitable"
+!Vehicle
+!Paints
+|-
+|[[Gladius]]
+|''"Deck the Hull"'', ''"Biscuit Bay"'', ''"Invictus Blue"''
+|-
+|[[Gladius|Gladius Best in Show Edition]]
+|''"Renegade"''
+|}
+Content above the first heading is a compatibility matrix, never attributed to a paint.
+{| class="wikitable"
+!Isometric
+|-
+|[[File:Gladius_in_space_-_Isometric.jpg|center|frameless|128x72px]]
+|}
+
+==="Deck the Hull"===
+{| class="wikitable"
+!Description
+!Price ($)
+|-
+|Pale green colouring with red accents.
+|(Reward)
+|}
+{| class="wikitable"
+!Isometric
+!Above
+|-
+|[[File:Gladius Deck The Hull in space - Isometric.jpg|center|frameless|128x72px]]
+|[[File:Gladius Deck The Hull in space - Above.jpg|center|frameless|128x72px]]
+|}
+{| class="wikitable"
+!UUID
+!Name
+|-
+|9242a0d1-0519-450d-aad2-b6230841ab15
+|Paint_Gladius_Luminalia_2954_Green_Red_Red
+|}
+
+==="Unreleased Example"===
+All files here are placeholders, so this paint gets no image.
+{| class="wikitable"
+!Isometric
+|-
+|[[File:Placeholderv2.png|center|frameless|128x72px]]
+|}
+{| class="wikitable"
+!UUID
+!Name
+|-
+|0aa68029-e21d-4b48-a31d-b7baaa57f31c
+|Paint_Gladius_Unreleased
+|}
+
+==="Biscuit Bay"===
+The isometric file resolves to a missing page, the above view is the fallback.
+{| class="wikitable"
+!Isometric
+!Above
+|-
+|[[File:Gladius Biscuit Bay in space - Isometric.jpg|center|frameless|128x72px]]
+|[[File:Gladius Biscuit Bay in space - Above.jpg|center|frameless|128x72px]]
+|}
+{| class="wikitable"
+!UUID
+!Name
+|-
+|3d9c1a24-7e58-4c62-b1f0-9a8d6c3e5b21
+|Paint_Gladius_Biscuit_Bay
+|}
+
+==="Renegade Variants"===
+Variant rows share one section and therefore its file list.
+{| class="wikitable"
+!Paint scheme
+|-
+|[[File:Gladius Renegade - Paint scheme.png|center|frameless|128x72px]]
+|}
+{| class="wikitable"
+!UUID
+!Name
+|-
+|5b8e2f7c-1a4d-4e93-8c2f-6d7a0b9e4c31
+|Paint_Gladius_Renegade
+|-
+|7f4a9d2b-8c63-4e17-a5d9-0b2e7c6f8a43
+|Paint_Gladius_Renegade_BIS
+|}
+
+==="Discontinued"===
+Section without a UUID table contributes nothing, even with a resolving file.
+{| class="wikitable"
+!Isometric
+|-
+|[[File:Gladius Discontinued in space - Isometric.jpg|center|frameless|128x72px]]
+|}
+
+==="Stormbringer"===
+Underscore link form; the api answers with the space-form title.
+{| class="wikitable"
+!Isometric
+|-
+|[[File:Prowler_Stormbringer_in_space_-_Isometric.jpg|center|frameless|128x72px]]
+|}
+{| class="wikitable"
+!UUID
+!Name
+|-
+|28450c13-1111-4222-8333-444455556666
+|Paint_Prowler_Stormbringer
+|}
+
+==="Invictus Blue"===
+No game item exists for this UUID.
+{| class="wikitable"
+!Paint scheme
+|-
+|[[File:Gladius Invictus Blue - Paint scheme.png|center|frameless|128x72px]]
+|}
+{| class="wikitable"
+!UUID
+!Name
+|-
+|aaaabbbb-cccc-4ddd-8eee-ffff00001111
+|Paint_Gladius_Invictus_Blue
+|}

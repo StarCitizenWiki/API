@@ -289,7 +289,14 @@ it('falls back to direct source when wiki sources have no image', function (): v
 
 it('sets empty array when all sources fail', function (): void {
 
-    $item = Item::factory()->create();
+    $item = Item::factory()->create([
+        'images' => [
+            [
+                'source' => 'cstone.space',
+                'thumbnail_url' => 'https://cstone.space/uifimages/example.png',
+            ],
+        ],
+    ]);
     $version = GameVersion::factory()->create(['is_default' => true]);
     ItemData::factory()->create([
         'item_id' => $item->id,
@@ -329,6 +336,106 @@ it('sets empty array when all sources fail', function (): void {
     $item->refresh();
 
     expect($item->images)->toBe([]);
+});
+
+it('wipes unresolved image from a managed source', function (): void {
+
+    $item = Item::factory()->create([
+        'images' => [
+            [
+                'source' => 'cstone.space',
+                'thumbnail_url' => 'https://cstone.space/uifimages/example.png',
+            ],
+        ],
+    ]);
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'name' => 'Unknown Item',
+    ]);
+
+    Http::fake([
+        'starcitizen.tools/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    10 => [
+                        'pageid' => 10,
+                        'title' => 'Unknown Item',
+                        'missing' => '',
+                    ],
+                ],
+            ],
+        ]),
+        'star-citizen.wiki/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    10 => [
+                        'pageid' => 10,
+                        'title' => 'Unknown Item',
+                        'missing' => '',
+                    ],
+                ],
+            ],
+        ]),
+        "cstone.space/uifimages/{$item->uuid}.png" => Http::response(status: 404),
+    ]);
+
+    $job = new EnrichImages(Item::class, [$item->id => 'Unknown Item'], [$item->id => $item->uuid]);
+    $job->handle();
+
+    $item->refresh();
+
+    expect($item->images)->toBe([]);
+});
+
+it('keeps unresolved image from an unmanaged source', function (): void {
+
+    $paintImage = [
+        'source' => 'starcitizen.tools/paints',
+        'thumbnail_url' => 'https://media.starcitizen.tools/thumb/paint.jpg',
+    ];
+
+    $item = Item::factory()->create(['images' => [$paintImage]]);
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'name' => 'Unknown Item',
+    ]);
+
+    Http::fake([
+        'starcitizen.tools/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    10 => [
+                        'pageid' => 10,
+                        'title' => 'Unknown Item',
+                        'missing' => '',
+                    ],
+                ],
+            ],
+        ]),
+        'star-citizen.wiki/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    10 => [
+                        'pageid' => 10,
+                        'title' => 'Unknown Item',
+                        'missing' => '',
+                    ],
+                ],
+            ],
+        ]),
+        "cstone.space/uifimages/{$item->uuid}.png" => Http::response(status: 404),
+    ]);
+
+    $job = new EnrichImages(Item::class, [$item->id => 'Unknown Item'], [$item->id => $item->uuid]);
+    $job->handle();
+
+    $item->refresh();
+
+    expect($item->images)->toBe([$paintImage]);
 });
 
 it('chunks 50+ titles into multiple API calls', function (): void {

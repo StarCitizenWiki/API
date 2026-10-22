@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\Game\SyncPaintImages;
 use App\Jobs\StarCitizen\Galactapedia\Sync\SyncGalactapedia;
 use App\Jobs\StarCitizen\Starmap\Sync\SyncStarmap;
 use App\Jobs\StarCitizen\Stat\SyncStats;
@@ -37,7 +38,8 @@ Schedule::job(new ImportPledgeStore)
 // Vehicle curated data (starcitizen.tools wiki infobox sync)
 Schedule::job(new SyncVehicleCuratedData)
     ->daily()
-    ->withoutOverlapping();
+    ->withoutOverlapping()
+    ->then(fn () => SyncPaintImages::dispatch());
 
 Schedule::job(new ImportLoaner)
     ->daily();

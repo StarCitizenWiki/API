@@ -142,7 +142,7 @@ class EnrichImages implements ShouldQueue
 
                 $pageImage = $page['pageimage'] ?? null;
 
-                if ($pageImage !== null && $this->isPlaceholder($pageImage, $placeholderPatterns)) {
+                if ($pageImage !== null && array_any($placeholderPatterns, fn($pattern) => preg_match($pattern, $pageImage))) {
                     continue;
                 }
 
@@ -236,20 +236,6 @@ class EnrichImages implements ShouldQueue
         return $results;
     }
 
-    /**
-     * @param  array<int, string>  $placeholderPatterns
-     */
-    private function isPlaceholder(string $pageImage, array $placeholderPatterns): bool
-    {
-        foreach ($placeholderPatterns as $pattern) {
-            if (preg_match($pattern, $pageImage)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private function throttle(): void
     {
         $microseconds = (int) config('images.throttle_microseconds', self::THROTTLE_MICROSECONDS);
@@ -270,7 +256,11 @@ class EnrichImages implements ShouldQueue
         }
 
         if ($unresolvedIds !== []) {
-            ($this->modelClass)::whereIn('id', $unresolvedIds)->update(['images' => []]);
+            $managed = collect(config('images.sources'))->pluck('name')->all();
+
+            ($this->modelClass)::whereIn('id', $unresolvedIds)
+                ->whereIn('images->0->source', $managed)
+                ->update(['images' => []]);
         }
 
         Log::info('Image enrichment chunk completed', [
