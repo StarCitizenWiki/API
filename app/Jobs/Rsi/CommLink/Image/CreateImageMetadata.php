@@ -22,7 +22,7 @@ class CreateImageMetadata implements ShouldQueue
     {
         $query = Image::query()
             ->whereHas('commLinks')
-            ->whereDoesntHave('metadata');
+            ->missingOrUndefinedMetadata();
 
         if ($this->commLinkIds !== []) {
             $query->whereHas('commLinks', function (Builder $builder): void {

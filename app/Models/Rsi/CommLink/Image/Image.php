@@ -6,6 +6,7 @@ namespace App\Models\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\CommLink;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,6 +62,20 @@ class Image extends Model
             'image_id',
             'tag_id'
         )->orderByDesc('images_count');
+    }
+
+    /**
+     * Images whose metadata still needs to be fetched: no metadata row at all or a
+     * failed fetch (client error) stored as the "undefined" placeholder.
+     */
+    public function scopeMissingOrUndefinedMetadata(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query): void {
+            $query->whereDoesntHave('metadata')
+                ->orWhereHas('metadata', function (Builder $metadata): void {
+                    $metadata->where('mime', 'undefined');
+                });
+        });
     }
 
     public function hash(): HasOne

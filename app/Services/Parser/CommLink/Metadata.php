@@ -8,6 +8,8 @@ use App\Models\Rsi\CommLink\Category;
 use App\Models\Rsi\CommLink\Channel;
 use App\Models\Rsi\CommLink\Series;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -172,10 +174,7 @@ class Metadata extends AbstractBaseElement
         }
 
         if (! empty($category)) {
-            $categoryId = Category::query()->firstOrCreate([
-                'name' => $category,
-                'slug' => Str::slug($category, '-'),
-            ])->id;
+            $categoryId = $this->firstOrCreateTaxonomyId(Category::class, $category);
         }
 
         $this->metaData->put('category_id', $categoryId);
@@ -194,10 +193,7 @@ class Metadata extends AbstractBaseElement
         }
 
         if (! empty($channel)) {
-            $channelId = Channel::query()->firstOrCreate([
-                'name' => $channel,
-                'slug' => Str::slug($channel, '-'),
-            ])->id;
+            $channelId = $this->firstOrCreateTaxonomyId(Channel::class, $channel);
         }
 
         $this->metaData->put('channel_id', $channelId);
@@ -216,13 +212,27 @@ class Metadata extends AbstractBaseElement
         }
 
         if (! empty($series)) {
-            $seriesId = Series::query()->firstOrCreate([
-                'name' => $series,
-                'slug' => Str::slug($series, '-'),
-            ])->id;
+            $seriesId = $this->firstOrCreateTaxonomyId(Series::class, $series);
         }
 
         $this->metaData->put('series_id', $seriesId);
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     */
+    private function firstOrCreateTaxonomyId(string $modelClass, string $name): int
+    {
+        $slug = Str::slug($name, '-');
+
+        try {
+            return (int) $modelClass::query()->firstOrCreate(
+                ['slug' => $slug],
+                ['name' => $name],
+            )->id;
+        } catch (UniqueConstraintViolationException) {
+            return (int) $modelClass::query()->where('slug', $slug)->firstOrFail()->id;
+        }
     }
 
     private function extractOriginalUrl(): void

@@ -54,7 +54,7 @@ class ImportCommLinks implements ShouldQueue
         Bus::batch($jobs)
             ->name('Comm-Link import')
             ->allowFailures()
-            ->then(function () use ($commLinkIds): void {
+            ->finally(function () use ($commLinkIds): void {
                 if ($commLinkIds === []) {
                     return;
                 }

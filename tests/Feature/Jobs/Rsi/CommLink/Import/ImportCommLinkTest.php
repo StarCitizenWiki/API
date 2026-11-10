@@ -7,6 +7,7 @@ use App\Jobs\Rsi\CommLink\Image\DispatchImageHashes;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Jobs\Rsi\CommLink\Translate\TranslateCommLinks;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Models\Rsi\CommLink\Series;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -17,6 +18,7 @@ $storeCommLinkHtml = function (
     string $path,
     string $title = 'Test Comm-Link',
     string $publishedAt = 'January 1, 2020',
+    string $seriesName = 'Series Name',
 ): void {
     $html = strtr(<<<'HTML'
 <html>
@@ -31,7 +33,7 @@ $storeCommLinkHtml = function (
         <h2>General</h2>
     </div>
 </div>
-<div class="presented-by"></div><div></div><h1>Series Name</h1>
+<div class="presented-by"></div><div></div><h1>:seriesName</h1>
 <div class="title-section">
     <div class="details">
         <div></div><div></div><div><p>:publishedAt</p></div>
@@ -48,6 +50,7 @@ $storeCommLinkHtml = function (
 HTML, [
         ':title' => $title,
         ':publishedAt' => $publishedAt,
+        ':seriesName' => $seriesName,
     ]);
 
     Storage::disk('comm_links')->put($path, $html);
@@ -147,6 +150,40 @@ it('dispatches comm-link translation for imported ids when auto translation is e
     });
 
     expect($commLink->title)->toBe('Test Comm-Link');
+});
+
+describe('series resolution', function () use ($storeCommLinkHtml, $importCommLinks): void {
+    it('reuses an existing series when the page name only differs in casing', function () use ($storeCommLinkHtml, $importCommLinks): void {
+        Storage::fake('comm_links');
+        Queue::fake([CreateImageMetadata::class, DispatchImageHashes::class, TranslateCommLinks::class]);
+
+        $series = Series::factory()->create([
+            'name' => 'Star Citizen LIVE',
+            'slug' => 'star-citizen-live',
+        ]);
+
+        $storeCommLinkHtml('12663/2020-01-01_000000.html', seriesName: 'Star Citizen Live');
+
+        $commLink = $importCommLinks();
+
+        expect($commLink->series_id)->toBe($series->id)
+            ->and(Series::query()->count())->toBe(1)
+            ->and($series->fresh()->name)->toBe('Star Citizen LIVE');
+    });
+
+    it('creates a new series with slug and name from the page', function () use ($storeCommLinkHtml, $importCommLinks): void {
+        Storage::fake('comm_links');
+        Queue::fake([CreateImageMetadata::class, DispatchImageHashes::class, TranslateCommLinks::class]);
+
+        $storeCommLinkHtml('12663/2020-01-01_000000.html', seriesName: 'Jump Point');
+
+        $commLink = $importCommLinks();
+
+        $series = Series::query()->where('slug', 'jump-point')->firstOrFail();
+
+        expect($commLink->series_id)->toBe($series->id)
+            ->and($series->name)->toBe('Jump Point');
+    });
 });
 
 describe('dynamic content', function () use ($storeAlexandriaShellHtml): void {
