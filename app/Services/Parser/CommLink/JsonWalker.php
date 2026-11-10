@@ -348,9 +348,9 @@ final class JsonWalker
         $segments = preg_split('/[^a-zA-Z0-9]+|(?<=[a-z0-9])(?=[A-Z])/', $key) ?: [];
 
         return array_map(
-                static fn(string $segment): string => mb_strtolower($segment),
-                $segments,
-            )
+            static fn (string $segment): string => mb_strtolower($segment),
+            $segments,
+        )
                 |> array_filter(...)
                 |> array_values(...);
     }
@@ -384,7 +384,10 @@ final class JsonWalker
             return true;
         }
 
-        return preg_match(self::IMAGE_EXTENSION_PATTERN, $value) === 1;
+        // Heap json exposes original upload filenames ("L22Wolf-Copy.jpg") next to
+        // the real urls; only values with a path segment are servable, bare names are not.
+        return str_contains($value, '/')
+            && preg_match(self::IMAGE_EXTENSION_PATTERN, $value) === 1;
     }
 
     private function addTextBlock(string $text): void

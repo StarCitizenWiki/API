@@ -140,6 +140,25 @@ describe('images', function (): void {
 
         expect($result->images)->toBe(['/i/x/max.jpg']);
     });
+
+    it('drops bare heap filenames and keeps their real source urls', function (): void {
+        $result = collectWalker(<<<'HTML'
+            <g-platform-client-component :properties='{"componentProps":{"image":{"heapImage":{"source":"https://media.robertsspaceindustries.com/uqi1dgrysdwet/source.jpg","name":"Heap-Thumbnail_Day_Of_The_Vara.jpg"}},"video":{"heapVideo":{"source":"https://media.robertsspaceindustries.com/b90ytnvpjolu7/source.mp4","name":"HOL2608_Halloween_CAR.mp4"}}}}'></g-platform-client-component>
+            HTML);
+
+        expect($result->images)->toBe([
+            'https://media.robertsspaceindustries.com/uqi1dgrysdwet/source.jpg',
+            'https://media.robertsspaceindustries.com/b90ytnvpjolu7/source.mp4',
+        ]);
+    });
+
+    it('keeps extension matches that carry a path', function (): void {
+        $result = collectWalker(<<<'HTML'
+            <g-hero :background='"/alexandria-assets/hero.jpg"'></g-hero>
+            HTML);
+
+        expect($result->images)->toBe(['/alexandria-assets/hero.jpg']);
+    });
 });
 
 describe('html strings', function (): void {
