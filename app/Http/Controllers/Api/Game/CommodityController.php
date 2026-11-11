@@ -14,11 +14,14 @@ use App\Http\Resources\Game\Commodity\CommodityShowResource;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\Resource\ResourceData;
+use App\Models\Game\StarmapLocation;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -66,37 +69,22 @@ class CommodityController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(ref: '#/components/parameters/version'),
-            new OA\Parameter(
-                name: 'sort',
-                description: 'Sort field. Prefix with "-" for descending. Supported: key, name, rarity, density, instability, resistance, signature.',
-                in: 'query',
-                schema: new OA\Schema(type: 'string', example: '-rarity')
-            ),
-            new OA\Parameter(
-                name: 'filter[used]',
-                description: 'When true, only commodities used by blueprint ingredients in the requested or default game version are returned. Example: `true`',
-                in: 'query',
-                schema: new OA\Schema(type: 'boolean')
-            ),
-            new OA\Parameter(name: 'filter[system]', description: 'Star system where the commodity can be found (see GET /api/commodities/filters for valid values). Example: `Stanton System`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[type]', description: 'Location type name (see GET /api/commodities/filters for valid values). Example: `Planet`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[rarity]', description: 'Commodity tier/rarity level, lowercase (see GET /api/commodities/filters for valid values). Example: `epic`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[kind]', description: 'Resource kind (see GET /api/commodities/filters for valid values). Example: `mineable`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[group]', description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[refined_version]', description: 'Refined version name (see GET /api/commodities/filters for valid values). Example: `Agricium`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(
-                name: 'filter[location]',
-                description: 'Partial match on starmap location name. Example: `ArcCorp`',
-                in: 'query',
-                schema: new OA\Schema(type: 'string'),
-            ),
-            new OA\Parameter(name: 'filter[query]', description: 'Search commodities by name or key. Example: `Agricium`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[ship]', description: 'When true, only show commodities mineable by ships. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[ground_vehicle]', description: 'When true, only show commodities mineable by ground vehicles. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[fps]', description: 'When true, only show commodities mineable on foot (FPS). Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[harvestable]', description: 'When true, only show commodities collectible from harvestable or plant deposits. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[salvage]', description: 'When true, only show commodities obtainable through salvage. Example: `false`', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[mineable]', description: 'When true, only show mineable commodities; when false, only show non-mineable. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(ref: '#/components/parameters/commodity_sort'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_used'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_system'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_type'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_rarity'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_kind'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_group'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_refined_version'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_location'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_query'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_ship'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_ground_vehicle'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_fps'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_harvestable'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_salvage'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_mineable'),
         ],
         responses: [
             new OA\Response(
@@ -109,7 +97,7 @@ class CommodityController extends Controller
                             summary: 'Commodities filtered by location',
                             value: [
                                 'data' => [
-                                    ['uuid' => '00000000-0000-0000-0000-000000000000', 'name' => 'Agricium', 'slug' => 'agricium'],
+                                    ['uuid' => 'dc6fbcbb-5990-4ed5-82ee-93152dab7845', 'name' => 'Agricium', 'slug' => 'agricium'],
                                 ],
                                 'links' => ['first' => 'https://api.star-citizen.wiki/api/commodities?page[number]=1', 'last' => null, 'prev' => null, 'next' => null],
                                 'meta' => ['current_page' => 1, 'per_page' => 30, 'total' => 1],
@@ -124,6 +112,7 @@ class CommodityController extends Controller
                     type: 'object',
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function index(CommodityIndexRequest $request): AnonymousResourceCollection
@@ -131,42 +120,134 @@ class CommodityController extends Controller
         $versionCode = $this->gameVersionCode();
 
         $commodities = $this->buildIndexQuery($request)
-            ->with([
-                'refinedVersion',
-                'resourceData' => fn (BelongsToMany $relation) => $relation
-                    ->forRequestedOrDefaultVersion($versionCode)
-                    ->select([
-                        'game_resource_data.id',
-                        'game_resource_data.kind',
-                        'game_resource_data.signature',
-                    ])
-                    ->with([
-                        'locations' => fn ($q) => $q->select([
-                            'game_resource_locations.id',
-                            'game_resource_locations.resource_data_id',
-                            'game_resource_locations.group_name',
-                            'game_resource_locations.resource_kind',
-                            'game_resource_locations.quality_min',
-                            'game_resource_locations.quality_max',
-                        ]),
-                        'locations.starmapLocationData' => fn ($q) => $q->select([
-                            'game_starmap_location_data.id',
-                            'game_starmap_location_data.name',
-                            'game_starmap_location_data.system',
-                            'game_starmap_location_data.type_name',
-                            'game_starmap_location_data.parent_data_id',
-                            'game_starmap_location_data.starmap_location_id',
-                            'game_starmap_location_data.location_uuid',
-                            'game_starmap_location_data.parent_name',
-                            'game_starmap_location_data.parent_type_name',
-                        ]),
-                    ]),
-            ])
+            ->with($this->indexRelations($versionCode))
             ->orderBy('key')
             ->jsonPaginate()
             ->appends($request->query());
 
         return CommodityIndexResource::collection($commodities);
+    }
+
+    #[OA\Get(
+        path: '/api/locations/{location}/commodities',
+        operationId: 'listLocationCommodities',
+        description: 'Returns paginated game commodities available at a starmap location, resolved by location UUID (the `location_uuid` returned by commodity endpoints) or slug. Equivalent to filtering GET /api/commodities with filter[location]. The location is fixed by the path parameter; other filters, sorts and pagination behave like GET /api/commodities. Scoped to the requested or default game version.',
+        summary: 'List Commodities at a Starmap Location',
+        tags: ['Commodities'],
+        parameters: [
+            new OA\Parameter(
+                name: 'location',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(
+                    description: 'Starmap location UUID or slug',
+                    type: 'string',
+                    example: '551af60b-7727-4936-acc7-763d25d7a1de',
+                ),
+            ),
+            new OA\Parameter(ref: '#/components/parameters/page'),
+            new OA\Parameter(ref: '#/components/parameters/page_number'),
+            new OA\Parameter(ref: '#/components/parameters/page_size'),
+            new OA\Parameter(ref: '#/components/parameters/version'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_sort'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_used'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_system'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_type'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_rarity'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_kind'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_group'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_refined_version'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_query'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_ship'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_ground_vehicle'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_fps'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_harvestable'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_salvage'),
+            new OA\Parameter(ref: '#/components/parameters/commodity_filter_mineable'),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Commodities available at the location',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/commodity_link')),
+                        new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta'),
+                    ],
+                    type: 'object',
+                )
+            ),
+            new OA\Response(response: 404, description: 'No starmap location found with the given identifier.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
+        ]
+    )]
+    public function indexForLocation(CommodityIndexRequest $request, string $location): AnonymousResourceCollection
+    {
+        $versionCode = $this->gameVersionCode();
+
+        $locationModel = StarmapLocation::query()
+            ->when(Str::isUuid($location), fn (Builder $q) => $q->where('uuid', $location))
+            ->unless(Str::isUuid($location), fn (Builder $q) => $q->where('slug', $location))
+            ->first();
+
+        if ($locationModel === null) {
+            throw new NotFoundHttpException('No starmap location found with the given identifier.');
+        }
+
+        $commodities = $this->buildIndexQuery($request)
+            ->whereHas('resourceData', fn (Builder $q) => $q
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->whereHas('locations', fn (Builder $placement) => $placement
+                    ->where($this->wherePlacementYieldsCommodity())
+                    ->whereHas('starmapLocationData', fn (Builder $locationQuery) => $locationQuery
+                        ->where('location_uuid', $locationModel->uuid))))
+            ->with($this->indexRelations($versionCode))
+            ->orderBy('key')
+            ->jsonPaginate()
+            ->appends($request->query());
+
+        return CommodityIndexResource::collection($commodities);
+    }
+
+    /**
+     * Eager loads shared by the commodity index endpoints.
+     *
+     * @return array<string, mixed>
+     */
+    private function indexRelations(?string $versionCode): array
+    {
+        return [
+            'refinedVersion',
+            'resourceData' => fn (BelongsToMany $relation) => $relation
+                ->forRequestedOrDefaultVersion($versionCode)
+                ->select([
+                    'game_resource_data.id',
+                    'game_resource_data.kind',
+                    'game_resource_data.signature',
+                ])
+                ->with([
+                    'locations' => fn ($q) => $q->select([
+                        'game_resource_locations.id',
+                        'game_resource_locations.resource_data_id',
+                        'game_resource_locations.group_name',
+                        'game_resource_locations.resource_kind',
+                        'game_resource_locations.quality_min',
+                        'game_resource_locations.quality_max',
+                    ]),
+                    'locations.starmapLocationData' => fn ($q) => $q->select([
+                        'game_starmap_location_data.id',
+                        'game_starmap_location_data.name',
+                        'game_starmap_location_data.system',
+                        'game_starmap_location_data.type_name',
+                        'game_starmap_location_data.parent_data_id',
+                        'game_starmap_location_data.starmap_location_id',
+                        'game_starmap_location_data.location_uuid',
+                        'game_starmap_location_data.parent_name',
+                        'game_starmap_location_data.parent_type_name',
+                    ]),
+                ]),
+        ];
     }
 
     #[OA\Get(
@@ -203,7 +284,7 @@ class CommodityController extends Controller
                         new OA\Examples(
                             example: 'commodity_detail',
                             summary: 'Commodity detail response',
-                            value: ['data' => ['uuid' => '00000000-0000-0000-0000-000000000000', 'name' => 'Agricium', 'slug' => 'agricium']],
+                            value: ['data' => ['uuid' => 'dc6fbcbb-5990-4ed5-82ee-93152dab7845', 'name' => 'Agricium', 'slug' => 'agricium']],
                         ),
                     ],
                     properties: [
@@ -212,10 +293,12 @@ class CommodityController extends Controller
                     type: 'object',
                 )
             ),
-            new OA\Response(response: 404, description: 'Commodity not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 302, description: 'The identifier is a starmap location UUID; redirected to /api/locations/{location}/commodities, preserving query parameters.'),
+            new OA\Response(response: 404, description: 'Commodity not found, and the identifier matches no commodity slug, commodity UUID or starmap location UUID.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
-    public function show(Request $request, string $commodity): JsonResource
+    public function show(Request $request, string $commodity): JsonResource|RedirectResponse
     {
         $versionCode = $this->gameVersionCode();
 
@@ -296,6 +379,17 @@ class CommodityController extends Controller
             ->first();
 
         if ($commodityModel === null) {
+            if (Str::isUuid($commodity) && StarmapLocation::query()->where('uuid', $commodity)->exists()) {
+                $url = route('locations.commodities.index', ['location' => $commodity]);
+                $queryString = $request->server->get('QUERY_STRING');
+
+                if ($queryString !== null && $queryString !== '') {
+                    $url .= '?'.$queryString;
+                }
+
+                return redirect($url, 302);
+            }
+
             throw new NotFoundHttpException('No commodity found with the given identifier.');
         }
 
@@ -318,7 +412,7 @@ class CommodityController extends Controller
             new OA\Parameter(name: 'filter[kind]', description: 'Resource kind. Example: `mineable`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[group]', description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[refined_version]', description: 'Refined version name. Example: `Agricium`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[location]', description: 'Partial match on starmap location name. Example: `ArcCorp`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[location]', description: 'Partial match on starmap location name, or exact starmap location UUID (the `location_uuid` returned by commodity endpoints). Example: `ArcCorp`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[query]', description: 'Search commodities by name or key. Example: `Agricium`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[ship]', description: 'When true, only show commodities mineable by ships. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[ground_vehicle]', description: 'When true, only show commodities mineable by ground vehicles. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
@@ -350,6 +444,7 @@ class CommodityController extends Controller
                     type: 'object'
                 )
             ),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function filters(Request $request): JsonResponse
@@ -460,6 +555,19 @@ class CommodityController extends Controller
     }
 
     /**
+     * Constraint for a game_resource_locations subquery: the placement yields the outer
+     * game_commodities row only when it is generic (commodity_id NULL, meaning every
+     * commodity mapped to the resource) or explicitly names it. Sibling commodities
+     * sharing the resource must not match another commodity's deposit.
+     */
+    private function wherePlacementYieldsCommodity(): Closure
+    {
+        return fn (Builder $placement): Builder => $placement
+            ->whereNull('game_resource_locations.commodity_id')
+            ->orWhereColumn('game_resource_locations.commodity_id', 'game_commodities.id');
+    }
+
+    /**
      * @return array<int, string|AllowedSort>
      */
     private function allowedSorts(): array
@@ -548,12 +656,16 @@ class CommodityController extends Controller
 
                 $query->whereHas('resourceData', function (Builder $q) use ($values): void {
                     $q->forRequestedOrDefaultVersion($this->gameVersionCode())
-                        ->whereHas('locations.starmapLocationData', function (Builder $q) use ($values): void {
-                            $q->where(static function (Builder $inner) use ($values): void {
-                                foreach ($values as $v) {
-                                    $inner->orWhereLike('name', "%{$v}%");
-                                }
-                            });
+                        ->whereHas('locations', function (Builder $placement) use ($values): void {
+                            $placement->where($this->wherePlacementYieldsCommodity())
+                                ->whereHas('starmapLocationData', function (Builder $q) use ($values): void {
+                                    $q->where(static function (Builder $inner) use ($values): void {
+                                        foreach ($values as $v) {
+                                            $inner->when(Str::isUuid((string) $v), fn (Builder $iq) => $iq->orWhere('location_uuid', $v))
+                                                ->unless(Str::isUuid((string) $v), fn (Builder $iq) => $iq->orWhereLike('name', "%{$v}%"));
+                                        }
+                                    });
+                                });
                         });
                 });
             }),

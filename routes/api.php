@@ -34,16 +34,42 @@ Route::get('/v2/openapi', static function () {
     )->header('Content-Type', 'application/yaml');
 });
 
+Route::get('/v3/openapi', static function () {
+    return response(
+        File::get(base_path('swagger.yaml'))
+    )->header('Content-Type', 'application/yaml');
+});
+
 Route::get('/openapi', OpenApiController::class);
+
+$redirectToIntendedRoute = static function (Request $request, ?string $any = null) {
+    if ($any !== null && $any !== '') {
+        $any = rawurldecode($any);
+
+        // A '..' segment lets clients normalize the Location target out of the /api prefix; '?' and '#' would smuggle a query or fragment into the redirect path.
+        if (in_array('..', explode('/', $any), true) || str_contains($any, '?') || str_contains($any, '#') || str_starts_with($any, '/')) {
+            abort(404);
+        }
+    }
+
+    $target = '/api'.($any !== null && $any !== '' ? '/'.$any : '');
+    $queryString = $request->server->get('QUERY_STRING');
+
+    if ($queryString !== null && $queryString !== '') {
+        $target .= '?'.$queryString;
+    }
+
+    return redirect($target, 308);
+};
 
 Route::group(
     [],
-    static function () {
-        Route::middleware(['game.version', 'limit.parameter'])->group(static function () {
+    static function () use ($redirectToIntendedRoute): void {
+        Route::middleware(['game.version', 'limit.parameter'])->group(static function () use ($redirectToIntendedRoute): void {
             Route::get('search', [UnifiedSearchController::class, 'search'])->middleware('throttle:search')->name('search');
             Route::get('search/{query}', [UnifiedSearchController::class, 'apiResolve'])->middleware('throttle:search')->where('query', '[^/]+')->name('resolve');
 
-            Route::prefix('v2')->group(static function () {
+            Route::prefix('v2')->group(static function () use ($redirectToIntendedRoute): void {
                 Route::get('vehicles', [VehicleController::class, 'index'])
                     ->defaults('api_version', 'v2')
                     ->name('v2.vehicles.index');
@@ -56,19 +82,10 @@ Route::group(
                     ->where('vehicle', '.*')
                     ->name('v2.vehicles.show');
 
-                Route::any('{any?}', static function (Request $request, ?string $any = null) {
-                    $target = '/api'.($any !== null && $any !== '' ? '/'.$any : '');
-                    $queryString = $request->getQueryString();
-
-                    if ($queryString !== null && $queryString !== '') {
-                        $target .= '?'.$queryString;
-                    }
-
-                    return redirect($target, 308);
-                })->where('any', '.*');
+                Route::any('{any?}', $redirectToIntendedRoute)->where('any', '.*');
             });
 
-            Route::prefix('v3')->group(static function () {
+            Route::prefix('v3')->group(static function (): void {
                 Route::get('vehicles', [VehicleController::class, 'index'])
                     ->defaults('api_version', 'v3')
                     ->name('v3.vehicles.index');
@@ -112,6 +129,7 @@ Route::group(
             Route::get('locations', [StarmapLocationController::class, 'index'])->name('locations.index');
             Route::get('locations/filters', [StarmapLocationController::class, 'filters'])->name('locations.filters');
             Route::get('locations/{identifier}', [StarmapLocationController::class, 'show'])->name('locations.show');
+            Route::get('locations/{location}/commodities', [CommodityController::class, 'indexForLocation'])->name('locations.commodities.index');
 
             Route::get('manufacturers', [ManufacturerController::class, 'index'])->name('manufacturers.index');
             Route::post('manufacturers/search', [ManufacturerController::class, 'search'])->middleware('throttle:search')->name('manufacturers.search');
@@ -130,7 +148,7 @@ Route::group(
 
             // Factions
             Route::get('factions', [FactionController::class, 'index'])->name('factions.index');
-            Route::get('factions/{faction}', [FactionController::class, 'show'])->whereUuid('faction')->name('factions.show');
+            Route::get('factions/{faction}', [FactionController::class, 'show'])->name('factions.show');
 
             // Missions
             Route::get('missions', [MissionController::class, 'index'])->name('missions.index');

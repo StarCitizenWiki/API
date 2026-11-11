@@ -8,6 +8,11 @@ use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
+use App\Models\Game\Resource\ResourceCommodity;
+use App\Models\Game\StarmapLocation;
+
+use function Tests\Support\attachLocation;
+use function Tests\Support\createResourceData;
 
 beforeEach(function (): void {
     $this->defaultVersion = GameVersion::factory()->create([
@@ -217,4 +222,169 @@ it('returns items that have a commodity in their default composition', function 
         ->assertJsonPath('data.items.0.type', $itemData->type)
         ->assertJsonPath('data.items.0.sub_type', $itemData->sub_type)
         ->assertJsonPath('data.items.0.size', $itemData->size);
+});
+
+it('filters commodities by starmap location uuid', function (): void {
+    $atLocation = Commodity::factory()->create([
+        'key' => 'Agricium',
+        'name' => 'Agricium',
+    ]);
+
+    Commodity::factory()->create([
+        'key' => 'Quantainium',
+        'name' => 'Quantainium',
+    ]);
+
+    $resourceData = createResourceData($atLocation);
+    $resourceLocation = attachLocation($resourceData, 'Stanton System', 'Planet', 'Hurston');
+    $locationUuid = $resourceLocation->starmapLocationData()->pluck('location_uuid')->first();
+
+    $this->getJson('/api/commodities?'.http_build_query([
+        'filter' => [
+            'location' => $locationUuid,
+        ],
+    ]))
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $atLocation->uuid);
+});
+
+it('lists commodities at a starmap location through the nested route', function (): void {
+    $atLocation = Commodity::factory()->create([
+        'key' => 'Agricium',
+        'name' => 'Agricium',
+    ]);
+
+    Commodity::factory()->create([
+        'key' => 'Quantainium',
+        'name' => 'Quantainium',
+    ]);
+
+    $resourceData = createResourceData($atLocation);
+    $resourceLocation = attachLocation($resourceData, 'Stanton System', 'Planet', 'Hurston');
+    $locationUuid = $resourceLocation->starmapLocationData()->pluck('location_uuid')->first();
+    $location = StarmapLocation::query()->where('uuid', $locationUuid)->first();
+    $location->update(['slug' => 'hurston']);
+
+    $this->getJson(route('locations.commodities.index', ['location' => $location->uuid]))
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $atLocation->uuid)
+        ->assertJsonPath('data.0.link', route('commodities.show', ['commodity' => $atLocation->uuid]));
+
+    $this->getJson(route('locations.commodities.index', ['location' => 'hurston']))
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $atLocation->uuid);
+});
+
+it('returns 404 for unknown location identifiers on the nested route', function (): void {
+    $this->getJson(route('locations.commodities.index', ['location' => 'unknown-location']))
+        ->assertStatus(404)
+        ->assertJsonPath('message', 'No starmap location found with the given identifier.');
+});
+
+it('only lists the commodity named by a placement when matching by location', function (): void {
+    $named = Commodity::factory()->create([
+        'key' => 'Agricium',
+        'name' => 'Agricium',
+    ]);
+
+    $sibling = Commodity::factory()->create([
+        'key' => 'Quantainium',
+        'name' => 'Quantainium',
+    ]);
+
+    $resourceData = createResourceData($named);
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $sibling->id,
+    ]);
+
+    $resourceLocation = attachLocation($resourceData, 'Stanton System', 'Planet', 'Hurston', 'SpaceShip_Mineables', 'mineable', [
+        'commodity_id' => $named->id,
+    ]);
+    $locationUuid = $resourceLocation->starmapLocationData()->pluck('location_uuid')->first();
+
+    $this->getJson('/api/commodities?'.http_build_query([
+        'filter' => [
+            'location' => $locationUuid,
+        ],
+    ]))
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $named->uuid);
+
+    $this->getJson(route('locations.commodities.index', ['location' => $locationUuid]))
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.uuid', $named->uuid);
+});
+
+it('lists every commodity mapped to the resource when the placement is generic', function (): void {
+    $first = Commodity::factory()->create([
+        'key' => 'Agricium',
+        'name' => 'Agricium',
+    ]);
+
+    $second = Commodity::factory()->create([
+        'key' => 'Quantainium',
+        'name' => 'Quantainium',
+    ]);
+
+    $resourceData = createResourceData($first);
+    ResourceCommodity::create([
+        'resource_data_id' => $resourceData->id,
+        'commodity_id' => $second->id,
+    ]);
+
+    $resourceLocation = attachLocation($resourceData, 'Stanton System', 'Planet', 'Hurston', 'SpaceShip_Mineables', 'mineable', [
+        'commodity_id' => null,
+    ]);
+    $locationUuid = $resourceLocation->starmapLocationData()->pluck('location_uuid')->first();
+
+    $this->getJson('/api/commodities?'.http_build_query([
+        'filter' => [
+            'location' => $locationUuid,
+        ],
+    ]))
+        ->assertSuccessful()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.uuid', $first->uuid)
+        ->assertJsonPath('data.1.uuid', $second->uuid);
+
+    $this->getJson(route('locations.commodities.index', ['location' => $locationUuid]))
+        ->assertSuccessful()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.uuid', $first->uuid)
+        ->assertJsonPath('data.1.uuid', $second->uuid);
+});
+
+it('redirects commodity lookups with a starmap location uuid to the nested route', function (): void {
+    $resourceData = createResourceData(Commodity::factory()->create());
+    $resourceLocation = attachLocation($resourceData, 'Stanton System', 'Planet', 'Hurston');
+    $locationUuid = $resourceLocation->starmapLocationData()->pluck('location_uuid')->first();
+
+    $this->getJson(route('commodities.show', ['commodity' => $locationUuid]).'?include=blueprints&page[size]=50')
+        ->assertStatus(302)
+        ->assertRedirect(route('locations.commodities.index', ['location' => $locationUuid]).'?include=blueprints&page[size]=50');
+});
+
+it('preserves duplicate scalar and array page parameters on the location redirect', function (): void {
+    $resourceData = createResourceData(Commodity::factory()->create());
+    $resourceLocation = attachLocation($resourceData, 'Stanton System', 'Planet', 'Hurston');
+    $locationUuid = $resourceLocation->starmapLocationData()->pluck('location_uuid')->first();
+
+    $response = $this->getJson(route('commodities.show', ['commodity' => $locationUuid]).'?page=2&page[size]=50');
+
+    $response->assertStatus(302);
+
+    expect((string) $response->headers->get('Location'))
+        ->toEndWith('?page=2&page[size]=50');
+});
+
+it('returns 404 for identifiers matching neither commodity nor location', function (): void {
+    $this->getJson(route('commodities.show', ['commodity' => fake()->uuid()]))
+        ->assertStatus(404)
+        ->assertJsonPath('message', 'No commodity found with the given identifier.');
 });

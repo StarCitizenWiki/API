@@ -57,6 +57,7 @@ function attachLocation(
     $locationData = StarmapLocationData::factory()->create([
         'starmap_location_id' => $starmapLocation->id,
         'game_version_id' => $test->defaultVersion->id,
+        'location_uuid' => $starmapLocation->uuid,
         'name' => $locationName,
         'type_name' => $typeName,
         'system' => $system,

@@ -224,7 +224,7 @@ paths:
         -
           name: 'filter[location]'
           in: query
-          description: 'Partial match on starmap location name. Example: `ArcCorp`'
+          description: 'Partial match on starmap location name, or exact starmap location UUID (the `location_uuid` returned by commodity endpoints). Example: `ArcCorp`'
           schema:
             type: string
         -
@@ -283,7 +283,48 @@ paths:
               examples:
                 commodities_by_location:
                   summary: 'Commodities filtered by location'
-                  value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, name: Agricium, slug: agricium }], links: { first: 'https://api.star-citizen.wiki/api/commodities?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
+                  value: { data: [{ uuid: dc6fbcbb-5990-4ed5-82ee-93152dab7845, name: Agricium, slug: agricium }], links: { first: 'https://api.star-citizen.wiki/api/commodities?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
+  '/api/locations/{location}/commodities':
+    get:
+      tags:
+        - Commodities
+      summary: 'List Commodities at a Starmap Location'
+      description: 'Returns paginated game commodities available at a starmap location, resolved by location UUID (the `location_uuid` returned by commodity endpoints) or slug. Equivalent to filtering GET /api/commodities with filter[location] and supports the same filters, sorts and pagination. Scoped to the requested or default game version.'
+      operationId: listLocationCommodities
+      parameters:
+        -
+          name: location
+          in: path
+          required: true
+          schema:
+            description: 'Starmap location UUID or slug'
+            type: string
+            example: 551af60b-7727-4936-acc7-763d25d7a1de
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+      responses:
+        '200':
+          description: 'Commodities available at the location'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/commodity_link' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
+        '404':
+          description: 'No starmap location found with the given identifier.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
   '/api/commodities/{commodity}':
     get:
       tags:
@@ -321,9 +362,11 @@ paths:
               examples:
                 commodity_detail:
                   summary: 'Commodity detail response'
-                  value: { data: { uuid: 00000000-0000-0000-0000-000000000000, name: Agricium, slug: agricium } }
+                  value: { data: { uuid: dc6fbcbb-5990-4ed5-82ee-93152dab7845, name: Agricium, slug: agricium } }
+        '302':
+          description: 'The identifier is a starmap location UUID; redirected to /api/locations/{location}/commodities, preserving query parameters.'
         '404':
-          description: 'Commodity not found.'
+          description: 'Commodity not found, and the identifier matches no commodity slug, commodity UUID or starmap location UUID.'
           content:
             application/json:
               schema:
@@ -383,7 +426,7 @@ paths:
         -
           name: 'filter[location]'
           in: query
-          description: 'Partial match on starmap location name. Example: `ArcCorp`'
+          description: 'Partial match on starmap location name, or exact starmap location UUID (the `location_uuid` returned by commodity endpoints). Example: `ArcCorp`'
           schema:
             type: string
         -
@@ -20131,6 +20174,7 @@ components:
               type: string
             system_api_url:
               type: string
+              nullable: true
             celestial_object_api_url:
               type: string
             status:
@@ -20148,6 +20192,7 @@ components:
               type: string
             system_api_url:
               type: string
+              nullable: true
             celestial_object_api_url:
               type: string
             status:
