@@ -132,11 +132,11 @@ paths:
                   data: { $ref: '#/components/schemas/blueprint' }
                 type: object
         '404':
-          description: 'Blueprint not found for the requested game version'
+          description: 'Blueprint not found, or no data for the requested game version'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
   /api/blueprints/filters:
     get:
       tags:
@@ -1533,11 +1533,11 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Item not found.'
+          description: 'Item not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
   /api/items/search:
     post:
       tags:
@@ -2079,11 +2079,11 @@ paths:
                   data: { $ref: '#/components/schemas/mission' }
                 type: object
         '404':
-          description: 'Mission not found'
+          description: 'Mission not found, or no data for the requested game version'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
   /api/missions/filters:
     get:
       tags:
@@ -3349,11 +3349,11 @@ paths:
                   data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
                 type: object
         '404':
-          description: 'Vehicle not found.'
+          description: 'Vehicle not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
   '/api/gravlev-vehicles/{identifier}':
     get:
       tags:
@@ -3384,11 +3384,11 @@ paths:
                   data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
                 type: object
         '404':
-          description: 'Vehicle not found.'
+          description: 'Vehicle not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
   '/api/vehicles/{identifier}':
     get:
       tags:
@@ -3419,11 +3419,11 @@ paths:
                   data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
                 type: object
         '404':
-          description: 'Vehicle not found.'
+          description: 'Vehicle not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
   /api/ground-vehicles/search:
     post:
       tags:
@@ -19705,6 +19705,25 @@ components:
           description: 'Human-readable error message.'
           type: string
           example: 'No query results for model.'
+      type: object
+    not_found_in_version_error_response:
+      description: 'Resource exists but has no data for the requested game version.'
+      properties:
+        message:
+          description: 'Human-readable error message.'
+          type: string
+          example: 'No Item data found for game version "4.10.2-LIVE.12881860".'
+        requested_version:
+          description: 'Game version code that was requested.'
+          type: string
+          example: 4.10.2-LIVE.12881860
+        available_versions:
+          description: 'Version codes with data for the resource, newest first.'
+          type: array
+          items:
+            type: string
+          example:
+            - 4.8.2-LIVE.12030094
       type: object
     comm_link_link:
       title: 'Comm-Link Link'

@@ -65,7 +65,7 @@ class PersistSelectedGameVersion
     {
         return GameVersion::query()
             ->orderByDesc('is_default')
-            ->orderByDesc('released_at')
+            ->orderByRaw('released_at DESC NULLS FIRST')
             ->orderBy('code')
             ->value('code');
     }

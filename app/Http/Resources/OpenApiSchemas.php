@@ -134,4 +134,14 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+#[OA\Schema(
+    schema: 'not_found_in_version_error_response',
+    description: 'Resource exists but has no data for the requested game version.',
+    properties: [
+        new OA\Property(property: 'message', description: 'Human-readable error message.', type: 'string', example: 'No Item data found for game version "4.10.2-LIVE.12881860".'),
+        new OA\Property(property: 'requested_version', description: 'The version code the client requested (raw query param, or the default version code when no version parameter was sent).', type: 'string', example: '4.10.2-LIVE.12881860'),
+        new OA\Property(property: 'available_versions', description: 'Version codes with data for the resource, newest first.', type: 'array', items: new OA\Items(type: 'string'), example: ['4.8.2-LIVE.12030094']),
+    ],
+    type: 'object'
+)]
 final class OpenApiSchemas {}

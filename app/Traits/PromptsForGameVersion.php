@@ -20,7 +20,7 @@ trait PromptsForGameVersion
         return [
             'version' => function (): string {
                 $options = GameVersion::query()
-                    ->orderByDesc('released_at')
+                    ->orderByRaw('released_at DESC NULLS FIRST')
                     ->orderBy('code')
                     ->pluck('code', 'code')
                     ->toArray();

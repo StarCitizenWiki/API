@@ -121,7 +121,7 @@ class ComputeVersionDiff extends Command
             return $version;
         }
 
-        $version = GameVersion::orderByDesc('released_at')->first();
+        $version = GameVersion::orderByRaw('released_at DESC NULLS FIRST')->first();
 
         if ($version === null) {
             $this->error('No game versions found.');

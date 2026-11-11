@@ -164,7 +164,7 @@ class SyncGameData extends Command
 
         if (! is_string($versionCode) || $versionCode === '') {
             $options = GameVersion::query()
-                ->orderByDesc('released_at')
+                ->orderByRaw('released_at DESC NULLS FIRST')
                 ->orderBy('code')
                 ->pluck('code', 'code')
                 ->toArray();

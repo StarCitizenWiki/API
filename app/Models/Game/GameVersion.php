@@ -151,7 +151,7 @@ class GameVersion extends Model
                 }),
                 fn (Builder $query): Builder => $query->where('id', '<', $this->id),
             )
-            ->orderByDesc('released_at')
+            ->orderByRaw('released_at DESC NULLS FIRST')
             ->orderByDesc('id')
             ->first();
     }
@@ -183,7 +183,7 @@ class GameVersion extends Model
                 }),
                 fn (Builder $query): Builder => $query->where('id', '<', $this->id),
             )
-            ->orderByDesc('released_at')
+            ->orderByRaw('released_at DESC NULLS FIRST')
             ->orderByDesc('id')
             ->first();
     }
@@ -219,7 +219,7 @@ class GameVersion extends Model
                 }),
                 fn (Builder $query): Builder => $query->where('id', '<', $this->id),
             )
-            ->orderByDesc('released_at')
+            ->orderByRaw('released_at DESC NULLS FIRST')
             ->orderByDesc('id')
             ->first();
     }

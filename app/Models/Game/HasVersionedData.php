@@ -26,4 +26,22 @@ trait HasVersionedData
 
         return $this->data()->where('game_version_id', $version->id);
     }
+
+    /**
+     * @return list<string>
+     */
+    public function versionsWithData(): array
+    {
+        $data = $this->data()->getRelated();
+
+        return $this->data()
+            ->join('game_versions', 'game_versions.id', '=', $data->qualifyColumn('game_version_id'))
+            ->where('game_versions.is_hidden', false)
+            // Undated versions are upcoming and sort first as newest.
+            ->orderByRaw('game_versions.released_at DESC NULLS FIRST')
+            ->orderByDesc('game_versions.id')
+            ->pluck('game_versions.code')
+            ->values()
+            ->all();
+    }
 }
