@@ -598,7 +598,7 @@ paths:
       tags:
         - 'Game Versions'
       summary: 'List Game Versions'
-      description: 'Returns paginated game versions sorted by release date (newest first by default). Useful for discovering available game versions for version-scoped API queries.'
+      description: 'Returns paginated game versions sorted by release date (newest first by default). Useful for discovering available game versions for version-scoped API queries. Hidden versions are excluded from this list but remain resolvable via GET /api/game-versions/{identifier} and the version query parameter.'
       operationId: listGameVersions
       parameters:
         -
@@ -610,7 +610,7 @@ paths:
         -
           name: 'filter[code]'
           in: query
-          description: 'Filter by exact version code. Example: `4.8.0-LIVE.11825000`'
+          description: 'Filter by exact version code. Example: `4.10.2-LIVE.12881860`'
           schema:
             type: string
         -
@@ -662,7 +662,7 @@ paths:
               examples:
                 default_game_version:
                   summary: 'Current default version'
-                  value: { data: { code: 4.8.0-LIVE.11825000, channel: live, is_default: true } }
+                  value: { data: { code: 4.10.2-LIVE.12881860, channel: live, is_default: true } }
         '404':
           description: 'No default version found.'
           content:
@@ -684,7 +684,7 @@ paths:
           required: true
           schema:
             type: string
-            example: 4.8.0-LIVE.11825000
+            example: 4.10.2-LIVE.12881860
       responses:
         '200':
           description: 'A game version'
@@ -20124,7 +20124,7 @@ components:
         version:
           description: 'Game version code this response is scoped to. Omitted when not applicable.'
           type: string
-          example: 4.8.0-LIVE.11825000
+          example: 4.10.2-LIVE.12881860
           nullable: true
       type: object
     pagination_links:

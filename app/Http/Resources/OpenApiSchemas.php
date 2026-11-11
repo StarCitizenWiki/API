@@ -42,7 +42,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'slug', description: 'URL-friendly slug. Omitted when null.', type: 'string', example: 'aegs-avenger-stalker', nullable: true),
         new OA\Property(property: 'api_url', description: 'Canonical API URL for this resource.', type: 'string', example: 'https://api.star-citizen.wiki/api/items/aegs-avenger-stalker'),
         new OA\Property(property: 'web_url', description: 'Canonical web URL for this resource.', type: 'string', example: 'https://star-citizen.wiki/items/aegs-avenger-stalker'),
-        new OA\Property(property: 'version', description: 'Game version code this response is scoped to. Omitted when not applicable.', type: 'string', example: '4.8.0-LIVE.11825000', nullable: true),
+        new OA\Property(property: 'version', description: 'Game version code this response is scoped to. Omitted when not applicable.', type: 'string', example: '4.10.2-LIVE.12881860', nullable: true),
     ],
     type: 'object'
 )]

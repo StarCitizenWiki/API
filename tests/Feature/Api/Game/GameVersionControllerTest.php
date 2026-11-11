@@ -56,6 +56,32 @@ it('does not list game version aliases', function (): void {
         ->assertJsonPath('data.0.code', '4.8.1-LIVE.11882409');
 });
 
+it('excludes hidden game versions from the index but still resolves them by code', function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.10.2-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    $hidden = GameVersion::factory()->create([
+        'code' => '4.6.0-LIVE.11135423',
+        'channel' => 'live',
+        'released_at' => now()->subDays(30),
+        'is_default' => false,
+        'is_hidden' => true,
+    ]);
+
+    $this->getJson('/api/game-versions')
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.code', '4.10.2-LIVE');
+
+    $this->getJson('/api/game-versions/'.$hidden->code)
+        ->assertSuccessful()
+        ->assertJsonPath('data.code', $hidden->code);
+});
+
 it('filters game versions by channel', function (): void {
     GameVersion::factory()->create([
         'code' => '3.24.1-LIVE',

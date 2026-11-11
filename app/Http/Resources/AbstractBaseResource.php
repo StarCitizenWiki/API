@@ -64,7 +64,7 @@ abstract class AbstractBaseResource extends JsonResource
      * @param  string|null  $slug  Entity slug (nullable for resources without slugs)
      * @param  string  $apiUrl  Canonical API URL for this resource
      * @param  string  $webUrl  Canonical web URL for this resource
-     * @param  string|null  $version  Game version code, e.g. '4.8.0-LIVE.11825000'
+     * @param  string|null  $version  Game version code
      */
     protected function setCanonicalResource(string $type, string $uuid, ?string $slug, string $apiUrl, string $webUrl, ?string $version = null): void
     {

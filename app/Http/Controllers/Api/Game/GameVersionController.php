@@ -6,16 +6,14 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
-use App\Rules\BooleanFilterValue;
-use App\Support\Filters\FilterInput;
-
 use App\Http\Resources\Game\GameVersionResource;
 use App\Models\Game\GameVersion;
+use App\Rules\BooleanFilterValue;
+use App\Support\Filters\FilterInput;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
-use App\Http\Requests\Api\Game\GameVersionIndexRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -29,6 +27,7 @@ class GameVersionController extends Controller
     private function buildBaseQuery(Request $request): QueryBuilder
     {
         return QueryBuilder::for(GameVersion::class, $request)
+            ->where('is_hidden', false)
             ->allowedFilters(AllowedFilter::exact('code'), AllowedFilter::exact('channel'), AllowedFilter::exact('is_default'))
             ->allowedSorts('code', 'channel', 'released_at')
             ->defaultSort('-released_at');
@@ -37,14 +36,14 @@ class GameVersionController extends Controller
     #[OA\Get(
         path: '/api/game-versions',
         operationId: 'listGameVersions',
-        description: 'Returns paginated game versions sorted by release date (newest first by default). Useful for discovering available game versions for version-scoped API queries.',
+        description: 'Returns paginated game versions sorted by release date (newest first by default). Useful for discovering available game versions for version-scoped API queries. Hidden versions are excluded from this list but remain resolvable via GET /api/game-versions/{identifier} and the version query parameter.',
         summary: 'List Game Versions',
         tags: ['Game Versions'],
         parameters: [
             new OA\Parameter(ref: '#/components/parameters/page'),
             new OA\Parameter(ref: '#/components/parameters/page_number'),
             new OA\Parameter(ref: '#/components/parameters/page_size'),
-            new OA\Parameter(name: 'filter[code]', description: 'Filter by exact version code. Example: `4.8.0-LIVE.11825000`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[code]', description: 'Filter by exact version code. Example: `4.10.2-LIVE.12881860`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[channel]', description: 'Filter by release channel (live, ptu, eptu), lowercase. Example: `live`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[is_default]', description: 'Filter by default status. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'sort', description: 'Sort by field. Prefix with - for descending. Supported: code, channel, released_at.', in: 'query', schema: new OA\Schema(type: 'string', example: '-released_at')),
@@ -64,7 +63,7 @@ class GameVersionController extends Controller
             ),
         ]
     )]
-        /**
+    /**
      * @return array<string, array<int, mixed>>
      */
     private function filterInputRules(): array
@@ -75,7 +74,7 @@ class GameVersionController extends Controller
         ];
     }
 
-public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         FilterInput::validate($request, $this->filterInputRules());
 
@@ -106,7 +105,7 @@ public function index(Request $request): AnonymousResourceCollection
                         new OA\Examples(
                             example: 'default_game_version',
                             summary: 'Current default version',
-                            value: ['data' => ['code' => '4.8.0-LIVE.11825000', 'channel' => 'live', 'is_default' => true]],
+                            value: ['data' => ['code' => '4.10.2-LIVE.12881860', 'channel' => 'live', 'is_default' => true]],
                         ),
                     ],
                     properties: [
@@ -140,7 +139,7 @@ public function index(Request $request): AnonymousResourceCollection
         summary: 'Get Game Version',
         tags: ['Game Versions'],
         parameters: [
-            new OA\Parameter(name: 'identifier', description: 'Game version code (case-insensitive).', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '4.8.0-LIVE.11825000')),
+            new OA\Parameter(name: 'identifier', description: 'Game version code (case-insensitive).', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '4.10.2-LIVE.12881860')),
         ],
         responses: [
             new OA\Response(
