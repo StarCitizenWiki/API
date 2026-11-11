@@ -43,6 +43,29 @@ it('serves the openapi yaml headers on head /api/v2/openapi', function (): void 
         ->assertHeader('Content-Type', 'application/yaml');
 });
 
+it('serves the openapi yaml on get /api/v3/openapi', function (): void {
+    $response = $this->get('/api/v3/openapi');
+
+    $response->assertSuccessful()
+        ->assertHeader('Content-Type', 'application/yaml');
+
+    expect($response->getContent())->toContain('openapi:');
+});
+
+it('serves the openapi yaml headers on head /api/v3/openapi', function (): void {
+    $response = $this->head('/api/v3/openapi');
+
+    $response->assertSuccessful()
+        ->assertHeader('Content-Type', 'application/yaml');
+});
+
+it('serves the openapi yaml on get /api/v3/openapi with an unknown version parameter', function (): void {
+    $response = $this->get('/api/v3/openapi?version=not-a-version');
+
+    $response->assertSuccessful()
+        ->assertHeader('Content-Type', 'application/yaml');
+});
+
 it('routes get /api/user through the documented controller', function (): void {
     $route = Route::getRoutes()->match(HttpRequest::create('/api/user', 'GET'));
 
@@ -112,7 +135,7 @@ it('redirects get /api/v2/{any?} to /api with 308 and preserves query string', f
 
     $response = $this->get('/api/v2/legacy/endpoint?baz=qux&foo=bar');
 
-    assertApiV2Redirect($response, '/api/legacy/endpoint', [
+    assertApiRedirect($response, '/api/legacy/endpoint', [
         'baz' => 'qux',
         'foo' => 'bar',
     ]);
@@ -130,7 +153,7 @@ it('redirects post /api/v2/{any?} to /api with 308 and preserves query string', 
         'term' => 'vehicle',
     ]);
 
-    assertApiV2Redirect($response, '/api/legacy/search', [
+    assertApiRedirect($response, '/api/legacy/search', [
         'baz' => 'qux',
         'foo' => 'bar',
     ]);
@@ -146,13 +169,86 @@ it('redirects the api v2 root to api without adding a trailing segment', functio
 
     $response = $this->get('/api/v2');
 
-    assertApiV2Redirect($response, '/api', []);
+    assertApiRedirect($response, '/api', []);
+});
+
+it('redirects get /api/v2/{any?} preserving the raw query string', function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $response = $this->get('/api/v2/items?page[size]=50&page=2');
+
+    $response->assertStatus(308);
+
+    expect((string) $response->headers->get('Location'))
+        ->toEndWith('/api/items?page[size]=50&page=2');
+});
+
+it('rejects traversal segments in get /api/v2/{any?} with a json 404', function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $response = $this->get('/api/v2/..%2Fprofile', ['Accept' => '*/*']);
+
+    $response->assertStatus(404)
+        ->assertHeader('Content-Type', 'application/json')
+        ->assertHeaderMissing('Location');
+
+    expect($response->json('message'))->toBeString();
+});
+
+it('rejects encoded delimiters in get /api/v2/{any?} with a json 404', function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $response = $this->get('/api/v2/items%3Ffoo', ['Accept' => '*/*']);
+
+    $response->assertStatus(404)
+        ->assertHeader('Content-Type', 'application/json')
+        ->assertHeaderMissing('Location');
+
+    expect($response->json('message'))->toBeString();
+});
+
+it('returns a json 404 without a redirect for unknown api v3 paths', function (): void {
+    $response = $this->get('/api/v3/items', ['Accept' => '*/*']);
+
+    $response->assertStatus(404)
+        ->assertHeader('Content-Type', 'application/json')
+        ->assertHeaderMissing('Location');
+
+    expect($response->json('message'))->toBeString();
+});
+
+it('keeps api v3 vehicle routes on the controller', function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $this->getJson('/api/v3/vehicles?limit=1')
+        ->assertOk()
+        ->assertHeaderMissing('Location');
 });
 
 /**
  * @param  array<string, string>  $expectedQuery
  */
-function assertApiV2Redirect(TestResponse $response, string $expectedPath, array $expectedQuery): void
+function assertApiRedirect(TestResponse $response, string $expectedPath, array $expectedQuery): void
 {
     $response->assertStatus(308);
 
