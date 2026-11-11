@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\Game\UnifiedSearchController;
+use App\Http\Controllers\ApiCatalogController;
 use App\Http\Controllers\GameVersionSelectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Web\Game\BlueprintController;
@@ -29,6 +30,8 @@ Route::get('/', static function () {
 })->name('home');
 
 Route::view('/developers', 'developers.index')->name('developers.index');
+
+Route::get('/.well-known/api-catalog', ApiCatalogController::class)->name('api.catalog');
 
 Route::get('/comm-links', [CommLinkController::class, 'index'])->name('web.comm-links.index');
 Route::get('/comm-links/search', [CommLinkController::class, 'search'])->name('web.comm-links.search');

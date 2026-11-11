@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AddApiDiscoveryLinkHeader;
 use App\Http\Middleware\AddCloudflareCacheTags;
 use App\Http\Middleware\Api\Game\ResolveGameVersion;
 use App\Http\Middleware\MigrateLimitParameter;
@@ -35,10 +36,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             PersistSelectedGameVersion::class,
             AddCloudflareCacheTags::class,
+            AddApiDiscoveryLinkHeader::class,
         ]);
 
         $middleware->api(append: [
             AddCloudflareCacheTags::class,
+            AddApiDiscoveryLinkHeader::class,
         ]);
 
         $middleware->alias([
