@@ -6,12 +6,16 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
+use App\Rules\BooleanFilterValue;
+use App\Support\Filters\FilterInput;
+
 use App\Http\Resources\Game\GameVersionResource;
 use App\Models\Game\GameVersion;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
+use App\Http\Requests\Api\Game\GameVersionIndexRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -42,7 +46,7 @@ class GameVersionController extends Controller
             new OA\Parameter(ref: '#/components/parameters/page_size'),
             new OA\Parameter(name: 'filter[code]', description: 'Filter by exact version code. Example: `4.8.0-LIVE.11825000`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[channel]', description: 'Filter by release channel (live, ptu, eptu), lowercase. Example: `live`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[is_default]', description: 'Filter by default status. Example: `1`', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[is_default]', description: 'Filter by default status. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'sort', description: 'Sort by field. Prefix with - for descending. Supported: code, channel, released_at.', in: 'query', schema: new OA\Schema(type: 'string', example: '-released_at')),
         ],
         responses: [
@@ -60,8 +64,21 @@ class GameVersionController extends Controller
             ),
         ]
     )]
-    public function index(Request $request): AnonymousResourceCollection
+        /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
     {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.is_default' => ['sometimes', new BooleanFilterValue],
+        ];
+    }
+
+public function index(Request $request): AnonymousResourceCollection
+    {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $query = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends($request->query());

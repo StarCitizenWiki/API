@@ -6,6 +6,9 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
+use App\Rules\BooleanFilterValue;
+use App\Support\Filters\FilterInput;
+
 use App\Http\Resources\Game\Faction\FactionIndexResource;
 use App\Http\Resources\Game\Faction\FactionResource;
 use App\Models\Game\Faction;
@@ -13,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
+use App\Http\Requests\Api\Game\FactionIndexRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -60,6 +64,8 @@ class FactionController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $factions = QueryBuilder::for(Faction::class, $request)
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts('name', 'faction_type')
@@ -125,6 +131,20 @@ class FactionController extends Controller
     /**
      * @return array<int, AllowedFilter>
      */
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.has_reputation' => ['sometimes', new BooleanFilterValue],
+            'filter.lawful' => ['sometimes', new BooleanFilterValue],
+            'filter.is_npc' => ['sometimes', new BooleanFilterValue],
+            'filter.hide_in_delphi_app' => ['sometimes', new BooleanFilterValue]
+        ];
+    }
+
     private function allowedFilters(): array
     {
         return [

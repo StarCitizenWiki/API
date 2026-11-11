@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Exceptions\NotFoundInVersionException;
 use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
@@ -19,9 +20,13 @@ use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Vehicle\VehicleResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource as ShipMatrixVehicleResource;
 use App\Models\Game\ItemData;
+use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
+use App\Rules\BooleanFilterValue;
+use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterInput;
 use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -34,6 +39,7 @@ use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
+use Spatie\QueryBuilder\Enums\FilterOperator;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -82,31 +88,32 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[query]', description: 'Search vehicles by name or class name. Example: `Nova`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact match on vehicle size (1-6). Example: `3`', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[size_class]', description: 'Alias for filter[size]. Example: `3`', in: 'query', schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'filter[career]', description: 'Partial match on vehicle career. (see GET /api/vehicles/filters for valid values). Example: `Ground`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[role]', description: 'Partial match on vehicle role. (see GET /api/vehicles/filters for valid values). Example: `Combat`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[career]', description: 'Exact match on vehicle career. (see GET /api/vehicles/filters for valid values). Example: `Ground`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[role]', description: 'Exact match on vehicle role. (see GET /api/vehicles/filters for valid values). Example: `Combat`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[is_vehicle]', description: 'Filter to ground vehicles only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_gravlev]', description: 'Filter to gravlev vehicles only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_spaceship]', description: 'Filter to spaceships only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[mass_total]', description: 'Numeric filter on total mass (kg). Supports range operators. Example: `1521`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cargo_capacity]', description: 'Numeric filter on cargo capacity (SCU). Supports range operators. Example: `1`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[vehicle_inventory]', description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators. Example: `0.13`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[crew.min]', description: 'Numeric filter on minimum crew count. Supports range operators. Example: `2`', in: 'query', schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'filter[health]', description: 'Numeric filter on vehicle health points. Supports range operators. Example: `4250`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[shield.hp]', description: 'Numeric filter on total shield hit points. Supports range operators. Example: `720`', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[mass_total]', description: 'Numeric filter on total mass (kg). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1521`', in: 'query', example: '>1521', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cargo_capacity]', description: 'Numeric filter on cargo capacity (SCU). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1`', in: 'query', example: '>1', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[vehicle_inventory]', description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`', in: 'query', example: '>0.13', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[crew.min]', description: 'Numeric filter on minimum crew count. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `2`', in: 'query', example: '>2', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'integer'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[health]', description: 'Numeric filter on vehicle health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `4250`', in: 'query', example: '>4250', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[shield.hp]', description: 'Numeric filter on total shield hit points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `720`', in: 'query', example: '>720', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
             new OA\Parameter(name: 'filter[shield.face_type]', description: 'Shield face type. (see GET /api/vehicles/filters for valid values). Example: `Bubble`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[speed.scm]', description: 'Numeric filter on SCM speed. Supports range operators. Spaceship-only field; returns empty for ground vehicles. Example: `200`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[speed.max]', description: 'Numeric filter on maximum speed. Supports range operators. Spaceship-only field; returns empty for ground vehicles. Example: `1000`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[armor.health]', description: 'Numeric filter on armor health points. Supports range operators. Spaceship-only field; returns empty for ground vehicles. Example: `50000`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.length]', description: 'Numeric filter on cross-section length (X axis). Supports range operators. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.width]', description: 'Numeric filter on cross-section width (Y axis). Supports range operators. Example: `50`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.height]', description: 'Numeric filter on cross-section height (Z axis). Supports range operators. Example: `30`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.ir_quantum]', description: 'Numeric filter on infrared quantum signature emission. Supports range operators. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.ir_shields]', description: 'Numeric filter on infrared shield signature emission. Supports range operators. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.em_quantum]', description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[speed.scm]', description: 'Numeric filter on SCM speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `200`', in: 'query', example: '>200', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[speed.max]', description: 'Numeric filter on maximum speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `1000`', in: 'query', example: '>1000', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[armor.health]', description: 'Numeric filter on armor health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `50000`', in: 'query', example: '>50000', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.length]', description: 'Numeric filter on cross-section length (X axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.width]', description: 'Numeric filter on cross-section width (Y axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `50`', in: 'query', example: '>50', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.height]', description: 'Numeric filter on cross-section height (Z axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `30`', in: 'query', example: '>30', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.ir_quantum]', description: 'Numeric filter on infrared quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.ir_shields]', description: 'Numeric filter on infrared shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.em_quantum]', description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Ground Vehicles', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -137,31 +144,32 @@ class VehicleController extends Controller
             new OA\Parameter(name: 'filter[query]', description: 'Search vehicles by name or class name. Example: `Dragonfly`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[size]', description: 'Exact match on vehicle size (1-6). Example: `1`', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[size_class]', description: 'Alias for filter[size]. Example: `1`', in: 'query', schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'filter[career]', description: 'Partial match on vehicle career. (see GET /api/vehicles/filters for valid values). Example: `Exploration`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[role]', description: 'Partial match on vehicle role. (see GET /api/vehicles/filters for valid values). Example: `Racing`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[career]', description: 'Exact match on vehicle career. (see GET /api/vehicles/filters for valid values). Example: `Exploration`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[role]', description: 'Exact match on vehicle role. (see GET /api/vehicles/filters for valid values). Example: `Racing`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[is_vehicle]', description: 'Filter to ground vehicles only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_gravlev]', description: 'Filter to gravlev vehicles only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_spaceship]', description: 'Filter to spaceships only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[mass_total]', description: 'Numeric filter on total mass (kg). Supports range operators. Example: `2435`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cargo_capacity]', description: 'Numeric filter on cargo capacity (SCU). Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `0`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[vehicle_inventory]', description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators. Example: `0.39`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[crew.min]', description: 'Numeric filter on minimum crew count. Supports range operators. Example: `1`', in: 'query', schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'filter[health]', description: 'Numeric filter on vehicle health points. Supports range operators. Example: `1550`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[shield.hp]', description: 'Numeric filter on total shield hit points. Supports range operators. Example: `720`', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[mass_total]', description: 'Numeric filter on total mass (kg). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `2435`', in: 'query', example: '>2435', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cargo_capacity]', description: 'Numeric filter on cargo capacity (SCU). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `0`', in: 'query', example: '>0', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[vehicle_inventory]', description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.39`', in: 'query', example: '>0.39', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[crew.min]', description: 'Numeric filter on minimum crew count. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1`', in: 'query', example: '>1', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'integer'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[health]', description: 'Numeric filter on vehicle health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1550`', in: 'query', example: '>1550', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[shield.hp]', description: 'Numeric filter on total shield hit points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `720`', in: 'query', example: '>720', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
             new OA\Parameter(name: 'filter[shield.face_type]', description: 'Shield face type. (see GET /api/vehicles/filters for valid values). Example: `Bubble`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[speed.scm]', description: 'Numeric filter on SCM speed. Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `200`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[speed.max]', description: 'Numeric filter on maximum speed. Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `1000`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[armor.health]', description: 'Numeric filter on armor health points. Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `50000`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.length]', description: 'Numeric filter on cross-section length (X axis). Supports range operators. Example: `0.39`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.width]', description: 'Numeric filter on cross-section width (Y axis). Supports range operators. Example: `50`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.height]', description: 'Numeric filter on cross-section height (Z axis). Supports range operators. Example: `30`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.ir_quantum]', description: 'Numeric filter on infrared quantum signature emission. Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.ir_shields]', description: 'Numeric filter on infrared shield signature emission. Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.em_quantum]', description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[speed.scm]', description: 'Numeric filter on SCM speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `200`', in: 'query', example: '>200', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[speed.max]', description: 'Numeric filter on maximum speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `1000`', in: 'query', example: '>1000', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[armor.health]', description: 'Numeric filter on armor health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `50000`', in: 'query', example: '>50000', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.length]', description: 'Numeric filter on cross-section length (X axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.39`', in: 'query', example: '>0.39', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.width]', description: 'Numeric filter on cross-section width (Y axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `50`', in: 'query', example: '>50', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.height]', description: 'Numeric filter on cross-section height (Z axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `30`', in: 'query', example: '>30', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.ir_quantum]', description: 'Numeric filter on infrared quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.ir_shields]', description: 'Numeric filter on infrared shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.em_quantum]', description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Gravlev Vehicles', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -197,28 +205,28 @@ class VehicleController extends Controller
             ),
             new OA\Parameter(name: 'filter[size]', description: 'Exact match on vehicle size (1-6). Example: `3`', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[size_class]', description: 'Alias for filter[size]. Example: `3`', in: 'query', schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'filter[career]', description: 'Partial match on vehicle career. (see GET /api/vehicles/filters for valid values). Example: `Exploration`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[role]', description: 'Partial match on vehicle role. (see GET /api/vehicles/filters for valid values). Example: `Racing`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[career]', description: 'Exact match on vehicle career. (see GET /api/vehicles/filters for valid values). Example: `Exploration`', in: 'query', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'filter[role]', description: 'Exact match on vehicle role. (see GET /api/vehicles/filters for valid values). Example: `Racing`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[is_vehicle]', description: 'Filter to ground vehicles only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_gravlev]', description: 'Filter to gravlev vehicles only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_spaceship]', description: 'Filter to spaceships only.', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[mass_total]', description: 'Numeric filter on total mass (kg). Supports range operators. Example: `1521`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cargo_capacity]', description: 'Numeric filter on cargo capacity (SCU). Supports range operators. Example: `1`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[vehicle_inventory]', description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators. Example: `0.13`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[crew.min]', description: 'Numeric filter on minimum crew count. Supports range operators. Example: `2`', in: 'query', schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'filter[health]', description: 'Numeric filter on vehicle health points. Supports range operators. Example: `1550`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[shield.hp]', description: 'Numeric filter on total shield hit points. Supports range operators. Example: `720`', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[mass_total]', description: 'Numeric filter on total mass (kg). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1521`', in: 'query', example: '>1521', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cargo_capacity]', description: 'Numeric filter on cargo capacity (SCU). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1`', in: 'query', example: '>1', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[vehicle_inventory]', description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`', in: 'query', example: '>0.13', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[crew.min]', description: 'Numeric filter on minimum crew count. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `2`', in: 'query', example: '>2', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'integer'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[health]', description: 'Numeric filter on vehicle health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1550`', in: 'query', example: '>1550', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[shield.hp]', description: 'Numeric filter on total shield hit points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `720`', in: 'query', example: '>720', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
             new OA\Parameter(name: 'filter[shield.face_type]', description: 'Shield face type. (see GET /api/vehicles/filters for valid values). Example: `Bubble`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[speed.scm]', description: 'Numeric filter on SCM speed. Supports range operators. Example: `220`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[speed.max]', description: 'Numeric filter on maximum speed. Supports range operators. Example: `1150`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[armor.health]', description: 'Numeric filter on armor health points. Supports range operators. Example: `10890`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.length]', description: 'Numeric filter on cross-section length (X axis). Supports range operators. Example: `100`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.width]', description: 'Numeric filter on cross-section width (Y axis). Supports range operators. Example: `50`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[cross section.height]', description: 'Numeric filter on cross-section height (Z axis). Supports range operators. Example: `30`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.ir_quantum]', description: 'Numeric filter on infrared quantum signature emission. Supports range operators. Example: `10882`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.ir_shields]', description: 'Numeric filter on infrared shield signature emission. Supports range operators. Example: `10267`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.em_quantum]', description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators. Example: `53959`', in: 'query', schema: new OA\Schema(type: 'number')),
-            new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators. Example: `17643`', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[speed.scm]', description: 'Numeric filter on SCM speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `220`', in: 'query', example: '>220', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
+            new OA\Parameter(name: 'filter[speed.max]', description: 'Numeric filter on maximum speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1150`', in: 'query', example: '>1150', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[armor.health]', description: 'Numeric filter on armor health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `10890`', in: 'query', example: '>10890', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.length]', description: 'Numeric filter on cross-section length (X axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `100`', in: 'query', example: '>100', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.width]', description: 'Numeric filter on cross-section width (Y axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `50`', in: 'query', example: '>50', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[cross_section.height]', description: 'Numeric filter on cross-section height (Z axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `30`', in: 'query', example: '>30', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.ir_quantum]', description: 'Numeric filter on infrared quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `10882`', in: 'query', example: '>10882', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.ir_shields]', description: 'Numeric filter on infrared shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `10267`', in: 'query', example: '>10267', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.em_quantum]', description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `53959`', in: 'query', example: '>53959', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
+            new OA\Parameter(name: 'filter[signature.em_shields]', description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `17643`', in: 'query', example: '>17643', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$')])),
         ],
         responses: [
             new OA\Response(
@@ -246,10 +254,13 @@ class VehicleController extends Controller
                     type: 'object',
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $query = $this->buildBaseQuery($request);
         // hard limit number of returned vehicles for now
         $vehicles = $query->jsonPaginate(maxResults: 50);
@@ -272,7 +283,8 @@ class VehicleController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Ground Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])], type: 'object')),
-            new OA\Response(response: 404, description: 'Vehicle not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Vehicle not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -288,7 +300,8 @@ class VehicleController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Gravlev Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])], type: 'object')),
-            new OA\Response(response: 404, description: 'Vehicle not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Vehicle not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -325,7 +338,8 @@ class VehicleController extends Controller
                     type: 'object'
                 )
             ),
-            new OA\Response(response: 404, description: 'Vehicle not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Vehicle not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function show(Request $request, string $identifier): AbstractBaseResource
@@ -342,13 +356,10 @@ class VehicleController extends Controller
                 ->forRequestedOrDefaultVersion($versionCode)
                 ->when(
                     $isUuid,
-                    fn (Builder $q) => $q->whereHas('vehicle', fn (Builder $vehicleQuery) => $vehicleQuery->where('uuid', $identifier)),
+                    fn (Builder $q) => $q->whereHas('vehicle', fn (Builder $vehicleQuery) => $this->matchVehicleIdentifier($vehicleQuery, $identifier, $slug, true)),
                     fn (Builder $q) => $q->where(function (Builder $q) use ($slug, $identifier, $original) {
-                        $q->whereHas('vehicle', fn (Builder $vehicleQuery) => $vehicleQuery
-                            ->where('slug', $slug)
-                            ->orWhere('display_name_slug', $slug))
-                            ->orWhere('game_vehicle_data.class_name', $original)
-                            ->orWhere('game_vehicle_data.name', $identifier);
+                        $q->whereHas('vehicle', fn (Builder $vehicleQuery) => $this->matchVehicleIdentifier($vehicleQuery, $identifier, $slug, false));
+                        $this->matchVehicleDataIdentifier($q, $identifier, $original, 'or');
                     }),
                 )
                 ->allowedIncludes(...$allowedIncludes)
@@ -404,6 +415,29 @@ class VehicleController extends Controller
 
             $this->buildPortItemMap($vehicleData);
         } catch (ModelNotFoundException) {
+            $vehicle = Vehicle::query()
+                ->when(
+                    $isUuid,
+                    fn (Builder $q) => $this->matchVehicleIdentifier($q, $identifier, $slug, true),
+                    fn (Builder $q) => $q->where(function (Builder $q) use ($identifier, $slug, $original) {
+                        $this->matchVehicleIdentifier($q, $identifier, $slug, false);
+                        $q->orWhereHas('data', fn (Builder $dataQuery) => $this->matchVehicleDataIdentifier($dataQuery, $identifier, $original));
+                    }),
+                )
+                ->first();
+
+            $availableVersions = $vehicle?->versionsWithData() ?? [];
+
+            if ($availableVersions !== []) {
+                $resolvedVersion = $this->gameVersion()->code;
+
+                throw new NotFoundInVersionException(
+                    $this->gameVersionCode() ?? $resolvedVersion,
+                    $availableVersions,
+                    sprintf('No Vehicle data found for game version "%s".', $resolvedVersion),
+                );
+            }
+
             throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
         }
 
@@ -516,6 +550,8 @@ class VehicleController extends Controller
     )]
     public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);
 
@@ -575,10 +611,13 @@ class VehicleController extends Controller
                     type: 'object'
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function filters(Request $request): JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         return $this->computeFacetsResponse($request);
     }
 
@@ -699,6 +738,33 @@ class VehicleController extends Controller
     /**
      * @return array<string, callable>
      */
+    /**
+     * Parent-level identifier match shared by the versioned lookup and the not-found fallback
+     * so both accept the same identifier forms (uuid, slug, display_name_slug).
+     */
+    private function matchVehicleIdentifier(Builder $query, string $identifier, string $slug, bool $isUuid): Builder
+    {
+        if ($isUuid) {
+            return $query->where('uuid', $identifier);
+        }
+
+        return $query->where(fn (Builder $q): Builder => $q->where('slug', $slug)->orWhere('display_name_slug', $slug));
+    }
+
+    /**
+     * Data-level identifier match (class name or in-game name) shared by the versioned lookup
+     * and the not-found fallback so both accept the same identifier forms.
+     */
+    private function matchVehicleDataIdentifier(Builder $query, string $identifier, string $original, string $boolean = 'and'): Builder
+    {
+        return $query->where(
+            fn (Builder $q): Builder => $q->where('game_vehicle_data.class_name', $original)->orWhere('game_vehicle_data.name', $identifier),
+            null,
+            null,
+            $boolean,
+        );
+    }
+
     private function currentVersionShipMatrixScLoad(string $relation): array
     {
         $versionId = $this->gameVersion()->id;
@@ -819,6 +885,37 @@ class VehicleController extends Controller
     /**
      * Allowed filters for in-game vehicles, including JSON-backed fields.
      */
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.mass_total' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.cargo_capacity' => ['sometimes', new NumericFilterValue],
+            'filter.vehicle_inventory' => ['sometimes', new NumericFilterValue],
+            'filter.crew.min' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.crew.max' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.health' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.shield.hp' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.speed.scm' => ['sometimes', new NumericFilterValue],
+            'filter.speed.max' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.armor.health' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.cross_section.length' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.cross_section.width' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.cross_section.height' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.signature.ir_quantum' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.signature.ir_shields' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.signature.em_quantum' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.signature.em_shields' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.is_vehicle' => ['sometimes', new BooleanFilterValue],
+            'filter.is_gravlev' => ['sometimes', new BooleanFilterValue],
+            'filter.is_spaceship' => ['sometimes', new BooleanFilterValue],
+            'filter.is_power_suit' => ['sometimes', new BooleanFilterValue],
+        ];
+    }
+
     private function allowedFilters(): array
     {
         $manufacturerFilter = static function (Builder $query, mixed $value): void {
@@ -859,24 +956,24 @@ class VehicleController extends Controller
             }),
             AllowedFilter::custom('size', new IntegerExactFilter, 'game_vehicle_data.size'),
             AllowedFilter::custom('size_class', new IntegerExactFilter, 'game_vehicle_data.size'),
-            AllowedFilter::custom('mass_total', new NonEmptyExactFilter),
-            AllowedFilter::custom('cargo_capacity', new NonEmptyExactFilter),
-            AllowedFilter::custom('vehicle_inventory', new NonEmptyExactFilter),
-            AllowedFilter::custom('crew.min', new NonEmptyExactFilter, 'crew_min'),
-            AllowedFilter::custom('crew.max', new NonEmptyExactFilter, 'crew_max'),
-            AllowedFilter::custom('health', new NonEmptyExactFilter),
-            AllowedFilter::custom('shield.hp', new NonEmptyExactFilter, 'shield_hp'),
+            AllowedFilter::operator('mass_total', FilterOperator::DYNAMIC),
+            AllowedFilter::operator('cargo_capacity', FilterOperator::DYNAMIC),
+            AllowedFilter::operator('vehicle_inventory', FilterOperator::DYNAMIC),
+            AllowedFilter::operator('crew.min', FilterOperator::DYNAMIC, internalName: 'crew_min'),
+            AllowedFilter::operator('crew.max', FilterOperator::DYNAMIC, internalName: 'crew_max'),
+            AllowedFilter::operator('health', FilterOperator::DYNAMIC),
+            AllowedFilter::operator('shield.hp', FilterOperator::DYNAMIC, internalName: 'shield_hp'),
             AllowedFilter::custom('shield.face_type', new NonEmptyExactFilter, 'shield_face_type'),
-            AllowedFilter::custom('speed.scm', new NonEmptyExactFilter, 'speed_scm'),
-            AllowedFilter::custom('speed.max', new NonEmptyExactFilter, 'speed_max'),
-            AllowedFilter::custom('armor.health', new NonEmptyExactFilter, 'armor_health'),
-            AllowedFilter::custom('cross_section.length', new NonEmptyExactFilter, 'cross_section_length'),
-            AllowedFilter::custom('cross_section.width', new NonEmptyExactFilter, 'cross_section_width'),
-            AllowedFilter::custom('cross_section.height', new NonEmptyExactFilter, 'cross_section_height'),
-            AllowedFilter::custom('signature.ir_quantum', new NonEmptyExactFilter, 'signature_ir_quantum'),
-            AllowedFilter::custom('signature.ir_shields', new NonEmptyExactFilter, 'signature_ir_shields'),
-            AllowedFilter::custom('signature.em_quantum', new NonEmptyExactFilter, 'signature_em_quantum'),
-            AllowedFilter::custom('signature.em_shields', new NonEmptyExactFilter, 'signature_em_shields'),
+            AllowedFilter::operator('speed.scm', FilterOperator::DYNAMIC, internalName: 'speed_scm'),
+            AllowedFilter::operator('speed.max', FilterOperator::DYNAMIC, internalName: 'speed_max'),
+            AllowedFilter::operator('armor.health', FilterOperator::DYNAMIC, internalName: 'armor_health'),
+            AllowedFilter::operator('cross_section.length', FilterOperator::DYNAMIC, internalName: 'cross_section_length'),
+            AllowedFilter::operator('cross_section.width', FilterOperator::DYNAMIC, internalName: 'cross_section_width'),
+            AllowedFilter::operator('cross_section.height', FilterOperator::DYNAMIC, internalName: 'cross_section_height'),
+            AllowedFilter::operator('signature.ir_quantum', FilterOperator::DYNAMIC, internalName: 'signature_ir_quantum'),
+            AllowedFilter::operator('signature.ir_shields', FilterOperator::DYNAMIC, internalName: 'signature_ir_shields'),
+            AllowedFilter::operator('signature.em_quantum', FilterOperator::DYNAMIC, internalName: 'signature_em_quantum'),
+            AllowedFilter::operator('signature.em_shields', FilterOperator::DYNAMIC, internalName: 'signature_em_shields'),
             AllowedFilter::callback('has_medical_beds', static function (Builder $query, mixed $value): void {
                 $hasMedicalBeds = filter_var($value, FILTER_VALIDATE_BOOLEAN);
 

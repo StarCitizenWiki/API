@@ -13,7 +13,9 @@ use App\Http\Includes\IncludeDefinition;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Models\Rsi\CommLink\CommLink;
+use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -63,6 +65,17 @@ class CommLinkController extends Controller
     /**
      * @return array<int, AllowedFilter>
      */
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.id' => ['sometimes', new NumericFilterValue(allowOperators: false, integersOnly: true, bigIntColumn: true)],
+        ];
+    }
+
     private function allowedFilters(): array
     {
         return [
@@ -153,6 +166,8 @@ class CommLinkController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $query = $this->buildBaseQuery($request)
             ->when(! $request->has('sort'), function ($query) {
                 $query->orderByDesc('cig_id');
@@ -202,6 +217,8 @@ class CommLinkController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         return $this->computeFacetsResponse($request);
     }
 

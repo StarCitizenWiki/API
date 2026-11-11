@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Exceptions\NotFoundInVersionException;
 use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
@@ -13,7 +14,10 @@ use App\Http\Resources\Game\Mission\MissionResource;
 use App\Models\Game\Faction;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
+use App\Rules\BooleanFilterValue;
+use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterInput;
 use App\Support\Filters\FilterValues;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
@@ -62,7 +66,7 @@ class MissionController extends Controller
             new OA\Parameter(name: 'filter[available_in_prison]', description: 'Filter for missions available while in prison. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[has_combat]', description: 'Filter for missions involving combat encounters. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[has_defend_objective]', description: 'Filter for missions with a defend objective. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[rank_index]', description: 'Filter by mission difficulty rank. Example: `1`', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[rank_index]', description: 'Filter by mission difficulty rank. Exact match; comma-separated values combine with OR. Example: `1,2`', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[has_prerequisites]', description: 'Filter for missions that have prerequisite requirements. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[min_enemies]', description: 'Minimum enemy count threshold. Example: `3`', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[max_enemies]', description: 'Maximum enemy count threshold. Example: `10`', in: 'query', schema: new OA\Schema(type: 'integer')),
@@ -109,10 +113,13 @@ class MissionController extends Controller
                     type: 'object',
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $groupedParam = $request->input('filter.grouped');
 
         if (is_array($groupedParam)) {
@@ -197,7 +204,8 @@ class MissionController extends Controller
                     type: 'object'
                 )
             ),
-            new OA\Response(response: 404, description: 'Mission not found', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Mission not found, or no data for the requested game version', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function show(Request $request, string $mission): MissionResource
@@ -231,6 +239,18 @@ class MissionController extends Controller
             ->first();
 
         if ($missionData === null) {
+            $availableVersions = $missionModel->versionsWithData();
+
+            if ($availableVersions !== []) {
+                $resolvedVersion = $this->gameVersion()->code;
+
+                throw new NotFoundInVersionException(
+                    $versionCode ?? $resolvedVersion,
+                    $availableVersions,
+                    sprintf('No Mission data found for game version "%s".', $resolvedVersion),
+                );
+            }
+
             throw new NotFoundHttpException('No Mission found for the requested game version.');
         }
 
@@ -256,7 +276,7 @@ class MissionController extends Controller
             new OA\Parameter(name: 'filter[available_in_prison]', description: 'Filter for missions available while in prison', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[has_combat]', description: 'Filter for missions involving combat encounters', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[has_defend_objective]', description: 'Filter for missions with a defend objective', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[rank_index]', description: 'Filter by mission difficulty rank', in: 'query', schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'filter[rank_index]', description: 'Filter by mission difficulty rank. Exact match; comma-separated values combine with OR.', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[has_prerequisites]', description: 'Filter for missions that have prerequisite requirements', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[min_enemies]', description: 'Minimum enemy count threshold', in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'filter[max_enemies]', description: 'Maximum enemy count threshold', in: 'query', schema: new OA\Schema(type: 'integer')),
@@ -300,10 +320,13 @@ class MissionController extends Controller
                     type: 'object'
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function filters(Request $request): JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         return $this->computeFacetsResponse($request);
     }
 
@@ -483,6 +506,23 @@ class MissionController extends Controller
     /**
      * @return array<int, AllowedFilter>
      */
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.rank_index' => ['sometimes', new NumericFilterValue(allowOperators: false, integersOnly: true)],
+            'filter.illegal' => ['sometimes', new BooleanFilterValue],
+            'filter.shareable' => ['sometimes', new BooleanFilterValue],
+            'filter.once_only' => ['sometimes', new BooleanFilterValue],
+            'filter.available_in_prison' => ['sometimes', new BooleanFilterValue],
+            'filter.has_combat' => ['sometimes', new BooleanFilterValue],
+            'filter.has_defend_objective' => ['sometimes', new BooleanFilterValue],
+        ];
+    }
+
     private function allowedFilters(): array
     {
         return [

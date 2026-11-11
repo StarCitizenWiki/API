@@ -168,25 +168,22 @@ describe('empty filter values', function (): void {
             ]);
     });
 
-    it('ignores an empty numeric filter on the index endpoint instead of 500ing', function (): void {
+    it('rejects an empty numeric filter on the index endpoint with 422 instead of 500ing', function (): void {
         $response = $this->getJson(route('v2.vehicles.index', [
             'version' => $this->version->code,
             'filter' => ['mass_total' => ''],
         ]));
 
-        $response->assertOk();
-        // Empty value applies no constraint, so both ships are returned.
-        expect($response->json('data'))->toHaveCount(2);
+        $response->assertStatus(422);
     });
 
-    it('ignores an empty aliased numeric filter', function (): void {
+    it('rejects an empty aliased numeric filter with 422', function (): void {
         $response = $this->getJson(route('v2.vehicles.index', [
             'version' => $this->version->code,
             'filter' => ['crew.min' => ''],
         ]));
 
-        $response->assertOk();
-        expect($response->json('data'))->toHaveCount(2);
+        $response->assertStatus(422);
     });
 
     it('ignores an empty filter on the filters endpoint', function (): void {

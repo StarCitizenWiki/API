@@ -12,7 +12,9 @@ use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Starmap\StarsystemResource;
 use App\Models\StarCitizen\Starmap\Starsystem;
+use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,6 +22,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Validator;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\Enums\FilterOperator;
 use Spatie\QueryBuilder\QueryBuilder;
 
 #[CacheTag('starmap')]
@@ -30,6 +33,17 @@ class StarsystemController extends Controller
     /**
      * @return array<int, AllowedFilter>
      */
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.size' => ['sometimes', new NumericFilterValue],
+        ];
+    }
+
     private function allowedFilters(): array
     {
         return [
@@ -44,7 +58,7 @@ class StarsystemController extends Controller
             }),
             AllowedFilter::exact('status'),
             AllowedFilter::exact('type'),
-            AllowedFilter::exact('size', 'aggregated_size'),
+            AllowedFilter::operator('size', FilterOperator::DYNAMIC, internalName: 'aggregated_size'),
         ];
     }
 
@@ -95,7 +109,7 @@ class StarsystemController extends Controller
             new OA\Parameter(name: 'filter[name]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[status]', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[type]', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[size]', in: 'query', schema: new OA\Schema(type: 'number')),
+            new OA\Parameter(name: 'filter[size]', description: 'Numeric filter on system size. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND.', in: 'query', example: '>3', schema: new OA\Schema(oneOf: [new OA\Schema(type: 'number'), new OA\Schema(type: 'string', pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$')])),
             new OA\Parameter(name: 'sort', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(
                 name: 'include',
@@ -123,6 +137,8 @@ class StarsystemController extends Controller
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $collection = $this->buildBaseQuery($request)
             ->jsonPaginate()
             ->appends(request()->query());
@@ -240,6 +256,7 @@ class StarsystemController extends Controller
     )]
     public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
         $query = mb_strtoupper($request->validated('query'));
 
         $builder = $this->buildBaseQuery($request);
@@ -292,6 +309,8 @@ class StarsystemController extends Controller
     )]
     public function filters(Request $request): JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         return $this->computeFacetsResponse($request);
     }
 

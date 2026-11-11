@@ -249,6 +249,15 @@ it('shows blueprint detail with output item uuid and raw tiers', function (): vo
         ->assertJsonPath('data.tiers.0.requirements.children.0.children.1.quantity_scu', 0.06);
 });
 
+it('returns 404 for an unknown blueprint uuid on the detail route', function (): void {
+    $response = $this->getJson('/api/blueprints/'.fake()->uuid());
+
+    $response->assertNotFound()
+        ->assertJsonPath('message', 'No blueprint found with the given identifier.');
+
+    expect($response->json())->not->toContain('App\\');
+});
+
 it('resolves requested or default game versions for blueprint detail', function (): void {
     $resourceType = Commodity::factory()->create();
     $blueprint = Blueprint::factory()->create();
@@ -698,6 +707,98 @@ it('filters blueprints by multiple ingredient uuids and requires every selected 
         ->assertJsonPath('data.0.uuid', $matchingBlueprint->uuid)
         ->assertJsonPath('data.0.ingredients.0.resource_type_uuid', $alpha->uuid)
         ->assertJsonPath('data.0.ingredients.1.resource_type_uuid', $beta->uuid);
+});
+
+describe('output.uuid filter', function (): void {
+    beforeEach(function (): void {
+        $this->alphaOutputUuid = fake()->uuid();
+        $this->betaOutputUuid = fake()->uuid();
+
+        $this->alphaBlueprint = Blueprint::factory()->create();
+        BlueprintData::factory()
+            ->for($this->alphaBlueprint, 'blueprint')
+            ->for($this->defaultVersion, 'gameVersion')
+            ->create([
+                'key' => 'BP_OUTPUT_UUID_ALPHA',
+                'output_item_uuid' => $this->alphaOutputUuid,
+                'output_name' => 'Alpha Output',
+                'output_class' => 'alpha_output',
+                'data' => [
+                    'output' => [
+                        'uuid' => $this->alphaOutputUuid,
+                        'name' => 'Alpha Output',
+                        'class' => 'alpha_output',
+                    ],
+                    'tiers' => [],
+                ],
+            ]);
+
+        $this->betaBlueprint = Blueprint::factory()->create();
+        BlueprintData::factory()
+            ->for($this->betaBlueprint, 'blueprint')
+            ->for($this->defaultVersion, 'gameVersion')
+            ->create([
+                'key' => 'BP_OUTPUT_UUID_BETA',
+                'output_item_uuid' => $this->betaOutputUuid,
+                'output_name' => 'Beta Output',
+                'output_class' => 'beta_output',
+                'data' => [
+                    'output' => [
+                        'uuid' => $this->betaOutputUuid,
+                        'name' => 'Beta Output',
+                        'class' => 'beta_output',
+                    ],
+                    'tiers' => [],
+                ],
+            ]);
+    });
+
+    it('matches a single output uuid', function (): void {
+        $response = $this->getJson('/api/blueprints?'.http_build_query([
+            'filter' => [
+                'output.uuid' => $this->alphaOutputUuid,
+            ],
+        ]));
+
+        $response->assertSuccessful()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.uuid', $this->alphaBlueprint->uuid)
+            ->assertJsonPath('data.0.output_item_uuid', $this->alphaOutputUuid);
+    });
+
+    it('matches any output uuid in a comma-separated list', function (): void {
+        $response = $this->getJson('/api/blueprints?'.http_build_query([
+            'filter' => [
+                'output.uuid' => $this->alphaOutputUuid.','.$this->betaOutputUuid,
+            ],
+        ]));
+
+        $response->assertSuccessful();
+        expect($response->json('data.*.uuid'))
+            ->toContain($this->alphaBlueprint->uuid, $this->betaBlueprint->uuid)
+            ->toHaveCount(2);
+    });
+
+    it('matches any output uuid in an array filter', function (): void {
+        $response = $this->getJson('/api/blueprints?'.http_build_query([
+            'filter' => [
+                'output.uuid' => [$this->alphaOutputUuid, $this->betaOutputUuid],
+            ],
+        ]));
+
+        $response->assertSuccessful();
+        expect($response->json('data.*.uuid'))
+            ->toContain($this->alphaBlueprint->uuid, $this->betaBlueprint->uuid)
+            ->toHaveCount(2);
+    });
+
+    it('rejects junk uuids inside a comma-separated list', function (): void {
+        $this->getJson('/api/blueprints?'.http_build_query([
+            'filter' => [
+                'output.uuid' => $this->alphaOutputUuid.',not-a-uuid',
+            ],
+        ]))->assertStatus(422);
+    });
 });
 
 it('includes ingredient names for grouped blueprint requirements in index responses', function (): void {

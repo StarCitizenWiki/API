@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
+use App\Exceptions\NotFoundInVersionException;
 use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
@@ -13,7 +14,9 @@ use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
+use App\Rules\UuidFilterValue;
 use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterInput;
 use App\Support\Filters\FilterValues;
 use App\Support\Filters\ItemFilterLabel;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +24,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
@@ -62,7 +66,7 @@ class BlueprintController extends Controller
                 schema: new OA\Schema(type: 'string', example: '-craft_time_seconds')
             ),
             new OA\Parameter(name: 'filter[query]', description: 'Search blueprints by crafted item name. Example: `Shotgun`', in: 'query', schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'filter[output.uuid]', description: 'Filter by crafted item UUID (see GET /api/items). Example: `02d4cd2e-fa98-4086-aee1-6b2dfce8ea27`', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
+            new OA\Parameter(name: 'filter[output.uuid]', description: 'Filter by crafted item UUID. Accepts comma-separated values (see GET /api/items). Example: `02d4cd2e-fa98-4086-aee1-6b2dfce8ea27`', in: 'query', schema: new OA\Schema(type: 'string', format: 'uuid')),
             new OA\Parameter(name: 'filter[output.name]', description: 'Filter by crafted item name. Example: `P4-AR Magazine (40 cap)`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[output.class]', description: 'Filter by crafted item class. Example: `ksar_smg_energy_01_gold01`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'filter[output.type]', description: 'Filter by crafted item type (see GET /api/blueprints/filters for valid values). Example: `WeaponPersonal`', in: 'query', schema: new OA\Schema(type: 'string')),
@@ -89,10 +93,13 @@ class BlueprintController extends Controller
                     type: 'object'
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         $blueprints = $this->buildIndexQuery($request)
             ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients.rawVersions'])
             ->defaultSort('key')
@@ -114,7 +121,7 @@ class BlueprintController extends Controller
                 in: 'path',
                 required: true,
                 schema: new OA\Schema(
-                    description: 'Blueprint UUID',
+                    description: 'Blueprint UUID or slug',
                     type: 'string',
                     example: '280f47b7-8434-410c-b854-380768fdccec',
                 ),
@@ -134,20 +141,42 @@ class BlueprintController extends Controller
             ),
             new OA\Response(
                 response: 404,
-                description: 'Blueprint not found for the requested game version',
-                content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
+                description: 'Blueprint not found, or no data for the requested game version',
+                content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response'),
             ),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
-    public function show(Blueprint $blueprint): BlueprintResource
+    public function show(Request $request, string $blueprint): BlueprintResource
     {
+        $blueprintModel = Blueprint::query()
+            ->when(Str::isUuid($blueprint), fn (Builder $q) => $q->where('uuid', $blueprint))
+            ->unless(Str::isUuid($blueprint), fn (Builder $q) => $q->where('slug', $blueprint))
+            ->first();
+
+        if ($blueprintModel === null) {
+            abort(404, 'No blueprint found with the given identifier.');
+        }
+
         $blueprintData = BlueprintData::query()
             ->forRequestedOrDefaultVersion($this->gameVersionCode())
-            ->where('blueprint_id', $blueprint->id)
+            ->where('blueprint_id', $blueprintModel->id)
             ->with(['blueprint', 'gameVersion', 'dismantleReturns', 'ingredients.rawVersions', 'missions.mission'])
             ->first();
 
         if ($blueprintData === null) {
+            $availableVersions = $blueprintModel->versionsWithData();
+
+            if ($availableVersions !== []) {
+                $resolvedVersion = $this->gameVersion()->code;
+
+                throw new NotFoundInVersionException(
+                    $this->gameVersionCode() ?? $resolvedVersion,
+                    $availableVersions,
+                    sprintf('No Blueprint data found for game version "%s".', $resolvedVersion),
+                );
+            }
+
             throw new NotFoundHttpException('No Blueprint found for the requested game version.');
         }
 
@@ -196,10 +225,13 @@ class BlueprintController extends Controller
                     ]
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function filters(Request $request): JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         return $this->computeFacetsResponse($request);
     }
 
@@ -319,16 +351,45 @@ class BlueprintController extends Controller
     /**
      * @return array<int, AllowedFilter>
      */
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.output.uuid' => ['sometimes', new UuidFilterValue],
+        ];
+    }
+
+    /**
+     * Normalize a uuid filter value into a de-duplicated list of trimmed, non-empty entries.
+     *
+     * @return array<int, string>
+     */
+    private static function normalizeUuidList(mixed $value): array
+    {
+        $entries = match (true) {
+            is_array($value) => array_map(static fn (mixed $entry): string => trim((string) $entry), $value),
+            is_string($value) => array_map(static fn (string $entry): string => trim($entry), explode(',', $value)),
+            default => [],
+        };
+
+        return array_values(array_unique(array_filter($entries, static fn (string $entry): bool => $entry !== '')));
+    }
+
     private function allowedFilters(): array
     {
         return [
             AllowedFilter::scope('query', 'searchOutput'),
             AllowedFilter::callback('output.uuid', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
+                $outputItemUuids = self::normalizeUuidList($value);
+
+                if ($outputItemUuids === []) {
                     return;
                 }
 
-                $query->forOutputItemUuid($value);
+                $query->whereIn('output_item_uuid', $outputItemUuids);
             }),
             AllowedFilter::callback('output.name', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
@@ -357,18 +418,7 @@ class BlueprintController extends Controller
                 $query->where('is_available_by_default', $normalized);
             }),
             AllowedFilter::callback('ingredient.uuid', static function (Builder $query, mixed $value): void {
-                $resourceTypeUuids = match (true) {
-                    is_array($value) => array_map(static fn (mixed $entry): string => trim((string) $entry), $value)
-                            |> (fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
-                            |> array_unique(...)
-                            |> array_values(...),
-                    is_string($value) => explode(',', $value)
-                            |> (fn ($x) => array_map(static fn (string $entry): string => trim($entry), $x))
-                            |> (fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
-                            |> array_unique(...)
-                            |> array_values(...),
-                    default => [],
-                };
+                $resourceTypeUuids = self::normalizeUuidList($value);
 
                 if ($resourceTypeUuids === []) {
                     return;
@@ -397,18 +447,7 @@ class BlueprintController extends Controller
                 $query->consumesAnyResourceTypes($matchingIngredientUuids);
             }),
             AllowedFilter::callback('resource.uuid', static function (Builder $query, mixed $value): void {
-                $resourceTypeUuids = match (true) {
-                    is_array($value) => array_map(static fn (mixed $entry): string => trim((string) $entry), $value)
-                            |> (static fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
-                            |> array_unique(...)
-                            |> array_values(...),
-                    is_string($value) => explode(',', $value)
-                            |> (static fn ($x) => array_map(static fn (string $entry): string => trim($entry), $x))
-                            |> (static fn ($x) => array_filter($x, static fn (string $entry): bool => $entry !== ''))
-                            |> array_unique(...)
-                            |> array_values(...),
-                    default => [],
-                };
+                $resourceTypeUuids = self::normalizeUuidList($value);
 
                 if ($resourceTypeUuids === []) {
                     return;

@@ -12,7 +12,10 @@ use App\Http\Includes\IncludeDefinition;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Starmap\StarmapLocationResource;
 use App\Models\Game\StarmapLocationData;
+use App\Rules\BooleanFilterValue;
+use App\Rules\UuidFilterValue;
 use App\Support\Filters\FilterCache;
+use App\Support\Filters\FilterInput;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,6 +38,19 @@ class StarmapLocationController extends Controller
     /**
      * @return array<int, AllowedFilter>
      */
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.is_scannable' => ['sometimes', new BooleanFilterValue],
+            'filter.block_travel' => ['sometimes', new BooleanFilterValue],
+            'filter.parent_uuid' => ['sometimes', new UuidFilterValue],
+        ];
+    }
+
     private function allowedFilters(): array
     {
         $requestedFilterValues = fn (mixed $value): array => $this->requestedFilterValues($value);
@@ -147,7 +163,20 @@ class StarmapLocationController extends Controller
 
                 $query->whereLike('game_starmap_location_data.parent_name', "%{$value}%");
             }),
-            AllowedFilter::exact('parent_uuid', 'parent_location_uuid'),
+            AllowedFilter::callback('parent_uuid', static function (Builder $query, mixed $value): void {
+                $entries = is_array($value) ? $value : [$value];
+
+                $uuids = array_values(array_filter(
+                    array_map(static fn (mixed $entry): string => trim((string) $entry), $entries),
+                    static fn (string $uuid): bool => Str::isUuid($uuid),
+                ));
+
+                if ($uuids === []) {
+                    return;
+                }
+
+                $query->whereIn('game_starmap_location_data.parent_location_uuid', $uuids);
+            }),
             AllowedFilter::callback('system', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
@@ -289,7 +318,7 @@ class StarmapLocationController extends Controller
             ),
             new OA\Parameter(
                 name: 'filter[parent_uuid]',
-                description: 'Exact match on parent location UUID.',
+                description: 'Exact match on parent location UUID. Accepts comma-separated values.',
                 in: 'query',
                 schema: new OA\Schema(type: 'string', format: 'uuid', example: 'f8f07f5b-1c0e-47c9-aa50-46963065bf18')
             ),
@@ -331,10 +360,13 @@ class StarmapLocationController extends Controller
                     type: 'object'
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function index(Request $request): AnonymousResourceCollection
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         return StarmapLocationResource::collection(
             $this->buildBaseQuery($request)->jsonPaginate()
         )->additional(['meta' => ['valid_relations' => ['amenities']]]);
@@ -376,6 +408,7 @@ class StarmapLocationController extends Controller
                 description: 'No starmap location with specified identifier found.',
                 content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response'),
             ),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function show(Request $request, string $identifier): StarmapLocationResource
@@ -513,7 +546,7 @@ class StarmapLocationController extends Controller
             ),
             new OA\Parameter(
                 name: 'filter[parent_uuid]',
-                description: 'Exact match on parent location UUID.',
+                description: 'Exact match on parent location UUID. Accepts comma-separated values.',
                 in: 'query',
                 schema: new OA\Schema(type: 'string', format: 'uuid', example: 'f8f07f5b-1c0e-47c9-aa50-46963065bf18')
             ),
@@ -567,10 +600,13 @@ class StarmapLocationController extends Controller
                     type: 'object'
                 )
             ),
+            new OA\Response(response: 422, description: 'Invalid query parameters: unknown game version code or invalid filter value.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function filters(Request $request): JsonResponse
     {
+        FilterInput::validate($request, $this->filterInputRules());
+
         return $this->computeFacetsResponse($request);
     }
 

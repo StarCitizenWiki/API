@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
 use App\Enums\Game\ItemGrade;
+use App\Exceptions\NotFoundInVersionException;
 use App\Http\Controllers\Api\Concerns\ComputesFacets;
 use App\Http\Controllers\Api\Game\Concerns\FiltersJsonColumns;
 use App\Http\Controllers\Controller;
@@ -18,6 +19,7 @@ use App\Http\Includes\IncludeDefinition;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\ItemResource;
+use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\ItemFilterLabel;
@@ -67,6 +69,32 @@ class ItemController extends Controller
             IncludeDefinition::custom('blueprints', new CustomEagerLoadInclude),
             IncludeDefinition::custom('vehicles', new CustomEagerLoadInclude($this->vehicleIncludes())),
         ];
+    }
+
+    /**
+     * Parent-level identifier match shared by the versioned lookup and the not-found fallback
+     * so both accept the same identifier forms (uuid, slug).
+     */
+    private function matchItemIdentifier(Builder $query, string $identifier, string $slug, bool $isUuid): Builder
+    {
+        return $isUuid
+            ? $query->where('uuid', $identifier)
+            : $query->where('slug', $slug);
+    }
+
+    /**
+     * Data-level identifier match (in-game name or class name) shared by the versioned lookup
+     * and the not-found fallback so both accept the same identifier forms.
+     */
+    private function matchItemDataIdentifier(Builder $query, string $identifier, string $original): Builder
+    {
+        $underscored = str_replace(' ', '_', $identifier);
+
+        return $query->where(function (Builder $q) use ($identifier, $original, $underscored): Builder {
+            return $q->where('game_item_data.name', $identifier)
+                ->orWhere('game_item_data.class_name', $underscored)
+                ->orWhere('game_item_data.class_name', $original);
+        });
     }
 
     /**
@@ -607,6 +635,7 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Weapons', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -630,6 +659,7 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Weapon Attachments', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -653,6 +683,7 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Clothes', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -676,6 +707,7 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Armor', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -698,6 +730,7 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Food Items', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -721,6 +754,7 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Vehicle Weapons', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -745,6 +779,7 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'List of Vehicle Items', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_item')), new OA\Property(property: 'links', ref: '#/components/schemas/pagination_links'), new OA\Property(property: 'meta', ref: '#/components/schemas/pagination_meta')], type: 'object')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -819,6 +854,7 @@ class ItemController extends Controller
                     type: 'object',
                 )
             ),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     /**
@@ -870,7 +906,8 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Weapon', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/game_item')], type: 'object')),
-            new OA\Response(response: 404, description: 'Weapon not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Weapon not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -887,7 +924,8 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Weapon Attachment', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/game_item')], type: 'object')),
-            new OA\Response(response: 404, description: 'Weapon attachment not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Weapon attachment not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -904,7 +942,8 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Clothing Item', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/game_item')], type: 'object')),
-            new OA\Response(response: 404, description: 'Clothing item not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Clothing item not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -921,7 +960,8 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'An Armor Item', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/game_item')], type: 'object')),
-            new OA\Response(response: 404, description: 'Armor item not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Armor item not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -938,7 +978,8 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Food Item', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/game_item')], type: 'object')),
-            new OA\Response(response: 404, description: 'Food item not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Food item not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -955,7 +996,8 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Vehicle Weapon', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/game_item')], type: 'object')),
-            new OA\Response(response: 404, description: 'Vehicle weapon not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Vehicle weapon not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -972,7 +1014,8 @@ class ItemController extends Controller
         ],
         responses: [
             new OA\Response(response: 200, description: 'A Vehicle Item', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', ref: '#/components/schemas/game_item')], type: 'object')),
-            new OA\Response(response: 404, description: 'Vehicle item not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Vehicle item not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     #[OA\Get(
@@ -1012,7 +1055,8 @@ class ItemController extends Controller
                     type: 'object'
                 )
             ),
-            new OA\Response(response: 404, description: 'Item not found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 404, description: 'Item not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function show(Request $request, string $identifier): ItemResource|RedirectResponse
@@ -1021,10 +1065,9 @@ class ItemController extends Controller
         $versionCode = $this->gameVersionCode();
         $identifier = $this->cleanQueryName($identifier);
         $isUuid = Str::isUuid($identifier);
+        $slug = Str::slug($identifier);
 
         try {
-            $underscored = str_replace(' ', '_', $identifier);
-
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
                 ->allowedIncludes(...$this->allowedIncludes())
@@ -1033,22 +1076,42 @@ class ItemController extends Controller
             $itemData = $baseQuery()
                 ->when(
                     $isUuid,
-                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('uuid', $identifier)),
-                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $itemQuery->where('slug', Str::slug($identifier))),
+                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $this->matchItemIdentifier($itemQuery, $identifier, $slug, true)),
+                    fn (Builder $q) => $q->whereHas('item', fn (Builder $itemQuery) => $this->matchItemIdentifier($itemQuery, $identifier, $slug, false)),
                 )
                 ->first();
 
             if ($itemData === null && ! $isUuid) {
                 $itemData = $baseQuery()
-                    ->where(function (Builder $q) use ($identifier, $original, $underscored) {
-                        $q->where('game_item_data.name', $identifier)
-                            ->orWhere('game_item_data.class_name', $underscored)
-                            ->orWhere('game_item_data.class_name', $original);
-                    })
+                    ->where(fn (Builder $q): Builder => $this->matchItemDataIdentifier($q, $identifier, $original))
                     ->first();
             }
 
             if ($itemData === null) {
+                $item = Item::query()
+                    ->when(
+                        $isUuid,
+                        fn (Builder $q) => $this->matchItemIdentifier($q, $identifier, $slug, true),
+                        fn (Builder $q) => $q->where(function (Builder $q) use ($identifier, $slug, $original): Builder {
+                            $this->matchItemIdentifier($q, $identifier, $slug, false);
+
+                            return $q->orWhereHas('data', fn (Builder $dataQuery) => $this->matchItemDataIdentifier($dataQuery, $identifier, $original));
+                        }),
+                    )
+                    ->first();
+
+                $availableVersions = $item?->versionsWithData() ?? [];
+
+                if ($availableVersions !== []) {
+                    $resolvedVersion = $this->gameVersion()->code;
+
+                    throw new NotFoundInVersionException(
+                        $this->gameVersionCode() ?? $resolvedVersion,
+                        $availableVersions,
+                        sprintf('No Item data found for game version "%s".', $resolvedVersion),
+                    );
+                }
+
                 throw new ModelNotFoundException;
             }
 
@@ -1218,6 +1281,7 @@ class ItemController extends Controller
                     type: 'object'
                 )
             ),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
     )]
     public function filters(Request $request): JsonResponse
