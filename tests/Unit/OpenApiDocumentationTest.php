@@ -188,8 +188,13 @@ describe('OpenAPI specification', function (): void {
 
             $response = $operation['responses'][404] ?? $operation['responses']['404'] ?? null;
             expect($response)->not->toBeNull("Missing 404 response on {$operationId}");
+
+            $expectedRef = in_array($operationId, ['getVehicle', 'getGroundVehicle', 'getGravlevVehicle', 'getItem', 'getWeapon', 'getWeaponAttachment', 'getClothingItem', 'getArmor', 'getFood', 'getVehicleWeapon', 'getVehicleItem', 'getBlueprint', 'getMission'], true)
+                ? '#/components/schemas/not_found_in_version_error_response'
+                : '#/components/schemas/not_found_error_response';
+
             expect($response['content']['application/json']['schema']['$ref'] ?? null)
-                ->toBe('#/components/schemas/not_found_error_response', "Expected not_found_error_response ref on {$operationId}, got: ".json_encode($response));
+                ->toBe($expectedRef, "Expected {$expectedRef} ref on {$operationId}, got: ".json_encode($response));
         }
     });
 

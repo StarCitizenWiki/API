@@ -20571,7 +20571,7 @@ components:
     version:
       name: version
       in: query
-      description: 'Game version code to scope results to. Omit to use the current default version. Use `GET /api/game-versions` to list available versions and `GET /api/game-versions/default` to discover the default.'
+      description: 'Game version code to scope results to. Omit to use the current default version. An unknown code returns 422 with an error on the `version` field. Use `GET /api/game-versions` to list available versions and `GET /api/game-versions/default` to discover the default.'
       required: false
       explode: false
       allowReserved: true

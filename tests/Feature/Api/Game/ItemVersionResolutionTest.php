@@ -64,6 +64,92 @@ it('resolves default game version when no version parameter is provided', functi
         ->assertJsonPath('data.class_name', 'default_payload');
 });
 
+it('treats an empty version parameter as the default version', function (): void {
+    $olderVersion = GameVersion::factory()->create([
+        'code' => '3.20.0-LIVE',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->subDay(),
+    ]);
+
+    $defaultVersion = GameVersion::factory()->create([
+        'code' => '3.21.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create([
+        'name' => 'Version Labs',
+        'code' => 'VER',
+    ]);
+
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($olderVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Old Payload',
+            'class_name' => 'old_payload',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($defaultVersion, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'Default Payload',
+            'class_name' => 'default_payload',
+            'type' => 'Widget',
+            'classification' => 'Test.Widget',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}?version=");
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.version', '3.21.0-LIVE')
+        ->assertJsonPath('data.name', 'Default Payload');
+});
+
+it('returns 422 for an unknown version parameter', function (): void {
+    GameVersion::factory()->create([
+        'code' => '3.21.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/items?version=4.10.2-LIVE');
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('version');
+
+    expect($response->json('errors.version.0'))
+        ->toContain('4.10.2-LIVE')
+        ->toContain('3.21.0-LIVE')
+        ->toContain('/api/game-versions');
+});
+
+it('returns 422 for a non-string version parameter', function (): void {
+    GameVersion::factory()->create([
+        'code' => '3.21.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $response = $this->getJson('/api/items?version[]=4.10.2');
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('version');
+});
+
 it('resolves specific game versions from the version query parameter', function (): void {
     $oldVersion = GameVersion::factory()->create([
         'code' => '3.20.0-LIVE',
