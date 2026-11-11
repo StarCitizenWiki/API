@@ -284,3 +284,35 @@ it('matches case-insensitively', function (): void {
         ->assertStatus(302)
         ->assertRedirect(route('web.items.show', ['item' => 'case-item']));
 });
+
+it('renders the html 404 page when a searched uuid misses the default version', function (): void {
+    $default = GameVersion::factory()->create([
+        'code' => '1.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $older = GameVersion::factory()->create([
+        'code' => '0.9.0-LIVE',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->subDay(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create();
+
+    $vehicle = Vehicle::factory()->create();
+    VehicleData::factory()
+        ->for($vehicle)
+        ->for($older, 'gameVersion')
+        ->for($manufacturer)
+        ->create();
+
+    $response = $this->get('/search/'.$vehicle->uuid, ['Accept' => 'text/html']);
+
+    $response->assertStatus(404);
+    expect($response->headers->get('Content-Type'))->toContain('text/html');
+    expect($response->getContent())->not->toContain('available_versions');
+    expect($response->getContent())->toContain($default->code);
+});

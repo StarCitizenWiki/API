@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Game;
 
+use App\Exceptions\NotFoundInVersionException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Models\Game\Blueprint;
@@ -166,6 +167,7 @@ class UnifiedSearchController extends Controller
         responses: [
             new OA\Response(response: 302, description: 'Redirect to the matched entity\'s API URL.'),
             new OA\Response(response: 404, description: 'No matching entity found.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ],
     )]
     public function apiResolve(Request $request, string $query): RedirectResponse
@@ -178,7 +180,7 @@ class UnifiedSearchController extends Controller
         $versionId = $this->gameVersion()->id;
 
         $match = Str::isUuid($query)
-            ? $this->resolveByUuid($query)
+            ? $this->resolveByUuid($query, $versionId, $this->gameVersion()->code)
             : $this->resolveByText($query, $versionId);
 
         if ($match === null) {
@@ -189,7 +191,7 @@ class UnifiedSearchController extends Controller
             ? $this->apiUrl($match->type, $match)
             : $this->webUrl($match->type, $match);
 
-        $queryString = $request->getQueryString();
+        $queryString = $request->server->get('QUERY_STRING');
 
         if ($queryString !== null && $queryString !== '') {
             $url .= str_contains($url, '?') ? '&'.$queryString : '?'.$queryString;
@@ -200,17 +202,84 @@ class UnifiedSearchController extends Controller
 
     /**
      * Search: By UUID
+     *
+     * Only entities the show routes can resolve in the requested version match,
+     * so a redirect never lands on a 404.
      */
-    private function resolveByUuid(string $uuid): ?object
+    private function resolveByUuid(string $uuid, int $versionId, string $versionCode): ?object
     {
-        return $this->firstMatch([
-            ['vehicles', fn () => Vehicle::where('uuid', $uuid)->first(['slug', 'uuid'])],
-            ['items', fn () => Item::where('uuid', $uuid)->first(['slug', 'uuid'])],
-            ['missions', fn () => Mission::where('uuid', $uuid)->first(['slug', 'uuid'])],
-            ['locations', fn () => StarmapLocation::where('uuid', $uuid)->first(['slug', 'uuid'])],
-            ['blueprints', fn () => Blueprint::where('uuid', $uuid)->first(['slug', 'uuid'])],
+        $match = $this->firstMatch([
+            ['vehicles', fn () => $this->forVersion(Vehicle::where('uuid', $uuid), $versionId)->first(['slug', 'uuid'])],
+            // Same-UUID vehicle-items redirect to the vehicle show route, which 404s without vehicle data in this version.
+            ['items', fn () => $this->forVersion(Item::where('uuid', $uuid)->whereDoesntHave('vehicle'), $versionId)->first(['slug', 'uuid'])],
+            ['missions', fn () => $this->forVersion(Mission::where('uuid', $uuid), $versionId)->first(['slug', 'uuid'])],
+            ['locations', fn () => $this->forVersion(StarmapLocation::where('uuid', $uuid), $versionId, requireSystem: true)->first(['slug', 'uuid'])],
+            ['blueprints', fn () => $this->forVersion(Blueprint::where('uuid', $uuid), $versionId)->first(['slug', 'uuid'])],
             ['commodities', fn () => Commodity::where('uuid', $uuid)->first(['slug', 'uuid'])],
         ]);
+
+        if ($match !== null) {
+            return $match;
+        }
+
+        foreach (
+            [
+                ['Vehicle', Vehicle::where('uuid', $uuid), false],
+                ['Item', Item::where('uuid', $uuid), false],
+                ['Mission', Mission::where('uuid', $uuid), false],
+                ['Location', StarmapLocation::where('uuid', $uuid), true],
+                ['Blueprint', Blueprint::where('uuid', $uuid), false],
+            ] as [$label, $query, $requireSystem]
+        ) {
+            $entity = (clone $query)->first();
+
+            if ($entity === null) {
+                continue;
+            }
+
+            $availableVersions = $requireSystem
+                ? $this->systemfulVersions($entity)
+                : $entity->versionsWithData();
+
+            if ($availableVersions !== []) {
+                throw new NotFoundInVersionException(
+                    $this->gameVersionCode() ?? $versionCode,
+                    $availableVersions,
+                    sprintf('No %s data found for game version "%s".', $label, $versionCode),
+                );
+            }
+        }
+
+        return null;
+    }
+
+    private function forVersion(Builder $query, int $versionId, bool $requireSystem = false): Builder
+    {
+        return $query->whereHas('data', function (Builder $q) use ($versionId, $requireSystem): void {
+            $q->where('game_version_id', $versionId);
+
+            if ($requireSystem) {
+                $q->whereNotNull('system');
+            }
+        });
+    }
+
+    /**
+     * Location versions the show routes can actually resolve.
+     */
+    private function systemfulVersions(object $location): array
+    {
+        $relation = $location->data();
+
+        return $relation
+            ->whereNotNull('system')
+            ->join('game_versions', 'game_versions.id', '=', $relation->getRelated()->qualifyColumn('game_version_id'))
+            ->where('game_versions.is_hidden', false)
+            ->orderByDesc('game_versions.released_at')
+            ->orderByDesc('game_versions.id')
+            ->pluck('game_versions.code')
+            ->values()
+            ->all();
     }
 
     /**
@@ -233,11 +302,14 @@ class UnifiedSearchController extends Controller
                 ->where(fn (Builder $q) => $this->matchAny($q, ['name', 'display_name', 'class_name'], $fuzzy)))
                 ->first(['slug', 'uuid'])],
 
-            ['items', fn () => Item::whereHas('data', fn (Builder $q) => $q
-                ->where('game_version_id', $versionId)
-                ->where('type', '!=', 'NOITEM_Vehicle')
-                ->where('name', '!=', '<= PLACEHOLDER =>')
-                ->where(fn (Builder $q) => $this->matchAny($q, ['name', 'class_name'], $escaped)))
+            // Vehicle-items whose vehicle has no data in this version would redirect to a 404ing vehicle page; those with live data resolve fine.
+            ['items', fn () => Item::whereDoesntHave('vehicle', fn (Builder $q) => $q
+                ->whereDoesntHave('data', fn (Builder $vehicleData) => $vehicleData->where('game_version_id', $versionId)))
+                ->whereHas('data', fn (Builder $q) => $q
+                    ->where('game_version_id', $versionId)
+                    ->where('type', '!=', 'NOITEM_Vehicle')
+                    ->where('name', '!=', '<= PLACEHOLDER =>')
+                    ->where(fn (Builder $q) => $this->matchAny($q, ['name', 'class_name'], $escaped)))
                 ->first(['slug', 'uuid'])],
 
             ['missions', fn () => Mission::whereHas('data', fn (Builder $q) => $q

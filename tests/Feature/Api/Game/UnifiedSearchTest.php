@@ -421,3 +421,48 @@ it('serves repeated queries from the result cache without hitting the database',
     expect($selectCount)->toBe(0)
         ->and($second)->toBe($first);
 });
+
+it('excludes hidden versions from a location version-miss payload', function (): void {
+    $hiddenVersion = GameVersion::factory()->create([
+        'code' => '2.1.0-HIDDEN',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->addDays(2),
+        'is_hidden' => true,
+    ]);
+
+    $visibleVersion = GameVersion::factory()->create([
+        'code' => '2.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->addDay(),
+    ]);
+
+    // Default version without location data
+    GameVersion::factory()->create([
+        'code' => '1.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $location = StarmapLocation::factory()->create();
+
+    foreach ([$hiddenVersion, $visibleVersion] as $version) {
+        StarmapLocationData::factory()
+            ->for($location, 'location')
+            ->for($version, 'gameVersion')
+            ->create([
+                'name' => 'HiddenTest Outpost',
+                'system' => 'Stanton',
+            ]);
+    }
+
+    $this->getJson("/api/search/{$location->uuid}")
+        ->assertStatus(404)
+        ->assertJson([
+            'message' => 'No Location data found for game version "1.0.0-LIVE".',
+            'requested_version' => '1.0.0-LIVE',
+            'available_versions' => ['2.0.0-LIVE'],
+        ]);
+});

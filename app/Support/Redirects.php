@@ -13,7 +13,7 @@ class Redirects
 {
     public static function withQueryString(Request $request, string $target, int $status = Response::HTTP_MOVED_PERMANENTLY): RedirectResponse
     {
-        $queryString = $request->getQueryString();
+        $queryString = $request->server->get('QUERY_STRING');
 
         if ($queryString !== null && $queryString !== '') {
             $target .= '?'.$queryString;

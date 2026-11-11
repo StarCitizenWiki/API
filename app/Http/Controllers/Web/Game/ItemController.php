@@ -102,7 +102,14 @@ class ItemController extends Controller
             $uuid = basename($path);
 
             if ($uuid !== '') {
-                return redirect(route('web.vehicles.show', ['vehicle' => $uuid]));
+                $params = ['vehicle' => $uuid];
+                $version = $request->query('version');
+
+                if (is_string($version) && $version !== '') {
+                    $params['version'] = $version;
+                }
+
+                return redirect(route('web.vehicles.show', $params));
             }
         }
 
