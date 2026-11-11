@@ -54,8 +54,7 @@ Schedule::command('game:import-item-prices')
 
 // Starmap
 Schedule::job(new SyncStarmap)
-    ->monthly()
-    ->then(fn () => Artisan::call('sitemap:generate --only=starsystems,celestial-objects'));
+    ->monthly();
 
 // Galactapedia
 Schedule::job(new SyncGalactapedia)

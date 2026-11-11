@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Models\Game\Blueprint;
 use App\Models\Game\Commodity\Commodity;
+use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\StarmapLocation;
@@ -13,6 +14,7 @@ use App\Models\Game\Vehicle;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\StarCitizen\Galactapedia\Article;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Spatie\Sitemap\Sitemap;
@@ -39,6 +41,8 @@ class GenerateSitemap extends Command
 
     private const int CHUNK_SIZE = 1000;
 
+    private const array GAME_SEGMENTS = ['vehicles', 'items', 'blueprints', 'missions', 'locations'];
+
     public function handle(): int
     {
         $available = array_keys(self::SITEMAP_FILES);
@@ -52,12 +56,30 @@ class GenerateSitemap extends Command
             return self::FAILURE;
         }
 
+        $gameSegments = array_intersect($segments, self::GAME_SEGMENTS);
+        if ($gameSegments !== [] && ! GameVersion::query()->where('is_default', true)->exists()) {
+            $this->warn('No default game version found, skipping segments: '.implode(', ', $gameSegments).'.');
+            $segments = array_values(array_diff($segments, self::GAME_SEGMENTS));
+
+            // Stale segment files were built against the previous default version;
+            // delete them so generateIndex() cannot keep referencing dead URLs.
+            foreach ($gameSegments as $segment) {
+                $path = storage_path('app/sitemaps/'.self::SITEMAP_FILES[$segment]);
+
+                if (File::exists($path)) {
+                    File::delete($path);
+                }
+            }
+        }
+
         File::ensureDirectoryExists(storage_path('app/sitemaps'));
 
         foreach ($segments as $segment) {
             $this->info("Generating sitemap segment: {$segment}");
             $this->generateSegment($segment);
         }
+
+        $this->pruneRetiredSegmentFiles();
 
         $this->info('Generating sitemap index...');
         $this->generateIndex();
@@ -75,12 +97,12 @@ class GenerateSitemap extends Command
             'static' => $this->addStaticUrls($sitemap),
             'comm-links' => $this->addCommLinks($sitemap),
             'galactapedia' => $this->addGalactapedia($sitemap),
-            'vehicles' => $this->addModelUrls($sitemap, Vehicle::class, 'web.vehicles.show'),
-            'items' => $this->addModelUrls($sitemap, Item::class, 'web.items.show'),
-            'blueprints' => $this->addModelUrls($sitemap, Blueprint::class, 'web.blueprints.show'),
+            'vehicles' => $this->addCurrentVersionModelUrls($sitemap, Vehicle::class, 'web.vehicles.show', includeShipMatrix: true),
+            'items' => $this->addCurrentVersionModelUrls($sitemap, Item::class, 'web.items.show', excludeVehicleItems: true),
+            'blueprints' => $this->addCurrentVersionModelUrls($sitemap, Blueprint::class, 'web.blueprints.show'),
             'commodities' => $this->addModelUrls($sitemap, Commodity::class, 'web.commodities.show'),
-            'missions' => $this->addModelUrls($sitemap, Mission::class, 'web.missions.show'),
-            'locations' => $this->addModelUrls($sitemap, StarmapLocation::class, 'web.locations.show'),
+            'missions' => $this->addCurrentVersionModelUrls($sitemap, Mission::class, 'web.missions.show'),
+            'locations' => $this->addCurrentVersionModelUrls($sitemap, StarmapLocation::class, 'web.locations.show', requireSystem: true),
         };
 
         $sitemap->writeToFile(storage_path('app/sitemaps/'.self::SITEMAP_FILES[$segment]));
@@ -164,23 +186,81 @@ class GenerateSitemap extends Command
     }
 
     /**
-     * Add detail URLs for a slugged model, keyed by slug with uuid fallback.
+     * Skip entities the web show routes would 404 or redirect.
      *
      * @param  class-string<Model>  $model
      */
-    private function addModelUrls(Sitemap $sitemap, string $model, string $routeName): void
+    private function addCurrentVersionModelUrls(
+        Sitemap $sitemap,
+        string $model,
+        string $routeName,
+        bool $excludeVehicleItems = false,
+        bool $requireSystem = false,
+        bool $includeShipMatrix = false,
+    ): void {
+        $versionId = GameVersion::query()->where('is_default', true)->value('id');
+
+        $defaultVersionData = function (Builder $data) use ($versionId, $requireSystem): void {
+            $data->where('game_version_id', $versionId);
+
+            if ($requireSystem) {
+                $data->whereNotNull('system');
+            }
+        };
+
+        $this->addModelUrls($sitemap, $model, $routeName,
+            fn (Builder $query): Builder => $query
+                ->when(
+                    $includeShipMatrix,
+                    // Grouped so the ship-matrix OR widens the default-version data check without
+                    // leaking into the excludeVehicleItems constraint below.
+                    fn (Builder $query): Builder => $query->where(function (Builder $query) use ($defaultVersionData): Builder {
+                        $query->whereHas('data', $defaultVersionData);
+                        $query->orWhereHas('data.shipMatrixVehicle');
+
+                        return $query;
+                    }),
+                    fn (Builder $query): Builder => $query->whereHas('data', $defaultVersionData),
+                )
+                ->when($excludeVehicleItems, fn (Builder $query): Builder => $query->whereDoesntHave('vehicle'))
+        );
+    }
+
+    /**
+     * Add detail URLs for a slugged model, keyed by slug with uuid fallback.
+     *
+     * @param  class-string<Model>  $model
+     * @param  (callable(Builder $query): Builder)|null  $scope
+     */
+    private function addModelUrls(Sitemap $sitemap, string $model, string $routeName, ?callable $scope = null): void
     {
-        $model::query()
-            ->select(['id', 'slug', 'uuid', 'updated_at'])
-            ->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap, $routeName): void {
-                foreach ($chunk as $record) {
-                    $sitemap->add(
-                        Url::create(route($routeName, $record->slug ?? $record->uuid))
-                            ->setLastModificationDate($record->updated_at)
-                            ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
-                            ->setPriority(1.0)
-                    );
-                }
-            });
+        $query = $model::query()
+            ->select(['id', 'slug', 'uuid', 'updated_at']);
+
+        if ($scope !== null) {
+            $query = $scope($query);
+        }
+
+        $query->chunkById(self::CHUNK_SIZE, function ($chunk) use ($sitemap, $routeName): void {
+            foreach ($chunk as $record) {
+                $sitemap->add(
+                    Url::create(route($routeName, $record->slug ?? $record->uuid))
+                        ->setLastModificationDate($record->updated_at)
+                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                        ->setPriority(1.0)
+                );
+            }
+        });
+    }
+
+    private function pruneRetiredSegmentFiles(): void
+    {
+        foreach (File::files(storage_path('app/sitemaps')) as $file) {
+            $name = $file->getFilename();
+
+            if (str_starts_with($name, 'sitemap-') && str_ends_with($name, '.xml') && ! in_array($name, self::SITEMAP_FILES, true)) {
+                File::delete($file->getPathname());
+            }
+        }
     }
 }
