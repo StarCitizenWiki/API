@@ -142,7 +142,7 @@ class EnrichImages implements ShouldQueue
 
                 $pageImage = $page['pageimage'] ?? null;
 
-                if ($pageImage !== null && array_any($placeholderPatterns, fn($pattern) => preg_match($pattern, $pageImage))) {
+                if ($pageImage !== null && array_any($placeholderPatterns, fn ($pattern) => preg_match($pattern, $pageImage))) {
                     continue;
                 }
 
