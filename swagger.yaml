@@ -45,7 +45,7 @@ paths:
         -
           name: 'filter[output.uuid]'
           in: query
-          description: 'Filter by crafted item UUID (see GET /api/items). Example: `02d4cd2e-fa98-4086-aee1-6b2dfce8ea27`'
+          description: 'Filter by crafted item UUID. Accepts comma-separated values (see GET /api/items). Example: `02d4cd2e-fa98-4086-aee1-6b2dfce8ea27`'
           schema:
             type: string
             format: uuid
@@ -104,6 +104,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/blueprints/{blueprint}':
     get:
       tags:
@@ -117,7 +123,7 @@ paths:
           in: path
           required: true
           schema:
-            description: 'Blueprint UUID'
+            description: 'Blueprint UUID or slug'
             type: string
             example: 280f47b7-8434-410c-b854-380768fdccec
         -
@@ -137,6 +143,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/blueprints/filters:
     get:
       tags:
@@ -156,6 +168,12 @@ paths:
                 properties:
                   filters: { properties: { output.type: { description: 'Crafted item types (e.g. WeaponPersonal, Char_Armor_Torso, WeaponAttachment)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, ingredient.uuid: { description: 'Ingredient commodity UUIDs with names and counts', type: array, items: { $ref: '#/components/schemas/filter_value' } }, resource.uuid: { description: 'Combined ingredient and dismantle return resource UUIDs with names and counts', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/commodities:
     get:
       tags:
@@ -173,102 +191,37 @@ paths:
         -
           $ref: '#/components/parameters/version'
         -
-          name: sort
-          in: query
-          description: 'Sort field. Prefix with "-" for descending. Supported: key, name, rarity, density, instability, resistance, signature.'
-          schema:
-            type: string
-            example: '-rarity'
+          $ref: '#/components/parameters/commodity_sort'
         -
-          name: 'filter[used]'
-          in: query
-          description: 'When true, only commodities used by blueprint ingredients in the requested or default game version are returned. Example: `true`'
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/commodity_filter_used'
         -
-          name: 'filter[system]'
-          in: query
-          description: 'Star system where the commodity can be found (see GET /api/commodities/filters for valid values). Example: `Stanton System`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_system'
         -
-          name: 'filter[type]'
-          in: query
-          description: 'Location type name (see GET /api/commodities/filters for valid values). Example: `Planet`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_type'
         -
-          name: 'filter[rarity]'
-          in: query
-          description: 'Commodity tier/rarity level, lowercase (see GET /api/commodities/filters for valid values). Example: `epic`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_rarity'
         -
-          name: 'filter[kind]'
-          in: query
-          description: 'Resource kind (see GET /api/commodities/filters for valid values). Example: `mineable`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_kind'
         -
-          name: 'filter[group]'
-          in: query
-          description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_group'
         -
-          name: 'filter[refined_version]'
-          in: query
-          description: 'Refined version name (see GET /api/commodities/filters for valid values). Example: `Agricium`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_refined_version'
         -
-          name: 'filter[location]'
-          in: query
-          description: 'Partial match on starmap location name. Example: `ArcCorp`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_location'
         -
-          name: 'filter[query]'
-          in: query
-          description: 'Search commodities by name or key. Example: `Agricium`'
-          schema:
-            type: string
+          $ref: '#/components/parameters/commodity_filter_query'
         -
-          name: 'filter[ship]'
-          in: query
-          description: 'When true, only show commodities mineable by ships. Example: `true`'
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/commodity_filter_ship'
         -
-          name: 'filter[ground_vehicle]'
-          in: query
-          description: 'When true, only show commodities mineable by ground vehicles. Example: `true`'
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/commodity_filter_ground_vehicle'
         -
-          name: 'filter[fps]'
-          in: query
-          description: 'When true, only show commodities mineable on foot (FPS). Example: `true`'
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/commodity_filter_fps'
         -
-          name: 'filter[harvestable]'
-          in: query
-          description: 'When true, only show commodities collectible from harvestable or plant deposits. Example: `true`'
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/commodity_filter_harvestable'
         -
-          name: 'filter[salvage]'
-          in: query
-          description: 'When true, only show commodities obtainable through salvage. Example: `false`'
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/commodity_filter_salvage'
         -
-          name: 'filter[mineable]'
-          in: query
-          description: 'When true, only show mineable commodities; when false, only show non-mineable. Example: `true`'
-          schema:
-            type: boolean
+          $ref: '#/components/parameters/commodity_filter_mineable'
       responses:
         '200':
           description: 'List of commodities'
@@ -283,7 +236,90 @@ paths:
               examples:
                 commodities_by_location:
                   summary: 'Commodities filtered by location'
-                  value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, name: Agricium, slug: agricium }], links: { first: 'https://api.star-citizen.wiki/api/commodities?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
+                  value: { data: [{ uuid: dc6fbcbb-5990-4ed5-82ee-93152dab7845, name: Agricium, slug: agricium }], links: { first: 'https://api.star-citizen.wiki/api/commodities?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
+  '/api/locations/{location}/commodities':
+    get:
+      tags:
+        - Commodities
+      summary: 'List Commodities at a Starmap Location'
+      description: 'Returns paginated game commodities available at a starmap location, resolved by location UUID (the `location_uuid` returned by commodity endpoints) or slug. Equivalent to filtering GET /api/commodities with filter[location]. The location is fixed by the path parameter; other filters, sorts and pagination behave like GET /api/commodities. Scoped to the requested or default game version.'
+      operationId: listLocationCommodities
+      parameters:
+        -
+          name: location
+          in: path
+          required: true
+          schema:
+            description: 'Starmap location UUID or slug'
+            type: string
+            example: 551af60b-7727-4936-acc7-763d25d7a1de
+        -
+          $ref: '#/components/parameters/page'
+        -
+          $ref: '#/components/parameters/page_number'
+        -
+          $ref: '#/components/parameters/page_size'
+        -
+          $ref: '#/components/parameters/version'
+        -
+          $ref: '#/components/parameters/commodity_sort'
+        -
+          $ref: '#/components/parameters/commodity_filter_used'
+        -
+          $ref: '#/components/parameters/commodity_filter_system'
+        -
+          $ref: '#/components/parameters/commodity_filter_type'
+        -
+          $ref: '#/components/parameters/commodity_filter_rarity'
+        -
+          $ref: '#/components/parameters/commodity_filter_kind'
+        -
+          $ref: '#/components/parameters/commodity_filter_group'
+        -
+          $ref: '#/components/parameters/commodity_filter_refined_version'
+        -
+          $ref: '#/components/parameters/commodity_filter_query'
+        -
+          $ref: '#/components/parameters/commodity_filter_ship'
+        -
+          $ref: '#/components/parameters/commodity_filter_ground_vehicle'
+        -
+          $ref: '#/components/parameters/commodity_filter_fps'
+        -
+          $ref: '#/components/parameters/commodity_filter_harvestable'
+        -
+          $ref: '#/components/parameters/commodity_filter_salvage'
+        -
+          $ref: '#/components/parameters/commodity_filter_mineable'
+      responses:
+        '200':
+          description: 'Commodities available at the location'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/commodity_link' } }
+                  links: { $ref: '#/components/schemas/pagination_links' }
+                  meta: { $ref: '#/components/schemas/pagination_meta' }
+                type: object
+        '404':
+          description: 'No starmap location found with the given identifier.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/commodities/{commodity}':
     get:
       tags:
@@ -321,13 +357,21 @@ paths:
               examples:
                 commodity_detail:
                   summary: 'Commodity detail response'
-                  value: { data: { uuid: 00000000-0000-0000-0000-000000000000, name: Agricium, slug: agricium } }
+                  value: { data: { uuid: dc6fbcbb-5990-4ed5-82ee-93152dab7845, name: Agricium, slug: agricium } }
+        '302':
+          description: 'The identifier is a starmap location UUID; redirected to /api/locations/{location}/commodities, preserving query parameters.'
         '404':
-          description: 'Commodity not found.'
+          description: 'Commodity not found, and the identifier matches no commodity slug, commodity UUID or starmap location UUID.'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/commodities/filters:
     get:
       tags:
@@ -383,7 +427,7 @@ paths:
         -
           name: 'filter[location]'
           in: query
-          description: 'Partial match on starmap location name. Example: `ArcCorp`'
+          description: 'Partial match on starmap location name, or exact starmap location UUID (the `location_uuid` returned by commodity endpoints). Example: `ArcCorp`'
           schema:
             type: string
         -
@@ -437,6 +481,12 @@ paths:
                 properties:
                   filters: { properties: { system: { description: 'Star systems where commodities can be found', type: array, items: { $ref: '#/components/schemas/filter_value' } }, type: { description: 'Location type names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Commodity tier/rarity levels', type: array, items: { $ref: '#/components/schemas/filter_value' } }, kind: { description: 'Resource kinds', type: array, items: { $ref: '#/components/schemas/filter_value' } }, refined_version: { description: 'Refined version names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, group: { description: 'Commodity groups', type: array, items: { $ref: '#/components/schemas/filter_value' } }, location: { description: 'Starmap locations grouped by system', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/factions:
     get:
       tags:
@@ -537,6 +587,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_error_response'
+        '422':
+          description: 'Validation error - faction identifier must be a UUID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/game-versions:
     get:
       tags:
@@ -717,6 +773,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/weapon-attachments:
     get:
       tags:
@@ -778,6 +840,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/clothes:
     get:
       tags:
@@ -839,6 +907,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/armor:
     get:
       tags:
@@ -900,6 +974,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/food:
     get:
       tags:
@@ -955,6 +1035,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/vehicle-weapons:
     get:
       tags:
@@ -1016,6 +1102,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/vehicle-items:
     get:
       tags:
@@ -1083,6 +1175,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/items:
     get:
       tags:
@@ -1237,6 +1335,12 @@ paths:
                 item_search_page:
                   summary: 'Search items by text'
                   value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, name: 'Flight Helmet', slug: flight-helmet }], links: { first: 'https://api.star-citizen.wiki/api/items?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/weapons/{identifier}':
     get:
       tags:
@@ -1269,11 +1373,17 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Weapon not found.'
+          description: 'Weapon not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/weapon-attachments/{identifier}':
     get:
       tags:
@@ -1306,11 +1416,17 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Weapon attachment not found.'
+          description: 'Weapon attachment not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/clothes/{identifier}':
     get:
       tags:
@@ -1343,11 +1459,17 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Clothing item not found.'
+          description: 'Clothing item not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/armor/{identifier}':
     get:
       tags:
@@ -1380,11 +1502,17 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Armor item not found.'
+          description: 'Armor item not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/food/{identifier}':
     get:
       tags:
@@ -1417,11 +1545,17 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Food item not found.'
+          description: 'Food item not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/vehicle-weapons/{identifier}':
     get:
       tags:
@@ -1454,11 +1588,17 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Vehicle weapon not found.'
+          description: 'Vehicle weapon not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/vehicle-items/{identifier}':
     get:
       tags:
@@ -1491,11 +1631,17 @@ paths:
                   data: { $ref: '#/components/schemas/game_item' }
                 type: object
         '404':
-          description: 'Vehicle item not found.'
+          description: 'Vehicle item not found, or no data for the requested game version.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/items/{identifier}':
     get:
       tags:
@@ -1538,6 +1684,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/items/search:
     post:
       tags:
@@ -1772,6 +1924,12 @@ paths:
                 properties:
                   filters: { properties: { type: { description: 'Item types (e.g. WeaponPersonal, Cooler, Shield)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, sub_type: { description: 'Item sub-types (e.g. Barrel, Default, Optic)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, classification: { description: 'Item classifications (e.g. FPS.Armor.Torso, Ship.Cooler)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { description: 'Item sizes (0-12)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, grade: { description: 'Item grades (1-7, mapped A-G)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, class: { description: 'Item classes (Civilian, Competition, Industrial, Military, Stealth)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, manufacturer: { description: 'Manufacturer names', type: array, items: { $ref: '#/components/schemas/filter_value' } }, rarity: { description: 'Item rarity levels (Common, Uncommon, Rare, Epic, Legendary)', type: array, items: { $ref: '#/components/schemas/filter_value' } }, event_source: { description: 'Event or reward source labels (count-less values)', type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/manufacturers:
     get:
       tags:
@@ -1949,7 +2107,7 @@ paths:
         -
           name: 'filter[rank_index]'
           in: query
-          description: 'Filter by mission difficulty rank. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `>3`'
+          description: 'Filter by mission difficulty rank. Exact match; comma-separated values combine with OR. Example: `1,2`'
           schema:
             type: integer
         -
@@ -2051,6 +2209,12 @@ paths:
                 delivery_mission_page:
                   summary: 'Search missions by query'
                   value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, title: 'Delivery Contract', slug: delivery-contract }], links: { first: 'https://api.star-citizen.wiki/api/missions?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/missions/{mission}':
     get:
       tags:
@@ -2084,6 +2248,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/missions/filters:
     get:
       tags:
@@ -2157,7 +2327,7 @@ paths:
         -
           name: 'filter[rank_index]'
           in: query
-          description: 'Filter by mission difficulty rank. Supports range operators.'
+          description: 'Filter by mission difficulty rank. Exact match; comma-separated values combine with OR.'
           schema:
             type: integer
         -
@@ -2247,6 +2417,12 @@ paths:
                 properties:
                   filters: { properties: { mission_giver: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, star_system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, faction: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_combat: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_defend_objective: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, rank_index: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, illegal: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, shareable: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_prerequisites: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, reward_scope: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, has_blueprints: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, reputation_scope: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, blueprint_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/locations:
     get:
       tags:
@@ -2357,7 +2533,7 @@ paths:
         -
           name: 'filter[parent_uuid]'
           in: query
-          description: 'Exact match on parent location UUID.'
+          description: 'Exact match on parent location UUID. Accepts comma-separated values.'
           schema:
             type: string
             format: uuid
@@ -2401,6 +2577,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/locations/{identifier}':
     get:
       tags:
@@ -2436,6 +2618,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/locations/filters:
     get:
       tags:
@@ -2533,7 +2721,7 @@ paths:
         -
           name: 'filter[parent_uuid]'
           in: query
-          description: 'Exact match on parent location UUID.'
+          description: 'Exact match on parent location UUID. Accepts comma-separated values.'
           schema:
             type: string
             format: uuid
@@ -2575,6 +2763,12 @@ paths:
                 properties:
                   filters: { properties: { type_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, type_classification: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, respawn_location_type: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, jurisdiction_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, affiliation_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, system: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, parent_name: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, amenity: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, resource: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/locations/positions:
     get:
       tags:
@@ -2685,6 +2879,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/ground-vehicles:
     get:
       tags:
@@ -2787,37 +2987,73 @@ paths:
           in: query
           description: 'Numeric filter on total mass (kg). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1521`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1521'
         -
           name: 'filter[cargo_capacity]'
           in: query
           description: 'Numeric filter on cargo capacity (SCU). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>1'
         -
           name: 'filter[vehicle_inventory]'
           in: query
           description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>0.13'
         -
           name: 'filter[crew.min]'
           in: query
           description: 'Numeric filter on minimum crew count. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `2`'
           schema:
-            type: integer
+            oneOf:
+              -
+                type: integer
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>2'
         -
           name: 'filter[health]'
           in: query
           description: 'Numeric filter on vehicle health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `4250`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>4250'
         -
           name: 'filter[shield.hp]'
           in: query
           description: 'Numeric filter on total shield hit points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `720`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>720'
         -
           name: 'filter[shield.face_type]'
           in: query
@@ -2829,61 +3065,121 @@ paths:
           in: query
           description: 'Numeric filter on SCM speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `200`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>200'
         -
           name: 'filter[speed.max]'
           in: query
           description: 'Numeric filter on maximum speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `1000`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1000'
         -
           name: 'filter[armor.health]'
           in: query
           description: 'Numeric filter on armor health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `50000`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>50000'
         -
           name: 'filter[cross_section.length]'
           in: query
           description: 'Numeric filter on cross-section length (X axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[cross_section.width]'
           in: query
           description: 'Numeric filter on cross-section width (Y axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `50`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>50'
         -
           name: 'filter[cross_section.height]'
           in: query
           description: 'Numeric filter on cross-section height (Z axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `30`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>30'
         -
           name: 'filter[signature.ir_quantum]'
           in: query
           description: 'Numeric filter on infrared quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[signature.ir_shields]'
           in: query
           description: 'Numeric filter on infrared shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[signature.em_quantum]'
           in: query
           description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[signature.em_shields]'
           in: query
           description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for ground vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
       responses:
         '200':
           description: 'List of Ground Vehicles'
@@ -2895,6 +3191,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/gravlev-vehicles:
     get:
       tags:
@@ -2997,37 +3299,73 @@ paths:
           in: query
           description: 'Numeric filter on total mass (kg). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `2435`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>2435'
         -
           name: 'filter[cargo_capacity]'
           in: query
           description: 'Numeric filter on cargo capacity (SCU). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `0`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>0'
         -
           name: 'filter[vehicle_inventory]'
           in: query
           description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.39`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>0.39'
         -
           name: 'filter[crew.min]'
           in: query
           description: 'Numeric filter on minimum crew count. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1`'
           schema:
-            type: integer
+            oneOf:
+              -
+                type: integer
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1'
         -
           name: 'filter[health]'
           in: query
           description: 'Numeric filter on vehicle health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1550`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1550'
         -
           name: 'filter[shield.hp]'
           in: query
           description: 'Numeric filter on total shield hit points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `720`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>720'
         -
           name: 'filter[shield.face_type]'
           in: query
@@ -3039,61 +3377,121 @@ paths:
           in: query
           description: 'Numeric filter on SCM speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `200`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>200'
         -
           name: 'filter[speed.max]'
           in: query
           description: 'Numeric filter on maximum speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `1000`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1000'
         -
           name: 'filter[armor.health]'
           in: query
           description: 'Numeric filter on armor health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `50000`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>50000'
         -
           name: 'filter[cross_section.length]'
           in: query
           description: 'Numeric filter on cross-section length (X axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.39`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>0.39'
         -
           name: 'filter[cross_section.width]'
           in: query
           description: 'Numeric filter on cross-section width (Y axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `50`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>50'
         -
           name: 'filter[cross_section.height]'
           in: query
           description: 'Numeric filter on cross-section height (Z axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `30`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>30'
         -
           name: 'filter[signature.ir_quantum]'
           in: query
           description: 'Numeric filter on infrared quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[signature.ir_shields]'
           in: query
           description: 'Numeric filter on infrared shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[signature.em_quantum]'
           in: query
           description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[signature.em_shields]'
           in: query
           description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Spaceship-only field; returns empty for gravlev vehicles. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
       responses:
         '200':
           description: 'List of Gravlev Vehicles'
@@ -3105,6 +3503,12 @@ paths:
                   links: { $ref: '#/components/schemas/pagination_links' }
                   meta: { $ref: '#/components/schemas/pagination_meta' }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/vehicles:
     get:
       tags:
@@ -3207,37 +3611,73 @@ paths:
           in: query
           description: 'Numeric filter on total mass (kg). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1521`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1521'
         -
           name: 'filter[cargo_capacity]'
           in: query
           description: 'Numeric filter on cargo capacity (SCU). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>1'
         -
           name: 'filter[vehicle_inventory]'
           in: query
           description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>0.13'
         -
           name: 'filter[crew.min]'
           in: query
           description: 'Numeric filter on minimum crew count. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `2`'
           schema:
-            type: integer
+            oneOf:
+              -
+                type: integer
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>2'
         -
           name: 'filter[health]'
           in: query
           description: 'Numeric filter on vehicle health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1550`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1550'
         -
           name: 'filter[shield.hp]'
           in: query
           description: 'Numeric filter on total shield hit points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `720`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>720'
         -
           name: 'filter[shield.face_type]'
           in: query
@@ -3249,61 +3689,121 @@ paths:
           in: query
           description: 'Numeric filter on SCM speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `220`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>220'
         -
           name: 'filter[speed.max]'
           in: query
           description: 'Numeric filter on maximum speed. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `1150`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>1150'
         -
           name: 'filter[armor.health]'
           in: query
           description: 'Numeric filter on armor health points. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `10890`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>10890'
         -
           name: 'filter[cross_section.length]'
           in: query
           description: 'Numeric filter on cross-section length (X axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `100`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>100'
         -
           name: 'filter[cross_section.width]'
           in: query
           description: 'Numeric filter on cross-section width (Y axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `50`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>50'
         -
           name: 'filter[cross_section.height]'
           in: query
           description: 'Numeric filter on cross-section height (Z axis). Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `30`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>30'
         -
           name: 'filter[signature.ir_quantum]'
           in: query
           description: 'Numeric filter on infrared quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `10882`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>10882'
         -
           name: 'filter[signature.ir_shields]'
           in: query
           description: 'Numeric filter on infrared shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `10267`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>10267'
         -
           name: 'filter[signature.em_quantum]'
           in: query
           description: 'Numeric filter on electromagnetic quantum signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `53959`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>53959'
         -
           name: 'filter[signature.em_shields]'
           in: query
           description: 'Numeric filter on electromagnetic shield signature emission. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `17643`'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+)*$'
+          example: '>17643'
       responses:
         '200':
           description: 'List of Vehicles'
@@ -3319,6 +3819,12 @@ paths:
                 vehicle_search_page:
                   summary: 'Search vehicles by name'
                   value: { data: [{ uuid: 00000000-0000-0000-0000-000000000000, name: Carrack, slug: carrack }], links: { first: 'https://api.star-citizen.wiki/api/vehicles?page[number]=1', last: null, prev: null, next: null }, meta: { current_page: 1, per_page: 30, total: 1 } }
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/ground-vehicles/{identifier}':
     get:
       tags:
@@ -3354,6 +3860,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/gravlev-vehicles/{identifier}':
     get:
       tags:
@@ -3389,6 +3901,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/vehicles/{identifier}':
     get:
       tags:
@@ -3424,6 +3942,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/not_found_in_version_error_response'
+        '422':
+          description: 'Unknown game version code.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   /api/ground-vehicles/search:
     post:
       tags:
@@ -3701,6 +4225,12 @@ paths:
                 properties:
                   filters: { properties: { manufacturer: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_vehicle: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_gravlev: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, is_spaceship: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, size: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, role: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, career: { type: array, items: { $ref: '#/components/schemas/filter_value' } }, shield.face_type: { type: array, items: { $ref: '#/components/schemas/filter_value' } } }, type: object }
                 type: object
+        '422':
+          description: 'Invalid query parameters: unknown game version code or invalid filter value.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validation_error_response'
   '/api/game-versions/{version}/changelog':
     get:
       tags:
@@ -4736,7 +5266,13 @@ paths:
           in: query
           description: 'Numeric filter on system size. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND.'
           schema:
-            type: number
+            oneOf:
+              -
+                type: number
+              -
+                type: string
+                pattern: '^(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?(\s*,\s*(>=|<=|<>|>|<|=)?-?\d+(\.\d+)?)*$'
+          example: '>3'
         -
           name: sort
           in: query
@@ -19714,7 +20250,7 @@ components:
           type: string
           example: 'No Item data found for game version "4.10.2-LIVE.12881860".'
         requested_version:
-          description: 'Game version code that was requested.'
+          description: 'The version code the client requested (raw query param, or the default version code when no version parameter was sent).'
           type: string
           example: 4.10.2-LIVE.12881860
         available_versions:
@@ -20596,6 +21132,103 @@ components:
       allowReserved: true
       schema:
         type: string
+    commodity_sort:
+      name: sort
+      in: query
+      description: 'Sort field. Prefix with "-" for descending. Supported: key, name, rarity, density, instability, resistance, signature.'
+      schema:
+        type: string
+        example: '-rarity'
+    commodity_filter_used:
+      name: 'filter[used]'
+      in: query
+      description: 'When true, only commodities used by blueprint ingredients in the requested or default game version are returned. Example: `true`'
+      schema:
+        type: boolean
+    commodity_filter_system:
+      name: 'filter[system]'
+      in: query
+      description: 'Star system where the commodity can be found (see GET /api/commodities/filters for valid values). Example: `Stanton System`'
+      schema:
+        type: string
+    commodity_filter_type:
+      name: 'filter[type]'
+      in: query
+      description: 'Location type name (see GET /api/commodities/filters for valid values). Example: `Planet`'
+      schema:
+        type: string
+    commodity_filter_rarity:
+      name: 'filter[rarity]'
+      in: query
+      description: 'Commodity tier/rarity level, lowercase (see GET /api/commodities/filters for valid values). Example: `epic`'
+      schema:
+        type: string
+    commodity_filter_kind:
+      name: 'filter[kind]'
+      in: query
+      description: 'Resource kind (see GET /api/commodities/filters for valid values). Example: `mineable`'
+      schema:
+        type: string
+    commodity_filter_group:
+      name: 'filter[group]'
+      in: query
+      description: 'Commodity group name. Comma-separated for multiple. Example: `ProcessedGoods,Food`'
+      schema:
+        type: string
+    commodity_filter_refined_version:
+      name: 'filter[refined_version]'
+      in: query
+      description: 'Refined version name (see GET /api/commodities/filters for valid values). Example: `Agricium`'
+      schema:
+        type: string
+    commodity_filter_location:
+      name: 'filter[location]'
+      in: query
+      description: 'Partial match on starmap location name, or exact starmap location UUID (the `location_uuid` returned by commodity endpoints). Example: `ArcCorp`'
+      schema:
+        type: string
+    commodity_filter_query:
+      name: 'filter[query]'
+      in: query
+      description: 'Search commodities by name or key. Example: `Agricium`'
+      schema:
+        type: string
+    commodity_filter_ship:
+      name: 'filter[ship]'
+      in: query
+      description: 'When true, only show commodities mineable by ships. Example: `true`'
+      schema:
+        type: boolean
+    commodity_filter_ground_vehicle:
+      name: 'filter[ground_vehicle]'
+      in: query
+      description: 'When true, only show commodities mineable by ground vehicles. Example: `true`'
+      schema:
+        type: boolean
+    commodity_filter_fps:
+      name: 'filter[fps]'
+      in: query
+      description: 'When true, only show commodities mineable on foot (FPS). Example: `true`'
+      schema:
+        type: boolean
+    commodity_filter_harvestable:
+      name: 'filter[harvestable]'
+      in: query
+      description: 'When true, only show commodities collectible from harvestable or plant deposits. Example: `true`'
+      schema:
+        type: boolean
+    commodity_filter_salvage:
+      name: 'filter[salvage]'
+      in: query
+      description: 'When true, only show commodities obtainable through salvage. Example: `false`'
+      schema:
+        type: boolean
+    commodity_filter_mineable:
+      name: 'filter[mineable]'
+      in: query
+      description: 'When true, only show mineable commodities; when false, only show non-mineable. Example: `true`'
+      schema:
+        type: boolean
   securitySchemes:
     sanctum:
       type: http

@@ -148,6 +148,50 @@ it('returns 404 for non-existent faction uuid', function (): void {
     $response->assertNotFound();
 });
 
+it('returns 422 for non-uuid faction identifier', function (): void {
+    $response = $this->getJson('/api/factions/Headhunters');
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('faction')
+        ->assertJsonPath(
+            'errors.faction.0',
+            'The faction identifier must be a UUID. Use GET /api/factions?filter[query]=Headhunters to find a faction by name.'
+        );
+});
+
+it('url-encodes special characters in the suggested search query', function (): void {
+    $response = $this->getJson('/api/factions/A%2BB');
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('faction');
+
+    $message = $response->json('errors.faction.0');
+
+    expect($message)->toContain('filter[query]=A%2BB')
+        ->not->toContain('filter[query]=A+B');
+});
+
+it('suggests a space-separated query for hyphenated faction identifiers', function (): void {
+    $response = $this->getJson('/api/factions/nine-tails');
+
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('faction');
+
+    // urlencode renders spaces as '+', which query strings parse back as spaces.
+    expect($response->json('errors.faction.0'))->toContain('filter[query]=nine+tails')
+        ->not->toContain('nine-tails');
+});
+
+it('suggested search query finds the faction by name', function (): void {
+    Faction::factory()->create(['name' => 'Nine Tails', 'hide_in_delphi_app' => false]);
+
+    $response = $this->getJson('/api/factions?filter[query]=nine+tails');
+
+    $response->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Nine Tails');
+});
+
 it('returns 404 for faction hidden from delphi app', function (): void {
     $faction = Faction::factory()->create(['hide_in_delphi_app' => true]);
 

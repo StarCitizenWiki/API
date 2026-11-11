@@ -6,17 +6,17 @@ namespace App\Http\Controllers\Api\Game;
 
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
-use App\Rules\BooleanFilterValue;
-use App\Support\Filters\FilterInput;
-
 use App\Http\Resources\Game\Faction\FactionIndexResource;
 use App\Http\Resources\Game\Faction\FactionResource;
 use App\Models\Game\Faction;
+use App\Rules\BooleanFilterValue;
+use App\Support\Filters\FilterInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
-use App\Http\Requests\Api\Game\FactionIndexRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -109,10 +109,17 @@ class FactionController extends Controller
                 )
             ),
             new OA\Response(response: 404, description: 'Faction not found', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
+            new OA\Response(response: 422, description: 'Validation error - faction identifier must be a UUID', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ],
     )]
     public function show(Request $request, string $faction): FactionResource
     {
+        if (! Str::isUuid($faction)) {
+            throw ValidationException::withMessages([
+                'faction' => sprintf('The faction identifier must be a UUID. Use GET /api/factions?filter[query]=%s to find a faction by name.', urlencode(str_replace('-', ' ', $faction))),
+            ]);
+        }
+
         $factionModel = Faction::query()
             ->where('uuid', $faction)
             ->where('hide_in_delphi_app', false)
@@ -141,7 +148,7 @@ class FactionController extends Controller
             'filter.has_reputation' => ['sometimes', new BooleanFilterValue],
             'filter.lawful' => ['sometimes', new BooleanFilterValue],
             'filter.is_npc' => ['sometimes', new BooleanFilterValue],
-            'filter.hide_in_delphi_app' => ['sometimes', new BooleanFilterValue]
+            'filter.hide_in_delphi_app' => ['sometimes', new BooleanFilterValue],
         ];
     }
 
