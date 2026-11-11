@@ -43,3 +43,27 @@ describe('search throttling', function (): void {
         'comm-link images random' => ['getJson', 'api/comm-link-images/random'],
     ]);
 });
+
+describe('production search limiter', function (): void {
+    it('serves the custom json 429 response after 60 requests per minute', function (): void {
+        GameVersion::factory()->create([
+            'code' => '4.0.0-LIVE',
+            'channel' => 'live',
+            'is_default' => true,
+            'released_at' => now(),
+        ]);
+
+        // Requests without filter[query] fail validation in the controller action,
+        // which runs after the throttle middleware, so each 422 still consumes a hit.
+        for ($attempt = 0; $attempt < 60; $attempt++) {
+            $this->getJson('/api/search')->assertStatus(422);
+        }
+
+        $response = $this->getJson('/api/search');
+
+        $response->assertStatus(429);
+        $response->assertHeader('Content-Type', 'application/json');
+        expect($response->json('message'))->toBe('Too many search requests. Please try again later.');
+        expect($response->headers->get('Retry-After'))->not->toBeNull();
+    });
+});
