@@ -14,11 +14,13 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\VehicleData;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Throwable;
 
 class ImportItemPrices extends Command
 {
@@ -55,6 +57,13 @@ class ImportItemPrices extends Command
         ])
             ->then(function () use ($gameVersion, $chunkSize, $previousVersionCode): void {
                 self::dispatchEnrichmentBatches($gameVersion, $chunkSize, $previousVersionCode);
+            })
+            ->catch(static function (Batch $batch, Throwable $exception) use ($gameVersion): void {
+                Log::error('Failed price import batch; enrichment skipped.', [
+                    'batch_id' => $batch->id,
+                    'game_version' => $gameVersion->code,
+                    'exception' => $exception,
+                ]);
             })
             ->dispatch();
 

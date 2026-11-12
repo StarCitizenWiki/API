@@ -9,11 +9,14 @@ use App\Jobs\Game\LinkMissionChains;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocationData;
 use App\Traits\PromptsForGameVersion;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ImportMissions extends Command implements PromptsForMissingInput
 {
@@ -102,6 +105,13 @@ class ImportMissions extends Command implements PromptsForMissingInput
                         WHERE md.game_version_id = ?
                       )
                 ', [$versionId, $versionId]);
+            })
+            ->catch(static function (Batch $batch, Throwable $exception) use ($versionCode): void {
+                Log::error('Failed mission import batch; linking and counters skipped.', [
+                    'batch_id' => $batch->id,
+                    'game_version' => $versionCode,
+                    'exception' => $exception,
+                ]);
             })
             ->dispatch();
 

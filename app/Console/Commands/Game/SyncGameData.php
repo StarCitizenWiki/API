@@ -22,8 +22,10 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Throwable;
 
 use function Laravel\Prompts\select;
 
@@ -107,9 +109,7 @@ class SyncGameData extends Command
         $jobs = $this->collectItemJobs($gameVersion)->concat($this->collectVehicleJobs($gameVersion));
 
         if ($jobs->isEmpty()) {
-            self::finalizeSync($gameVersion);
-
-            return self::SUCCESS;
+            return self::finalizeSync($gameVersion);
         }
 
         $this->dispatchChunkedBatch($jobs, static function (Batch $batch) use ($gameVersion): void {
@@ -124,22 +124,39 @@ class SyncGameData extends Command
     /**
      * Run every step that depends on items and vehicles already being imported.
      */
-    private static function finalizeSync(GameVersion $gameVersion): void
+    private static function finalizeSync(GameVersion $gameVersion): int
     {
         SyncVehicleInstalledItems::dispatch($gameVersion->id);
         ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
         ComputeItemSetItemsJob::dispatch($gameVersion->id);
         ComputeItemVariantGradeLinksJob::dispatch($gameVersion->id);
 
-        Artisan::call('game:backfill-shipmatrix-ids', ['--game-version' => $gameVersion->code]);
+        $status = self::callFinalizeCommand('game:backfill-shipmatrix-ids', ['--game-version' => $gameVersion->code], $gameVersion);
 
         ComputeBespokeItemsJob::dispatch($gameVersion->id);
 
         self::syncItemCraftability($gameVersion->id);
 
-        Artisan::call('game:import-missions', ['version' => $gameVersion->code]);
+        $missionsStatus = self::callFinalizeCommand('game:import-missions', ['version' => $gameVersion->code], $gameVersion);
+        $pricesStatus = self::callFinalizeCommand('game:import-item-prices', [], $gameVersion);
 
-        Artisan::call('game:import-item-prices');
+        return $status === self::SUCCESS && $missionsStatus === self::SUCCESS && $pricesStatus === self::SUCCESS
+            ? self::SUCCESS : self::FAILURE;
+    }
+
+    private static function callFinalizeCommand(string $command, array $arguments, GameVersion $gameVersion): int
+    {
+        $status = Artisan::call($command, $arguments);
+
+        if ($status !== self::SUCCESS) {
+            Log::error('Game sync finalize command failed.', [
+                'command' => $command,
+                'exit_code' => $status,
+                'game_version' => $gameVersion->code,
+            ]);
+        }
+
+        return $status;
     }
 
     /**
@@ -267,6 +284,13 @@ class SyncGameData extends Command
         if ($then !== null) {
             $pendingBatch->then($then);
         }
+
+        $pendingBatch->catch(static function (Batch $batch, Throwable $exception): void {
+            Log::error('Failed game sync batch; finalization skipped.', [
+                'batch_id' => $batch->id,
+                'exception' => $exception,
+            ]);
+        });
 
         $pendingBatch->dispatch();
     }

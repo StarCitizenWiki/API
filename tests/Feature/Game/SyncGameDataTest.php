@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -172,6 +173,27 @@ it('imports manufacturers, tags and blueprints even without item or vehicle file
         ->assertExitCode(Command::SUCCESS);
 
     expect(Manufacturer::query()->where('code', 'TST')->exists())->toBeTrue();
+});
+
+it('fails the no-jobs sync when the real price command has no default version', function (): void {
+    $version = GameVersion::factory()->create(['is_default' => false]);
+    Bus::fake();
+
+    expect(GameVersion::query()->where('is_default', true)->exists())->toBeFalse()
+        ->and(Storage::disk('scunpacked')->allFiles('items'))->toBeEmpty()
+        ->and(Storage::disk('scunpacked')->allFiles('ships'))->toBeEmpty();
+
+    Log::shouldReceive('error')->once()->with('Game sync finalize command failed.', [
+        'command' => 'game:import-item-prices',
+        'exit_code' => Command::FAILURE,
+        'game_version' => $version->code,
+    ]);
+
+    $this->artisan('game:sync-data', ['--game-version' => $version->code])
+        ->assertExitCode(Command::FAILURE);
+
+    expect(Manufacturer::query()->where('code', 'TST')->exists())->toBeTrue();
+    Bus::assertBatchCount(0);
 });
 
 it('fails before dispatching the import batch when blueprint import fails', function (): void {
@@ -356,7 +378,6 @@ it('registers both real database queue loaders across the chunk boundary', funct
         ->and(DB::table('jobs')->where('queue', $queue)->count())->toBe(1001);
 });
 
-
 it('registers 101 loaders in the real database queue', function (): void {
     expect(DB::connection()->getDriverName())->toBe('pgsql');
     config()->set('queue.default', 'database');
@@ -368,4 +389,42 @@ it('registers 101 loaders in the real database queue', function (): void {
     $batch = app(BatchRepository::class)->find(queuedBatchId($queue));
     expect($batch->totalJobs)->toBe(101)->and($batch->pendingJobs)->toBe(101)
         ->and(DB::table('jobs')->where('queue', $queue)->count())->toBe(101);
+});
+
+it('logs a failed sync batch and skips finalization', function (): void {
+    Queue::fake();
+    Log::shouldReceive('error')->once()->withArgs(fn ($message, $context) => str_contains($message, 'game sync') && str_contains($message, 'finalization') && isset($context['batch_id'], $context['exception']));
+    $method = new ReflectionMethod(SyncGameData::class, 'dispatchChunkedBatch');
+    $method->invoke(app(SyncGameData::class), collect([new ImportVehicleData(1, 'ships/test.json')]), static function (): void {
+        SyncVehicleInstalledItems::dispatch(1);
+    });
+    $batch = app(BatchRepository::class)->find(Queue::pushed(AddBatchJobs::class)->first()->batchId);
+    $batch->recordFailedJob('failed-loader', new RuntimeException('failed'));
+    Queue::assertNotPushed(SyncVehicleInstalledItems::class);
+});
+
+it('logs each failed finalize command and returns failure', function (): void {
+    $version = GameVersion::factory()->create();
+    Bus::fake();
+    Artisan::shouldReceive('call')->times(3)->andReturn(1);
+    Log::shouldReceive('error')->times(3)->withArgs(fn ($message, $context) => str_contains($message, 'finalize') && isset($context['command'], $context['exit_code'], $context['game_version']));
+    $method = new ReflectionMethod(SyncGameData::class, 'finalizeSync');
+    expect($method->invoke(null, $version))->toBe(Command::FAILURE);
+});
+
+it('logs a permanently failed import in the real database queue', function (): void {
+    config()->set('queue.default', 'database');
+    $queue = 'j4-'.Str::uuid();
+    config()->set('queue.connections.database.queue', $queue);
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    Storage::disk('scunpacked')->put('items/broken.json', '{');
+    Log::shouldReceive('error')->once()->withArgs(fn ($message, $context) => str_contains($message, 'game sync') && isset($context['batch_id'], $context['exception']));
+    Log::shouldReceive('error')->withArgs(fn ($message) => $message === 'Syntax error')->zeroOrMoreTimes();
+    $this->artisan('game:sync-data', ['--game-version' => $version->code])->assertSuccessful();
+    $batch = app(BatchRepository::class)->find(queuedBatchId($queue));
+    $worker = app('queue.worker');
+    $worker->runNextJob('database', $queue, new WorkerOptions(maxTries: 1));
+    $worker->runNextJob('database', $queue, new WorkerOptions(maxTries: 1));
+    expect($batch->fresh()->cancelled())->toBeTrue()
+        ->and(DB::table('jobs')->where('queue', $queue)->where('payload', 'like', '%SyncVehicleInstalledItems%')->exists())->toBeFalse();
 });
