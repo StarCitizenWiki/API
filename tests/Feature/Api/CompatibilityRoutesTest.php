@@ -205,6 +205,21 @@ it('rejects traversal segments in get /api/v2/{any?} with a json 404', function 
     expect($response->json('message'))->toBeString();
 });
 
+it('rejects backslash traversal in get /api/v2/{any?} with a json 404', function (): void {
+    GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $response = $this->get('/api/v2/items%5C..%5C..%5Cadmin', ['Accept' => '*/*']);
+
+    $response->assertStatus(404)
+        ->assertHeader('Content-Type', 'application/json')
+        ->assertHeaderMissing('Location');
+});
+
 it('rejects encoded delimiters in get /api/v2/{any?} with a json 404', function (): void {
     GameVersion::factory()->create([
         'code' => '4.0.0-LIVE',

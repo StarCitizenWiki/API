@@ -47,7 +47,7 @@ $redirectToIntendedRoute = static function (Request $request, ?string $any = nul
         $any = rawurldecode($any);
 
         // A '..' segment lets clients normalize the Location target out of the /api prefix; '?' and '#' would smuggle a query or fragment into the redirect path.
-        if (in_array('..', explode('/', $any), true) || str_contains($any, '?') || str_contains($any, '#') || str_starts_with($any, '/')) {
+        if (str_contains($any, '\\') || in_array('..', explode('/', $any), true) || str_contains($any, '?') || str_contains($any, '#') || str_starts_with($any, '/')) {
             abort(404);
         }
     }
