@@ -395,3 +395,46 @@ function missionPayload(bool $blueprints = false): array
 
     return $payload;
 }
+
+it('caches missing item UUIDs within a mission import', function (): void {
+    $item = createMissionRewardItem('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Known Item', $this->version);
+    $job = new ImportMissionData($this->version->id, 'unused');
+    $lookup = new ReflectionProperty(ImportMissionData::class, 'itemLookup');
+    $lookup->setValue(null, null);
+    $resolve = new ReflectionMethod(ImportMissionData::class, 'resolveItemId');
+    expect($resolve->invoke($job, $item->uuid))->toBe($item->id);
+
+    \Illuminate\Support\Facades\DB::flushQueryLog();
+    \Illuminate\Support\Facades\DB::enableQueryLog();
+    try {
+        expect($resolve->invoke($job, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'))->toBeNull()
+            ->and($resolve->invoke($job, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'))->toBeNull();
+        $queries = \Illuminate\Support\Facades\DB::getQueryLog();
+    } finally {
+        \Illuminate\Support\Facades\DB::disableQueryLog();
+    }
+
+    expect($queries)->toHaveCount(1)
+        ->and($resolve->invoke($job, $item->uuid))->toBe($item->id);
+});
+
+it('caches missing item data within a mission import', function (): void {
+    $item = createMissionRewardItem('cccccccc-cccc-cccc-cccc-cccccccccccc', 'Known Data', $this->version);
+    $itemData = ItemData::query()->where('item_id', $item->id)->firstOrFail();
+    $job = new ImportMissionData($this->version->id, 'unused');
+    $resolve = new ReflectionMethod(ImportMissionData::class, 'resolveItemDataId');
+    expect($resolve->invoke($job, $item->id))->toBe($itemData->id);
+
+    \Illuminate\Support\Facades\DB::flushQueryLog();
+    \Illuminate\Support\Facades\DB::enableQueryLog();
+    try {
+        expect($resolve->invoke($job, -1))->toBeNull()
+            ->and($resolve->invoke($job, -1))->toBeNull();
+        $queries = \Illuminate\Support\Facades\DB::getQueryLog();
+    } finally {
+        \Illuminate\Support\Facades\DB::disableQueryLog();
+    }
+
+    expect($queries)->toHaveCount(1)
+        ->and($resolve->invoke($job, $item->id))->toBe($itemData->id);
+});

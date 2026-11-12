@@ -54,6 +54,12 @@ class ImportMissionData implements ShouldQueue
     /** @var array<int, int>|null */
     private ?array $itemDataLookup = null;
 
+    /** @var array<string, false> */
+    private array $missingItems = [];
+
+    /** @var array<int, false> */
+    private array $missingItemData = [];
+
     /** @var array<string, int>|null */
     private static ?array $blueprintLookup = null;
 
@@ -119,9 +125,12 @@ class ImportMissionData implements ShouldQueue
 
         $id = self::$itemLookup[$uuid] ?? null;
 
-        if ($id === null) {
+        if ($id === null && ! array_key_exists($uuid, $this->missingItems)) {
             self::$itemLookup = Item::query()->pluck('id', 'uuid')->all();
             $id = self::$itemLookup[$uuid] ?? null;
+            if ($id === null) {
+                $this->missingItems[$uuid] = false;
+            }
         }
 
         return $id;
@@ -142,13 +151,16 @@ class ImportMissionData implements ShouldQueue
 
         $id = $this->itemDataLookup[$itemId] ?? null;
 
-        if ($id === null) {
+        if ($id === null && ! array_key_exists($itemId, $this->missingItemData)) {
             // Lazy-reload: item data may have been created after the cache was primed (e.g. in tests).
             $this->itemDataLookup = ItemData::query()
                 ->where('game_version_id', $this->gameVersionId)
                 ->pluck('id', 'item_id')
                 ->all();
             $id = $this->itemDataLookup[$itemId] ?? null;
+            if ($id === null) {
+                $this->missingItemData[$itemId] = false;
+            }
         }
 
         return $id;
