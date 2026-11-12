@@ -16,6 +16,7 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
@@ -307,12 +308,21 @@ class ImportItemPrices implements ShouldQueue
                 gameVersion: $gameVersionCode,
             );
 
-            $vehicleData->update([
-                'uex_purchase_prices' => $purchasePrices,
-                'uex_rental_prices' => $rentalPrices,
-            ]);
+            $jsonValues = [];
 
-            $updatedCount++;
+            if ($purchasePrices !== []) {
+                $jsonValues['uex_purchase_prices'] = $purchasePrices;
+            }
+
+            if ($rentalPrices !== []) {
+                $jsonValues['uex_rental_prices'] = $rentalPrices;
+            }
+
+            if ($jsonValues !== []) {
+                $vehicleData->update($jsonValues);
+
+                $updatedCount++;
+            }
         }
 
         Log::info('UEX vehicle prices imported', [
@@ -371,7 +381,7 @@ class ImportItemPrices implements ShouldQueue
                 'game_version_id' => $this->gameVersionId,
             ]);
 
-            return collect();
+            throw $response->toException() ?? new RequestException($response);
         }
 
         return collect($response->json('data', []));

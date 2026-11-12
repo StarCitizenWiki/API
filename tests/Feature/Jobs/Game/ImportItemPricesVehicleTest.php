@@ -8,6 +8,7 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -321,6 +322,112 @@ it('skips vehicles without VehicleData for the game version', function (): void 
 
     Log::shouldHaveReceived('info')->with('UEX vehicle prices imported', [
         'count' => 0,
+        'game_version_id' => $version->id,
+    ]);
+});
+
+it('fails the import when a vehicle bulk price endpoint errors and leaves existing prices untouched', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['is_default' => true]);
+
+    $vehicleUuid = '11111111-2222-3333-4444-555566667783';
+    $vehicle = Vehicle::factory()->create(['uuid' => $vehicleUuid]);
+    $vehicleData = VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $version->id,
+        'uex_purchase_prices' => [
+            [
+                'terminal_id' => 51,
+                'terminal_code' => 'OLDPUR',
+                'terminal_name' => 'Existing Purchase Terminal',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_buy' => 800000,
+                'game_version' => $version->code,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+        'uex_rental_prices' => [
+            [
+                'terminal_id' => 52,
+                'terminal_code' => 'OLDREN',
+                'terminal_name' => 'Existing Rental Terminal',
+                'starmap_location_uuid' => null,
+                'starmap_location_data_id' => null,
+                'price_rent' => 40000,
+                'game_version' => $version->code,
+                'date_updated' => '2024-01-01T00:00:00+00:00',
+            ],
+        ],
+    ]);
+
+    Http::fake(function ($request) use ($vehicleUuid) {
+        if (str_contains($request->url(), 'items_prices_all')) {
+            return Http::response(['data' => []]);
+        }
+
+        if (str_contains($request->url(), '/vehicles_purchases_prices_all')) {
+            return Http::response(status: 500);
+        }
+
+        if (str_contains($request->url(), '/vehicles_rentals_prices_all')) {
+            return Http::response(['data' => [
+                [
+                    'id_vehicle' => 30,
+                    'id_terminal' => 52,
+                    'vehicle_name' => 'Existing Ship',
+                    'terminal_name' => 'Existing Rental Terminal',
+                    'price_rent' => 55000,
+                    'date_modified' => 1700000100,
+                ],
+            ]]);
+        }
+
+        if (str_contains($request->url(), '/vehicles') && ! str_contains($request->url(), 'vehicles_')) {
+            return Http::response(['data' => [
+                ['id' => 30, 'uuid' => $vehicleUuid, 'name' => 'Existing Ship'],
+            ]]);
+        }
+
+        if (str_contains($request->url(), 'terminals')) {
+            return Http::response(['data' => []]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    $job = new ImportItemPrices($version->id);
+
+    $thrown = null;
+    try {
+        $job->handle();
+    } catch (Throwable $exception) {
+        $thrown = $exception;
+    }
+
+    $purchasePrices = $vehicleData->refresh()->uex_purchase_prices;
+    $rentalPrices = $vehicleData->refresh()->uex_rental_prices;
+
+    expect($purchasePrices)->toBeArray()
+        ->and($purchasePrices)->toHaveCount(1)
+        ->and($purchasePrices[0])->toMatchArray([
+            'terminal_code' => 'OLDPUR',
+            'terminal_name' => 'Existing Purchase Terminal',
+            'price_buy' => 800000,
+        ])
+        ->and($rentalPrices)->toBeArray()
+        ->and($rentalPrices)->toHaveCount(1)
+        ->and($rentalPrices[0])->toMatchArray([
+            'terminal_code' => 'OLDREN',
+            'terminal_name' => 'Existing Rental Terminal',
+            'price_rent' => 40000,
+        ]);
+
+    expect($thrown)->toBeInstanceOf(RequestException::class);
+
+    Log::shouldHaveReceived('error')->with('UEX vehicle purchase prices API failed', [
+        'status' => 500,
         'game_version_id' => $version->id,
     ]);
 });
