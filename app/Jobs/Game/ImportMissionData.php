@@ -28,6 +28,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ImportMissionData implements ShouldQueue
@@ -565,12 +566,23 @@ class ImportMissionData implements ShouldQueue
 
         $pivots = [];
 
-        foreach ($blueprintPayloads as $pool) {
+        foreach ($blueprintPayloads as $poolIndex => $pool) {
             if (! is_array($pool)) {
                 continue;
             }
 
             $poolUuid = $this->trimOrNull($pool['PoolUUID'] ?? null);
+
+            if ($poolUuid === null) {
+                Log::warning('Skipping mission blueprint pool without a pool UUID.', [
+                    'mission_uuid' => trim($payload['UUID']),
+                    'mission_key' => $missionData->mission_key,
+                    'pool_index' => $poolIndex,
+                ]);
+
+                continue;
+            }
+
             $poolChance = isset($pool['Chance']) && is_numeric($pool['Chance'])
                 ? (float) $pool['Chance']
                 : null;

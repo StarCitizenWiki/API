@@ -12,6 +12,7 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
@@ -221,7 +222,7 @@ describe('cross-version lookup isolation', function (): void {
             ->and($dataB->rewardGroups()->firstOrFail()->items()->firstOrFail()->item_data_id)->toBe($itemDataB->id);
     });
 
-    it('links mission blueprint pivots to the importing version\'s blueprint data', function (): void {
+    it('skips blueprint pools without UUIDs while syncing versioned pivots on reimport', function (): void {
         $blueprint = Blueprint::factory()->create([
             'uuid' => '88888888-8888-8888-8888-888888888888',
         ]);
@@ -262,6 +263,17 @@ describe('cross-version lookup isolation', function (): void {
             ],
         ];
 
+        $payload['Blueprints'][] = [
+            'PoolContents' => [
+                ['BlueprintUUID' => $blueprint->uuid, 'ItemUUID' => $item->uuid],
+            ],
+        ];
+
+        Log::shouldReceive('warning')->times(3)->with(
+            'Skipping mission blueprint pool without a pool UUID.',
+            ['mission_uuid' => $payload['UUID'], 'mission_key' => md5('11111111-1111-1111-1111-111111111111'), 'pool_index' => 1],
+        );
+
         dispatchMissionImport($this->version->id, $payload);
         dispatchMissionImport($this->versionB->id, $payload);
 
@@ -279,8 +291,35 @@ describe('cross-version lookup isolation', function (): void {
 
         expect($pivotA->id)->toBe($blueprintDataA->id)
             ->and($pivotA->pivot->item_data_id)->toBe($itemDataA->id)
+            ->and($pivotA->pivot->pool_uuid)->toBe('11111111-1111-1111-1111-111111111111')
             ->and($pivotB->id)->toBe($blueprintDataB->id)
-            ->and($pivotB->pivot->item_data_id)->toBe($itemDataB->id);
+            ->and($pivotB->pivot->item_data_id)->toBe($itemDataB->id)
+            ->and($pivotB->pivot->pool_uuid)->toBe('11111111-1111-1111-1111-111111111111')
+            ->and(MissionData::query()->where('game_version_id', $this->version->id)->firstOrFail()->blueprints()->count())->toBe(1)
+            ->and(MissionData::query()->where('game_version_id', $this->versionB->id)->firstOrFail()->blueprints()->count())->toBe(1);
+
+        $payload['Blueprints'][0]['Chance'] = 0.5;
+        dispatchMissionImport($this->version->id, $payload);
+
+        $reimported = MissionData::query()->where('game_version_id', $this->version->id)->firstOrFail()->blueprints()->get();
+        expect($reimported)->toHaveCount(1)
+            ->and((float) $reimported[0]->pivot->chance)->toBe(0.5)
+            ->and($reimported[0]->pivot->pool_uuid)->toBe('11111111-1111-1111-1111-111111111111');
+
+        Log::shouldReceive('warning')->once()->with(
+            'Skipping mission blueprint pool without a pool UUID.',
+            ['mission_uuid' => $payload['UUID'], 'mission_key' => null, 'pool_index' => 0],
+        );
+
+        $payload['Blueprints'] = [$payload['Blueprints'][1]];
+        dispatchMissionImport($this->version->id, $payload);
+
+        $dataA = MissionData::query()->where('game_version_id', $this->version->id)->firstOrFail();
+        $dataB = MissionData::query()->where('game_version_id', $this->versionB->id)->firstOrFail();
+        expect($dataA->mission_key)->toBeNull()
+            ->and($dataA->blueprints()->count())->toBe(0)
+            ->and($dataB->blueprints()->count())->toBe(1)
+            ->and($dataB->blueprints()->firstOrFail()->pivot->pool_uuid)->toBe('11111111-1111-1111-1111-111111111111');
     });
 
     it('syncs starmap locations and derived star systems for the importing version', function (): void {
