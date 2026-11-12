@@ -2906,7 +2906,7 @@ paths:
         -
           name: sort
           in: query
-          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
+          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, vehicle_inventory (raw SCU; response field is micro SCU, SCU x 10^6), -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
           schema:
             type: string
             example: '-cargo_capacity'
@@ -3009,7 +3009,7 @@ paths:
         -
           name: 'filter[vehicle_inventory]'
           in: query
-          description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`'
+          description: 'Numeric filter on vehicle inventory/stowage capacity in raw SCU. The response field is micro SCU (SCU x 10^6); this filter expects SCU. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`'
           schema:
             oneOf:
               -
@@ -3218,7 +3218,7 @@ paths:
         -
           name: sort
           in: query
-          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
+          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, vehicle_inventory (raw SCU; response field is micro SCU, SCU x 10^6), -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
           schema:
             type: string
             example: '-cargo_capacity'
@@ -3321,7 +3321,7 @@ paths:
         -
           name: 'filter[vehicle_inventory]'
           in: query
-          description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.39`'
+          description: 'Numeric filter on vehicle inventory/stowage capacity in raw SCU. The response field is micro SCU (SCU x 10^6); this filter expects SCU. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.39`'
           schema:
             oneOf:
               -
@@ -3530,7 +3530,7 @@ paths:
         -
           name: sort
           in: query
-          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
+          description: 'Sort field. Prefix with "-" for descending. Examples: name, -size, manufacturer.name, cargo_capacity, vehicle_inventory (raw SCU; response field is micro SCU, SCU x 10^6), -speed.scm, shield.face_type. Use comma for multiple: size,-cargo_capacity'
           schema:
             type: string
             example: '-cargo_capacity'
@@ -3633,7 +3633,7 @@ paths:
         -
           name: 'filter[vehicle_inventory]'
           in: query
-          description: 'Numeric filter on vehicle inventory/stowage capacity. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`'
+          description: 'Numeric filter on vehicle inventory/stowage capacity in raw SCU. The response field is micro SCU (SCU x 10^6); this filter expects SCU. Supports range operators (`>`, `>=`, `<`, `<=`, `<>`); multiple comma-separated values combine with AND. Example: `0.13`'
           schema:
             oneOf:
               -
