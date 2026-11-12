@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -380,7 +381,20 @@ class SyncPaintImages implements ShouldQueue
                 continue;
             }
 
-            if (Item::query()->where('uuid', $uuid)->update(['images' => $entries]) > 0) {
+            // EnrichImages writes the same column; the row lock serializes the merge so a
+            // concurrent writer's entries survive, and only our own paint entries get replaced.
+            $updated = DB::transaction(function () use ($uuid, $entries): bool {
+                $existing = Item::query()->lockForUpdate()->where('uuid', $uuid)->value('images') ?? [];
+
+                $kept = collect($existing)
+                    ->reject(fn ($entry): bool => is_array($entry) && ($entry['source'] ?? null) === self::SOURCE)
+                    ->values()
+                    ->all();
+
+                return Item::query()->where('uuid', $uuid)->update(['images' => [...$kept, ...$entries]]) > 0;
+            });
+
+            if ($updated) {
                 $stats['items_updated']++;
             }
         }

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Jobs\Game\EnrichImages;
 use App\Jobs\Game\SyncPaintImages;
 use App\Models\Game\Item;
 use Illuminate\Http\Client\Request;
@@ -130,6 +131,82 @@ it('writes one ranked entry per resolved file, preferring the isometric file', f
 
     // One search, one revisions batch, one imageinfo batch for the unique files.
     Http::assertSentCount(3);
+});
+
+it('keeps entries from other sources when writing paint images', function (): void {
+    $wikiImage = [
+        'source' => 'starcitizen.tools',
+        'thumbnail_url' => 'https://media.starcitizen.tools/thumb/gladius.jpg',
+    ];
+
+    $deckTheHull = Item::factory()->create([
+        'uuid' => '9242a0d1-0519-450d-aad2-b6230841ab15',
+        'images' => [$wikiImage],
+    ]);
+
+    fakePaintWiki(paintFilePages());
+
+    (new SyncPaintImages)->handle();
+
+    $deckTheHull->refresh();
+
+    expect($deckTheHull->images)->toHaveCount(3)
+        ->and($deckTheHull->images[0])->toBe($wikiImage)
+        ->and($deckTheHull->images[1]['source'])->toBe('starcitizen.tools/paints')
+        ->and($deckTheHull->images[1]['original_url'])->toBe('https://media.starcitizen.tools/Gladius_Deck_The_Hull_in_space_-_Isometric.jpg')
+        ->and($deckTheHull->images[2]['original_url'])->toBe('https://media.starcitizen.tools/Gladius_Deck_The_Hull_in_space_-_Above.jpg');
+});
+
+it('keeps paint entries when a later unresolved enrich clears managed ones', function (): void {
+    $wikiImage = [
+        'source' => 'starcitizen.tools',
+        'thumbnail_url' => 'https://media.starcitizen.tools/thumb/gladius.jpg',
+    ];
+
+    $deckTheHull = Item::factory()->create([
+        'uuid' => '9242a0d1-0519-450d-aad2-b6230841ab15',
+        'images' => [$wikiImage],
+    ]);
+
+    fakePaintWiki(paintFilePages());
+
+    (new SyncPaintImages)->handle();
+
+    $deckTheHull->refresh();
+
+    // The state paint sync leaves behind: managed entry first, paints after.
+    expect($deckTheHull->images)->toHaveCount(3)
+        ->and($deckTheHull->images[0])->toBe($wikiImage);
+
+    Http::fake([
+        'starcitizen.tools/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    10 => [
+                        'pageid' => 10,
+                        'title' => 'Gladius',
+                        'missing' => '',
+                    ],
+                ],
+            ],
+        ]),
+        'star-citizen.wiki/*' => Http::response(['query' => ['pages' => []]]),
+        "cstone.space/uifimages/{$deckTheHull->uuid}.png" => Http::response(status: 404),
+    ]);
+
+    (new EnrichImages(Item::class, [$deckTheHull->id => 'Gladius'], [$deckTheHull->id => $deckTheHull->uuid]))->handle();
+
+    $deckTheHull->refresh();
+
+    expect($deckTheHull->images)->toHaveCount(2)
+        ->and($deckTheHull->images[0])->toMatchArray([
+            'source' => 'starcitizen.tools/paints',
+            'original_url' => 'https://media.starcitizen.tools/Gladius_Deck_The_Hull_in_space_-_Isometric.jpg',
+        ])
+        ->and($deckTheHull->images[1])->toMatchArray([
+            'source' => 'starcitizen.tools/paints',
+            'original_url' => 'https://media.starcitizen.tools/Gladius_Deck_The_Hull_in_space_-_Above.jpg',
+        ]);
 });
 
 it('falls back to the next preference when the chosen file resolution is dropped', function (): void {

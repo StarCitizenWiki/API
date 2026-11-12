@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -251,16 +252,38 @@ class EnrichImages implements ShouldQueue
      */
     private function persistResults(array $resolved, array $unresolvedIds): void
     {
+        $managed = collect(config('images.sources'))->pluck('name')->all();
+
         foreach ($resolved as $id => $imageData) {
-            ($this->modelClass)::where('id', $id)->update(['images' => [$imageData]]);
+            DB::transaction(function () use ($id, $imageData, $managed): void {
+                // Unmanaged sources (e.g. the paint sync) own their entries; replace only our own.
+                // The row lock serializes against SyncPaintImages, which writes the same column;
+                // the merge re-reads under the lock so a concurrent writer's entries survive.
+                $existing = ($this->modelClass)::query()->lockForUpdate()->where('id', $id)->value('images') ?? [];
+
+                ($this->modelClass)::where('id', $id)->update([
+                    'images' => [...$this->withoutManagedEntries($existing, $managed), $imageData],
+                ]);
+            });
         }
 
         if ($unresolvedIds !== []) {
-            $managed = collect(config('images.sources'))->pluck('name')->all();
+            // Mixed arrays can hold managed entries at any index, so no bulk gate can select
+            // the rows nor compute the kept entries for them; clear per row instead.
+            $ids = ($this->modelClass)::query()->whereIn('id', $unresolvedIds)->pluck('id');
 
-            ($this->modelClass)::whereIn('id', $unresolvedIds)
-                ->whereIn('images->0->source', $managed)
-                ->update(['images' => []]);
+            foreach ($ids as $id) {
+                DB::transaction(function () use ($id, $managed): void {
+                    $existing = ($this->modelClass)::query()->lockForUpdate()->where('id', $id)->value('images') ?? [];
+                    $kept = $this->withoutManagedEntries($existing, $managed);
+
+                    if (count($kept) === count($existing)) {
+                        return;
+                    }
+
+                    ($this->modelClass)::where('id', $id)->update(['images' => $kept]);
+                });
+            }
         }
 
         Log::info('Image enrichment chunk completed', [
@@ -269,6 +292,21 @@ class EnrichImages implements ShouldQueue
             'unresolved' => count($unresolvedIds),
             'chunk_size' => count($this->idNameMap),
         ]);
+    }
+
+    /**
+     * Both persist branches must drop exactly the entries this job owns, so the filter lives in one place.
+     *
+     * @param  array<int, mixed>  $entries
+     * @param  array<int, string>  $managed
+     * @return array<int, mixed>
+     */
+    private function withoutManagedEntries(array $entries, array $managed): array
+    {
+        return collect($entries)
+            ->reject(fn ($entry): bool => is_array($entry) && in_array($entry['source'] ?? null, $managed, true))
+            ->values()
+            ->all();
     }
 
     public function failed(Throwable $exception): void

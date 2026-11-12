@@ -389,6 +389,61 @@ it('wipes unresolved image from a managed source', function (): void {
     expect($item->images)->toBe([]);
 });
 
+it('wipes unresolved images from multiple managed sources', function (): void {
+
+    $item = Item::factory()->create([
+        'images' => [
+            [
+                'source' => 'starcitizen.tools',
+                'thumbnail_url' => 'https://media.starcitizen.tools/thumb/gladius.jpg',
+            ],
+            [
+                'source' => 'cstone.space',
+                'thumbnail_url' => 'https://cstone.space/uifimages/example.png',
+            ],
+        ],
+    ]);
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'name' => 'Unknown Item',
+    ]);
+
+    Http::fake([
+        'starcitizen.tools/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    10 => [
+                        'pageid' => 10,
+                        'title' => 'Unknown Item',
+                        'missing' => '',
+                    ],
+                ],
+            ],
+        ]),
+        'star-citizen.wiki/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    10 => [
+                        'pageid' => 10,
+                        'title' => 'Unknown Item',
+                        'missing' => '',
+                    ],
+                ],
+            ],
+        ]),
+        "cstone.space/uifimages/{$item->uuid}.png" => Http::response(status: 404),
+    ]);
+
+    $job = new EnrichImages(Item::class, [$item->id => 'Unknown Item'], [$item->id => $item->uuid]);
+    $job->handle();
+
+    $item->refresh();
+
+    expect($item->images)->toBe([]);
+});
+
 it('keeps unresolved image from an unmanaged source', function (): void {
 
     $paintImage = [
@@ -436,6 +491,64 @@ it('keeps unresolved image from an unmanaged source', function (): void {
     $item->refresh();
 
     expect($item->images)->toBe([$paintImage]);
+});
+
+it('keeps resolved image alongside an unmanaged source entry', function (): void {
+
+    $paintImage = [
+        'source' => 'starcitizen.tools/paints',
+        'thumbnail_url' => 'https://media.starcitizen.tools/thumb/paint.jpg',
+    ];
+
+    $item = Item::factory()->create(['images' => [$paintImage]]);
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'name' => 'Gladius',
+    ]);
+
+    Http::fake([
+        'starcitizen.tools/*' => Http::response([
+            'query' => [
+                'pages' => [
+                    123 => [
+                        'pageid' => 123,
+                        'title' => 'Gladius',
+                        'pageimage' => 'Gladius_-_Flying_away.jpg',
+                        'thumbnail' => [
+                            'source' => 'https://media.starcitizen.tools/thumb/gladius.jpg',
+                            'width' => 600,
+                            'height' => 360,
+                        ],
+                        'original' => [
+                            'source' => 'https://media.starcitizen.tools/gladius.jpg',
+                            'width' => 3840,
+                            'height' => 2304,
+                        ],
+                    ],
+                ],
+            ],
+        ]),
+        'star-citizen.wiki/*' => Http::response(['query' => ['pages' => []]]),
+    ]);
+
+    $job = new EnrichImages(Item::class, [$item->id => 'Gladius'], [$item->id => $item->uuid]);
+    $job->handle();
+
+    $item->refresh();
+
+    expect($item->images)->toHaveCount(2)
+        ->and($item->images[0])->toBe($paintImage)
+        ->and($item->images[1])->toMatchArray([
+            'source' => 'starcitizen.tools',
+            'thumbnail_url' => 'https://media.starcitizen.tools/thumb/gladius.jpg',
+            'thumbnail_width' => 600,
+            'thumbnail_height' => 360,
+            'original_url' => 'https://media.starcitizen.tools/gladius.jpg',
+            'original_width' => 3840,
+            'original_height' => 2304,
+        ]);
 });
 
 it('chunks 50+ titles into multiple API calls', function (): void {
