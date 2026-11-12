@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: sitemaps/sitemap.xml
+Sitemap: https://star-citizen.wiki/sitemaps/sitemap.xml
