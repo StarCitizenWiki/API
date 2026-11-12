@@ -551,6 +551,10 @@ it('enriches item prices using id_item fallback for empty-UUID items', function 
             ]);
         }
 
+        if (str_ends_with($request->url(), '/terminals')) {
+            return Http::response(['data' => []]);
+        }
+
         return Http::response(status: 404);
     });
 
@@ -681,6 +685,10 @@ it('updates item prices when the enriched source data changes', function (): voi
             return Http::response(['data' => [
                 ['id' => 1, 'id_terminal' => 107, 'terminal_name' => 'CenterMass', 'terminal_code' => 'CM', 'price_buy' => $priceBuy, 'price_sell' => 0, 'game_version' => '4.7.1', 'date_modified' => 1700000000],
             ]]);
+        }
+
+        if (str_ends_with($request->url(), '/terminals')) {
+            return Http::response(['data' => []]);
         }
 
         return Http::response(status: 404);

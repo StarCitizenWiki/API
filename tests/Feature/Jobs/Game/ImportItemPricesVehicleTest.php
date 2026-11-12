@@ -478,6 +478,10 @@ it('updates vehicle prices when the UEX source data changes', function (): void 
             ]]);
         }
 
+        if (str_ends_with($request->url(), '/terminals')) {
+            return Http::response(['data' => []]);
+        }
+
         return Http::response(status: 404);
     });
 
@@ -609,4 +613,74 @@ describe('mapped row shape', function (): void {
                 'uex_link' => 'https://uexcorp.space/vehicles/home/list/in_game_rent/?id_terminal=60',
             ]);
     });
+});
+
+it('preserves matched vehicle prices when the terminal request fails', function (): void {
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    $vehicle = Vehicle::factory()->create();
+    $purchasePrices = [[
+        'terminal_id' => 50,
+        'terminal_code' => 'EXIST',
+        'terminal_name' => 'Existing Terminal',
+        'starmap_location_uuid' => 'aaa11111-2222-3333-4444-555566667777',
+        'starmap_location_data_id' => 123,
+        'price_buy' => 900,
+    ]];
+    $rentalPrices = [[
+        'terminal_id' => 50,
+        'terminal_code' => 'EXIST',
+        'terminal_name' => 'Existing Terminal',
+        'starmap_location_uuid' => 'aaa11111-2222-3333-4444-555566667777',
+        'starmap_location_data_id' => 123,
+        'price_rent' => 90,
+    ]];
+    $vehicleData = VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $version->id,
+        'uex_purchase_prices' => $purchasePrices,
+        'uex_rental_prices' => $rentalPrices,
+    ]);
+
+    $vehicleData->refresh();
+    $purchasePrices = $vehicleData->uex_purchase_prices;
+    $rentalPrices = $vehicleData->uex_rental_prices;
+
+    Http::fake(function ($request) use ($vehicle) {
+        $url = $request->url();
+        if (str_contains($url, 'items_prices_all') || str_contains($url, 'vehicles_rentals_prices_all')) {
+            return Http::response(['data' => []]);
+        }
+        if (str_contains($url, 'vehicles_purchases_prices_all')) {
+            return Http::response(['data' => [[
+                'id_vehicle' => 10,
+                'id_terminal' => 50,
+                'vehicle_name' => 'Test Ship',
+                'terminal_name' => 'Existing Terminal',
+                'price_buy' => 100,
+                'date_modified' => 1700000000,
+            ]]]);
+        }
+        if (str_contains($url, 'terminals')) {
+            return Http::response(status: 500);
+        }
+        if (str_contains($url, '/vehicles')) {
+            return Http::response(['data' => [['id' => 10, 'uuid' => $vehicle->uuid, 'name' => 'Test Ship']]]);
+        }
+
+        return Http::response(status: 404);
+    });
+
+    $exception = null;
+    try {
+        (new ImportItemPrices($version->id))->handle();
+    } catch (RequestException $e) {
+        $exception = $e;
+    }
+
+    $vehicleData->refresh();
+    expect($vehicleData->uex_purchase_prices)->toBe($purchasePrices)
+        ->and($vehicleData->uex_rental_prices)->toBe($rentalPrices)
+        ->and($exception)->toBeInstanceOf(RequestException::class)
+        ->and($exception->response->status())->toBe(500);
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'terminals'));
 });

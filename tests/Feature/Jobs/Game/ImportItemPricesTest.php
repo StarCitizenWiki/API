@@ -545,6 +545,10 @@ it('updates item prices when the UEX source data changes', function (): void {
             ]]);
         }
 
+        if (str_ends_with($request->url(), '/terminals')) {
+            return Http::response(['data' => []]);
+        }
+
         return Http::response(status: 404);
     });
 
@@ -690,4 +694,53 @@ describe('mapped row shape', function (): void {
                 'uex_link' => 'https://uexcorp.space/items/info?name=shape-test-item&tab=about',
             ]);
     });
+});
+
+it('preserves matched item prices when the terminal request fails', function (): void {
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    $item = Item::factory()->create();
+    $prices = [[
+        'terminal_id' => 1,
+        'terminal_code' => 'EXIST',
+        'terminal_name' => 'Existing Terminal',
+        'starmap_location_uuid' => 'aaa11111-2222-3333-4444-555566667777',
+        'starmap_location_data_id' => 123,
+        'price_buy' => 900,
+    ]];
+    $itemData = ItemData::factory()->create([
+        'item_id' => $item->id,
+        'game_version_id' => $version->id,
+        'uex_prices' => $prices,
+    ]);
+
+    $prices = $itemData->refresh()->uex_prices;
+
+    Http::fake(function ($request) use ($item) {
+        if (str_contains($request->url(), 'items_prices_all')) {
+            return Http::response(['data' => [[
+                'item_uuid' => $item->uuid,
+                'id_terminal' => 1,
+                'terminal_name' => 'Existing Terminal',
+                'price_buy' => 100,
+                'price_sell' => 50,
+                'date_modified' => 1700000000,
+            ]]]);
+        }
+
+        return str_contains($request->url(), 'terminals')
+            ? Http::response(status: 500)
+            : Http::response(['data' => []]);
+    });
+
+    $exception = null;
+    try {
+        (new ImportItemPrices($version->id))->handle();
+    } catch (RequestException $e) {
+        $exception = $e;
+    }
+
+    expect($itemData->refresh()->uex_prices)->toBe($prices)
+        ->and($exception)->toBeInstanceOf(RequestException::class)
+        ->and($exception->response->status())->toBe(500);
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'terminals'));
 });

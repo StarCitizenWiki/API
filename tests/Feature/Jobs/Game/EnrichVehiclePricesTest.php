@@ -303,6 +303,10 @@ it('enriches vehicle prices using id_vehicle fallback for empty-UUID vehicles', 
             return Http::response(['data' => []]);
         }
 
+        if (str_ends_with($request->url(), '/terminals')) {
+            return Http::response(['data' => []]);
+        }
+
         return Http::response(status: 404);
     });
 
@@ -383,6 +387,10 @@ it('updates vehicle prices when the enriched source data changes', function (): 
         }
 
         if (str_contains($request->url(), 'vehicles_rentals_prices?uuid')) {
+            return Http::response(['data' => []]);
+        }
+
+        if (str_ends_with($request->url(), '/terminals')) {
             return Http::response(['data' => []]);
         }
 

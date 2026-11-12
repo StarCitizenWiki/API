@@ -318,3 +318,20 @@ it('resolves unique location name using star_system_name', function (): void {
 
     expect($mapper->mapping->get(300))->toBe('cccccccc-cccc-cccc-cccc-cccccccccccc');
 });
+
+it('retries terminal mapping after a failed request and caches a successful empty result', function (): void {
+    Http::fakeSequence()->push([], 500)->push(['data' => []], 200);
+
+    $mapper = new TerminalLocationMapper;
+    $exception = null;
+    try {
+        $mapper->mapping;
+    } catch (\Illuminate\Http\Client\RequestException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception?->response->status())->toBe(500)
+        ->and($mapper->mapping->all())->toBe([])
+        ->and($mapper->terminalCodes()->all())->toBe([]);
+    Http::assertSentCount(2);
+});

@@ -33,6 +33,10 @@ it('updates commodity prices when the enriched source data changes', function ()
             ]]);
         }
 
+        if (str_ends_with($request->url(), '/terminals')) {
+            return Http::response(['data' => []]);
+        }
+
         return Http::response(status: 404);
     });
 
@@ -50,4 +54,35 @@ it('updates commodity prices when the enriched source data changes', function ()
 
     expect($commodity->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
         ->and($commodity->uex_prices[0]['price_buy'])->toBe(9999);
+});
+
+it('fails without changing commodity prices when terminal mapping fails', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1']);
+    $prices = [[
+        'uex_commodity_id' => 8,
+        'terminal_id' => 1,
+        'terminal_code' => 'OLD',
+        'starmap_location_uuid' => 'b1b11111-2222-3333-4444-555566667787',
+        'price_buy' => 100,
+    ]];
+    $commodity = Commodity::factory()->create(['uex_prices' => $prices]);
+
+    Http::fake([
+        '*/terminals' => Http::response([], 500),
+        '*/commodities_prices*' => Http::response(['data' => [[
+            'id_terminal' => 1, 'terminal_name' => 'Terminal', 'price_buy' => 200,
+            'price_sell' => 50, 'game_version' => '4.7.1', 'date_modified' => 1700000000,
+        ]]]),
+    ]);
+
+    $exception = null;
+    try {
+        (new EnrichCommodityPrices($version->id, [$commodity->id]))->handle();
+    } catch (\Illuminate\Http\Client\RequestException $caught) {
+        $exception = $caught;
+    }
+
+    expect($exception)->not->toBeNull()
+        ->and($exception?->response->status())->toBe(500)
+        ->and($commodity->refresh()->uex_prices)->toEqual($prices);
 });

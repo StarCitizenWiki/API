@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\UEXcorp;
 
 use App\Models\Game\StarmapLocationData;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -194,7 +195,7 @@ final class TerminalLocationMapper
                 'status' => $response->status(),
             ]);
 
-            return collect();
+            throw new RequestException($response);
         }
 
         return collect($response->json('data', []));
