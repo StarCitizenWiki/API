@@ -105,10 +105,10 @@ Route::group(
             Route::get('items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'items')->where('identifier', '.*')->name('items.show');
 
             Route::get('weapons', [ItemController::class, 'index'])->defaults('category', 'weapons')->name('weapons.index');
-            Route::get('weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapons')->name('weapons.show');
+            Route::get('weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapons')->where('identifier', '.*')->name('weapons.show');
 
             Route::get('weapon-attachments', [ItemController::class, 'index'])->defaults('category', 'weapon-attachments')->name('attachments.index');
-            Route::get('weapon-attachments/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapon-attachments')->name('attachments.show');
+            Route::get('weapon-attachments/{identifier}', [ItemController::class, 'show'])->defaults('category', 'weapon-attachments')->where('identifier', '.*')->name('attachments.show');
 
             Route::get('clothes', [ItemController::class, 'index'])->defaults('category', 'clothes')->name('clothes.index');
             Route::get('clothes/{identifier}', [ItemController::class, 'show'])->defaults('category', 'clothes')->where('identifier', '.*')->name('clothes.show');
@@ -120,7 +120,7 @@ Route::group(
             Route::get('food/{identifier}', [ItemController::class, 'show'])->defaults('category', 'food')->where('identifier', '.*')->name('food.show');
 
             Route::get('vehicle-weapons', [ItemController::class, 'index'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.index');
-            Route::get('vehicle-weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-weapons')->name('sc.vehicles.show');
+            Route::get('vehicle-weapons/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-weapons')->where('identifier', '.*')->name('sc.vehicles.show');
 
             Route::get('vehicle-items', [ItemController::class, 'index'])->defaults('category', 'vehicle-items')->name('vehicle-items.index');
             Route::get('vehicle-items/{identifier}', [ItemController::class, 'show'])->defaults('category', 'vehicle-items')->where('identifier', '.*')->name('vehicle-items.show');

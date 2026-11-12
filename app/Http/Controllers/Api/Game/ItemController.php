@@ -1066,10 +1066,15 @@ class ItemController extends Controller
         $identifier = $this->cleanQueryName($identifier);
         $isUuid = Str::isUuid($identifier);
         $slug = Str::slug($identifier);
+        $category = $request->route()->defaults['category'] ?? 'items';
 
         try {
+            // Alias routes scope the lookup like their index counterparts. The base items route stays
+            // unscoped: forCategory's default arm (type != 'NOITEM_Vehicle') drops the NULL-type vehicle
+            // items that items.show must serve instead of redirecting.
             $baseQuery = fn () => QueryBuilder::for(ItemData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
+                ->when($category !== 'items', fn (Builder $q) => $q->forCategory($category))
                 ->allowedIncludes(...$this->allowedIncludes())
                 ->with($this->defaultShowIncludes());
 

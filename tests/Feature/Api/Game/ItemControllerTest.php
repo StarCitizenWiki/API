@@ -537,6 +537,46 @@ it('scopes the armor index to armor classifications only', function (): void {
     $response->assertJsonPath('data.0.name', 'Armor Core');
 });
 
+it('scopes the weapons show route to personal weapons', function (): void {
+    $item = Item::factory()->create(['slug' => 'faction-jacket-green']);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Faction Jacket Green',
+            'type' => 'Clothing',
+            'class_name' => 'cds_armor_heavy_arms_01_02_01',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $this->getJson('/api/weapons/faction-jacket-green')->assertNotFound();
+});
+
+it('resolves weapon identifiers containing slashes on alias show routes', function (): void {
+    $item = Item::factory()->create();
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Slash Path Weapon',
+            'type' => 'WeaponPersonal',
+            'class_name' => 'test/weapon/smg',
+            'classification' => 'WeaponPersonal.Smg',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson('/api/weapons/test/weapon/smg');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $item->uuid)
+        ->assertJsonPath('data.class_name', 'test/weapon/smg');
+});
+
 it('includes related items when requested', function (): void {
     $baseItem = Item::factory()->create();
     $baseData = ItemData::factory()

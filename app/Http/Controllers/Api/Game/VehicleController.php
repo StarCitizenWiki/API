@@ -350,10 +350,12 @@ class VehicleController extends Controller
         $isUuid = Str::isUuid($identifier);
         $allowedIncludes = $this->allowedIncludes();
         $slug = Str::slug($identifier);
+        $vehicleType = $request->route()->defaults['vehicle_type'] ?? 'vehicles';
 
         try {
             $vehicleData = QueryBuilder::for(VehicleData::class, $request)
                 ->forRequestedOrDefaultVersion($versionCode)
+                ->forVehicleType($vehicleType)
                 ->when(
                     $isUuid,
                     fn (Builder $q) => $q->whereHas('vehicle', fn (Builder $vehicleQuery) => $this->matchVehicleIdentifier($vehicleQuery, $identifier, $slug, true)),
@@ -369,7 +371,10 @@ class VehicleController extends Controller
             if ($vehicleData === null || $vehicleData->vehicle === null) {
                 // The versioned 404 outranks the ShipMatrix fallback: a Vehicle with data in
                 // other versions must report those versions, not serve the unversioned matrix.
+                // Alias routes must only report versioned 404s for vehicles that carry data of the
+                // route's type, so a spaceship never surfaces through /ground-vehicles.
                 $vehicle = Vehicle::query()
+                    ->whereHas('data', fn (Builder $dataQuery): Builder => $dataQuery->forVehicleType($vehicleType))
                     ->when(
                         $isUuid,
                         fn (Builder $q) => $this->matchVehicleIdentifier($q, $identifier, $slug, true),

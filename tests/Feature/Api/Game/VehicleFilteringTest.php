@@ -289,6 +289,26 @@ describe('type filter', function (): void {
             ->assertJsonPath('data.0.uuid', $groundVehicle->uuid);
     });
 
+    it('rejects spaceships on the ground-vehicles show route', function (): void {
+        $spaceship = Vehicle::factory()->create();
+        VehicleData::factory()
+            ->for($spaceship)
+            ->for($this->version, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'class_name' => 'Spaceship_Class',
+                'name' => 'Spaceship',
+                'is_vehicle' => false,
+                'is_gravlev' => false,
+                'is_spaceship' => true,
+                'data' => [],
+            ]);
+
+        $response = $this->getJson(route('ground-vehicles.show', 'Spaceship_Class'));
+
+        $response->assertNotFound();
+    });
+
     it('filters gravlev-vehicles route to only gravlev vehicles', function (): void {
         $gravlevVehicle = Vehicle::factory()->create();
         VehicleData::factory()
