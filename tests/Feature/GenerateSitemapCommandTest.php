@@ -278,7 +278,7 @@ it('excludes vehicle items that redirect to the vehicles page', function (): voi
     expect($content)->toContain(route('web.items.show', $plainItem->slug));
 });
 
-it('includes ship-matrix linked vehicles without default version data and their pages resolve', function (): void {
+it('excludes ship-matrix linked vehicles without default version data because their pages return 404', function (): void {
     createDefaultGameVersion();
     $other = GameVersion::factory()->create();
 
@@ -296,9 +296,9 @@ it('includes ship-matrix linked vehicles without default version data and their 
     $content = file_get_contents(storage_path('app/sitemaps/sitemap-vehicles.xml'));
     $url = route('web.vehicles.show', $announced->slug);
 
-    expect($content)->toContain($url);
+    expect($content)->not->toContain($url);
 
-    $this->get($url)->assertSuccessful();
+    $this->get($url)->assertNotFound();
 });
 
 it('excludes vehicles without default version data or a ship-matrix entry', function (): void {

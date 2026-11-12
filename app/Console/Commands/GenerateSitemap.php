@@ -97,7 +97,7 @@ class GenerateSitemap extends Command
             'static' => $this->addStaticUrls($sitemap),
             'comm-links' => $this->addCommLinks($sitemap),
             'galactapedia' => $this->addGalactapedia($sitemap),
-            'vehicles' => $this->addCurrentVersionModelUrls($sitemap, Vehicle::class, 'web.vehicles.show', includeShipMatrix: true),
+            'vehicles' => $this->addCurrentVersionModelUrls($sitemap, Vehicle::class, 'web.vehicles.show'),
             'items' => $this->addCurrentVersionModelUrls($sitemap, Item::class, 'web.items.show', excludeVehicleItems: true),
             'blueprints' => $this->addCurrentVersionModelUrls($sitemap, Blueprint::class, 'web.blueprints.show'),
             'commodities' => $this->addModelUrls($sitemap, Commodity::class, 'web.commodities.show'),
@@ -196,7 +196,6 @@ class GenerateSitemap extends Command
         string $routeName,
         bool $excludeVehicleItems = false,
         bool $requireSystem = false,
-        bool $includeShipMatrix = false,
     ): void {
         $versionId = GameVersion::query()->where('is_default', true)->value('id');
 
@@ -210,18 +209,7 @@ class GenerateSitemap extends Command
 
         $this->addModelUrls($sitemap, $model, $routeName,
             fn (Builder $query): Builder => $query
-                ->when(
-                    $includeShipMatrix,
-                    // Grouped so the ship-matrix OR widens the default-version data check without
-                    // leaking into the excludeVehicleItems constraint below.
-                    fn (Builder $query): Builder => $query->where(function (Builder $query) use ($defaultVersionData): Builder {
-                        $query->whereHas('data', $defaultVersionData);
-                        $query->orWhereHas('data.shipMatrixVehicle');
-
-                        return $query;
-                    }),
-                    fn (Builder $query): Builder => $query->whereHas('data', $defaultVersionData),
-                )
+                ->whereHas('data', $defaultVersionData)
                 ->when($excludeVehicleItems, fn (Builder $query): Builder => $query->whereDoesntHave('vehicle'))
         );
     }
