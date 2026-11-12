@@ -65,7 +65,7 @@ class HardpointItemResource extends ItemResource
             'uuid' => $this->uuid,
             'name' => $itemData->name,
             'class_name' => $itemData->class_name,
-            'link' => route('items.show', ['identifier' => $this->uuid]),
+            'link' => $this->urlWithVersion(route('items.show', ['identifier' => $this->uuid]), $request),
             'size' => $itemData->size,
             'mass' => $itemData->mass,
             'grade' => ItemData::formatGrade($itemData->grade, $itemData->classification),

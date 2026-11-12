@@ -192,7 +192,7 @@ class TurretSummaryResource extends AbstractBaseResource
                 'class_name' => $weapon['ClassName'] ?? null,
                 'name' => $weapon['Name'] ?? null,
                 'link' => $uuid !== null
-                    ? route('items.show', ['identifier' => $uuid])
+                    ? $this->urlWithVersion(route('items.show', ['identifier' => $uuid]), $request)
                     : null,
                 'web_url' => $uuid !== null
                     ? $this->urlWithVersion(route('web.items.show', ['item' => $uuid]), $request)

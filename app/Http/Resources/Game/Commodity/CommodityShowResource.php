@@ -240,7 +240,7 @@ class CommodityShowResource extends CommodityIndexResource
     public function toArray(Request $request): array
     {
         $resourceDataCollection = $this->resource->relationLoaded('resourceData') ? $this->resource->resourceData->all() : [];
-        $locations = $this->buildDetailedLocations($resourceDataCollection, $this->resource->id);
+        $locations = $this->buildDetailedLocations($resourceDataCollection, $this->resource->id, $request);
 
         $this->setCanonicalResource(
             'commodity',
@@ -315,7 +315,7 @@ class CommodityShowResource extends CommodityIndexResource
         ]);
     }
 
-    private function buildDetailedLocations(array $resourceDataCollection, int $currentCommodityId): array
+    private function buildDetailedLocations(array $resourceDataCollection, int $currentCommodityId, Request $request): array
     {
         $flatPairs = $this->flattenLocationPairs($resourceDataCollection);
 
@@ -395,7 +395,7 @@ class CommodityShowResource extends CommodityIndexResource
                 'parent_uuid' => $firstLocationData->parent_location_uuid,
                 'uuid' => $firstLocationData->location_uuid,
                 'link' => $firstLocationData->location_uuid
-                    ? route('locations.show', ['identifier' => $firstLocationData->location_uuid])
+                    ? $this->urlWithVersion(route('locations.show', ['identifier' => $firstLocationData->location_uuid]), $request)
                     : null,
                 'group_probability' => (float) $firstResourceLocation->group_probability,
                 'group_probability_percent' => self::formatPercent((float) $firstResourceLocation->group_probability, 1),

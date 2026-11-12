@@ -42,7 +42,7 @@ final class StarmapLocationLinkResource
             'parent_name' => $locationData->parent_name,
             'star_system_name' => $locationData->star_system_name,
             'link' => $uuid !== null
-                ? route('locations.show', ['identifier' => $uuid])
+                ? self::appendVersion(route('locations.show', ['identifier' => $uuid]), $request)
                 : null,
             'web_url' => $uuid !== null
                 ? self::appendVersion(route('web.locations.show', ['identifier' => $uuid]), $request)

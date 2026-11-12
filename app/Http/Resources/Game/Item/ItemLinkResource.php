@@ -76,9 +76,9 @@ class ItemLinkResource extends AbstractBaseResource
             'web_url' => $this->urlWithVersion(route('web.items.show', ['item' => $item->slug ?? $item->uuid]), $request),
             'size' => $itemData->size,
             $this->mergeWhen($itemData->base_id !== null && $itemData->relationLoaded('baseVariant'), fn () => [
-                'base_variant' => route('items.show', [
+                'base_variant' => $this->urlWithVersion(route('items.show', [
                     'identifier' => $itemData->baseVariant?->item?->uuid ?? '',
-                ]),
+                ]), $request),
             ]),
             'variants' => self::collection($this->whenLoaded('variants')),
 

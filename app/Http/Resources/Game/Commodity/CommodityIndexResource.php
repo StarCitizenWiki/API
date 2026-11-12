@@ -143,7 +143,7 @@ class CommodityIndexResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         $resourceDataCollection = $this->resource->relationLoaded('resourceData') ? $this->resource->resourceData->all() : [];
-        $locations = $this->buildLocations($resourceDataCollection);
+        $locations = $this->buildLocations($resourceDataCollection, $request);
         $groupNames = $this->extractGroupNames($resourceDataCollection);
         ['hasShip' => $hasShip, 'hasGround' => $hasGround, 'hasFps' => $hasFps, 'hasHarvestable' => $hasHarvestable, 'hasSalvage' => $hasSalvage] = $this->resolveFlags($groupNames);
 
@@ -216,7 +216,7 @@ class CommodityIndexResource extends AbstractBaseResource
         ];
     }
 
-    protected function buildLocations(array $resourceDataCollection): array
+    protected function buildLocations(array $resourceDataCollection, Request $request): array
     {
         $flatPairs = $this->flattenLocationPairs($resourceDataCollection);
 
@@ -280,7 +280,7 @@ class CommodityIndexResource extends AbstractBaseResource
                 'parent_type' => $firstLocationData->parent_type_name,
                 'uuid' => $firstLocationData->location_uuid,
                 'link' => $firstLocationData->location_uuid
-                    ? route('locations.show', ['identifier' => $firstLocationData->location_uuid])
+                    ? $this->urlWithVersion(route('locations.show', ['identifier' => $firstLocationData->location_uuid]), $request)
                     : null,
                 'entries' => array_values($entries),
             ];
