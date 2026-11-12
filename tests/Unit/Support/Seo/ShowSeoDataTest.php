@@ -429,15 +429,17 @@ it('builds commodity seo data with breadcrumbs and Item structured data', functi
             'version' => '4.1.0-LIVE',
         ]))
         ->and($seo['keywords'])->toContain('Agricium', 'Mineral', 'Tier 2', 'Star Citizen', 'SC')
-        ->and($seo['breadcrumbs'])->toHaveCount(3)
+        ->and($seo['breadcrumbs'])->toHaveCount(2)
         ->and($seo['breadcrumbs'][0]['label'])->toBe('All Commodities')
         ->and($seo['breadcrumbs'][0]['url'])->toBe(route('web.commodities.index', ['version' => '4.1.0-LIVE']))
         ->and($seo['breadcrumbs'][1]['label'])->toBe('Agricium')
-        ->and($seo['breadcrumbs'][2]['label'])->toBe('Refined Agricium')
-        ->and($seo['breadcrumbs'][2]['url'])->toBe('https://example.com/commodities/refined-123')
+        ->and($seo['breadcrumbs'][1]['url'])->toBe($seo['canonicalUrl'])
         ->and(data_get($seo, 'structuredData.0.@type'))->toBe('BreadcrumbList')
         ->and(data_get($seo, 'structuredData.1.@type'))->toBe('Item')
         ->and(data_get($seo, 'structuredData.1.name'))->toBe('Agricium')
+        ->and(data_get($seo, 'structuredData.1.category'))->toBe('Mineral')
+        ->and(data_get($seo, 'structuredData.1.isRelatedTo.name'))->toBe('Refined Agricium')
+        ->and(data_get($seo, 'structuredData.1.isRelatedTo.url'))->toBe('https://example.com/commodities/refined-123')
         ->and(data_get($seo, 'structuredData.1.sku'))->toBe($commodityUuid)
         ->and(data_get($seo, 'structuredData.1.additionalProperty'))->toHaveCount(5);
 });
@@ -546,6 +548,38 @@ describe('fallback descriptions', function (): void {
             ->not->toContain('. ,')
             ->not->toContain('.,');
     });
+});
+
+it('keeps a refinable commodity as breadcrumb leaf with kind category and related refined version', function (): void {
+    $request = Request::create('/commodities');
+    $request->setLaravelSession(app('session.store'));
+    $request->session()->put('game_version_code', '4.1.0-LIVE');
+
+    $seo = app(CommodityShowSeoData::class)->build([
+        'uuid' => 'com-leaf',
+        'slug' => 'raw-ore',
+        'name' => 'Raw Ore',
+        'kind' => 'Mineral',
+        'tier' => 1,
+        'raw_versions' => [],
+        'refined_version' => [
+            'name' => 'Refined Ore',
+            'uuid' => 'com-refined',
+            'web_url' => 'https://example.com/commodities/refined-ore',
+        ],
+    ], $request);
+
+    $last = count($seo['breadcrumbs']) - 1;
+
+    expect($seo['breadcrumbs'][$last]['label'])->toBe('Raw Ore')
+        ->and($seo['breadcrumbs'][$last]['url'])->toBe(route('web.commodities.show', [
+            'identifier' => 'raw-ore',
+            'version' => '4.1.0-LIVE',
+        ]))
+        ->and(data_get($seo, 'structuredData.1.category'))->toBe('Mineral')
+        ->and(data_get($seo, 'structuredData.1.isRelatedTo.name'))->toBe('Refined Ore')
+        ->and(data_get($seo, 'structuredData.1.isRelatedTo.identifier'))->toBe('com-refined')
+        ->and(data_get($seo, 'structuredData.1.isRelatedTo.url'))->toBe('https://example.com/commodities/refined-ore');
 });
 
 it('builds commodity seo data with raw version breadcrumb and fallback description', function (): void {

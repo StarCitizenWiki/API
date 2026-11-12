@@ -39,7 +39,9 @@ final class CommodityShowSeoData extends AbstractShowSeoData
             160,
         );
 
-        $category = $this->resolveLeafBreadcrumbLabel($breadcrumbs) ?? $kind ?? 'Star Citizen Commodity';
+        $category = $kind
+            ?? $this->resolveLeafBreadcrumbLabel($breadcrumbs)
+            ?? 'Star Citizen Commodity';
 
         $commoditySchema = $this->buildBaseEntityStructuredData(
             schemaType: 'Item',
@@ -63,6 +65,11 @@ final class CommodityShowSeoData extends AbstractShowSeoData
         $image = $this->buildImage($commodity);
         if ($image !== null) {
             $commoditySchema['image'] = $image;
+        }
+
+        $refinedRelation = $this->buildRefinedVersionRelation($commodity);
+        if ($refinedRelation !== null) {
+            $commoditySchema['isRelatedTo'] = $refinedRelation;
         }
 
         return $this->buildSeoResponse(
@@ -108,15 +115,35 @@ final class CommodityShowSeoData extends AbstractShowSeoData
             'url' => $canonicalUrl,
         ];
 
+        return $breadcrumbs;
+    }
+
+    /**
+     * The refined commodity is a sibling page, not a trail ancestor; link it
+     * from the entity schema so the current page stays the breadcrumb leaf.
+     *
+     * @param  array<string, mixed>  $commodity
+     * @return array<string, mixed>|null
+     */
+    private function buildRefinedVersionRelation(array $commodity): ?array
+    {
         $refinedVersion = data_get($commodity, 'refined_version');
-        if (is_array($refinedVersion) && ($refinedVersion['web_url'] ?? null)) {
-            $breadcrumbs[] = [
-                'label' => $refinedVersion['name'] ?? 'Refined',
-                'url' => $refinedVersion['web_url'],
-            ];
+        if (! is_array($refinedVersion) || ! is_string($refinedVersion['web_url'] ?? null)) {
+            return null;
         }
 
-        return $breadcrumbs;
+        $relation = [
+            '@type' => 'Thing',
+            'name' => $refinedVersion['name'] ?? 'Refined',
+            'url' => $refinedVersion['web_url'],
+        ];
+
+        $uuid = $refinedVersion['uuid'] ?? null;
+        if (is_string($uuid) && $uuid !== '') {
+            $relation['identifier'] = $uuid;
+        }
+
+        return $relation;
     }
 
     private function buildMetaTitle(string $commodityName, ?string $kind, string|int|float|null $tier): string
