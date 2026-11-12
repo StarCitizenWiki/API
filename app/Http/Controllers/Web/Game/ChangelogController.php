@@ -95,8 +95,9 @@ class ChangelogController extends Controller
             'entityType' => $entityType,
             'changeType' => $changeType,
             'pageTitle' => "Changelog: {$previousVersion->code} -> {$gameVersion->code}",
-            'olderVersionCode' => $currentIdx > 0 ? $allVersionCodes[$currentIdx - 1] : null,
-            'newerVersionCode' => $allVersionCodes->has($currentIdx + 1) ? $allVersionCodes[$currentIdx + 1] : null,
+            // search() returns false for versions without VersionDiff rows; false + 1 would mislabel the second-oldest version as "newer".
+            'olderVersionCode' => $currentIdx !== false && $currentIdx > 0 ? $allVersionCodes[$currentIdx - 1] : null,
+            'newerVersionCode' => $currentIdx !== false && $allVersionCodes->has($currentIdx + 1) ? $allVersionCodes[$currentIdx + 1] : null,
         ]);
     }
 }

@@ -184,6 +184,55 @@ describe('show', function (): void {
         $response->assertDontSee(route('web.changelog.show', $versionWithoutDiffs->code));
     });
 
+    it('shows no nav links when the requested version has no diffs', function (): void {
+        $oldestVersion = GameVersion::factory()->create([
+            'code' => '4.6.0-LIVE.77777777',
+            'channel' => 'live',
+            'released_at' => now()->subMonth(),
+            'is_hidden' => false,
+        ]);
+
+        $middleVersion = GameVersion::factory()->create([
+            'code' => '4.7.2-LIVE.88888888',
+            'channel' => 'live',
+            'released_at' => now()->subWeek(),
+            'is_hidden' => false,
+        ]);
+
+        $versionWithDiffs = GameVersion::factory()->create([
+            'code' => '4.8.0-LIVE.99999999',
+            'channel' => 'live',
+            'released_at' => now()->subDays(2),
+            'is_hidden' => false,
+        ]);
+
+        $newestVersion = GameVersion::factory()->create([
+            'code' => '4.9.0-LIVE.10101010',
+            'channel' => 'live',
+            'released_at' => now(),
+            'is_hidden' => false,
+        ]);
+
+        VersionDiff::factory()->create([
+            'from_version_id' => $oldestVersion->id,
+            'to_version_id' => $middleVersion->id,
+        ]);
+
+        VersionDiff::factory()->create([
+            'from_version_id' => $middleVersion->id,
+            'to_version_id' => $versionWithDiffs->id,
+        ]);
+
+        $response = $this->get(route('web.changelog.show', $newestVersion->code));
+
+        $response->assertSuccessful();
+        // Regression: Collection::search() returns false for the diff-less newest
+        // version, and false + 1 made "newer" point at the second-oldest version.
+        $response->assertViewHas('olderVersionCode', fn ($code): bool => $code === null);
+        $response->assertViewHas('newerVersionCode', fn ($code): bool => $code === null);
+        $response->assertDontSee(route('web.changelog.show', $versionWithDiffs->code));
+    });
+
     it('returns 404 for unknown version', function (): void {
         $this->get(route('web.changelog.show', 'nonexistent'))
             ->assertNotFound();
