@@ -3,6 +3,49 @@
 declare(strict_types=1);
 
 use App\Support\Filters\FilterCache;
+use Illuminate\Support\Facades\Cache;
+
+it('does not reuse a fill that finishes after a bust', function (): void {
+    app()->detectEnvironment(fn () => 'production');
+    $namespace = FilterCache::NAMESPACE_COMMODITIES;
+    $key = FilterCache::commoditiesKey('race');
+
+    $inFlight = FilterCache::rememberForever($namespace, $key, function () use ($namespace): array {
+        FilterCache::bust($namespace);
+
+        return ['stale'];
+    });
+
+    expect($inFlight)->toBe(['stale'])
+        ->and(FilterCache::rememberForever($namespace, $key, fn () => ['fresh']))->toBe(['fresh'])
+        ->and(FilterCache::rememberForever($namespace, $key, fn () => ['unexpected']))->toBe(['fresh']);
+});
+
+it('rejects an old fill even when it overwrites a fresh fill', function (): void {
+    app()->detectEnvironment(fn () => 'production');
+    $namespace = FilterCache::NAMESPACE_COMMODITIES;
+    $key = FilterCache::commoditiesKey('race');
+
+    FilterCache::rememberForever($namespace, $key, function () use ($namespace, $key): array {
+        FilterCache::bust($namespace);
+        expect(FilterCache::rememberForever($namespace, $key, fn () => ['fresh']))->toBe(['fresh']);
+
+        return ['stale'];
+    });
+
+    expect(FilterCache::rememberForever($namespace, $key, fn () => ['fresh again']))->toBe(['fresh again']);
+});
+
+it('does not reuse a fill after its generation is evicted', function (): void {
+    app()->detectEnvironment(fn () => 'production');
+    $namespace = FilterCache::NAMESPACE_COMMODITIES;
+    $key = FilterCache::commoditiesKey('race');
+
+    FilterCache::rememberForever($namespace, $key, fn () => ['old']);
+    Cache::forget('filters:generation:commodities');
+
+    expect(FilterCache::rememberForever($namespace, $key, fn () => ['fresh']))->toBe(['fresh']);
+});
 
 it('returns false when filters are empty', function (): void {
     expect(FilterCache::hasEffectiveFilters([]))->toBeFalse()

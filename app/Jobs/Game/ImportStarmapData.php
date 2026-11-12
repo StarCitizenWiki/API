@@ -232,6 +232,8 @@ class ImportStarmapData implements ShouldQueue
         $this->runPostSteps();
 
         FilterCache::bust(FilterCache::NAMESPACE_STARMAP_LOCATIONS);
+        // Commodity facets join starmap location data, so they go stale here too.
+        FilterCache::bust(FilterCache::NAMESPACE_COMMODITIES);
     }
 
     private function runPostSteps(): void

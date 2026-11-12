@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use App\Enums\Game\ResourceKind;
+use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceData;
+use App\Models\Game\Resource\ResourceCommodity;
 use App\Models\Game\Resource\ResourceLocation;
 use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapLocation;
@@ -779,4 +781,23 @@ describe('starmap placements', function (): void {
         expect(DB::table('game_resource_location_placements')->count())->toBe(0)
             ->and(DB::table('game_resource_provider_starmap')->count())->toBe(0);
     });
+});
+
+
+it('refreshes commodity location facets after importing placements', function (): void {
+    Storage::fake('scunpacked');
+    $s = setupVersionWithResources();
+    $s['starmapData1']->update(['name' => 'New Placement', 'system' => 'Stanton']);
+    $commodity = Commodity::factory()->create(['key' => 'Copper']);
+    ResourceCommodity::create(['resource_data_id' => $s['resourceData']->id, 'commodity_id' => $commodity->id]);
+    app()->instance('env', 'production');
+
+    $before = $this->getJson('/api/commodities/filters')->assertSuccessful()->json('filters.location');
+    expect(array_column($before, 'value'))->not->toContain('New Placement');
+
+    Storage::disk('scunpacked')->put('resources/locations.json', json_encode(buildPayload($s), JSON_THROW_ON_ERROR));
+    $this->artisan('game:import-resource-locations', ['version' => $s['version']->code])->assertExitCode(Command::SUCCESS);
+
+    $after = $this->getJson('/api/commodities/filters')->assertSuccessful()->json('filters.location');
+    expect(array_column($after, 'value'))->toContain('New Placement');
 });

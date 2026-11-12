@@ -6,6 +6,7 @@ namespace App\Console\Commands\Game\Resources;
 
 use App\Models\Game\Commodity\Commodity;
 use App\Services\Game\SlugService;
+use App\Support\Filters\FilterCache;
 use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -157,6 +158,9 @@ class ImportCommodities extends Command
                 'updated_at',
             ]
         );
+
+        FilterCache::bust(FilterCache::NAMESPACE_COMMODITIES);
+        FilterCache::bust(FilterCache::NAMESPACE_BLUEPRINTS);
 
         $created = count(array_diff($payloadUuids, $existingUuids));
         $updated = $commodities->count() - $created;

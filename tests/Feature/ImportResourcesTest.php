@@ -372,3 +372,60 @@ it('skips invalid resource entries missing required fields', function (): void {
     expect(Resource::query()->count())->toBe(1)
         ->and(Resource::query()->first()->uuid)->toBe($validUuid);
 });
+
+it('busts the commodity facet cache when importing resource links', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    // Facets are only remembered forever in production; mirror that env so the
+    // prime below actually caches and the import must bust it.
+    app()->instance('env', 'production');
+
+    Commodity::factory()->create(['uuid' => $quartzUuid = fake()->uuid(), 'key' => 'Ore_Quartz']);
+
+    // Prime the facet cache with the pre-import (empty) kind list.
+    $this->getJson('/api/commodities/filters')->assertSuccessful();
+
+    $payload = [
+        [
+            'UUID' => fake()->uuid(),
+            'Key' => 'QRC_QUARTZ_DEPOSIT',
+            'Name' => 'Quartz Deposit',
+            'Kind' => 'mineable',
+            'Tier' => 'common',
+            'Composition' => [
+                'Parts' => [
+                    [
+                        'UUID' => fake()->uuid(),
+                        'ResourceTypeUUID' => $quartzUuid,
+                        'Key' => 'Ore_Quartz',
+                        'Name' => 'Quartz',
+                        'MinPercentage' => 30,
+                        'MaxPercentage' => 70,
+                        'Probability' => 1,
+                        'QualityScale' => 1,
+                        'CurveExponent' => 1,
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    Storage::disk('scunpacked')->put('resources/resources.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-resources', ['version' => $version->code])
+        ->assertExitCode(Command::SUCCESS);
+
+    $kindValues = array_column(
+        $this->getJson('/api/commodities/filters')->json('filters.kind') ?? [],
+        'value'
+    );
+
+    expect($kindValues)->toContain('mineable');
+});

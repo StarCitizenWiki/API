@@ -9,6 +9,77 @@ use App\Models\Game\GameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
+it('busts the blueprint facet cache when importing new ingredients', function (): void {
+    Storage::fake('scunpacked');
+
+    $version = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'channel' => 'live',
+        'released_at' => now(),
+        'is_default' => true,
+    ]);
+
+    // Facets are only remembered forever in production; mirror that env so the
+    // prime below actually caches and the import must bust it.
+    app()->instance('env', 'production');
+
+    // Prime the facet cache with the pre-import (empty) ingredient list.
+    $this->getJson('/api/blueprints/filters')->assertSuccessful();
+
+    $quantainium = Commodity::factory()->create(['uuid' => $quantainiumUuid = fake()->uuid(), 'name' => 'Quantainium']);
+
+    $payload = [[
+        'UUID' => fake()->uuid(),
+        'Key' => 'BP_CRAFT_CACHE_BUST',
+        'Kind' => 'creation',
+        'CategoryUUID' => fake()->uuid(),
+        'Output' => [
+            'UUID' => fake()->uuid(),
+            'Class' => 'cache_bust_output_class',
+            'Type' => 'WeaponPersonal',
+            'Name' => 'Cache Bust Output',
+        ],
+        'Availability' => [
+            'Default' => true,
+        ],
+        'Tiers' => [
+            [
+                'TierIndex' => 0,
+                'CraftTimeSeconds' => 60,
+                'Requirements' => [
+                    'Kind' => 'root',
+                    'Children' => [
+                        [
+                            'Kind' => 'resource',
+                            'UUID' => $quantainiumUuid,
+                            'Name' => 'Quantainium',
+                            'QuantityScu' => 0.1,
+                            'MinQuality' => 0,
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        'Dismantle' => [
+            'TimeSeconds' => 5,
+            'Efficiency' => 0.5,
+            'Returns' => [],
+        ],
+    ]];
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode($payload, JSON_THROW_ON_ERROR));
+
+    $this->artisan('game:import-blueprints', ['version' => $version->code])
+        ->assertExitCode(Command::SUCCESS);
+
+    $ingredientValues = array_column(
+        $this->getJson('/api/blueprints/filters')->json('filters')['ingredient.uuid'] ?? [],
+        'value'
+    );
+
+    expect($ingredientValues)->toContain($quantainiumUuid);
+});
+
 it('fails when the game version does not exist', function (): void {
     Storage::fake('scunpacked');
 

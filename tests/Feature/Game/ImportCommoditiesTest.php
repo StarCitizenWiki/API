@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\Blueprint;
+use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
+use App\Models\Game\GameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -231,4 +234,42 @@ it('upserts existing commodities when the payload changes', function (): void {
         ->and($commodity->validate_default_cargo_box)->toBeTrue()
         ->and($commodity->box_sizes_scu)->toBe([1, 2, 4])
         ->and(Commodity::query()->count())->toBe(1);
+});
+
+
+it('refreshes commodity rarity facets after a commodity import', function (): void {
+    Storage::fake('scunpacked');
+    GameVersion::factory()->create(['code' => '4.0.0-LIVE', 'channel' => 'live', 'released_at' => now(), 'is_default' => true]);
+    $commodity = Commodity::factory()->create(['tier' => 'common']);
+    app()->instance('env', 'production');
+
+    expect(array_column($this->getJson('/api/commodities/filters')->assertSuccessful()->json('filters.rarity'), 'value'))->toContain('common');
+
+    Storage::disk('scunpacked')->put('resources/commodities.json', json_encode([[
+        'UUID' => $commodity->uuid, 'Key' => $commodity->key, 'Name' => $commodity->name, 'Tier' => 'rare',
+    ]], JSON_THROW_ON_ERROR));
+    $this->artisan('game:import-commodities')->assertExitCode(Command::SUCCESS);
+
+    $values = array_column($this->getJson('/api/commodities/filters')->assertSuccessful()->json('filters.rarity'), 'value');
+    expect($values)->toContain('rare')->not->toContain('common');
+});
+
+it('refreshes blueprint ingredient labels after a commodity import', function (): void {
+    Storage::fake('scunpacked');
+    $version = GameVersion::factory()->create(['code' => '4.0.0-LIVE', 'channel' => 'live', 'released_at' => now(), 'is_default' => true]);
+    $commodity = Commodity::factory()->create(['name' => 'Old Ingredient']);
+    BlueprintData::factory()->for(Blueprint::factory(), 'blueprint')->for($version, 'gameVersion')
+        ->withIngredients($commodity)->create(['data' => ['tiers' => []]]);
+    app()->instance('env', 'production');
+
+    $before = $this->getJson('/api/blueprints/filters')->assertSuccessful()->json('filters');
+    expect(collect($before['ingredient.uuid'])->firstWhere('value', $commodity->uuid)['label'])->toBe('Old Ingredient');
+
+    Storage::disk('scunpacked')->put('resources/commodities.json', json_encode([[
+        'UUID' => $commodity->uuid, 'Key' => $commodity->key, 'Name' => 'New Ingredient',
+    ]], JSON_THROW_ON_ERROR));
+    $this->artisan('game:import-commodities')->assertExitCode(Command::SUCCESS);
+
+    $after = $this->getJson('/api/blueprints/filters')->assertSuccessful()->json('filters');
+    expect(collect($after['ingredient.uuid'])->firstWhere('value', $commodity->uuid)['label'])->toBe('New Ingredient');
 });

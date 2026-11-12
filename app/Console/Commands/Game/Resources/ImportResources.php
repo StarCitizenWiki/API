@@ -9,6 +9,7 @@ use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceData;
+use App\Support\Filters\FilterCache;
 use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
@@ -104,6 +105,9 @@ class ImportResources extends Command implements PromptsForMissingInput
 
             $imported++;
         }
+
+        // Commodity facets join resource data written above; the forever cache must be invalidated.
+        FilterCache::bust(FilterCache::NAMESPACE_COMMODITIES);
 
         $this->info(sprintf(
             'Imported %d resources for version %s (%d new, %d existing). Skipped %d invalid. Linked %d commodities (%d links skipped).',

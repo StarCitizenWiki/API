@@ -6,6 +6,8 @@ use App\Jobs\Game\ImportStarmapData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use App\Support\Filters\FilterCache;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
@@ -49,6 +51,19 @@ it('persists the row when source data changes', function (): void {
 
     // The guard must let a genuine change through and persist it.
     expect($data->name)->toBe('Port Tressler');
+});
+
+it('busts the commodity filter cache when the job runs', function (): void {
+    $indexKey = 'filters:index:commodities';
+    $cacheKey = FilterCache::commoditiesKey($this->version->code);
+
+    Cache::forever($indexKey, [$cacheKey]);
+    Cache::forever($cacheKey, ['cached-commodity-filters']);
+
+    dispatchStarmapImport($this->version->id, starmapPayload());
+
+    expect(Cache::get($indexKey))->toBeNull()
+        ->and(Cache::get($cacheKey))->toBeNull();
 });
 
 describe('slug stability', function (): void {

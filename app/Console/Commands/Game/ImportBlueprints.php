@@ -9,6 +9,7 @@ use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Services\Game\SlugService;
+use App\Support\Filters\FilterCache;
 use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
@@ -136,6 +137,9 @@ class ImportBlueprints extends Command implements PromptsForMissingInput
 
             $imported++;
         }
+
+        // Blueprint facets (ingredient lists) are cached forever; the import must invalidate them.
+        FilterCache::bust(FilterCache::NAMESPACE_BLUEPRINTS);
 
         $this->info(sprintf(
             'Imported %d blueprints for version %s (%d new identities, %d existing identities). Skipped %d invalid.',

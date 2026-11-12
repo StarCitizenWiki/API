@@ -11,6 +11,7 @@ use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceLocation;
 use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapLocationData;
+use App\Support\Filters\FilterCache;
 use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
@@ -217,6 +218,8 @@ class ImportResourceLocations extends Command implements PromptsForMissingInput
                 $syncedLocations++;
             }
         }
+
+        FilterCache::bust(FilterCache::NAMESPACE_COMMODITIES);
 
         $this->info(sprintf(
             'Imported %d resource locations for version %s. Synced %d provider placements, %d location placements. Skipped %d invalid providers, %d unresolved resource UUIDs.',

@@ -33,11 +33,21 @@ final class FilterCache
     {
         self::trackKey($namespace, $key);
 
-        if (app()->environment('production')) {
-            return Cache::rememberForever($key, $resolver);
+        if (! app()->environment('production')) {
+            return $resolver();
         }
 
-        return $resolver();
+        $generation = self::generation($namespace);
+        $cached = Cache::get($key);
+
+        if (is_array($cached) && ($cached['generation'] ?? null) === $generation && array_key_exists('value', $cached) && $cached['value'] !== null) {
+            return $cached['value'];
+        }
+
+        $value = $resolver();
+        Cache::forever($key, ['generation' => $generation, 'value' => $value]);
+
+        return $value;
     }
 
     /**
@@ -72,6 +82,8 @@ final class FilterCache
 
     public static function bust(string $namespace): void
     {
+        Cache::forever(self::generationKey($namespace), bin2hex(random_bytes(16)));
+
         $indexKey = self::indexKey($namespace);
         $keys = Cache::get($indexKey, []);
 
@@ -136,6 +148,25 @@ final class FilterCache
     public static function missionsKey(?string $versionCode): string
     {
         return sprintf('filters:missions:%s', self::normalizeVersion($versionCode));
+    }
+
+    private static function generation(string $namespace): string
+    {
+        $key = self::generationKey($namespace);
+        $generation = Cache::get($key);
+
+        if (! is_string($generation)) {
+            $generation = bin2hex(random_bytes(16));
+            Cache::add($key, $generation, 31536000);
+            $generation = Cache::get($key, $generation);
+        }
+
+        return $generation;
+    }
+
+    private static function generationKey(string $namespace): string
+    {
+        return sprintf('filters:generation:%s', $namespace);
     }
 
     private static function normalizeVersion(?string $versionCode): string
