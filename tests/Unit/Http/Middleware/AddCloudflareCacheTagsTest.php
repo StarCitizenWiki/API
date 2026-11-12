@@ -56,6 +56,16 @@ describe('AddCloudflareCacheTags middleware', function (): void {
         expect($response->headers->get('Cache-Tag'))->toBe('api, api-vehicles, api-v4.7.1');
     });
 
+    it('marks web responses private and skips shared tags when a session version was injected', function (): void {
+        $request = cacheTagRequest('/vehicles', CacheTaggedControllerForCacheTagsStub::class);
+        $request->attributes->set('session_game_version', '4.7.1-PTU.456');
+
+        $response = (new AddCloudflareCacheTags)->handle($request, cacheTagResponse(...));
+
+        expect($response->headers->get('Cache-Control'))->toBe('no-store, private');
+        expect($response->headers->has('Cache-Tag'))->toBeFalse();
+    });
+
     it('does not set cache tags for unsafe methods, closure routes, or untagged controllers', function (Request $request): void {
         $response = (new AddCloudflareCacheTags)->handle($request, cacheTagResponse(...));
 

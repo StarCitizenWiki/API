@@ -37,6 +37,14 @@ readonly class AddCloudflareCacheTags
             return $response;
         }
 
+        // A session game version was injected, so the response varies per visitor while the URL
+        // stays identical: it must never enter a shared cache and cannot carry shared purge tags.
+        if ($request->attributes->get('session_game_version') !== null) {
+            $response->headers->set('Cache-Control', 'no-store, private');
+
+            return $response;
+        }
+
         $cacheTag = $attributes[0]->newInstance();
         $scope = $request->is('api/*') ? 'api' : 'web';
 

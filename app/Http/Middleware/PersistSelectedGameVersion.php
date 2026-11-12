@@ -46,6 +46,9 @@ class PersistSelectedGameVersion
                         // Skip path-versioned routes (e.g. /changelog/{version})
                         $request->query->set('version', $resolvedSessionCode);
                         $request->server->set('QUERY_STRING', $request->getQueryString());
+                        // The URL no longer identifies the rendered version, so downstream cache
+                        // middleware must treat this response as visitor-specific.
+                        $request->attributes->set('session_game_version', $resolvedSessionCode);
                     }
                 }
             }
