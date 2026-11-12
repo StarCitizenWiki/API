@@ -1388,6 +1388,58 @@ it('returns full blueprint data when include=blueprints is requested on show rou
         ->and($response->json('data.blueprint.0.tiers'))->toBe([]);
 });
 
+it('batches raw commodity loads for included blueprint ingredients', function (): void {
+    $item = Item::factory()->create();
+    ItemData::factory()->for($item)->for($this->gameVersion, 'gameVersion')->for($this->manufacturer)->create([
+        'name' => 'Crafted Widget',
+        'is_craftable' => true,
+        'data' => ['stdItem' => []],
+    ]);
+
+    $ingredients = collect(range(1, 3))->map(function (int $index): array {
+        $refined = Commodity::factory()->create(['name' => "Refined {$index}"]);
+        $raw = Commodity::factory()->create(['refined_version_uuid' => $refined->uuid]);
+
+        return [$refined, $raw];
+    });
+    $blueprint = Blueprint::factory()->create();
+    BlueprintData::factory()->for($blueprint, 'blueprint')->for($this->gameVersion, 'gameVersion')
+        ->withIngredients(...$ingredients->pluck(0)->all())
+        ->create([
+            'output_item_uuid' => $item->uuid,
+            'output_name' => 'Crafted Widget',
+            'data' => ['tiers' => [[
+                'requirements' => [
+                    'kind' => 'root',
+                    'children' => $ingredients->map(fn (array $pair): array => [
+                        'kind' => 'resource',
+                        'uuid' => $pair[0]->uuid,
+                        'name' => $pair[0]->name,
+                        'quantity_scu' => 1,
+                    ])->all(),
+                ],
+            ]]],
+        ]);
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $response = $this->getJson("/api/items/{$item->uuid}?include=blueprints");
+    $queries = DB::getQueryLog();
+    DB::disableQueryLog();
+
+    $response->assertSuccessful()->assertJsonCount(3, 'data.blueprint.0.ingredients');
+    foreach ($ingredients as [$refined, $raw]) {
+        $ingredient = collect($response->json('data.blueprint.0.ingredients'))->firstWhere('resource_type_uuid', $refined->uuid);
+        expect($ingredient)->not->toBeNull()
+            ->and($ingredient['link'])->toBe(route('commodities.show', ['commodity' => $raw->uuid]));
+    }
+
+    $rawQueries = collect($queries)->filter(fn (array $query): bool => str_contains($query['query'], 'refined_version_uuid'));
+    expect($rawQueries->count())->toBe(1)
+        ->and(strtolower($rawQueries->first()['query']))->toContain(' in (')
+        ->and($rawQueries->first()['bindings'])->toHaveCount(3);
+});
+
 it('accepts include as array param notation on the show route', function (): void {
     $item = Item::factory()->create();
 
