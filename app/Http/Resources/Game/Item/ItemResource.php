@@ -708,11 +708,11 @@ class ItemResource extends AbstractBaseResource
     /**
      * Eager load ItemData for all equipped items in ports to prevent N+1 queries.
      *
-     * Only runs on the items.show route where equipped items are displayed.
+     * Only runs on item show routes where equipped items are displayed.
      */
     private function eagerLoadPortEquippedItems(ItemData $itemData, Request $request): void
     {
-        if (! $request->routeIs('items.show')) {
+        if (! $request->routeIs('items.show', 'weapons.show', 'attachments.show', 'clothes.show', 'armor.show', 'food.show', 'sc.vehicles.show', 'vehicle-items.show')) {
             return;
         }
 

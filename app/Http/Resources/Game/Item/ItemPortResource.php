@@ -115,7 +115,7 @@ class ItemPortResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         $itemData = null;
-        if (Arr::has($this, 'EquippedItem') && Arr::get($this, 'EquippedItem') !== null && $request->routeIs('items.show')) {
+        if (Arr::has($this, 'EquippedItem') && Arr::get($this, 'EquippedItem') !== null && $request->routeIs('items.show', 'weapons.show', 'attachments.show', 'clothes.show', 'armor.show', 'food.show', 'sc.vehicles.show', 'vehicle-items.show')) {
             $itemData = $this->loadItemDataForVersion(Arr::get($this, 'EquippedItem'));
             $itemData?->item->setRelation('data', collect([$itemData]));
         }

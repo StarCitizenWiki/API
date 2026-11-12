@@ -913,6 +913,68 @@ it('includes variant names for items equipped in ports', function (): void {
         ->assertJsonPath('data.ports.0.equipped_item.variant_name', 'Shadow');
 });
 
+it('resolves equipped items and nested ports on weapon show aliases', function (): void {
+    $requestedVersion = GameVersion::factory()->create([
+        'code' => '3.23.0-LIVE',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->subDay(),
+    ]);
+    $weapon = Item::factory()->create(['slug' => 'ported-weapon']);
+    $attachment = Item::factory()->create();
+    $secondAttachment = Item::factory()->create();
+    $nestedItem = Item::factory()->create();
+
+    foreach ([$this->gameVersion, $requestedVersion] as $version) {
+        ItemData::factory()->for($weapon)->for($version, 'gameVersion')->for($this->manufacturer)->create([
+            'name' => 'Ported Weapon',
+            'type' => 'WeaponPersonal',
+            'class_name' => 'ported_weapon',
+            'classification' => 'WeaponPersonal.Smg',
+            'data' => ['stdItem' => ['Ports' => [
+                ['PortName' => 'attachment', 'EquippedItem' => $attachment->uuid],
+                ['PortName' => 'second_attachment', 'EquippedItem' => $secondAttachment->uuid],
+            ]]],
+        ]);
+        ItemData::factory()->for($attachment)->for($version, 'gameVersion')->for($this->manufacturer)->create([
+            'name' => 'Attachment '.$version->code,
+            'data' => ['stdItem' => ['Ports' => [['PortName' => 'nested_slot', 'EquippedItem' => $nestedItem->uuid]]]],
+        ]);
+        ItemData::factory()->for($secondAttachment)->for($version, 'gameVersion')->for($this->manufacturer)->create([
+            'name' => 'Second Attachment '.$version->code,
+            'data' => ['stdItem' => []],
+        ]);
+        ItemData::factory()->for($nestedItem)->for($version, 'gameVersion')->for($this->manufacturer)->create([
+            'name' => 'Nested Item '.$version->code,
+            'data' => ['stdItem' => []],
+        ]);
+    }
+
+    DB::enableQueryLog();
+    DB::flushQueryLog();
+    $response = $this->getJson('/api/weapons/ported-weapon?version='.$requestedVersion->code);
+    $queries = DB::getQueryLog();
+    DB::disableQueryLog();
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.ports.0.equipped_item.uuid', $attachment->uuid)
+        ->assertJsonPath('data.ports.0.equipped_item.name', 'Attachment '.$requestedVersion->code)
+        ->assertJsonPath('data.ports.1.equipped_item.uuid', $secondAttachment->uuid)
+        ->assertJsonPath('data.ports.0.ports.0.name', 'nested_slot')
+        ->assertJsonPath('data.ports.0.ports.0.equipped_item.uuid', $nestedItem->uuid)
+        ->assertJsonPath('data.ports.0.ports.0.equipped_item.name', 'Nested Item '.$requestedVersion->code);
+
+    expect(collect($queries)->contains(fn (array $query) =>
+        in_array($attachment->uuid, $query['bindings'], true)
+        && in_array($secondAttachment->uuid, $query['bindings'], true)
+    ))->toBeTrue();
+
+    $this->getJson('/api/weapons')->assertSuccessful()
+        ->assertJsonPath('data.0.ports.0.equipped_item_uuid', $attachment->uuid)
+        ->assertJsonMissingPath('data.0.ports.0.equipped_item')
+        ->assertJsonPath('data.0.ports.0.ports', null);
+});
+
 it('counts weapon rack slots from compatible types', function (): void {
     $item = Item::factory()->create();
 
