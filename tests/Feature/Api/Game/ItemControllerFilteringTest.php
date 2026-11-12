@@ -76,6 +76,36 @@ describe('integer column filters', function (): void {
         expect($response->json('data'))->toHaveCount(2);
     });
 
+    it('ignores a fractional size instead of truncating it', function (): void {
+        $sizeTwo = Item::factory()->create();
+        ItemData::factory()
+            ->for($sizeTwo)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Size Two',
+                'size' => 2,
+                'grade' => 1,
+                'class_name' => 'SizeTwo',
+                'classification' => 'Test',
+                'data' => [],
+            ]);
+
+        $unfiltered = $this->getJson('/api/items')->assertSuccessful()->json('data');
+
+        // 2.5 must not act as a truncated size-2 constraint; the filter stays unspecified.
+        $this->getJson('/api/items?filter[size]=2.5')
+            ->assertSuccessful()
+            ->assertJsonPath('data', $unfiltered);
+    });
+
+    it('ignores junk size input instead of erroring', function (): void {
+        $response = $this->getJson('/api/items?filter[size]=abc');
+
+        $response->assertSuccessful();
+        expect($response->json('data'))->toHaveCount(2);
+    });
+
     it('filters multiple numeric sizes at once', function (): void {
         $middle = Item::factory()->create();
         ItemData::factory()

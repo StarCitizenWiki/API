@@ -24,7 +24,8 @@ final class IntegerExactFilter implements Filter
         $integers = [];
 
         foreach ($values as $item) {
-            if (is_numeric($item)) {
+            // Fractional numeric input must be skipped, not cast-truncated; junk stays ignored per Q-6 triage.
+            if (is_int($item) || (is_string($item) && preg_match('/^-?\d+$/', $item) === 1)) {
                 $integers[] = (int) $item;
 
                 continue;
