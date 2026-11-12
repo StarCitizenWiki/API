@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources\Game;
 
 use App\Http\Resources\AbstractBaseResource;
+use App\Support\Game\EntityTypeConfig;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
@@ -25,7 +26,8 @@ class VersionDiffResource extends AbstractBaseResource
     public function toArray(Request $request): array
     {
         return [
-            'entity_type' => $this->entity_type,
+            // Same key mapping as the changelog summary (VersionDiff::getChangeCounts).
+            'entity_type' => EntityTypeConfig::keyForModel($this->entity_type) ?? $this->entity_type,
             'entity_id' => $this->entity_id,
             'change_type' => $this->change_type,
             'column_changes' => $this->column_changes,

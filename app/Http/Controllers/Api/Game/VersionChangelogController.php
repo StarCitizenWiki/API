@@ -10,7 +10,11 @@ use App\Http\Resources\Game\VersionChangelogResource;
 use App\Http\Resources\Game\VersionDiffResource;
 use App\Models\Game\GameVersion;
 use App\Models\Game\VersionDiff;
+use App\Support\Filters\FilterInput;
+use App\Support\Game\EntityTypeConfig;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -88,14 +92,20 @@ class VersionChangelogController extends Controller
             new OA\Response(response: 404, description: 'Version not found or no previous version', content: new OA\JsonContent(ref: '#/components/schemas/not_found_error_response')),
         ]
     )]
-    public function changes(string $version): AnonymousResourceCollection
+    public function changes(string $version, Request $request): AnonymousResourceCollection
     {
         $gameVersion = GameVersion::findByCode($version, fail: true);
         $previousVersion = $gameVersion->findPreviousVersion();
         abort_if($previousVersion === null, 404, 'No previous version found.');
 
+        FilterInput::validate($request, $this->filterInputRules());
+
         $query = QueryBuilder::for(VersionDiff::class)
-            ->allowedFilters(AllowedFilter::exact('entity_type'), AllowedFilter::exact('change_type'))
+            ->allowedFilters(
+                // Column stores morph classes; the public filter speaks EntityTypeConfig keys.
+                AllowedFilter::callback('entity_type', fn ($query, string $value) => $query->where('entity_type', EntityTypeConfig::modelClass($value))),
+                AllowedFilter::exact('change_type'),
+            )
             ->where('from_version_id', $previousVersion->id)
             ->where('to_version_id', $gameVersion->id)
             ->defaultSort('entity_type', 'change_type');
@@ -103,5 +113,16 @@ class VersionChangelogController extends Controller
         return VersionDiffResource::collection(
             $query->jsonPaginate()->appends(request()->query())
         );
+    }
+
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    private function filterInputRules(): array
+    {
+        return [
+            'filter' => ['sometimes', 'array'],
+            'filter.entity_type' => ['sometimes', 'string', Rule::in(array_keys(EntityTypeConfig::all()))],
+        ];
     }
 }
