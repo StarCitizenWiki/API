@@ -125,10 +125,21 @@ class ManufacturerController extends Controller
                     ->where('uuid', $identifier)
                     ->firstOrFail();
             } else {
+                // Exact match wins over rows that merely contain the term; the
+                // fallback is name-ordered with escaped wildcards so results are deterministic.
                 $manufacturer = QueryBuilder::for(Manufacturer::class, $request)
-                    ->orWhere('name', 'LIKE', "%{$identifier}%")
-                    ->orWhere('code', 'LIKE', "%{$identifier}%")
-                    ->firstOrFail();
+                    ->where(fn (Builder $query): Builder => $query
+                        ->where('name', $identifier)
+                        ->orWhere('code', $identifier))
+                    ->orderBy('name')
+                    ->first()
+                    ?? QueryBuilder::for(Manufacturer::class, $request)
+                        ->where(fn (Builder $query): Builder => $this->matchNameOrCodeLike(
+                            $query,
+                            '%'.$this->escapeLike($identifier).'%'
+                        ))
+                        ->orderBy('name')
+                        ->firstOrFail();
             }
         } catch (ModelNotFoundException) {
             throw new NotFoundHttpException('No Manufacturer with specified UUID or Name found.');
@@ -199,5 +210,21 @@ class ManufacturerController extends Controller
         return ManufacturerLinkResource::collection($manufacturers)->additional([
             'meta' => ['deprecated' => true],
         ])->response()->header('Deprecated', 'true');
+    }
+
+    /**
+     * OR-group of escaped ILIKE conditions on name and code so % and _ in the
+     * identifier match literally, like the items/vehicles lookups.
+     */
+    private function matchNameOrCodeLike(Builder $query, string $pattern): Builder
+    {
+        return $query
+            ->whereRaw('"name" ilike ? ESCAPE \'\\\'', [$pattern])
+            ->orWhereRaw('"code" ilike ? ESCAPE \'\\\'', [$pattern]);
+    }
+
+    private function escapeLike(string $query): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query);
     }
 }

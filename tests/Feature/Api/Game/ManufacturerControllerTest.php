@@ -95,3 +95,93 @@ it('filters manufacturers by name without ambiguous table error', function (): v
         ->and($names)->not->toContain('Anvil Aerospace');
 })->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
     ->group('db-pgsql');
+
+it('prefers an exact name match over partial matches', function (): void {
+    Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Origin Jumpworks',
+        'code' => 'ORIJ',
+    ]);
+
+    Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Origin Systems',
+        'code' => 'ORIS',
+    ]);
+
+    $exact = Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Origin',
+        'code' => 'ORIG',
+    ]);
+
+    $response = $this->getJson('/api/manufacturers/'.rawurlencode('Origin'));
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $exact->uuid)
+        ->assertJsonPath('data.name', 'Origin');
+})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
+    ->group('db-pgsql');
+
+it('prefers an exact code match over partial matches', function (): void {
+    Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'ANVL Industries',
+        'code' => 'ANV2',
+    ]);
+
+    $exact = Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Anvil Aerospace',
+        'code' => 'ANVL',
+    ]);
+
+    $response = $this->getJson('/api/manufacturers/ANVL');
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $exact->uuid)
+        ->assertJsonPath('data.code', 'ANVL');
+})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
+    ->group('db-pgsql');
+
+it('falls back to the first name-ordered partial match when no exact match exists', function (): void {
+    Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Beta Works',
+        'code' => 'BETA',
+    ]);
+
+    $first = Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Alpha Works',
+        'code' => 'ALPH',
+    ]);
+
+    $response = $this->getJson('/api/manufacturers/'.rawurlencode('Works'));
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $first->uuid)
+        ->assertJsonPath('data.name', 'Alpha Works');
+})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
+    ->group('db-pgsql');
+
+it('treats percent characters as literal text for manufacturer lookups', function (): void {
+    Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Test Industries',
+        'code' => 'TIND',
+    ]);
+
+    $target = Manufacturer::factory()->create([
+        'uuid' => fake()->uuid(),
+        'name' => 'Test% Works',
+        'code' => 'TPWK',
+    ]);
+
+    $response = $this->getJson('/api/manufacturers/'.rawurlencode('Test%'));
+
+    $response->assertSuccessful()
+        ->assertJsonPath('data.uuid', $target->uuid)
+        ->assertJsonPath('data.name', 'Test% Works');
+})->skip(fn (): bool => DB::connection()->getDriverName() !== 'pgsql', 'PostgreSQL only test')
+    ->group('db-pgsql');
