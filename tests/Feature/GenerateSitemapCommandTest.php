@@ -264,7 +264,13 @@ it('excludes vehicle items that redirect to the vehicles page', function (): voi
 
     $vehicleItem = Item::factory()->create();
     ItemData::factory()->create(['item_id' => $vehicleItem->id, 'game_version_id' => $version->id]);
-    Vehicle::factory()->create(['uuid' => $vehicleItem->uuid]);
+    $vehicle = Vehicle::factory()->create(['uuid' => $vehicleItem->uuid]);
+    VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id]);
+
+    $outdatedVehicleItem = Item::factory()->create();
+    ItemData::factory()->create(['item_id' => $outdatedVehicleItem->id, 'game_version_id' => $version->id]);
+    $outdatedVehicle = Vehicle::factory()->create(['uuid' => $outdatedVehicleItem->uuid]);
+    VehicleData::factory()->create(['vehicle_id' => $outdatedVehicle->id, 'game_version_id' => GameVersion::factory()->create()->id]);
 
     $plainItem = Item::factory()->create();
     ItemData::factory()->create(['item_id' => $plainItem->id, 'game_version_id' => $version->id]);
@@ -275,7 +281,9 @@ it('excludes vehicle items that redirect to the vehicles page', function (): voi
     $content = file_get_contents(storage_path('app/sitemaps/sitemap-items.xml'));
 
     expect($content)->not->toContain(route('web.items.show', $vehicleItem->slug));
+    expect($content)->toContain(route('web.items.show', $outdatedVehicleItem->slug));
     expect($content)->toContain(route('web.items.show', $plainItem->slug));
+    $this->get(route('web.items.show', $outdatedVehicleItem->slug))->assertSuccessful();
 });
 
 it('excludes ship-matrix linked vehicles without default version data because their pages return 404', function (): void {

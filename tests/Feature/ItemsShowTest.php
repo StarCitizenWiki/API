@@ -14,6 +14,7 @@ use App\Models\Game\VariantGradeItem;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
 use App\Models\Game\Vehicle;
+use App\Models\Game\VehicleData;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -1161,16 +1162,18 @@ it('renders the hero icon chip with the daisyui rounded-box radius when no image
 it('forwards the requested game version when redirecting a vehicle item to its vehicle page', function (): void {
     [$item, , $version] = createItemForShow();
 
-    Vehicle::factory()->create(['uuid' => $item->uuid]);
+    $vehicle = Vehicle::factory()->create(['uuid' => $item->uuid]);
+    VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id]);
 
     $this->get(route('web.items.show', ['item' => $item->uuid, 'version' => $version->code]))
         ->assertRedirect(route('web.vehicles.show', ['vehicle' => $item->uuid, 'version' => $version->code]));
 });
 
 it('redirects a vehicle item to its vehicle page without a version param', function (): void {
-    [$item] = createItemForShow();
+    [$item, , $version] = createItemForShow();
 
-    Vehicle::factory()->create(['uuid' => $item->uuid]);
+    $vehicle = Vehicle::factory()->create(['uuid' => $item->uuid]);
+    VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id]);
 
     $response = $this->get(route('web.items.show', $item->uuid));
 

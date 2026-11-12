@@ -210,7 +210,7 @@ class GenerateSitemap extends Command
         $this->addModelUrls($sitemap, $model, $routeName,
             fn (Builder $query): Builder => $query
                 ->whereHas('data', $defaultVersionData)
-                ->when($excludeVehicleItems, fn (Builder $query): Builder => $query->whereDoesntHave('vehicle'))
+                ->when($excludeVehicleItems, fn (Builder $query): Builder => $query->whereDoesntHave('vehicle.data', fn (Builder $data): Builder => $data->where('game_version_id', $versionId)))
         );
     }
 
