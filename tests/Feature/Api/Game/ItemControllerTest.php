@@ -16,6 +16,7 @@ use App\Models\Game\Manufacturer;
 use App\Models\Game\VariantGroup;
 use App\Models\Game\VariantGroupItem;
 use App\Models\Game\Vehicle;
+use App\Models\Game\VehicleData;
 use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
@@ -402,7 +403,17 @@ it('returns not found for non-existent item', function () {
 
 it('redirects to the vehicle endpoint for vehicle items', function (): void {
     $item = Item::factory()->create();
-    Vehicle::factory()->create(['uuid' => $item->uuid]);
+    $vehicle = Vehicle::factory()->create(['uuid' => $item->uuid]);
+
+    VehicleData::factory()
+        ->for($vehicle)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Test Vehicle',
+            'display_name' => 'Test Vehicle',
+            'class_name' => 'TEST_Vehicle',
+        ]);
 
     ItemData::factory()
         ->for($item)
@@ -419,6 +430,46 @@ it('redirects to the vehicle endpoint for vehicle items', function (): void {
     $response = $this->getJson("/api/items/{$item->uuid}");
 
     $response->assertRedirect("/api/vehicles/{$item->uuid}");
+});
+
+it('returns the item instead of redirecting when the vehicle has no data in the requested version', function (): void {
+    $otherVersion = GameVersion::factory()->create([
+        'code' => '4.1.0-LIVE',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->addDay(),
+    ]);
+
+    $item = Item::factory()->create();
+    $vehicle = Vehicle::factory()->create(['uuid' => $item->uuid]);
+
+    VehicleData::factory()
+        ->for($vehicle)
+        ->for($otherVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Version Miss Vehicle',
+            'display_name' => 'Version Miss Vehicle',
+            'class_name' => 'TEST_VersionMissVehicle',
+        ]);
+
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'Version Miss Vehicle',
+            'type' => null,
+            'class_name' => 'version_miss_vehicle',
+            'classification' => 'Vehicle',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $response = $this->getJson("/api/items/{$item->uuid}?version=4.0.0-LIVE");
+
+    $response->assertOk()
+        ->assertJsonPath('data.uuid', $item->uuid)
+        ->assertJsonPath('data.name', 'Version Miss Vehicle');
 });
 
 it('excludes vehicle items from the items index', function (): void {

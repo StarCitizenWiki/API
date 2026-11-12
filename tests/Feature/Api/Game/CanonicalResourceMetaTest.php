@@ -110,7 +110,17 @@ describe('meta.resource on vehicle show', function (): void {
 describe('item-to-vehicle redirect preserves query params', function (): void {
     it('preserves locale and include on redirect from items to vehicles', function (): void {
         $item = Item::factory()->create();
-        Vehicle::factory()->create(['uuid' => $item->uuid]);
+        $vehicle = Vehicle::factory()->create(['uuid' => $item->uuid]);
+
+        VehicleData::factory()
+            ->for($vehicle)
+            ->for($this->gameVersion, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Redirect Vehicle',
+                'display_name' => 'Redirect Vehicle',
+                'class_name' => 'redirect_vehicle',
+            ]);
 
         ItemData::factory()
             ->for($item)

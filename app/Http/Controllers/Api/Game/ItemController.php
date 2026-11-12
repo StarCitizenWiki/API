@@ -1129,7 +1129,14 @@ class ItemController extends Controller
             throw new NotFoundHttpException('No Item with specified UUID or Name found.');
         }
 
-        if ((bool) ($itemData->item->vehicle_exists ?? false)) {
+        // The vehicle relation is version-independent; redirecting a vehicle-item whose vehicle has no data in the resolved version lands on a 404.
+        // Mirrors the guard in UnifiedSearchController::resolveByText.
+        $redirectsToVehicle = (bool) ($itemData->item->vehicle_exists ?? false)
+            && $itemData->item->vehicle()
+                ->whereHas('data', fn (Builder $vehicleData): Builder => $vehicleData->where('game_version_id', $this->gameVersion()->id))
+                ->exists();
+
+        if ($redirectsToVehicle) {
             $url = sprintf('/api/vehicles/%s', $itemData->item->uuid);
             $qs = $request->server->get('QUERY_STRING');
 
