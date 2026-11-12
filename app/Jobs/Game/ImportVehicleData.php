@@ -56,6 +56,10 @@ class ImportVehicleData implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         VehicleMatchingService::resetState();
 
         $payload = $this->readPayload();

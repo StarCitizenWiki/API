@@ -66,6 +66,10 @@ class ImportItemData implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         $payload = $this->readPayload();
 
         $itemPayload = $payload['Item'] ?? null;

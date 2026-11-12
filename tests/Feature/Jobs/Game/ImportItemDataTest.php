@@ -27,6 +27,17 @@ function dispatchItemImport(int $versionId, array $payload, string $file = 'item
     (new ImportItemData($versionId, $file))->handle();
 }
 
+it('does not create item data when its batch is cancelled', function (): void {
+    $payload = itemPayload($this->manufacturer->uuid);
+    Storage::disk('scunpacked')->put('items/test.json', json_encode($payload, JSON_THROW_ON_ERROR));
+    $job = new ImportItemData($this->version->id, 'items/test.json');
+    [$job] = $job->withFakeBatch(cancelledAt: now()->toImmutable());
+
+    $job->handle();
+
+    expect(ItemData::query()->count())->toBe(0);
+});
+
 it('creates item data on first import', function (): void {
     $payload = itemPayload($this->manufacturer->uuid);
 

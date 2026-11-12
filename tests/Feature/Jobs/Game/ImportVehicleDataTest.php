@@ -27,6 +27,17 @@ function dispatchVehicleImport(int $versionId, array $payload, string $file = 's
     (new ImportVehicleData($versionId, $file))->handle();
 }
 
+it('does not create vehicle data when its batch is cancelled', function (): void {
+    $payload = ['UUID' => fake()->uuid(), 'ClassName' => 'TEST', 'Name' => 'Test', 'Manufacturer' => ['UUID' => $this->manufacturer->uuid]];
+    Storage::disk('scunpacked')->put('ships/test.json', json_encode($payload, JSON_THROW_ON_ERROR));
+    $job = new ImportVehicleData($this->version->id, 'ships/test.json');
+    [$job] = $job->withFakeBatch(cancelledAt: now()->toImmutable());
+
+    $job->handle();
+
+    expect(VehicleData::query()->count())->toBe(0);
+});
+
 it('creates vehicle data on first import', function (): void {
     $payload = vehiclePayload($this->manufacturer->uuid);
 
