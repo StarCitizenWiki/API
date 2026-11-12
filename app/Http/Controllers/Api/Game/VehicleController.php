@@ -367,6 +367,31 @@ class VehicleController extends Controller
                 ->first();
 
             if ($vehicleData === null || $vehicleData->vehicle === null) {
+                // The versioned 404 outranks the ShipMatrix fallback: a Vehicle with data in
+                // other versions must report those versions, not serve the unversioned matrix.
+                $vehicle = Vehicle::query()
+                    ->when(
+                        $isUuid,
+                        fn (Builder $q) => $this->matchVehicleIdentifier($q, $identifier, $slug, true),
+                        fn (Builder $q) => $q->where(function (Builder $q) use ($identifier, $slug, $original) {
+                            $this->matchVehicleIdentifier($q, $identifier, $slug, false);
+                            $q->orWhereHas('data', fn (Builder $dataQuery) => $this->matchVehicleDataIdentifier($dataQuery, $identifier, $original));
+                        }),
+                    )
+                    ->first();
+
+                $availableVersions = $vehicle?->versionsWithData() ?? [];
+
+                if ($availableVersions !== []) {
+                    $resolvedVersion = $this->gameVersion()->code;
+
+                    throw new NotFoundInVersionException(
+                        $this->gameVersionCode() ?? $resolvedVersion,
+                        $availableVersions,
+                        sprintf('No Vehicle data found for game version "%s".', $resolvedVersion),
+                    );
+                }
+
                 $shipMatrixVehicle = ShipMatrixVehicle::query()
                     ->where(function (Builder $q) use ($identifier, $original) {
                         $q->where('name', $identifier)
@@ -390,7 +415,7 @@ class VehicleController extends Controller
                     return new ShipMatrixVehicleResource($shipMatrixVehicle);
                 }
 
-                throw new ModelNotFoundException('No Vehicle with specified UUID or Name found.');
+                throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
             }
 
             $shipMatrixRelations = [
@@ -415,29 +440,7 @@ class VehicleController extends Controller
 
             $this->buildPortItemMap($vehicleData);
         } catch (ModelNotFoundException) {
-            $vehicle = Vehicle::query()
-                ->when(
-                    $isUuid,
-                    fn (Builder $q) => $this->matchVehicleIdentifier($q, $identifier, $slug, true),
-                    fn (Builder $q) => $q->where(function (Builder $q) use ($identifier, $slug, $original) {
-                        $this->matchVehicleIdentifier($q, $identifier, $slug, false);
-                        $q->orWhereHas('data', fn (Builder $dataQuery) => $this->matchVehicleDataIdentifier($dataQuery, $identifier, $original));
-                    }),
-                )
-                ->first();
-
-            $availableVersions = $vehicle?->versionsWithData() ?? [];
-
-            if ($availableVersions !== []) {
-                $resolvedVersion = $this->gameVersion()->code;
-
-                throw new NotFoundInVersionException(
-                    $this->gameVersionCode() ?? $resolvedVersion,
-                    $availableVersions,
-                    sprintf('No Vehicle data found for game version "%s".', $resolvedVersion),
-                );
-            }
-
+            // Version-resolution failures inside the try have no data to report; plain 404.
             throw new NotFoundHttpException('No Vehicle with specified UUID or Name found.');
         }
 

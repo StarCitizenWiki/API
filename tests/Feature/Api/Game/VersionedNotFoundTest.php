@@ -13,6 +13,7 @@ use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use Illuminate\Support\Str;
 
 function createNotFoundVersions(): array
@@ -186,6 +187,24 @@ it('lists available versions when a vehicle is requested by slug for the wrong v
 
     $this->getJson('/api/vehicles/versioned-hull')
         ->assertStatus(404)
+        ->assertJsonPath('available_versions', ['3.20.0-LIVE']);
+});
+
+it('lists available versions when a ship-matrix row exists for a vehicle without data in the requested version', function (): void {
+    $versions = createNotFoundVersions();
+    $manufacturer = Manufacturer::factory()->create();
+
+    $vehicle = Vehicle::factory()->create(['slug' => 'versioned-fallback-hull']);
+    VehicleData::factory()->for($vehicle)->for($versions['older'], 'gameVersion')->for($manufacturer)->create();
+
+    ShipMatrixVehicle::factory()->create([
+        'name' => 'Versioned Fallback Hull',
+        'slug' => 'versioned-fallback-hull',
+    ]);
+
+    $this->getJson('/api/vehicles/versioned-fallback-hull?version=3.19.0-LIVE')
+        ->assertStatus(404)
+        ->assertJsonPath('requested_version', '3.19.0-LIVE')
         ->assertJsonPath('available_versions', ['3.20.0-LIVE']);
 });
 
