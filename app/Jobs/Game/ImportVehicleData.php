@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
-use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
@@ -92,18 +91,22 @@ class ImportVehicleData implements ShouldQueue
             'updated_at' => $now,
         ];
 
-        DB::table('game_vehicle_data')->upsert(
-            [$row],
-            ['vehicle_id', 'game_version_id'],
-            [...$updateColumns, 'updated_at'],
-        );
+        $vehicleData = DB::transaction(function () use ($row, $updateColumns, $vehicle): VehicleData {
+            DB::table('game_vehicle_data')->upsert(
+                [$row],
+                ['vehicle_id', 'game_version_id'],
+                [...$updateColumns, 'updated_at'],
+            );
 
-        $vehicleData = VehicleData::query()
-            ->where('vehicle_id', $vehicle->id)
-            ->where('game_version_id', $this->gameVersionId)
-            ->first();
+            $vehicleData = VehicleData::query()
+                ->where('vehicle_id', $vehicle->id)
+                ->where('game_version_id', $this->gameVersionId)
+                ->firstOrFail();
 
-        $this->syncInstalledItems($vehicleData, $payload);
+            SyncVehicleInstalledItems::syncVehicle($vehicleData);
+
+            return $vehicleData;
+        });
 
         $this->syncTranslations($vehicle, $payload);
 
@@ -320,49 +323,6 @@ class ImportVehicleData implements ShouldQueue
         }
 
         return $normalized;
-    }
-
-    /**
-     * Sync installed item pivot records based on port UUIDs from the Loadout JSON.
-     */
-    private function syncInstalledItems(VehicleData $vehicleData, array $payload): void
-    {
-        $portUuids = $this->extractPortUuids($payload['Loadout'] ?? []);
-
-        if ($portUuids !== []) {
-            $itemDataIds = ItemData::query()
-                ->where('game_version_id', $this->gameVersionId)
-                ->whereHas('item', fn ($q) => $q->whereIn('uuid', $portUuids))
-                ->pluck('id');
-
-            $vehicleData->installedItems()->sync($itemDataIds);
-        } else {
-            $vehicleData->installedItems()->sync([]);
-        }
-    }
-
-    /**
-     * Recursively extract all item UUIDs from the Loadout structure.
-     *
-     * @return array<int, string>
-     */
-    private function extractPortUuids(array $loadout): array
-    {
-        $uuids = [];
-
-        foreach ($loadout as $port) {
-            $uuid = $port['UUID'] ?? null;
-
-            if (is_string($uuid) && $uuid !== '') {
-                $uuids[] = $uuid;
-            }
-
-            if (isset($port['Loadout']) && is_array($port['Loadout'])) {
-                $uuids = array_merge($uuids, $this->extractPortUuids($port['Loadout']));
-            }
-        }
-
-        return array_unique(array_filter($uuids));
     }
 
     /**

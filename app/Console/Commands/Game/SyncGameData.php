@@ -12,10 +12,12 @@ use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
 use App\Jobs\Game\ImportItemData;
 use App\Jobs\Game\ImportStarmapData;
 use App\Jobs\Game\ImportVehicleData;
+use App\Jobs\Game\SyncVehicleInstalledItems;
 use App\Models\Game\GameVersion;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use Closure;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
@@ -42,8 +44,6 @@ class SyncGameData extends Command
     protected $aliases = ['game:sync'];
 
     private const int BATCH_SIZE = 1000;
-
-    private const int LOADER_BATCH_SIZE = 100;
 
     /**
      * The console command description.
@@ -112,7 +112,11 @@ class SyncGameData extends Command
             return self::SUCCESS;
         }
 
-        $this->dispatchChunkedBatch($jobs, static fn () => self::finalizeSync($gameVersion));
+        $this->dispatchChunkedBatch($jobs, static function (Batch $batch) use ($gameVersion): void {
+            if (! $batch->cancelled()) {
+                self::finalizeSync($gameVersion);
+            }
+        });
 
         return self::SUCCESS;
     }
@@ -122,6 +126,7 @@ class SyncGameData extends Command
      */
     private static function finalizeSync(GameVersion $gameVersion): void
     {
+        SyncVehicleInstalledItems::dispatch($gameVersion->id);
         ComputeItemVariantGroupsJob::dispatch($gameVersion->id);
         ComputeItemSetItemsJob::dispatch($gameVersion->id);
         ComputeItemVariantGradeLinksJob::dispatch($gameVersion->id);
@@ -257,23 +262,12 @@ class SyncGameData extends Command
 
         $jobChunks = $jobs->chunk(self::BATCH_SIZE)->values();
         $loaderJobs = $jobChunks->map(static fn (Collection $chunk): AddBatchJobs => new AddBatchJobs($chunk));
-        $loaderJobChunks = $loaderJobs->chunk(self::LOADER_BATCH_SIZE)->values();
-        $firstLoaderChunk = $loaderJobChunks->shift();
-
-        if ($firstLoaderChunk === null) {
-            return;
-        }
-
-        $pendingBatch = Bus::batch($firstLoaderChunk->values());
+        $pendingBatch = Bus::batch($loaderJobs);
 
         if ($then !== null) {
             $pendingBatch->then($then);
         }
 
-        $batch = $pendingBatch->dispatch();
-
-        $loaderJobChunks->each(static function (Collection $chunk) use ($batch): void {
-            $batch->add($chunk->values());
-        });
+        $pendingBatch->dispatch();
     }
 }
