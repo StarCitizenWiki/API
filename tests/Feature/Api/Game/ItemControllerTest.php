@@ -33,6 +33,24 @@ beforeEach(function () {
     ]);
 });
 
+it('matches item names case-sensitively', function (): void {
+    $item = Item::factory()->create();
+    ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create([
+            'name' => 'CaseSensitive Item',
+            'type' => 'Clothing',
+            'class_name' => 'case_sensitive_item',
+            'classification' => 'FPS.Clothing.Torso',
+            'data' => ['stdItem' => []],
+        ]);
+
+    $this->getJson('/api/items/CaseSensitive%20Item')->assertSuccessful()->assertJsonPath('data.uuid', $item->uuid);
+    $this->getJson('/api/items/casesensitive%20item')->assertNotFound();
+});
+
 it('shows an item by uuid', function (): void {
     $item = Item::factory()->create();
 

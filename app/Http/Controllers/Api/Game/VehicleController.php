@@ -307,7 +307,7 @@ class VehicleController extends Controller
     #[OA\Get(
         path: '/api/vehicles/{identifier}',
         operationId: 'getVehicle',
-        description: 'Retrieve a vehicle by name, class name, or UUID. Results are scoped to the requested or default game version. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.',
+        description: 'Retrieve a vehicle by name, class name, or UUID. Name and class name matching is case-sensitive. Results are scoped to the requested or default game version. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.',
         summary: 'In-Game Vehicle Detail',
         tags: ['Vehicles'],
         parameters: [

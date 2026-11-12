@@ -1647,7 +1647,7 @@ paths:
       tags:
         - Items
       summary: 'In-Game Item Detail'
-      description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Items with a matching vehicle record automatically redirect to GET /api/vehicles/{uuid}.'
+      description: 'Retrieve a specific item by UUID, slug, name, or class name. Name and class name matching is case-sensitive. Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Items with a matching vehicle record automatically redirect to GET /api/vehicles/{uuid}.'
       operationId: getItem
       parameters:
         -
@@ -3912,7 +3912,7 @@ paths:
       tags:
         - Vehicles
       summary: 'In-Game Vehicle Detail'
-      description: 'Retrieve a vehicle by name, class name, or UUID. Results are scoped to the requested or default game version. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.'
+      description: 'Retrieve a vehicle by name, class name, or UUID. Name and class name matching is case-sensitive. Results are scoped to the requested or default game version. Loads manufacturer, gameVersion, shipMatrixVehicle (with foci, productionStatus, productionNote, type, size, loaner, skus, manufacturer, components), and port loadout items.'
       operationId: getVehicle
       parameters:
         -

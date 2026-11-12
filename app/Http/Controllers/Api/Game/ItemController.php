@@ -1022,7 +1022,7 @@ class ItemController extends Controller
     #[OA\Get(
         path: '/api/items/{identifier}',
         operationId: 'getItem',
-        description: 'Retrieve a specific item by UUID, slug, name, or class name (case-insensitive). Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Items with a matching vehicle record automatically redirect to GET /api/vehicles/{uuid}.',
+        description: 'Retrieve a specific item by UUID, slug, name, or class name. Name and class name matching is case-sensitive. Results are scoped to the requested or default game version. Always includes manufacturer, game version, description data, entity tags, commodities, and variant group data. Supports includes: shops, variants, related_items, blueprints, vehicles, shops.items. Items with a matching vehicle record automatically redirect to GET /api/vehicles/{uuid}.',
         summary: 'In-Game Item Detail',
         tags: ['Items'],
         parameters: [
