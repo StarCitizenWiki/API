@@ -21,6 +21,29 @@ beforeEach(function (): void {
     ]);
 });
 
+describe('resource network specification', function (): void {
+    it('returns null for absent power and coolant usage', function (): void {
+        $item = Item::factory()->create();
+
+        ItemData::factory()
+            ->for($item)
+            ->for($this->version, 'gameVersion')
+            ->for($this->manufacturer)
+            ->create([
+                'name' => 'Test Item',
+                'class_name' => 'TEST_ITEM',
+                'data' => ['stdItem' => ['ResourceNetwork' => ['Usage' => []]]],
+            ]);
+
+        $this->getJson("/api/items/{$item->uuid}")
+            ->assertSuccessful()
+            ->assertJsonPath('data.resource_network.usage.power.min', null)
+            ->assertJsonPath('data.resource_network.usage.power.max', null)
+            ->assertJsonPath('data.resource_network.usage.coolant.min', null)
+            ->assertJsonPath('data.resource_network.usage.coolant.max', null);
+    });
+});
+
 describe('cooler specification', function (): void {
     it('returns cooler specification when item type is cooler', function (): void {
         $item = Item::factory()->create();

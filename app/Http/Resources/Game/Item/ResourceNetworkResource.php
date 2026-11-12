@@ -203,10 +203,10 @@ class ResourceNetworkResource extends AbstractItemSpecificationResource
             ],
             'usage' => [
                 'power' => [
-                    'min' => $powerUsage['Minimum'] ?? 0,
-                    'max' => $powerUsage['Maximum'] ?? 0,
-                    'minimum' => $powerUsage['Minimum'] ?? 0,
-                    'maximum' => $powerUsage['Maximum'] ?? 0,
+                    'min' => $powerUsage['Minimum'] ?? null,
+                    'max' => $powerUsage['Maximum'] ?? null,
+                    'minimum' => $powerUsage['Minimum'] ?? null,
+                    'maximum' => $powerUsage['Maximum'] ?? null,
                 ],
                 'coolant' => [
                     'min' => $coolantUsage['Minimum'] ?? null,
