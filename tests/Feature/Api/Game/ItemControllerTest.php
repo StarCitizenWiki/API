@@ -992,10 +992,13 @@ it('resolves equipped items and nested ports on weapon show aliases', function (
         && in_array($secondAttachment->uuid, $query['bindings'], true)
     ))->toBeTrue();
 
-    $this->getJson('/api/weapons')->assertSuccessful()
-        ->assertJsonPath('data.0.ports.0.equipped_item_uuid', $attachment->uuid)
-        ->assertJsonMissingPath('data.0.ports.0.equipped_item')
-        ->assertJsonPath('data.0.ports.0.ports', null);
+    $response = $this->getJson('/api/weapons')->assertSuccessful();
+    $index = collect($response->json('data'))->search(fn (array $item) => $item['uuid'] === $weapon->uuid);
+    expect($index)->not->toBeFalse();
+
+    $response->assertJsonPath("data.$index.ports.0.equipped_item_uuid", $attachment->uuid)
+        ->assertJsonMissingPath("data.$index.ports.0.equipped_item")
+        ->assertJsonPath("data.$index.ports.0.ports", null);
 });
 
 it('counts weapon rack slots from compatible types', function (): void {
