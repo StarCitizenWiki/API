@@ -88,20 +88,21 @@ class ComputeBespokeItems implements ShouldQueue
     {
         $installations = [];
 
-        $vehicles = VehicleData::query()
+        VehicleData::query()
             ->where('game_version_id', $this->gameVersionId)
-            ->select(['class_name', 'data'])
-            ->get();
+            ->select(['id', 'class_name'])
+            ->addSelect(DB::raw("data->'Loadout' as loadout"))
+            ->chunkById(100, function ($vehicles) use (&$installations): void {
+                foreach ($vehicles as $vehicle) {
+                    $loadout = json_decode($vehicle->loadout ?? 'null', true) ?? [];
 
-        foreach ($vehicles as $vehicle) {
-            $loadout = $vehicle->data['Loadout'] ?? [];
-
-            $this->walkLoadout(
-                is_array($loadout) ? $loadout : $loadout->toArray(),
-                $installations,
-                $vehicle->class_name,
-            );
-        }
+                    $this->walkLoadout(
+                        is_array($loadout) ? $loadout : $loadout->toArray(),
+                        $installations,
+                        $vehicle->class_name,
+                    );
+                }
+            });
 
         return $installations;
     }
@@ -199,22 +200,26 @@ class ComputeBespokeItems implements ShouldQueue
     {
         $classNames = array_keys($installations);
 
-        $items = ItemData::query()
+        $items = [];
+        ItemData::query()
             ->where('game_version_id', $this->gameVersionId)
             ->whereIn('class_name', $classNames)
-            ->get()
-            ->keyBy('class_name');
+            ->select(['id', 'class_name'])
+            ->addSelect(DB::raw("data->'stdItem'->'RequiredTags' as required_tags"))
+            ->chunkById(100, function ($chunk) use (&$items): void {
+                foreach ($chunk as $item) {
+                    $items[$item->class_name] = json_decode($item->required_tags ?? 'null', true);
+                }
+            });
 
         $results = [];
 
         foreach ($installations as $className => $installs) {
-            $item = $items->get($className);
-
-            if ($item === null) {
+            if (! array_key_exists($className, $items)) {
                 continue;
             }
 
-            $requiredTags = $item->data['stdItem']['RequiredTags'] ?? [];
+            $requiredTags = $items[$className] ?? [];
             $hasRequiredTags = is_array($requiredTags) && $requiredTags !== [];
 
             $vehicles = array_unique(array_column($installs, 'vehicle'));
