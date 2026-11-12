@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Game;
 
 use App\Jobs\Game\Concerns\BuildsUexLinks;
+use App\Jobs\Game\Concerns\FiltersUexVersions;
 use App\Jobs\Game\Concerns\MapsUexPrices;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
@@ -30,6 +31,7 @@ class ImportItemPrices implements ShouldQueue
     use Batchable;
     use BuildsUexLinks;
     use Dispatchable;
+    use FiltersUexVersions;
     use InteractsWithQueue;
     use MapsUexPrices;
     use Queueable;
@@ -42,7 +44,8 @@ class ImportItemPrices implements ShouldQueue
     private const string API_URL = 'https://api.uexcorp.uk/2.0/items_prices_all';
 
     public function __construct(
-        private readonly int $gameVersionId
+        private readonly int $gameVersionId,
+        private readonly ?string $previousVersionCode = null,
     ) {}
 
     public function handle(): void
@@ -82,18 +85,19 @@ class ImportItemPrices implements ShouldQueue
         }
 
         $mapper = new TerminalLocationMapper($this->gameVersionId);
-        $this->processPrices($data, $mapper, $gameVersion->code);
-        $this->processVehiclePrices($mapper, $gameVersion->code);
+        $versionPrefixMap = $this->buildVersionPrefixMap($gameVersion->code);
+        $this->processPrices($data, $mapper, $gameVersion->code, $versionPrefixMap);
+        $this->processVehiclePrices($mapper, $gameVersion->code, $versionPrefixMap);
     }
 
-    private function processPrices(array $apiData, TerminalLocationMapper $mapper, string $gameVersionCode): void
+    private function processPrices(array $apiData, TerminalLocationMapper $mapper, string $gameVersionCode, array $versionPrefixMap): void
     {
         $allPrices = collect($apiData);
 
         $uuidPrices = $allPrices->filter(fn (array $p): bool => ($p['item_uuid'] ?? '') !== '');
         $emptyUuidPrices = $allPrices->filter(fn (array $p): bool => ($p['item_uuid'] ?? '') === '');
 
-        $grouped = $uuidPrices->groupBy('item_uuid');
+        $grouped = $uuidPrices->groupBy('item_uuid', preserveKeys: true);
 
         $itemUuidOverrides = collect(config('uexcorp.item_uuid_overrides', []));
 
@@ -102,7 +106,7 @@ class ImportItemPrices implements ShouldQueue
             foreach ($grouped as $uuid => $prices) {
                 $targetUuid = $itemUuidOverrides->get($uuid, $uuid);
                 $existing = $remapped->get($targetUuid, collect());
-                $remapped->put($targetUuid, $existing->merge($prices));
+                $remapped->put($targetUuid, $existing->union($prices));
             }
             $grouped = $remapped;
         }
@@ -112,7 +116,12 @@ class ImportItemPrices implements ShouldQueue
         if ($emptyUuidPrices->isNotEmpty()) {
             $nameOverrides = collect(config('uexcorp.item_name_to_uuid_overrides', []));
 
-            $byIdItem = $emptyUuidPrices->groupBy('id_item');
+            $byIdItem = $emptyUuidPrices->groupBy(
+                fn (array $price, int $key): string => isset($price['id_item']) && is_numeric($price['id_item']) && (int) $price['id_item'] > 0
+                    ? 'id:'.$price['id_item']
+                    : 'row:'.$key,
+                preserveKeys: true,
+            );
 
             $slugs = $byIdItem->map(fn (Collection $prices): string => Str::slug($prices->first()['item_name'] ?? ''))
                 ->filter()
@@ -127,7 +136,8 @@ class ImportItemPrices implements ShouldQueue
                 $itemName = $prices->first()['item_name'] ?? null;
 
                 if ($nameOverrides->has($itemName)) {
-                    $slugMatched->put($nameOverrides->get($itemName), $prices);
+                    $targetUuid = $nameOverrides->get($itemName);
+                    $slugMatched->put($targetUuid, $slugMatched->get($targetUuid, collect())->union($prices));
 
                     continue;
                 }
@@ -137,7 +147,7 @@ class ImportItemPrices implements ShouldQueue
                     $wikiUuid = $dbSlugToUuid->get($slug);
 
                     if ($wikiUuid !== null) {
-                        $slugMatched->put($wikiUuid, $prices);
+                        $slugMatched->put($wikiUuid, $slugMatched->get($wikiUuid, collect())->union($prices));
                     }
                 }
             }
@@ -145,7 +155,7 @@ class ImportItemPrices implements ShouldQueue
 
         foreach ($slugMatched as $uuid => $prices) {
             $existing = $grouped->get($uuid, collect());
-            $grouped->put($uuid, $existing->merge($prices));
+            $grouped->put($uuid, $existing->union($prices));
         }
 
         $uuids = $grouped->keys()->filter()->unique()->toArray();
@@ -197,12 +207,12 @@ class ImportItemPrices implements ShouldQueue
             }
 
             $pricesData = $this->mapTerminalPrices(
-                $prices,
+                $prices->sortKeys()->filter(fn (array $p): bool => ($p['game_version'] ?? null) === null || $this->matchesKnownVersion($p['game_version'], $versionPrefixMap)),
                 $mapper,
                 $locationDataLookup,
                 ['price_buy', 'price_sell'],
                 trailingFields: fn (array $p): array => ['uex_link' => self::buildItemLink($p['item_name'] ?? null)],
-                gameVersion: $gameVersionCode,
+                gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap) ?? $gameVersionCode,
             );
 
             $itemData->update([
@@ -219,7 +229,7 @@ class ImportItemPrices implements ShouldQueue
         ]);
     }
 
-    private function processVehiclePrices(TerminalLocationMapper $mapper, string $gameVersionCode): void
+    private function processVehiclePrices(TerminalLocationMapper $mapper, string $gameVersionCode, array $versionPrefixMap): void
     {
         $apiUrl = config('uexcorp.api_url');
 
@@ -272,12 +282,14 @@ class ImportItemPrices implements ShouldQueue
             }
         }
 
-        $purchaseGrouped = $purchasePrices->groupBy('id_vehicle');
-        $rentalGrouped = $rentalPrices->groupBy('id_vehicle');
+        $knownVersion = fn (array $p): bool => ($p['game_version'] ?? null) === null || $this->matchesKnownVersion($p['game_version'], $versionPrefixMap);
+        $purchaseGrouped = $purchasePrices->groupBy(fn (array $price) => $idVehicleToUuid->get($price['id_vehicle'] ?? null));
+        $rentalGrouped = $rentalPrices->groupBy(fn (array $price) => $idVehicleToUuid->get($price['id_vehicle'] ?? null));
+        $uuidToIds = $idVehicleToUuid->filter()->groupBy(fn ($uuid) => $uuid, preserveKeys: true);
 
         $updatedCount = 0;
 
-        foreach ($idVehicleToUuid as $idVehicle => $wikiUuid) {
+        foreach ($uuidToIds as $wikiUuid => $ids) {
             if ($wikiUuid === null) {
                 continue;
             }
@@ -288,33 +300,33 @@ class ImportItemPrices implements ShouldQueue
                 continue;
             }
 
-            $purchases = $purchaseGrouped->get($idVehicle, collect());
-            $rentals = $rentalGrouped->get($idVehicle, collect());
+            $purchases = $purchaseGrouped->get($wikiUuid, collect());
+            $rentals = $rentalGrouped->get($wikiUuid, collect());
 
             $purchasePrices = $this->mapTerminalPrices(
-                $purchases,
+                $purchases->filter($knownVersion),
                 $mapper,
                 $locationDataLookup,
                 ['price_buy'],
                 trailingFields: fn (array $p, int $terminalId): array => ['uex_link' => self::buildVehicleLink($terminalId, 'price_buy')],
-                gameVersion: $gameVersionCode,
+                gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap) ?? $gameVersionCode,
             );
             $rentalPrices = $this->mapTerminalPrices(
-                $rentals,
+                $rentals->filter($knownVersion),
                 $mapper,
                 $locationDataLookup,
                 ['price_rent'],
                 trailingFields: fn (array $p, int $terminalId): array => ['uex_link' => self::buildVehicleLink($terminalId, 'price_rent')],
-                gameVersion: $gameVersionCode,
+                gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap) ?? $gameVersionCode,
             );
 
             $jsonValues = [];
 
-            if ($purchasePrices !== []) {
+            if ($purchases->isNotEmpty()) {
                 $jsonValues['uex_purchase_prices'] = $purchasePrices;
             }
 
-            if ($rentalPrices !== []) {
+            if ($rentals->isNotEmpty()) {
                 $jsonValues['uex_rental_prices'] = $rentalPrices;
             }
 

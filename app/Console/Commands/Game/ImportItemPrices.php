@@ -52,7 +52,7 @@ class ImportItemPrices extends Command
         }
 
         Bus::batch([
-            new ImportItemPricesJob($gameVersion->id),
+            new ImportItemPricesJob($gameVersion->id, $previousVersionCode),
             new ImportCommodityPricesJob($gameVersion->id, $previousVersionCode),
         ])
             ->then(function () use ($gameVersion, $chunkSize, $previousVersionCode): void {

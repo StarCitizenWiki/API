@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Jobs\Game\EnrichItemPrices;
+use App\Jobs\Game\ImportItemPrices;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
@@ -200,16 +201,16 @@ it('matches current-family and previous-family prices with major.minor prefix', 
     expect($itemData->uex_prices)->toBeArray()
         ->and($itemData->uex_prices)->toHaveCount(3)
         ->and($itemData->uex_prices[0])->toMatchArray([
-            'price_buy' => 15461,
-            'game_version' => $version->code,
+            'price_buy' => 13000,
+            'game_version' => $previousVersionCode,
         ])
         ->and($itemData->uex_prices[1])->toMatchArray([
             'price_buy' => 14000,
             'game_version' => $previousVersionCode,
         ])
         ->and($itemData->uex_prices[2])->toMatchArray([
-            'price_buy' => 13000,
-            'game_version' => $previousVersionCode,
+            'price_buy' => 15461,
+            'game_version' => $version->code,
         ]);
 });
 
@@ -708,4 +709,117 @@ it('updates item prices when the enriched source data changes', function (): voi
 
     expect($itemData->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
         ->and($itemData->uex_prices[0]['price_buy'])->toBe(99999);
+});
+
+it('preserves stored prices on empty, failed, and fully rejected enrichment', function (string $case): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create();
+    $seed = [['price_buy' => 999]];
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id, 'uex_prices' => $seed]);
+    Http::fake(fn ($request) => str_contains($request->url(), 'items_prices?')
+        ? match ($case) {
+            'unknown' => Http::response(['data' => [['game_version' => 'unknown']]]),
+            'error' => Http::response(status: 500),
+            'absent' => Http::response([]),
+            default => Http::response(['data' => []]),
+        }
+        : Http::response(['data' => []]));
+    (new EnrichItemPrices($version->id, [$item->uuid]))->handle();
+    expect($data->refresh()->uex_prices)->toBe($seed);
+
+    if ($case === 'unknown') {
+        Log::shouldHaveReceived('warning')->with('UEX item prices enrichment rejected every row', [
+            'uuid' => $item->uuid,
+            'uex_id' => null,
+        ]);
+    }
+})->with(['unknown', 'empty', 'absent', 'error']);
+
+it('selects newest eligible item rows and keeps input order for ties and missing dates', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create();
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id, 'uex_prices' => [['price_buy' => 999]]]);
+    $rows = [];
+    foreach ([[1, '4.7.0', 10, 1], [1, '4.6.9', 20, 2], [1, '4.70.0', 30, 3], [2, '4.6.1', 20, 4], [2, '4.7.0', 10, 5], [3, null, 20, 6], [3, '4.7.0', 20, 7], [4, '4.7.0', null, 8], [4, '4.7.0', 10, 13], [4, '4.7.0', 20, 9], [5, '4.7.0', 20, 10], [5, '4.7.0', null, 11], [6, 'missing', 10, 12]] as [$terminal, $apiVersion, $date, $price]) {
+        $row = ['id_terminal' => $terminal, 'terminal_name' => 'T', 'price_buy' => $price, 'price_sell' => 0, 'date_modified' => $date];
+        if ($apiVersion !== 'missing') {
+            $row['game_version'] = $apiVersion;
+        }
+        $rows[] = $row;
+    }
+    Http::fake(fn ($request) => str_contains($request->url(), 'items_prices?') ? Http::response(['data' => $rows]) : Http::response(['data' => []]));
+    (new EnrichItemPrices($version->id, [$item->uuid], [], [], '4.6.3-LIVE'))->handle();
+    $prices = collect($data->refresh()->uex_prices)->keyBy('terminal_id');
+    foreach ([1 => [2, '4.6.3-LIVE'], 2 => [4, '4.6.3-LIVE'], 3 => [6, '4.7.1-LIVE'], 4 => [9, '4.7.1-LIVE'], 5 => [10, '4.7.1-LIVE'], 6 => [12, '4.7.1-LIVE']] as $id => [$price, $code]) {
+        expect($prices[$id])->toMatchArray(['price_buy' => $price, 'game_version' => $code]);
+    }
+});
+
+it('selects item price arrays by mapped terminal count', function (int $storedCount, array $expected): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create();
+    $stored = array_map(fn (int $id) => ['terminal_id' => $id, 'price_buy' => 100], range(1, $storedCount));
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id, 'uex_prices' => $stored]);
+    Http::fake(function ($request) {
+        if (str_contains($request->url(), 'items_prices?')) {
+            $row = fn (int $id, string $version, int $date) => ['id_terminal' => $id, 'terminal_name' => 'T', 'price_buy' => 200, 'price_sell' => 0, 'game_version' => $version, 'date_modified' => $date];
+
+            return Http::response(['data' => [
+                $row(10, '4.7.1', 10),
+                $row(11, '4.7.1', 10),
+                $row(11, '4.7.1', 20),
+                $row(12, '4.8.0', 10),
+            ]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new EnrichItemPrices($version->id, [$item->uuid]))->handle();
+    expect(collect($data->refresh()->uex_prices)->pluck('terminal_id')->sort()->values()->all())->toBe($expected);
+})->with([
+    'smaller enrichment preserves stored' => [3, [1, 2, 3]],
+    'equal counts choose enrichment' => [2, [10, 11]],
+    'larger enrichment replaces' => [1, [10, 11]],
+]);
+
+it('preserves freshly imported bulk prices when enrichment rejects every row', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create();
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id, 'uex_prices' => [['price_buy' => 999]]]);
+
+    Http::fake(function ($request) use ($item) {
+        $url = $request->url();
+
+        if (str_contains($url, 'items_prices_all')) {
+            return Http::response(['data' => [
+                ['item_uuid' => $item->uuid, 'id_terminal' => 1, 'terminal_name' => 'T', 'price_buy' => 10, 'price_sell' => 0, 'date_modified' => 10, 'game_version' => '4.7.1'],
+                ['item_uuid' => $item->uuid, 'id_terminal' => 2, 'terminal_name' => 'T', 'price_buy' => 20, 'price_sell' => 0, 'date_modified' => 20, 'game_version' => '4.7.0'],
+            ]]);
+        }
+
+        if (str_contains($url, 'items_prices?')) {
+            return Http::response(['data' => [
+                ['id_terminal' => 30, 'terminal_name' => 'T', 'price_buy' => 30, 'price_sell' => 0, 'game_version' => '4.70.0', 'date_modified' => 30],
+            ]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+
+    (new ImportItemPrices($version->id))->handle();
+    (new EnrichItemPrices($version->id, [$item->uuid]))->handle();
+
+    $prices = collect($data->refresh()->uex_prices)->keyBy('terminal_id');
+    expect($prices->keys()->sort()->values()->all())->toBe([1, 2])
+        ->and($prices[1])->toMatchArray(['price_buy' => 10, 'game_version' => '4.7.1-LIVE'])
+        ->and($prices[2])->toMatchArray(['price_buy' => 20, 'game_version' => '4.7.1-LIVE']);
+
+    Log::shouldHaveReceived('warning')->with('UEX item prices enrichment rejected every row', [
+        'uuid' => $item->uuid,
+        'uex_id' => null,
+    ]);
 });

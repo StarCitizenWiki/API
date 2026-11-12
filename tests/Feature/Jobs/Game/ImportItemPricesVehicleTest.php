@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Jobs\Game\EnrichVehiclePrices;
 use App\Jobs\Game\ImportItemPrices;
 use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocation;
@@ -10,6 +11,7 @@ use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -684,3 +686,125 @@ it('preserves matched vehicle prices when the terminal request fails', function 
         ->and($exception->response->status())->toBe(500);
     Http::assertSent(fn ($request) => str_contains($request->url(), 'terminals'));
 });
+
+it('filters vehicle versions before keeping the latest purchase and rental per terminal', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $data = VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id]);
+    Http::fake(function ($request) use ($vehicle) {
+        $url = $request->url();
+        if (str_contains($url, 'vehicles_purchases_prices_all') || str_contains($url, 'vehicles_rentals_prices_all')) {
+            $field = str_contains($url, 'purchases') ? 'price_buy' : 'price_rent';
+            $rows = [];
+            foreach ([[1, '4.6.1', 100, 10], [1, '4.7.0', 200, 20], [1, '3.24.0', 999, 99], [2, '4.6.0', 300, 30], [3, 'unknown', 400, 40], [4, null, 500, 50]] as [$terminal, $apiVersion, $date, $price]) {
+                $rows[] = ['id_vehicle' => 10, 'id_terminal' => $terminal, 'terminal_name' => 'Terminal', $field => $price, 'date_modified' => $date, 'game_version' => $apiVersion];
+            }
+
+            return Http::response(['data' => $rows]);
+        }
+        if (str_ends_with($url, '/vehicles')) {
+            return Http::response(['data' => [['id' => 10, 'uuid' => $vehicle->uuid, 'name' => 'Ship']]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new ImportItemPrices($version->id, '4.6.3-LIVE'))->handle();
+    $data->refresh();
+    foreach (['uex_purchase_prices' => 'price_buy', 'uex_rental_prices' => 'price_rent'] as $column => $field) {
+        $prices = collect($data->$column)->keyBy('terminal_id');
+        expect($prices->keys()->sort()->values()->all())->toBe([1, 2, 4])
+            ->and($prices[1][$field])->toBe(20)
+            ->and($prices[1]['game_version'])->toBe('4.7.1-LIVE')
+            ->and($prices[2]['game_version'])->toBe('4.6.3-LIVE')
+            ->and($prices[4]['game_version'])->toBe('4.7.1-LIVE');
+    }
+});
+
+it('clears rejected vehicle price types independently and preserves absent types', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $other = Vehicle::factory()->create();
+    $seed = [['price_buy' => 999]];
+    $data = VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id, 'uex_purchase_prices' => $seed, 'uex_rental_prices' => $seed]);
+    $absent = VehicleData::factory()->create(['vehicle_id' => $other->id, 'game_version_id' => $version->id, 'uex_purchase_prices' => $seed, 'uex_rental_prices' => $seed]);
+    Http::fake(function ($request) use ($vehicle, $other) {
+        $url = $request->url();
+        if (str_ends_with($url, '/vehicles')) {
+            return Http::response(['data' => [['id' => 10, 'uuid' => $vehicle->uuid], ['id' => 11, 'uuid' => $other->uuid]]]);
+        }
+        if (str_contains($url, 'vehicles_purchases_prices_all')) {
+            return Http::response(['data' => [['id_vehicle' => 10, 'game_version' => '4.70.0']]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new ImportItemPrices($version->id))->handle();
+    expect($data->refresh()->uex_purchase_prices)->toBe([])->and($data->uex_rental_prices)->toBe($seed)
+        ->and($absent->refresh()->uex_purchase_prices)->toBe($seed)->and($absent->uex_rental_prices)->toBe($seed);
+});
+
+it('keeps source order for equal dates across vehicle aliases', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $data = VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id]);
+    Http::fake(function ($request) use ($vehicle) {
+        $url = $request->url();
+        if (str_ends_with($url, '/vehicles')) {
+            return Http::response(['data' => [['id' => 10, 'uuid' => $vehicle->uuid], ['id' => 11, 'uuid' => $vehicle->uuid]]]);
+        }
+        if (str_contains($url, 'vehicles_purchases_prices_all')) {
+            return Http::response(['data' => [
+                ['id_vehicle' => 11, 'id_terminal' => 1, 'terminal_name' => 'T', 'price_buy' => 11, 'date_modified' => 10],
+                ['id_vehicle' => 10, 'id_terminal' => 1, 'terminal_name' => 'T', 'price_buy' => 10, 'date_modified' => 10],
+            ]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new ImportItemPrices($version->id))->handle();
+    expect($data->refresh()->uex_purchase_prices[0]['price_buy'])->toBe(11);
+});
+
+it('preserves bulk alias terminals through dispatched vehicle enrichment', function (bool $removedAlias): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $data = VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id]);
+    config(['uexcorp.vehicle_uuid_overrides' => ['alias-one' => $vehicle->uuid, 'alias-two' => $vehicle->uuid]]);
+    $vehicleRequests = 0;
+    Http::fake(function ($request) use ($removedAlias, &$vehicleRequests) {
+        $url = $request->url();
+        if (str_ends_with($url, '/vehicles')) {
+            $vehicleRequests++;
+            $vehicles = [['id' => 10, 'uuid' => 'alias-one'], ['id' => 11, 'uuid' => 'alias-two']];
+
+            return Http::response(['data' => $removedAlias && $vehicleRequests > 1 ? [$vehicles[1]] : $vehicles]);
+        }
+        if (str_contains($url, 'vehicles_purchases_prices_all')) {
+            return Http::response(['data' => [
+                ['id_vehicle' => 10, 'id_terminal' => 1, 'terminal_name' => 'One', 'price_buy' => 10, 'date_modified' => 10],
+                ['id_vehicle' => 11, 'id_terminal' => 2, 'terminal_name' => 'Two', 'price_buy' => 20, 'date_modified' => 20],
+            ]]);
+        }
+        if (str_contains($url, 'vehicles_purchases_prices?')) {
+            return Http::response(['data' => [['id_terminal' => 2, 'terminal_name' => 'Two', 'price_buy' => 20, 'date_modified' => 20]]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new ImportItemPrices($version->id))->handle();
+    expect(collect($data->refresh()->uex_purchase_prices)->pluck('terminal_id')->sort()->values()->all())->toBe([1, 2]);
+    Bus::fake();
+    App\Console\Commands\Game\ImportItemPrices::dispatchEnrichmentBatches($version, 50);
+    Bus::assertBatched(function ($batch): bool {
+        foreach ($batch->jobs as $job) {
+            if ($job instanceof EnrichVehiclePrices) {
+                $job->handle();
+
+                return true;
+            }
+        }
+
+        return false;
+    });
+    expect(collect($data->refresh()->uex_purchase_prices)->pluck('terminal_id')->sort()->values()->all())->toBe([1, 2]);
+})->with([false, true]);

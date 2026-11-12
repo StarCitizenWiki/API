@@ -165,21 +165,42 @@ class EnrichVehiclePrices implements ShouldQueue
             return false;
         }
 
+        $knownVersion = fn (array $p): bool => ($p['game_version'] ?? null) === null || $this->matchesKnownVersion($p['game_version'], $versionPrefixMap);
+
         $jsonValues = [];
 
         if (is_array($purchaseData) && $purchaseData !== []) {
-            $mapped = $this->mapEnrichedPrices($purchaseData, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
+            $eligible = collect($purchaseData)->filter($knownVersion);
 
-            if ($mapped !== []) {
-                $jsonValues['uex_purchase_prices'] = $mapped;
+            if ($eligible->isEmpty()) {
+                // The response only carries rows for unknown game versions; writing the empty result would erase prices bulk just imported.
+                Log::warning('UEX vehicle purchase prices enrichment rejected every row', [
+                    'uuid' => $uexUuid,
+                    'uex_id' => $uexId,
+                ]);
+            } else {
+                $mapped = $this->mapEnrichedPrices($eligible, $mapper, $locationDataLookup, 'price_buy', $versionPrefixMap);
+
+                if (count($mapped) >= count($vehicleData->uex_purchase_prices ?? [])) {
+                    $jsonValues['uex_purchase_prices'] = $mapped;
+                }
             }
         }
 
         if (is_array($rentalData) && $rentalData !== []) {
-            $mapped = $this->mapEnrichedPrices($rentalData, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
+            $eligible = collect($rentalData)->filter($knownVersion);
 
-            if ($mapped !== []) {
-                $jsonValues['uex_rental_prices'] = $mapped;
+            if ($eligible->isEmpty()) {
+                Log::warning('UEX vehicle rental prices enrichment rejected every row', [
+                    'uuid' => $uexUuid,
+                    'uex_id' => $uexId,
+                ]);
+            } else {
+                $mapped = $this->mapEnrichedPrices($eligible, $mapper, $locationDataLookup, 'price_rent', $versionPrefixMap);
+
+                if (count($mapped) >= count($vehicleData->uex_rental_prices ?? [])) {
+                    $jsonValues['uex_rental_prices'] = $mapped;
+                }
             }
         }
 
@@ -191,24 +212,25 @@ class EnrichVehiclePrices implements ShouldQueue
     }
 
     /**
+     * @param  Collection<int, array<string, mixed>>  $apiPrices  rows already filtered to known versions
      * @param  Collection<string, int>  $locationDataLookup
      * @param  array<string, string>  $versionPrefixMap
      * @return array<int, array<string, mixed>>
      */
     private function mapEnrichedPrices(
-        array $apiPrices,
+        Collection $apiPrices,
         TerminalLocationMapper $mapper,
         Collection $locationDataLookup,
         string $priceField,
         array $versionPrefixMap,
     ): array {
         return $this->mapTerminalPrices(
-            collect($apiPrices)->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap)),
+            $apiPrices,
             $mapper,
             $locationDataLookup,
             [$priceField],
             trailingFields: fn (array $p, int $terminalId): array => ['uex_link' => $this->buildVehicleLink($terminalId, $priceField)],
-            gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
+            gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap) ?? reset($versionPrefixMap),
             rowsCarryTerminalCode: true,
         );
     }

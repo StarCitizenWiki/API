@@ -156,23 +156,34 @@ class EnrichItemPrices implements ShouldQueue
             return false;
         }
 
+        $eligible = collect($apiPrices)->filter(fn (array $p): bool => ($p['game_version'] ?? null) === null || $this->matchesKnownVersion($p['game_version'], $versionPrefixMap));
+
+        if ($eligible->isEmpty()) {
+            // The response only carries rows for unknown game versions; writing the empty result would erase prices bulk just imported.
+            Log::warning('UEX item prices enrichment rejected every row', [
+                'uuid' => $uuid,
+                'uex_id' => $uexId,
+            ]);
+
+            return true;
+        }
+
         $enrichedPrices = $this->mapTerminalPrices(
-            collect($apiPrices)->filter(fn (array $p): bool => $this->matchesKnownVersion($p['game_version'] ?? null, $versionPrefixMap)),
+            $eligible,
             $mapper,
             $locationDataLookup,
             ['price_buy', 'price_sell'],
             trailingFields: fn (array $p): array => ['uex_link' => $this->buildItemLink($p['item_name'] ?? null)],
-            gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap),
+            gameVersion: fn (array $p): ?string => $this->resolveDbVersionCode($p['game_version'] ?? null, $versionPrefixMap) ?? reset($versionPrefixMap),
             rowsCarryTerminalCode: true,
         );
 
-        if ($enrichedPrices === []) {
-            return false;
+        // Count heuristic: a smaller enrichment result never overwrites stored prices; ties prefer the fresher enrichment rows.
+        if (count($enrichedPrices) >= count($itemData->uex_prices ?? [])) {
+            $itemData->update([
+                'uex_prices' => $enrichedPrices,
+            ]);
         }
-
-        $itemData->update([
-            'uex_prices' => $enrichedPrices,
-        ]);
 
         return true;
     }

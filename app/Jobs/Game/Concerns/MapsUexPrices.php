@@ -67,8 +67,21 @@ trait MapsUexPrices
     ): array {
         $locationMapping = $mapper->mapping;
 
-        return $prices
-            ->unique('id_terminal')
+        $selected = $prices->groupBy('id_terminal')->map(function (Collection $rows): array {
+            return $rows->reduce(function (?array $selected, array $row): array {
+                if ($selected === null) {
+                    return $row;
+                }
+
+                $date = $row['date_modified'] ?? null;
+                $selectedDate = $selected['date_modified'] ?? null;
+
+                return is_numeric($date) && (! is_numeric($selectedDate) || $date > $selectedDate) ? $row : $selected;
+            });
+        });
+
+        return $selected
+            ->sortByDesc('date_modified')
             ->map(function (array $p) use ($locationMapping, $mapper, $locationDataLookup, $priceFields, $trailingFields, $gameVersion, $optionalFields, $rowsCarryTerminalCode): array {
                 $terminalId = (int) $p['id_terminal'];
                 $locationUuid = $locationMapping->get($terminalId);
@@ -94,7 +107,7 @@ trait MapsUexPrices
                 }
 
                 $row['game_version'] = is_string($gameVersion) ? $gameVersion : $gameVersion($p);
-                $row['date_updated'] = Carbon::createFromTimestamp((int) $p['date_modified'])->toIso8601String();
+                $row['date_updated'] = Carbon::createFromTimestamp((int) ($p['date_modified'] ?? 0))->toIso8601String();
 
                 return [...$row, ...$trailingFields($p, $terminalId)];
             })

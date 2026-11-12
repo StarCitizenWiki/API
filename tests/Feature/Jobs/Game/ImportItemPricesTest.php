@@ -744,3 +744,61 @@ it('preserves matched item prices when the terminal request fails', function ():
         ->and($exception->response->status())->toBe(500);
     Http::assertSent(fn ($request) => str_contains($request->url(), 'terminals'));
 });
+
+it('filters item versions before keeping the latest row per terminal', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create();
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id]);
+    $rows = [];
+    foreach ([[1, '4.6.1', 100, 10], [1, '4.7.0', 200, 20], [1, '3.24.0', 999, 99], [2, '4.6.0', 300, 30], [3, 'unknown', 400, 40], [4, null, 500, 50]] as [$terminal, $apiVersion, $date, $price]) {
+        $rows[] = ['item_uuid' => $item->uuid, 'id_terminal' => $terminal, 'terminal_name' => 'Terminal', 'price_buy' => $price, 'price_sell' => 0, 'date_modified' => $date, 'game_version' => $apiVersion];
+    }
+    Http::fake(fn ($request) => str_contains($request->url(), 'items_prices_all') ? Http::response(['data' => $rows]) : Http::response(['data' => []]));
+    (new ImportItemPrices($version->id, '4.6.3-LIVE'))->handle();
+    $prices = collect($data->refresh()->uex_prices)->keyBy('terminal_id');
+    expect($prices->keys()->sort()->values()->all())->toBe([1, 2, 4])
+        ->and($prices[1]['price_buy'])->toBe(20)
+        ->and($prices[1]['game_version'])->toBe('4.7.1-LIVE')
+        ->and($prices[2]['game_version'])->toBe('4.6.3-LIVE')
+        ->and($prices[4]['game_version'])->toBe('4.7.1-LIVE');
+});
+
+it('clears represented rejected item prices without clearing absent items', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create();
+    $absent = Item::factory()->create();
+    $seed = [['price_buy' => 999]];
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id, 'uex_prices' => $seed]);
+    $other = ItemData::factory()->create(['item_id' => $absent->id, 'game_version_id' => $version->id, 'uex_prices' => $seed]);
+    Http::fake(fn ($request) => str_contains($request->url(), 'items_prices_all') ? Http::response(['data' => [['item_uuid' => $item->uuid, 'game_version' => '4.70.0']]]) : Http::response(['data' => []]));
+    (new ImportItemPrices($version->id))->handle();
+    expect($data->refresh()->uex_prices)->toBe([])->and($other->refresh()->uex_prices)->toBe($seed);
+});
+
+it('keeps source order for equal dates across item aliases', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create(['slug' => 'test-item']);
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id]);
+    $rows = [
+        ['item_uuid' => '', 'id_item' => 11, 'item_name' => 'Test Item', 'id_terminal' => 1, 'terminal_name' => 'T', 'price_buy' => 11, 'price_sell' => 0, 'date_modified' => 10],
+        ['item_uuid' => $item->uuid, 'id_terminal' => 1, 'terminal_name' => 'T', 'price_buy' => 10, 'price_sell' => 0, 'date_modified' => 10],
+    ];
+    Http::fake(fn ($request) => str_contains($request->url(), 'items_prices_all') ? Http::response(['data' => $rows]) : Http::response(['data' => []]));
+    (new ImportItemPrices($version->id))->handle();
+    expect($data->refresh()->uex_prices[0]['price_buy'])->toBe(11);
+});
+
+it('keeps missing item ids separate when resolving names', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $item = Item::factory()->create(['slug' => 'known-item']);
+    $seed = [['price_buy' => 999]];
+    $data = ItemData::factory()->create(['item_id' => $item->id, 'game_version_id' => $version->id, 'uex_prices' => $seed]);
+    $rows = [
+        ['item_uuid' => '', 'item_name' => 'Unknown Item', 'game_version' => '4.70.0'],
+        ['item_uuid' => '', 'id_item' => null, 'item_name' => 'Known Item', 'id_terminal' => 1, 'terminal_name' => 'T', 'price_buy' => 12, 'price_sell' => 0, 'date_modified' => 10],
+        ['item_uuid' => '', 'item_name' => 'Another Unknown', 'game_version' => '4.70.0'],
+    ];
+    Http::fake(fn ($request) => str_contains($request->url(), 'items_prices_all') ? Http::response(['data' => $rows]) : Http::response(['data' => []]));
+    (new ImportItemPrices($version->id))->handle();
+    expect($data->refresh()->uex_prices[0]['price_buy'])->toBe(12);
+});

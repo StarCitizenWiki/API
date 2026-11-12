@@ -412,3 +412,125 @@ it('updates vehicle prices when the enriched source data changes', function (): 
     expect($vehicleData->updated_at->getTimestamp())->toBeGreaterThan($firstUpdatedAt->getTimestamp())
         ->and($vehicleData->uex_purchase_prices[0]['price_buy'])->toBe(9999999);
 });
+
+it('treats purchase and rental enrichment responses independently', function (string $type, string $case): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $seed = [['price_buy' => 999]];
+    $data = VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id, 'uex_purchase_prices' => $seed, 'uex_rental_prices' => $seed]);
+    Http::fake(function ($request) use ($type, $case) {
+        if (str_contains($request->url(), "vehicles_{$type}_prices?")) {
+            return match ($case) {
+                'unknown' => Http::response(['data' => [['game_version' => 'unknown']]]),
+                'error' => Http::response(status: 500),
+                'absent' => Http::response([]),
+                default => Http::response(['data' => []]),
+            };
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new EnrichVehiclePrices($version->id, [$vehicle->uuid]))->handle();
+    $data->refresh();
+    $column = $type === 'purchases' ? 'uex_purchase_prices' : 'uex_rental_prices';
+    $other = $type === 'purchases' ? 'uex_rental_prices' : 'uex_purchase_prices';
+    expect($data->$column)->toBe($seed)->and($data->$other)->toBe($seed);
+})->with(['purchases', 'rentals'])->with(['unknown', 'empty', 'absent', 'error']);
+
+it('stamps missing vehicle versions and rejects unknown families without a previous version', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $seed = [['price_buy' => 999]];
+    $data = VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id, 'uex_purchase_prices' => $seed, 'uex_rental_prices' => $seed]);
+    Http::fake(function ($request) {
+        if (str_contains($request->url(), 'vehicles_purchases_prices?') || str_contains($request->url(), 'vehicles_rentals_prices?')) {
+            $field = str_contains($request->url(), 'purchases') ? 'price_buy' : 'price_rent';
+            $rows = [];
+            foreach ([[1, null], [2, 'missing'], [3, '4.7.9'], [4, '4.70.0'], [5, '4.6.9'], [6, 'unknown']] as [$terminal, $apiVersion]) {
+                $row = ['id_terminal' => $terminal, 'terminal_name' => 'T', $field => 10, 'date_modified' => 10];
+                if ($apiVersion !== 'missing') {
+                    $row['game_version'] = $apiVersion;
+                }
+                $rows[] = $row;
+            }
+
+            return Http::response(['data' => $rows]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new EnrichVehiclePrices($version->id, [$vehicle->uuid]))->handle();
+    $data->refresh();
+    foreach (['uex_purchase_prices', 'uex_rental_prices'] as $column) {
+        $prices = collect($data->$column)->keyBy('terminal_id');
+        expect($prices->keys()->sort()->values()->all())->toBe([1, 2, 3]);
+        foreach ($prices as $price) {
+            expect($price['game_version'])->toBe('4.7.1-LIVE');
+        }
+    }
+});
+
+it('selects vehicle price arrays by mapped terminal count independently', function (int $purchaseCount, int $rentalCount, array $expectedPurchase, array $expectedRental): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $purchase = array_map(fn (int $id) => ['terminal_id' => $id, 'price_buy' => 100], range(1, $purchaseCount));
+    $rental = array_map(fn (int $id) => ['terminal_id' => $id, 'price_rent' => 100], range(1, $rentalCount));
+    $data = VehicleData::factory()->create([
+        'vehicle_id' => $vehicle->id,
+        'game_version_id' => $version->id,
+        'uex_purchase_prices' => $purchase,
+        'uex_rental_prices' => $rental,
+    ]);
+    Http::fake(function ($request) {
+        $url = $request->url();
+        if (str_contains($url, 'vehicles_purchases_prices?') || str_contains($url, 'vehicles_rentals_prices?')) {
+            $field = str_contains($url, 'purchases') ? 'price_buy' : 'price_rent';
+            $row = fn (int $id, string $version) => ['id_terminal' => $id, 'terminal_name' => 'T', $field => 200, 'game_version' => $version, 'date_modified' => 10];
+
+            return Http::response(['data' => [$row(10, '4.7.1'), $row(11, '4.7.1'), $row(11, '4.7.1'), $row(12, '4.8.0')]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new EnrichVehiclePrices($version->id, [$vehicle->uuid]))->handle();
+    $data->refresh();
+    expect(collect($data->uex_purchase_prices)->pluck('terminal_id')->sort()->values()->all())->toBe($expectedPurchase)
+        ->and(collect($data->uex_rental_prices)->pluck('terminal_id')->sort()->values()->all())->toBe($expectedRental);
+})->with([
+    'bulk purchase and enriched rental' => [3, 1, [1, 2, 3], [10, 11]],
+    'enriched purchase and bulk rental' => [1, 3, [10, 11], [1, 2, 3]],
+    'equal counts choose enrichment' => [2, 2, [10, 11], [10, 11]],
+]);
+
+it('skips fully rejected vehicle enrichment responses with a warning', function (): void {
+    Log::spy();
+
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $vehicle = Vehicle::factory()->create();
+    $purchaseSeed = [['terminal_id' => 1, 'price_buy' => 999]];
+    $rentalSeed = [['terminal_id' => 1, 'price_rent' => 999]];
+    $data = VehicleData::factory()->create(['vehicle_id' => $vehicle->id, 'game_version_id' => $version->id, 'uex_purchase_prices' => $purchaseSeed, 'uex_rental_prices' => $rentalSeed]);
+    Http::fake(function ($request) {
+        $url = $request->url();
+        if (str_contains($url, 'vehicles_purchases_prices?') || str_contains($url, 'vehicles_rentals_prices?')) {
+            $field = str_contains($url, 'purchases') ? 'price_buy' : 'price_rent';
+
+            return Http::response(['data' => [
+                ['id_terminal' => 30, 'terminal_name' => 'T', $field => 30, 'game_version' => '4.70.0', 'date_modified' => 30],
+            ]]);
+        }
+
+        return Http::response(['data' => []]);
+    });
+    (new EnrichVehiclePrices($version->id, [$vehicle->uuid]))->handle();
+    $data->refresh();
+    expect($data->uex_purchase_prices)->toBe($purchaseSeed)->and($data->uex_rental_prices)->toBe($rentalSeed);
+    Log::shouldHaveReceived('warning')->with('UEX vehicle purchase prices enrichment rejected every row', [
+        'uuid' => $vehicle->uuid,
+        'uex_id' => null,
+    ]);
+    Log::shouldHaveReceived('warning')->with('UEX vehicle rental prices enrichment rejected every row', [
+        'uuid' => $vehicle->uuid,
+        'uex_id' => null,
+    ]);
+});

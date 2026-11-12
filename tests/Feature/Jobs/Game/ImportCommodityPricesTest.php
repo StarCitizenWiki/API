@@ -319,6 +319,20 @@ describe('handle', function (): void {
             ]);
     });
 });
+
+it('selects numeric commodity dates before missing dates with stable ties', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.7.1-LIVE']);
+    $commodity = Commodity::factory()->create(['name' => 'Recency Commodity']);
+    $rows = [];
+    foreach ([[1, null, 1], [1, 10, 2], [1, 20, 3], [1, 20, 4], [2, null, 5], [2, null, 6], [3, 20, 7], [3, null, 8]] as [$terminal, $date, $price]) {
+        $rows[] = ['id_commodity' => 1, 'commodity_name' => 'Recency Commodity', 'id_terminal' => $terminal, 'terminal_name' => 'T', 'price_buy' => $price, 'price_sell' => 0, 'date_modified' => $date];
+    }
+    Http::fake(fn ($request) => str_contains($request->url(), 'commodities_prices_all') ? Http::response(['data' => $rows]) : Http::response(['data' => []]));
+    (new ImportCommodityPrices($version->id))->handle();
+    $prices = collect($commodity->refresh()->uex_prices)->keyBy('terminal_id');
+    expect($prices[1]['price_buy'])->toBe(3)->and($prices[2]['price_buy'])->toBe(5)->and($prices[3]['price_buy'])->toBe(7);
+});
+
 it('matches complete current and previous version families at numeric boundaries', function (): void {
     $version = GameVersion::factory()->create(['code' => '4.10.1-LIVE']);
     $commodity = Commodity::factory()->create(['name' => 'Family Commodity']);
