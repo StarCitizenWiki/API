@@ -118,26 +118,24 @@ class Format
             }
         }
 
+        // Pick the first prefix that yields [1, 999], otherwise the smallest prefix.
+        $pickSmall = static function (float $x) use ($small): array {
+            foreach ($small as $opt) {
+                $scaled = $x * $opt['mult'];
+                if ($scaled >= 1.0 && $scaled < 1000.0) {
+                    return [$opt['suffix'], (float) $opt['mult']];
+                }
+            }
+
+            $last = $small[array_key_last($small)];
+
+            return [$last['suffix'], (float) $last['mult']];
+        };
+
         // Choose small prefix (only when abs < 0.001)
         if ($mode === 'none' && $abs > 0.0 && $abs < 0.001) {
             $mode = 'small';
-
-            // Prefer the first prefix that yields [1, 999], otherwise fall back to the smallest prefix.
-            $picked = null;
-            foreach ($small as $opt) {
-                $scaled = $abs * $opt['mult'];
-                if ($scaled >= 1.0 && $scaled < 1000.0) {
-                    $picked = $opt;
-
-                    break;
-                }
-            }
-            if ($picked === null) {
-                $picked = $small[array_key_last($small)];
-            }
-
-            $suffix = $picked['suffix'];
-            $mult = (float) $picked['mult'];
+            [$suffix, $mult] = $pickSmall($abs);
         }
 
         $roundSig = static function (float $x, int $sigDigits, int $maxDecimals): array {
@@ -184,6 +182,15 @@ class Format
             };
 
             [$rounded, $decimals] = $roundSig($scaled, 3, $maxDecimals);
+
+            // None-mode values below the 2-decimal cap (e.g. 0.002) round to 0;
+            // fall back to a small prefix instead of rendering "0".
+            if ($mode === 'none' && $abs > 0.0 && $rounded == 0.0) {
+                $mode = 'small';
+                [$suffix, $mult] = $pickSmall($abs);
+
+                continue;
+            }
 
             // Large: if rounding bumps to 1000, promote suffix (k -> M -> B)
             if ($mode === 'large' && $rounded >= 1000.0) {

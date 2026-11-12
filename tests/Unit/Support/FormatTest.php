@@ -99,6 +99,30 @@ describe('compact', function (): void {
         expect(Format::compact(0.000000005))->toBe('5n');
     });
 
+    it('formats milli band value with milli prefix', function (): void {
+        expect(Format::compact(0.002))->toBe('2m');
+    });
+
+    it('formats lower band edge 0.001 with milli prefix', function (): void {
+        expect(Format::compact(0.001))->toBe('1m');
+    });
+
+    it('formats upper band edge 0.0049 with milli prefix', function (): void {
+        expect(Format::compact(0.0049))->toBe('4.9m');
+    });
+
+    it('formats negative milli band value with milli prefix', function (): void {
+        expect(Format::compact(-0.002))->toBe('-2m');
+    });
+
+    it('formats 0.0009 with micro prefix', function (): void {
+        expect(Format::compact(0.0009))->toBe('900μ');
+    });
+
+    it('formats 0.005 with two decimals', function (): void {
+        expect(Format::compact(0.005))->toBe('0.01');
+    });
+
     it('formats negative values', function (): void {
         expect(Format::compact(-1500))->toBe('-1.5k');
     });
