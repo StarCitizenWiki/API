@@ -183,6 +183,16 @@ it('ungroups when a filter is active without explicit grouped param', function (
     expect($data)->toHaveCount(3);
 });
 
+it('uses scalar grouped spellings and treats an empty value as unspecified', function (): void {
+    createHaulerMission($this);
+    createHaulerMission($this);
+
+    foreach (['' => 1, ' YES ' => 1, ' OFF ' => 2] as $value => $count) {
+        $this->getJson('/api/missions?'.http_build_query(['filter' => ['grouped' => $value]]))
+            ->assertOk()->assertJsonCount($count, 'data');
+    }
+});
+
 it('disables grouping when explicitly requested', function (): void {
     createHaulerMission($this);
     createHaulerMission($this);

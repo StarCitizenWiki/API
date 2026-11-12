@@ -917,6 +917,7 @@ class VehicleController extends Controller
             'filter.signature.ir_shields' => ['sometimes', new NumericFilterValue(integersOnly: true)],
             'filter.signature.em_quantum' => ['sometimes', new NumericFilterValue(integersOnly: true)],
             'filter.signature.em_shields' => ['sometimes', new NumericFilterValue(integersOnly: true)],
+            'filter.has_medical_beds' => ['sometimes', new BooleanFilterValue(scalarPhpBoolean: true)],
             'filter.is_vehicle' => ['sometimes', new BooleanFilterValue],
             'filter.is_gravlev' => ['sometimes', new BooleanFilterValue],
             'filter.is_spaceship' => ['sometimes', new BooleanFilterValue],

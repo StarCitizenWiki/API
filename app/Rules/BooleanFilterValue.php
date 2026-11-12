@@ -13,14 +13,30 @@ use Illuminate\Contracts\Validation\ValidationRule;
  * on the query-builder delimiter so multiselect widgets can send comma
  * lists (`true,false`), matching how spatie's exact filters apply whereIn.
  * Array values (filter[x][]) are validated per element; empty arrays pass
- * because the filter callbacks ignore empty filters.
+ * because the filter callbacks ignore empty filters. The scalar option is
+ * for callbacks that parse one PHP boolean and do not support lists.
  */
 class BooleanFilterValue implements ValidationRule
 {
+    public function __construct(private readonly bool $scalarPhpBoolean = false) {}
+
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $entries = is_array($value) ? array_values($value) : [$value];
         $delimiter = (string) config('query-builder.delimiter', ',');
+
+        if ($this->scalarPhpBoolean) {
+            if ($value === null || $value === '') {
+                return;
+            }
+
+            if (! is_scalar($value) || ($delimiter !== '' && str_contains((string) $value, $delimiter))) {
+                $fail('The :attribute filter must be true or false.');
+
+                return;
+            }
+        }
+
+        $entries = is_array($value) ? array_values($value) : [$value];
 
         foreach ($entries as $entry) {
             if (is_bool($entry)) {
@@ -36,7 +52,11 @@ class BooleanFilterValue implements ValidationRule
             $items = $delimiter === '' ? [(string) $entry] : explode($delimiter, (string) $entry);
 
             foreach ($items as $item) {
-                if (! in_array(strtolower($item), ['true', 'false', '1', '0'], true)) {
+                $valid = $this->scalarPhpBoolean
+                    ? trim($item) !== '' && filter_var($item, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== null
+                    : in_array(strtolower($item), ['true', 'false', '1', '0'], true);
+
+                if (! $valid) {
                     $fail('The :attribute filter must be true or false.');
 
                     return;

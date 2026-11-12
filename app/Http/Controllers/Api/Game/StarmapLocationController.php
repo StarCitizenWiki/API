@@ -47,6 +47,8 @@ class StarmapLocationController extends Controller
             'filter' => ['sometimes', 'array'],
             'filter.is_scannable' => ['sometimes', new BooleanFilterValue],
             'filter.block_travel' => ['sometimes', new BooleanFilterValue],
+            'filter.has_resources' => ['sometimes', new BooleanFilterValue(scalarPhpBoolean: true)],
+            'filter.hide_minor_locations' => ['sometimes', new BooleanFilterValue(scalarPhpBoolean: true)],
             'filter.parent_uuid' => ['sometimes', new UuidFilterValue],
         ];
     }

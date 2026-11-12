@@ -520,6 +520,9 @@ class MissionController extends Controller
             'filter.available_in_prison' => ['sometimes', new BooleanFilterValue],
             'filter.has_combat' => ['sometimes', new BooleanFilterValue],
             'filter.has_defend_objective' => ['sometimes', new BooleanFilterValue],
+            'filter.has_prerequisites' => ['sometimes', new BooleanFilterValue(scalarPhpBoolean: true)],
+            'filter.has_blueprints' => ['sometimes', new BooleanFilterValue(scalarPhpBoolean: true)],
+            'filter.grouped' => ['sometimes', new BooleanFilterValue(scalarPhpBoolean: true)],
         ];
     }
 

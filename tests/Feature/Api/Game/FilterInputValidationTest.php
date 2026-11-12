@@ -2,15 +2,84 @@
 
 declare(strict_types=1);
 
+use App\Models\Game\BlueprintData;
 use App\Models\Game\GameVersion;
+use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
+use App\Models\Game\Mission\MissionPrerequisiteGroup;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
 use App\Models\StarCitizen\Starmap\Starsystem;
 use Database\Factories\Rsi\CommLink\CommLinkFactory;
+
+describe('Q-5 boolean filter inputs', function (): void {
+    beforeEach(function (): void {
+        GameVersion::factory()->create([
+            'code' => '4.0.0-LIVE.1',
+            'channel' => 'testing',
+            'is_default' => true,
+        ]);
+    });
+
+    it('rejects invalid boolean input', function (string $url): void {
+        $this->getJson($url)->assertStatus(422);
+    })->with([
+        'medical beds' => ['/api/vehicles?filter[has_medical_beds]=ture'],
+        'prerequisites' => ['/api/missions?filter[has_prerequisites]=ture'],
+        'blueprints' => ['/api/missions?filter[has_blueprints]=junk'],
+        'resources' => ['/api/locations?filter[has_resources]=ture'],
+        'minor locations' => ['/api/locations?filter[hide_minor_locations]=junk'],
+        'grouped' => ['/api/missions?filter[grouped]=flase'],
+    ]);
+
+    it('rejects lists and arrays for scalar controls', function (string $path, string $key): void {
+        foreach (['true,false', ['true'], ['true', 'false']] as $value) {
+            $this->getJson($path.'?'.http_build_query(['filter' => [$key => $value]]))->assertStatus(422);
+        }
+    })->with([
+        ['/api/vehicles', 'has_medical_beds'],
+        ['/api/missions', 'has_prerequisites'],
+        ['/api/missions', 'has_blueprints'],
+        ['/api/locations', 'has_resources'],
+        ['/api/locations', 'hide_minor_locations'],
+        ['/api/missions', 'grouped'],
+    ]);
+
+    it('treats empty scalar controls as unspecified', function (string $path, string $key): void {
+        $unfiltered = $this->getJson($path)->assertOk()->json('data');
+        $this->getJson($path.'?filter['.$key.']=')->assertOk()->assertJsonPath('data', $unfiltered);
+    })->with([
+        ['/api/vehicles', 'has_medical_beds'],
+        ['/api/missions', 'has_prerequisites'],
+        ['/api/missions', 'has_blueprints'],
+        ['/api/locations', 'has_resources'],
+        ['/api/locations', 'hide_minor_locations'],
+        ['/api/missions', 'grouped'],
+    ]);
+
+    it('accepts existing boolean spellings', function (string $path, string $key, string $value): void {
+        $this->getJson($path.'?'.http_build_query(['filter' => [$key => $value]]))->assertOk();
+    })->with(function (): array {
+        $cases = [];
+        foreach ([
+            ['/api/vehicles', 'has_medical_beds'],
+            ['/api/missions', 'has_prerequisites'],
+            ['/api/missions', 'has_blueprints'],
+            ['/api/locations', 'has_resources'],
+            ['/api/locations', 'hide_minor_locations'],
+            ['/api/missions', 'grouped'],
+        ] as [$path, $key]) {
+            foreach (['true', 'false', '1', '0', 'yes', 'no', 'on', 'off', ' YES '] as $value) {
+                $cases["$key $value"] = [$path, $key, $value];
+            }
+        }
+
+        return $cases;
+    });
+});
 
 describe('missions', function (): void {
     beforeEach(function (): void {
@@ -19,6 +88,22 @@ describe('missions', function (): void {
             'channel' => 'testing',
             'is_default' => true,
         ]);
+    });
+
+    it('filters prerequisite and blueprint presence using scalar boolean spellings', function (): void {
+        $matching = MissionData::factory()->for(Mission::factory(), 'mission')->forVersion($this->version)->create(['title' => 'Matching']);
+        MissionData::factory()->for(Mission::factory(), 'mission')->forVersion($this->version)->create(['title' => 'Other']);
+        MissionPrerequisiteGroup::create(['mission_data_id' => $matching->id, 'group_index' => 0, 'required_count' => 1]);
+        $blueprint = BlueprintData::factory()->create();
+        $item = ItemData::factory()->for($this->version, 'gameVersion')->create();
+        $matching->blueprints()->attach($blueprint->id, ['pool_uuid' => fake()->uuid(), 'item_data_id' => $item->id, 'chance' => 1.0]);
+
+        foreach (['has_prerequisites', 'has_blueprints'] as $key) {
+            foreach (['true' => 'Matching', ' YES ' => 'Matching', 'false' => 'Other', ' OFF ' => 'Other'] as $value => $title) {
+                $this->getJson('/api/missions?'.http_build_query(['filter' => [$key => $value]]))
+                    ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.title', $title);
+            }
+        }
     });
 
     it('applies comma-separated rank_index values as OR', function (): void {
@@ -324,6 +409,18 @@ describe('vehicles', function (): void {
             'channel' => 'testing',
             'is_default' => true,
         ]);
+    });
+
+    it('filters medical beds with valid boolean values', function (): void {
+        $medical = VehicleData::factory()->for(Vehicle::factory(), 'vehicle')->for($this->version, 'gameVersion')
+            ->create(['max_medical_tier' => 'T2']);
+        $other = VehicleData::factory()->for(Vehicle::factory(), 'vehicle')->for($this->version, 'gameVersion')
+            ->create(['max_medical_tier' => null]);
+
+        $this->getJson('/api/vehicles?filter[has_medical_beds]=yes')
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.uuid', $medical->vehicle->uuid);
+        $this->getJson('/api/vehicles?filter[has_medical_beds]=no')
+            ->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.uuid', $other->vehicle->uuid);
     });
 
     it('returns 422 not 500 when a scalar key clobbers a dotted filter', function (): void {
