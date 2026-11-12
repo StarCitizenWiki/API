@@ -571,6 +571,29 @@ class ImportItemData implements ShouldQueue
                 ->all();
         }
 
+        $missingUuids = array_values(array_unique(array_filter(
+            $uuids,
+            fn (string $uuid): bool => ! isset(self::$commodityUuidCache[$uuid]),
+        )));
+
+        if ($missingUuids !== []) {
+            $found = Commodity::query()->whereIn('uuid', $missingUuids)->pluck('id', 'uuid');
+            foreach ($found as $uuid => $id) {
+                self::$commodityUuidCache[(string) $uuid] = (int) $id;
+            }
+
+            $droppedUuids = array_values(array_filter(
+                $missingUuids,
+                fn (string $uuid): bool => ! isset(self::$commodityUuidCache[$uuid]),
+            ));
+            if ($droppedUuids !== []) {
+                Log::warning('Dropping unknown commodity UUIDs from item import.', [
+                    'path' => $this->path,
+                    'commodity_uuids' => $droppedUuids,
+                ]);
+            }
+        }
+
         $ids = [];
         foreach ($uuids as $uuid) {
             $id = self::$commodityUuidCache[$uuid] ?? null;
