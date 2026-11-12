@@ -276,6 +276,111 @@ it('respects version parameter', function (): void {
         ->and($v2Names)->not->toContain('VersionTest Item');
 });
 
+it('excludes vehicle-items whose vehicle has no data in the requested version', function (): void {
+    $v1 = GameVersion::factory()->create([
+        'code' => '1.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $v2 = GameVersion::factory()->create([
+        'code' => '2.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => false,
+        'released_at' => now()->addDay(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create();
+
+    // Same-uuid pair as in ApiResolveTest: the vehicle only has data in v2,
+    // so the item's api_url redirects to a vehicle page that 404s in v1.
+    $vehicle = Vehicle::factory()->create(['slug' => 'version-miss-search-vehicle']);
+    VehicleData::factory()
+        ->for($vehicle)
+        ->for($v2, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'VersionMiss SearchVehicle',
+            'class_name' => 'ANVL_VersionMissSearchVehicle',
+        ]);
+
+    $item = Item::factory()->create([
+        'slug' => 'version-miss-search-vehicle-item',
+        'uuid' => $vehicle->uuid,
+    ]);
+    ItemData::factory()
+        ->for($item)
+        ->for($v1, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'VersionMiss SearchVehicle Item',
+            'class_name' => 'ANVL_VersionMissSearchVehicle_Item',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $response = $this->getJson('/api/search?filter[query]=VersionMiss SearchVehicle');
+
+    $response->assertSuccessful();
+
+    $itemNames = collect($response->json('data'))
+        ->filter(fn ($group) => $group['type'] === 'items')
+        ->pluck('results')
+        ->flatten(1)
+        ->pluck('name');
+
+    expect($itemNames)->not->toContain('VersionMiss SearchVehicle Item');
+});
+
+it('keeps vehicle-items whose vehicle has data in the requested version', function (): void {
+    $version = GameVersion::factory()->create([
+        'code' => '1.0.0-LIVE',
+        'channel' => 'live',
+        'is_default' => true,
+        'released_at' => now(),
+    ]);
+
+    $manufacturer = Manufacturer::factory()->create();
+
+    $vehicle = Vehicle::factory()->create(['slug' => 'live-data-search-vehicle']);
+    VehicleData::factory()
+        ->for($vehicle)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'LiveData SearchVehicle',
+            'class_name' => 'ANVL_LiveDataSearchVehicle',
+        ]);
+
+    $item = Item::factory()->create([
+        'slug' => 'live-data-search-vehicle-item',
+        'uuid' => $vehicle->uuid,
+    ]);
+    ItemData::factory()
+        ->for($item)
+        ->for($version, 'gameVersion')
+        ->for($manufacturer)
+        ->create([
+            'name' => 'LiveData SearchVehicle Item',
+            'class_name' => 'ANVL_LiveDataSearchVehicle_Item',
+            'classification' => 'Test',
+            'data' => [],
+        ]);
+
+    $response = $this->getJson('/api/search?filter[query]=LiveData SearchVehicle');
+
+    $response->assertSuccessful();
+
+    $itemNames = collect($response->json('data'))
+        ->filter(fn ($group) => $group['type'] === 'items')
+        ->pluck('results')
+        ->flatten(1)
+        ->pluck('name');
+
+    expect($itemNames)->toContain('LiveData SearchVehicle Item');
+});
+
 it('limits each group to max 5 results', function (): void {
     $version = GameVersion::factory()->create([
         'code' => '1.0.0-LIVE',

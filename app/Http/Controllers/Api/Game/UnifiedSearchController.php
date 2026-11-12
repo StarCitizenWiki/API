@@ -405,6 +405,7 @@ class UnifiedSearchController extends Controller
              JOIN game_items gi ON gi.id = gid.item_id
              WHERE gid.game_version_id = ? AND gid.type != 'NOITEM_Vehicle' AND gid.name != '<= PLACEHOLDER =>' AND (gid.name ILIKE ? OR gid.class_name ILIKE ? OR gid.type ILIKE ?)
              AND gid.is_player_relevant = TRUE
+             AND NOT EXISTS (SELECT 1 FROM game_vehicles gv WHERE gv.uuid = gi.uuid AND NOT EXISTS (SELECT 1 FROM game_vehicle_data gvd WHERE gvd.vehicle_id = gv.id AND gvd.game_version_id = ?))
              LIMIT 5) as items
 
              UNION ALL
@@ -461,8 +462,8 @@ class UnifiedSearchController extends Controller
         return [
             // Vehicles
             $versionId, $like, $like, $like,
-            // Items
-            $versionId, $like, $like, $like,
+            // Items: the second $versionId binds the vehicle-data guard, since same-uuid vehicle-items redirect to the vehicle page which 404s without vehicle data in this version.
+            $versionId, $like, $like, $like, $versionId,
             // Locations
             $versionId, $like,
             // Commodities (no version)
