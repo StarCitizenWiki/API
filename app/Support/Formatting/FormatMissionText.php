@@ -213,22 +213,8 @@ class FormatMissionText
      */
     private static function popDifficultySuffix(array $parts): array
     {
-        $singlePartDifficulties = [
-            'easy' => 'Easy',
-            'hard' => 'Hard',
-            'medium' => 'Medium',
-            'super' => 'Super',
-            'intro' => 'Intro',
-        ];
-
-        $last = strtolower(end($parts));
-
-        if (isset($singlePartDifficulties[$last])) {
-            array_pop($parts);
-
-            return ['parts' => $parts, 'difficulty' => $singlePartDifficulties[$last]];
-        }
-
+        // Two-part suffixes must be checked first, otherwise "very_hard" is
+        // consumed as a bare "hard" and "very" leaks into the mission title.
         $count = count($parts);
 
         if ($count >= 2) {
@@ -247,6 +233,28 @@ class FormatMissionText
 
                 return ['parts' => $parts, 'difficulty' => 'Very Easy'];
             }
+        }
+
+        $singlePartDifficulties = [
+            'easy' => 'Easy',
+            'hard' => 'Hard',
+            'medium' => 'Medium',
+            'super' => 'Super',
+            'intro' => 'Intro',
+            // Contract DebugNames carry the two-part difficulties as CamelCase
+            // single segments (VeryHard, VHard, VeryEasy, VEasy).
+            'veryhard' => 'Very Hard',
+            'vhard' => 'Very Hard',
+            'veryeasy' => 'Very Easy',
+            'veasy' => 'Very Easy',
+        ];
+
+        $last = strtolower(end($parts));
+
+        if (isset($singlePartDifficulties[$last])) {
+            array_pop($parts);
+
+            return ['parts' => $parts, 'difficulty' => $singlePartDifficulties[$last]];
         }
 
         return ['parts' => $parts, 'difficulty' => null];

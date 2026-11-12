@@ -253,6 +253,26 @@ describe('format', function (): void {
             ->and($result)->toContain('Bounty Hunter');
     });
 
+    it('extracts very hard difficulty from camel case debug name', function (): void {
+        expect(FormatMissionText::format(null, 'BountyHunters_Bounty_Pyro_VeryHard'))->toBe('Bounty Pyro - Very Hard');
+    });
+
+    it('extracts very hard difficulty from shortened camel case debug name', function (): void {
+        expect(FormatMissionText::format(null, 'BountyHunters_Bounty_Pyro_VHard'))->toBe('Bounty Pyro - Very Hard');
+    });
+
+    it('extracts very easy difficulty from camel case debug name', function (): void {
+        expect(FormatMissionText::format(null, 'BountyHunters_Bounty_Pyro_VeryEasy'))->toBe('Bounty Pyro - Very Easy');
+    });
+
+    it('extracts very easy difficulty from shortened camel case debug name', function (): void {
+        expect(FormatMissionText::format(null, 'BountyHunters_Bounty_Pyro_VEasy'))->toBe('Bounty Pyro - Very Easy');
+    });
+
+    it('extracts very hard difficulty from snake case debug name', function (): void {
+        expect(FormatMissionText::format(null, 'BountyHunters_Bounty_Pyro_very_hard'))->toBe('Bounty Pyro - Very Hard');
+    });
+
     it('does not replace placeholders in title', function (): void {
         expect(FormatMissionText::format('Delivery to [Dropoff]'))->toBe('Delivery to [Dropoff]');
     });
