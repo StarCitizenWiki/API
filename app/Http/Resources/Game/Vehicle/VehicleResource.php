@@ -1084,11 +1084,7 @@ class VehicleResource extends AbstractBaseResource
                 ! $this->isVehicleShowRoute($request),
                 fn () => [$portKey => $this->buildLightweightPorts($payload, $request)]
             ),
-            'parts' => (function () use ($payload) {
-                PartResource::setDamageLimitsLookup($this->buildDamageLimitsLookup($payload));
-
-                return PartResource::collection($payload['Parts'] ?? []);
-            })(),
+            'parts' => $this->buildParts($payload, $request),
             'turrets' => [
                 'manned' => TurretSummaryResource::collection($mannedTurrets),
                 'remote' => TurretSummaryResource::collection($remoteTurrets),
@@ -1444,6 +1440,20 @@ class VehicleResource extends AbstractBaseResource
         }
 
         return $result !== [] ? $result : null;
+    }
+
+    /**
+     * Resolve parts eagerly with this vehicle's own damage limits. On an index
+     * page serialization runs after every toArray(), so a shared lookup would
+     * bleed the last vehicle's limits into all of them.
+     */
+    private function buildParts(array $payload, Request $request): array
+    {
+        $lookup = $this->buildDamageLimitsLookup($payload);
+
+        return collect($payload['Parts'] ?? [])
+            ->map(fn (array $part): array => (new PartResource($part, $lookup))->resolve($request))
+            ->all();
     }
 
     /**

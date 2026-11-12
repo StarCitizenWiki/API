@@ -48,7 +48,7 @@ describe('PartResource display name generation', function () {
         $result = $resource->resolve(request());
 
         expect($result)->toHaveKey('children');
-        $children = $result['children']->resolve(request());
+        $children = $result['children'];
         expect($children)->toBeArray();
         expect($children)->toHaveCount(1);
         expect($children[0]['display_name'])->toBe('Wing tip (left)');

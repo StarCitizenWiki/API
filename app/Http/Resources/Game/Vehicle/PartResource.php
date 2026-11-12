@@ -31,35 +31,33 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
-/** @param array $resource Structural part entry from vehicle JSON data */
 class PartResource extends AbstractBaseResource
 {
     use ResolvesGameVersion;
 
     /**
-     * Damage limits lookup shared across all part instances in a request.
-     *
-     * NOT safe under long-running PHP processes :-)
+     * Damage limits of the vehicle this part belongs to, keyed by part name.
      *
      * @var array<string, array{destruction_damage?: int, detach_damage?: int}>
      */
-    protected static array $damageLimitsLookup = [];
+    protected array $damageLimitsLookup = [];
 
     /**
-     * Set the damage limits lookup for all part resources.
-     *
-     * @param  array<string, array{destruction_damage?: int, detach_damage?: int}>  $lookup
+     * @param  array  $resource  Structural part entry from vehicle JSON data
+     * @param  array<string, array{destruction_damage?: int, detach_damage?: int}>  $damageLimitsLookup
      */
-    public static function setDamageLimitsLookup(array $lookup): void
+    public function __construct($resource, array $damageLimitsLookup = [])
     {
-        static::$damageLimitsLookup = $lookup;
+        parent::__construct($resource);
+
+        $this->damageLimitsLookup = $damageLimitsLookup;
     }
 
     public function toArray(Request $request): array
     {
         $res = $this->resource;
         $name = $res['Name'] ?? null;
-        $limitEntry = $name !== null ? (static::$damageLimitsLookup[$name] ?? []) : [];
+        $limitEntry = $name !== null ? ($this->damageLimitsLookup[$name] ?? []) : [];
 
         return [
             'name' => $name,
@@ -71,8 +69,10 @@ class PartResource extends AbstractBaseResource
             $this->mergeWhen(array_key_exists('detach_damage', $limitEntry), fn () => [
                 'detach_damage' => $limitEntry['detach_damage'],
             ]),
-            $this->mergeWhen(array_key_exists('Children', $res), [
-                'children' => self::collection($res['Children'] ?? []),
+            $this->mergeWhen(array_key_exists('Children', $res), fn () => [
+                'children' => collect($res['Children'] ?? [])
+                    ->map(fn (array $child): array => (new self($child, $this->damageLimitsLookup))->resolve($request))
+                    ->all(),
             ]),
             'version' => $this->gameVersionCode(),
         ];
