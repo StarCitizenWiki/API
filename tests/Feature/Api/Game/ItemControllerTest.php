@@ -58,6 +58,29 @@ it('shows an item by uuid', function (): void {
         ->assertJsonMissingPath('data.blueprint');
 });
 
+it('includes the power suit flag on installed vehicles', function (): void {
+    $item = Item::factory()->create();
+    $itemData = ItemData::factory()
+        ->for($item)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create();
+
+    $vehicle = Vehicle::factory()->create();
+    $vehicleData = VehicleData::factory()
+        ->for($vehicle)
+        ->for($this->gameVersion, 'gameVersion')
+        ->for($this->manufacturer)
+        ->create(['is_power_suit' => true, 'is_spaceship' => false]);
+    $itemData->installedOnVehicles()->attach($vehicleData);
+
+    $this->getJson("/api/items/{$item->uuid}?include=vehicles")
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data.vehicles')
+        ->assertJsonPath('data.vehicles.0.uuid', $vehicle->uuid)
+        ->assertJsonPath('data.vehicles.0.is_power_suit', true);
+});
+
 it('treats percent characters as literal text for exact item lookups', function (): void {
     $decoy = Item::factory()->create();
     ItemData::factory()

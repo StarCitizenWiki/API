@@ -228,6 +228,7 @@ class ItemController extends Controller
             'game_vehicle_data.is_vehicle',
             'game_vehicle_data.is_gravlev',
             'game_vehicle_data.is_spaceship',
+            'game_vehicle_data.is_power_suit',
         ];
     }
 

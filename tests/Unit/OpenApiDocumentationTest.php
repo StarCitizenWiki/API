@@ -108,6 +108,12 @@ describe('OpenAPI specification', function (): void {
         }
     });
 
+    it('documents the power suit flag on vehicle links', function (): void {
+        $property = $this->spec['components']['schemas']['vehicle_link']['allOf'][0]['properties']['is_power_suit'] ?? null;
+
+        expect($property['type'] ?? null)->toBe('boolean');
+    });
+
     it('documents the public user fields returned by /api/user', function (): void {
         $userSchema = $this->spec['paths']['/api/user']['get']['responses'][200]['content']['application/json']['schema']['properties'] ?? [];
 

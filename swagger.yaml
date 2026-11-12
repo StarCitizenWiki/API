@@ -18629,6 +18629,9 @@ components:
             is_spaceship:
               description: 'Whether this is a spaceship.'
               type: boolean
+            is_power_suit:
+              description: 'Whether this is a power suit.'
+              type: boolean
             manufacturer:
               $ref: '#/components/schemas/manufacturer_link'
             link:

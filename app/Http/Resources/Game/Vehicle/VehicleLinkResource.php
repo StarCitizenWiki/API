@@ -27,6 +27,7 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'is_vehicle', description: 'Whether this is a ground vehicle.', type: 'boolean'),
                 new OA\Property(property: 'is_gravlev', description: 'Whether this is a gravlev vehicle.', type: 'boolean'),
                 new OA\Property(property: 'is_spaceship', description: 'Whether this is a spaceship.', type: 'boolean'),
+                new OA\Property(property: 'is_power_suit', description: 'Whether this is a power suit.', type: 'boolean'),
                 new OA\Property(property: 'manufacturer', ref: '#/components/schemas/manufacturer_link', description: 'Vehicle manufacturer.'),
                 new OA\Property(property: 'link', description: 'API URL for the full vehicle detail.', type: 'string'),
                 new OA\Property(property: 'web_url', description: 'Web URL for the vehicle detail page.', type: 'string', nullable: true),
