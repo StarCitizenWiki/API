@@ -86,3 +86,31 @@ it('fails without changing commodity prices when terminal mapping fails', functi
         ->and($exception?->response->status())->toBe(500)
         ->and($commodity->refresh()->uex_prices)->toEqual($prices);
 });
+
+it('matches complete current and previous commodity families at enrichment boundaries', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.10.1-LIVE']);
+    $commodity = Commodity::factory()->create(['name' => 'Family Commodity', 'uex_prices' => [['uex_commodity_id' => 8]]]);
+    $rows = [];
+    foreach (['4.1.9', '4.10.0', '4.11.0'] as $i => $family) {
+        $rows[] = ['id_terminal' => $i + 1, 'terminal_name' => 'T', 'price_buy' => 10, 'price_sell' => 0, 'date_modified' => 10, 'game_version' => $family];
+    }
+    Http::fake(fn ($request) => str_contains($request->url(), 'commodities_prices?') ? Http::response(['data' => $rows]) : Http::response(['data' => []]));
+    (new EnrichCommodityPrices($version->id, [$commodity->id], '4.1.2-LIVE'))->handle();
+    $prices = collect($commodity->refresh()->uex_prices)->keyBy('terminal_id');
+    expect($prices->keys()->sort()->values()->all())->toBe([1, 2])
+        ->and($prices[1]['game_version'])->toBe('4.1.2-LIVE')
+        ->and($prices[2]['game_version'])->toBe('4.10.1-LIVE');
+});
+
+it('rejects 4.10 commodity enrichment rows when the current family is 4.1', function (): void {
+    $version = GameVersion::factory()->create(['code' => '4.1.2-LIVE']);
+    $commodity = Commodity::factory()->create(['name' => 'Boundary Commodity', 'uex_prices' => [['uex_commodity_id' => 8]]]);
+    $rows = [];
+    foreach (['4.1.9', '4.10.0'] as $i => $family) {
+        $rows[] = ['id_terminal' => $i + 1, 'terminal_name' => 'T', 'price_buy' => 10, 'price_sell' => 0, 'date_modified' => 10, 'game_version' => $family];
+    }
+    Http::fake(fn ($request) => str_contains($request->url(), 'commodities_prices?') ? Http::response(['data' => $rows]) : Http::response(['data' => []]));
+    (new EnrichCommodityPrices($version->id, [$commodity->id]))->handle();
+    expect(collect($commodity->refresh()->uex_prices)->pluck('terminal_id')->all())->toBe([1])
+        ->and($commodity->uex_prices[0]['game_version'])->toBe('4.1.2-LIVE');
+});

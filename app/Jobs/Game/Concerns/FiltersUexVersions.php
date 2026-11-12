@@ -38,7 +38,7 @@ trait FiltersUexVersions
             return false;
         }
 
-        return array_any($versionPrefixMap, fn ($_, $prefix) => str_starts_with($apiVersion, $prefix));
+        return $this->resolveDbVersionCode($apiVersion, $versionPrefixMap) !== null;
     }
 
     /**
@@ -50,6 +50,10 @@ trait FiltersUexVersions
             return null;
         }
 
-        return array_find($versionPrefixMap, fn ($dbCode, $prefix) => str_starts_with($apiVersion, $prefix));
+        if (! preg_match('/^(\d+\.\d+)(?=\.|-|$)/', $apiVersion, $matches)) {
+            return null;
+        }
+
+        return $versionPrefixMap[$matches[1]] ?? null;
     }
 }
