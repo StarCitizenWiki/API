@@ -11,6 +11,7 @@ use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
 use App\Http\Resources\Game\Item\PortItemResource;
 use App\Http\Resources\Game\Item\PortItemSummaryResource;
 use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
+use App\Http\Resources\Game\Vehicle\Concerns\IdentifiesVehicleShowRoute;
 use App\Http\Resources\Game\Vehicle\Concerns\ProcessesHardpointData;
 use App\Models\Game\Item;
 use App\Models\Game\Vehicle;
@@ -85,6 +86,7 @@ class PortResource extends AbstractBaseResource
 {
     use CategorizesEquipmentType;
     use ExtractsJsonData;
+    use IdentifiesVehicleShowRoute;
     use NormalizesValues;
     use ProcessesHardpointData;
     use ResolvesGameVersion;
@@ -99,9 +101,7 @@ class PortResource extends AbstractBaseResource
 
     public function toArray(Request $request): array
     {
-        $isShowRoute = $request->routeIs('vehicles.show') ||
-            $request->routeIs('v2.vehicles.show') ||
-            $request->routeIs('v3.vehicles.show');
+        $isShowRoute = $this->isVehicleShowRoute($request);
 
         $resolvedItem = null;
         $attachedVehicle = null;

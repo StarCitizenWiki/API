@@ -15,6 +15,7 @@ use App\Http\Resources\Game\Vehicle\Builders\VehicleDriveBuilder;
 use App\Http\Resources\Game\Vehicle\Builders\VehicleFlightBuilder;
 use App\Http\Resources\Game\Vehicle\Builders\VehicleWeaponryBuilder;
 use App\Http\Resources\Game\Vehicle\Concerns\CategorizesEquipmentType;
+use App\Http\Resources\Game\Vehicle\Concerns\IdentifiesVehicleShowRoute;
 use App\Http\Resources\StarCitizen\Vehicle\ComponentResource;
 use App\Http\Resources\StarCitizen\Vehicle\PledgeStoreSkuResource;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleLoanerResource;
@@ -751,6 +752,7 @@ class VehicleResource extends AbstractBaseResource
     use CategorizesEquipmentType;
     use ExpandsUexPrices;
     use ExtractsJsonData;
+    use IdentifiesVehicleShowRoute;
     use ResolvesGameVersion;
 
     /**
@@ -1234,11 +1236,6 @@ class VehicleResource extends AbstractBaseResource
         }
 
         return ComponentResource::collection($shipMatrixVehicle->components)->resolve();
-    }
-
-    private function isVehicleShowRoute(Request $request): bool
-    {
-        return $request->routeIs('vehicles.show') || $request->routeIs('*.vehicles.show');
     }
 
     /**

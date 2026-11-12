@@ -7,6 +7,7 @@ namespace App\Http\Resources\Game\Vehicle;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
 use App\Http\Resources\Game\Concerns\ResolvesGameVersion;
+use App\Http\Resources\Game\Vehicle\Concerns\IdentifiesVehicleShowRoute;
 use App\Http\Resources\Game\Vehicle\Concerns\ProcessesHardpointData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -42,17 +43,14 @@ use OpenApi\Attributes as OA;
 class HardpointResource extends AbstractBaseResource
 {
     use ExtractsJsonData;
+    use IdentifiesVehicleShowRoute;
     use ProcessesHardpointData;
     use ResolvesGameVersion;
 
     public function toArray(Request $request): array
     {
         $resolvedItem = null;
-        if (
-            $request->routeIs('vehicles.show') ||
-            $request->routeIs('v2.vehicles.show') ||
-            $request->routeIs('v3.vehicles.show')
-        ) {
+        if ($this->isVehicleShowRoute($request)) {
             $resolvedItem = $this->loadEquippedItem();
         }
 
