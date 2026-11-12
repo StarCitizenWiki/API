@@ -23,47 +23,49 @@ class ComputeItemVariantGradeLinks implements ShouldQueue
 
     public function handle(): void
     {
-        DB::table('game_item_variant_grade_items')
-            ->whereIn('item_data_id', ItemData::query()
+        DB::transaction(function (): void {
+            DB::table('game_item_variant_grade_items')
+                ->whereIn('item_data_id', ItemData::query()
+                    ->where('game_version_id', $this->gameVersionId)
+                    ->select('id'))
+                ->delete();
+
+            $cells = ItemData::query()
                 ->where('game_version_id', $this->gameVersionId)
-                ->select('id'))
-            ->delete();
+                ->where('classification', 'LIKE', 'Ship.%')
+                ->whereNot('classification', 'Ship.Paints')
+                ->where('is_player_relevant', true)
+                ->get(['id', 'classification', 'manufacturer_id', 'size', 'grade'])
+                ->groupBy(fn (ItemData $item): string => $item->classification.'|'.$item->manufacturer_id.'|'.$item->size);
 
-        $cells = ItemData::query()
-            ->where('game_version_id', $this->gameVersionId)
-            ->where('classification', 'LIKE', 'Ship.%')
-            ->whereNot('classification', 'Ship.Paints')
-            ->where('is_player_relevant', true)
-            ->get(['id', 'classification', 'manufacturer_id', 'size', 'grade'])
-            ->groupBy(fn (ItemData $item): string => $item->classification.'|'.$item->manufacturer_id.'|'.$item->size);
+            $inserts = [];
 
-        $inserts = [];
+            foreach ($cells as $members) {
+                $grades = $members
+                    ->pluck('grade')
+                    ->filter(fn ($grade): bool => $grade !== null)
+                    ->unique()
+                    ->count();
 
-        foreach ($cells as $members) {
-            $grades = $members
-                ->pluck('grade')
-                ->filter(fn ($grade): bool => $grade !== null)
-                ->unique()
-                ->count();
+                if ($grades < 2 || $members->count() !== $grades) {
+                    continue;
+                }
 
-            if ($grades < 2 || $members->count() !== $grades) {
-                continue;
-            }
-
-            foreach ($members as $member) {
-                foreach ($members as $peer) {
-                    if ($member->id !== $peer->id) {
-                        $inserts[] = [
-                            'item_data_id' => $member->id,
-                            'grade_item_data_id' => $peer->id,
-                        ];
+                foreach ($members as $member) {
+                    foreach ($members as $peer) {
+                        if ($member->id !== $peer->id) {
+                            $inserts[] = [
+                                'item_data_id' => $member->id,
+                                'grade_item_data_id' => $peer->id,
+                            ];
+                        }
                     }
                 }
             }
-        }
 
-        foreach (array_chunk($inserts, 500) as $chunk) {
-            DB::table('game_item_variant_grade_items')->insert($chunk);
-        }
+            foreach (array_chunk($inserts, 500) as $chunk) {
+                DB::table('game_item_variant_grade_items')->insert($chunk);
+            }
+        });
     }
 }

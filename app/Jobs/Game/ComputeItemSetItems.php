@@ -25,15 +25,17 @@ class ComputeItemSetItems implements ShouldQueue
 
     public function handle(): void
     {
-        DB::table('game_item_set_items')
-            ->whereIn('item_data_id', ItemData::query()
-                ->where('game_version_id', $this->gameVersionId)
-                ->select('id'))
-            ->delete();
+        DB::transaction(function (): void {
+            DB::table('game_item_set_items')
+                ->whereIn('item_data_id', ItemData::query()
+                    ->where('game_version_id', $this->gameVersionId)
+                    ->select('id'))
+                ->delete();
 
-        $lineParsed = $this->computeLineSetItems();
+            $lineParsed = $this->computeLineSetItems();
 
-        $this->computeStemSwapSetItems($lineParsed);
+            $this->computeStemSwapSetItems($lineParsed);
+        });
     }
 
     /**
