@@ -12,8 +12,8 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\VersionDiff;
 use App\Support\Filters\FilterInput;
 use App\Support\Game\EntityTypeConfig;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\Rule;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -108,7 +108,7 @@ class VersionChangelogController extends Controller
             )
             ->where('from_version_id', $previousVersion->id)
             ->where('to_version_id', $gameVersion->id)
-            ->defaultSort('entity_type', 'change_type');
+            ->defaultSort('entity_type', 'change_type', 'id');
 
         return VersionDiffResource::collection(
             $query->jsonPaginate()->appends(request()->query())

@@ -6,6 +6,38 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\VersionDiff;
 
+describe('previous patch changelog', function (): void {
+    beforeEach(function (): void {
+        GameVersion::factory()->create(['code' => '4.9.0-LIVE.1', 'channel' => 'live', 'released_at' => '2026-07-01']);
+        $this->previousPatch = GameVersion::factory()->create(['code' => '4.10.2-LIVE.1', 'channel' => 'live', 'released_at' => '2026-10-01']);
+        $this->targetPatch = GameVersion::factory()->create(['code' => '4.10.3-LIVE.1', 'channel' => 'live', 'released_at' => '2026-11-01', 'is_default' => true]);
+        VersionDiff::factory()->count(3)
+            ->sequence(fn ($sequence) => ['entity_id' => 3 - $sequence->index])
+            ->create(['from_version_id' => $this->previousPatch->id, 'to_version_id' => $this->targetPatch->id, 'change_type' => 'added']);
+    });
+
+    it('returns the previous patch and its summary', function (): void {
+        $this->getJson('/api/game-versions/'.$this->targetPatch->code.'/changelog')
+            ->assertOk()
+            ->assertJsonPath('data.from_version.code', $this->previousPatch->code)
+            ->assertJsonPath('data.to_version.code', $this->targetPatch->code)
+            ->assertJsonPath('data.summary.item.added', 3);
+    });
+
+    it('returns changes in a stable order across pages', function (): void {
+        $url = '/api/game-versions/'.$this->targetPatch->code.'/changelog/changes?page[size]=2';
+
+        $this->getJson($url.'&page[number]=1')
+            ->assertOk()
+            ->assertJsonPath('data.0.entity_id', 3)
+            ->assertJsonPath('data.1.entity_id', 2);
+
+        $this->getJson($url.'&page[number]=2')
+            ->assertOk()
+            ->assertJsonPath('data.0.entity_id', 1);
+    });
+});
+
 describe('changes', function (): void {
     beforeEach(function (): void {
         $this->previousVersion = GameVersion::factory()->create([

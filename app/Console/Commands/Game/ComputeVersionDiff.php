@@ -36,6 +36,12 @@ class ComputeVersionDiff extends Command
      */
     public function handle(): int
     {
+        $types = $this->resolveEntityTypes();
+
+        if ($types === []) {
+            return self::FAILURE;
+        }
+
         $version = $this->resolveVersion();
 
         if ($version === null) {
@@ -50,19 +56,20 @@ class ComputeVersionDiff extends Command
             return self::FAILURE;
         }
 
-        if ($this->diffAlreadyExists($previousVersion, $version)) {
+        $entityModels = $this->option('type') === null ? null : array_column($types, 'model');
+
+        if ($this->diffAlreadyExists($previousVersion, $version, $entityModels)) {
             if (! $this->confirm(sprintf('Diff for %s -> %s already exists. Recompute?', $previousVersion->code, $version->code), false)) {
                 $this->info('Aborted.');
 
                 return self::SUCCESS;
             }
 
-            $this->deleteExistingDiff($previousVersion, $version);
+            $this->deleteExistingDiff($previousVersion, $version, $entityModels);
         }
 
         $this->info(sprintf('Computing diff: %s -> %s', $previousVersion->code, $version->code));
 
-        $types = $this->resolveEntityTypes();
         $total = 0;
 
         foreach ($types as $key => $config) {
@@ -143,17 +150,21 @@ class ComputeVersionDiff extends Command
         return $version->findPreviousVersion();
     }
 
-    private function diffAlreadyExists(GameVersion $from, GameVersion $to): bool
+    /** @param array<int, class-string>|null $entityModels */
+    private function diffAlreadyExists(GameVersion $from, GameVersion $to, ?array $entityModels): bool
     {
         return VersionDiff::query()
             ->forVersionPair($from->id, $to->id)
+            ->when($entityModels !== null, fn ($query) => $query->whereIn('entity_type', $entityModels))
             ->exists();
     }
 
-    private function deleteExistingDiff(GameVersion $from, GameVersion $to): void
+    /** @param array<int, class-string>|null $entityModels */
+    private function deleteExistingDiff(GameVersion $from, GameVersion $to, ?array $entityModels): void
     {
         VersionDiff::query()
             ->forVersionPair($from->id, $to->id)
+            ->when($entityModels !== null, fn ($query) => $query->whereIn('entity_type', $entityModels))
             ->delete();
     }
 
@@ -190,32 +201,25 @@ class ComputeVersionDiff extends Command
 
                 if ($old === null && $new !== null) {
                     $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'added', null, null);
-                    $count++;
-
-                    continue;
-                }
-
-                if ($old !== null && $new === null) {
+                } elseif ($old !== null && $new === null) {
                     $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'removed', null, null);
-                    $count++;
+                } else {
+                    $columnChanges = DeepDiff::diffColumns($old->toArray(), $new->toArray(), $columns);
+                    $dataChanges = DeepDiff::diff($old->data, $new->data);
 
-                    continue;
+                    $dataChanges = array_filter(
+                        $dataChanges,
+                        fn (string $path) => ! in_array(Str::of($path)->afterLast('.')->toString(), ['Description', 'DescriptionText']),
+                        ARRAY_FILTER_USE_KEY
+                    );
+
+                    if ($columnChanges === [] && $dataChanges === []) {
+                        continue;
+                    }
+
+                    $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'modified', $columnChanges, $dataChanges);
                 }
 
-                $columnChanges = DeepDiff::diffColumns($old->toArray(), $new->toArray(), $columns);
-                $dataChanges = DeepDiff::diff($old->data, $new->data);
-
-                $dataChanges = array_filter(
-                    $dataChanges,
-                    fn (string $path) => ! in_array(Str::of($path)->afterLast('.')->toString(), ['Description', 'DescriptionText']),
-                    ARRAY_FILTER_USE_KEY
-                );
-
-                if ($columnChanges === [] && $dataChanges === []) {
-                    continue;
-                }
-
-                $batch[] = $this->buildRow($fromVersionId, $toVersionId, $entityModel, $entityId, 'modified', $columnChanges, $dataChanges);
                 $count++;
 
                 if (count($batch) >= 500) {

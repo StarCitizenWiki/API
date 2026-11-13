@@ -35,6 +35,25 @@ describe('show', function (): void {
         $response->assertSeeText($version->code);
     });
 
+    it('renders the previous patch and its changes in a stable order', function (): void {
+        GameVersion::factory()->create(['code' => '4.9.0-LIVE.1', 'channel' => 'live', 'released_at' => '2026-07-01']);
+        $previous = GameVersion::factory()->create(['code' => '4.10.2-LIVE.1', 'channel' => 'live', 'released_at' => '2026-10-01']);
+        $version = GameVersion::factory()->create(['code' => '4.10.3-LIVE.1', 'channel' => 'live', 'released_at' => '2026-11-01', 'is_default' => true]);
+
+        $diffs = VersionDiff::factory()->count(51)
+            ->sequence(fn ($sequence) => ['entity_id' => 51 - $sequence->index])
+            ->create(['from_version_id' => $previous->id, 'to_version_id' => $version->id]);
+
+        $this->get(route('web.changelog.show', $version->code))
+            ->assertOk()
+            ->assertSeeText($previous->code)
+            ->assertViewHas('changes', fn ($changes): bool => $changes->total() === 51 && $changes->first()->id === $diffs->first()->id);
+
+        $this->get(route('web.changelog.show', ['version' => $version->code, 'page' => 2]))
+            ->assertOk()
+            ->assertViewHas('changes', fn ($changes): bool => $changes->count() === 1 && $changes->first()->id === $diffs->last()->id);
+    });
+
     it('shows older version link when an older version with diffs exists', function (): void {
         $oldestVersion = GameVersion::factory()->create([
             'code' => '4.6.0-LIVE.77777777',

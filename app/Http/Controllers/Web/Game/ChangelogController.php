@@ -53,7 +53,8 @@ class ChangelogController extends Controller
             ->select('id', 'from_version_id', 'to_version_id', 'entity_type', 'entity_id', 'change_type', 'column_changes')
             ->selectRaw("CASE WHEN json_typeof(data_changes) = 'object' THEN (SELECT count(*) FROM json_object_keys(data_changes)) ELSE 0 END AS data_changes_count")
             ->selectRaw('octet_length(data_changes::text) AS data_changes_bytes')
-            ->orderByRaw("CASE change_type WHEN 'removed' THEN 1 WHEN 'added' THEN 2 WHEN 'modified' THEN 3 END");
+            ->orderByRaw("CASE change_type WHEN 'removed' THEN 1 WHEN 'added' THEN 2 WHEN 'modified' THEN 3 END")
+            ->orderBy('id');
 
         if ($changeType !== 'all') {
             $query->where('change_type', $changeType);

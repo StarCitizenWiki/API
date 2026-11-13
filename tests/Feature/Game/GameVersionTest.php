@@ -130,6 +130,34 @@ it('findPreviousVersion returns null when no match at all', function (): void {
     expect($result)->toBeNull();
 });
 
+describe('previous version selection', function (): void {
+    it('selects an earlier patch in the same minor before the previous minor', function (): void {
+        $olderMinor = GameVersion::factory()->create(['code' => '4.9.0-LIVE.1', 'released_at' => '2026-07-01']);
+        $previous = GameVersion::factory()->create(['code' => '4.10.2-LIVE.1', 'released_at' => '2026-10-01']);
+        $current = GameVersion::factory()->create(['code' => '4.10.3-LIVE.1', 'released_at' => '2026-11-01']);
+        GameVersion::factory()->create(['code' => '4.10.4-LIVE.1', 'released_at' => '2026-10-15']);
+
+        expect($current->findPreviousVersion()?->id)->toBe($previous->id)->not->toBe($olderMinor->id);
+    });
+
+    it('uses release time and id to exclude newer builds in the previous patch', function (): void {
+        $previous = GameVersion::factory()->create(['code' => '4.10.2-LIVE.1', 'released_at' => '2026-11-01']);
+        $current = GameVersion::factory()->create(['code' => '4.10.3-LIVE.1', 'released_at' => '2026-11-01']);
+        GameVersion::factory()->create(['code' => '4.10.2-LIVE.2', 'released_at' => '2026-11-01']);
+
+        expect($current->findPreviousVersion()?->id)->toBe($previous->id);
+    });
+
+    it('does not treat a longer patch number as the same patch', function (): void {
+        $previous = GameVersion::factory()->create(['code' => '4.7.0-LIVE.1', 'released_at' => '2026-01-01']);
+        GameVersion::factory()->create(['code' => '4.7.10-LIVE.1', 'released_at' => '2026-01-02']);
+        $current = GameVersion::factory()->create(['code' => '4.7.1-LIVE.1', 'released_at' => '2026-01-03']);
+
+        expect($current->findPreviousPatchVersion())->toBeNull();
+        expect($current->findPreviousVersion()?->id)->toBe($previous->id);
+    });
+});
+
 describe('versionFamily', function (): void {
     it('extracts major.minor from a full version code', function (): void {
         expect(GameVersion::versionFamily('4.8.0-LIVE.11875683'))->toBe('4.8');
