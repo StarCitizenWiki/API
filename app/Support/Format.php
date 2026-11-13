@@ -292,7 +292,7 @@ class Format
         if ($min !== null) {
             $a = $compact ? self::compact($min) : self::number($min, $decimals);
 
-            if ($unit === '/s' || $unit === '%') {
+            if ($unit === '/s' || $unit === '%' || $unit === '') {
                 return '≥ '.$a.$unit;
             }
 
@@ -302,7 +302,7 @@ class Format
         if ($max !== null) {
             $b = $compact ? self::compact($max) : self::number($max, $decimals);
 
-            if ($unit === '/s' || $unit === '%') {
+            if ($unit === '/s' || $unit === '%' || $unit === '') {
                 return '≤ '.$b.$unit;
             }
 

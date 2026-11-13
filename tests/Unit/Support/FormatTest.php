@@ -234,6 +234,14 @@ describe('range', function (): void {
         expect(Format::range(null, 10.0, '/s', 0))->toBe('≤ 10/s');
     });
 
+    it('formats min-only with empty unit without trailing space', function (): void {
+        expect(Format::range(5.0, null, '', 0))->toBe('≥ 5');
+    });
+
+    it('formats max-only with empty unit without trailing space', function (): void {
+        expect(Format::range(null, 5.0, '', 0))->toBe('≤ 5');
+    });
+
     it('uses compact format when compact is true', function (): void {
         expect(Format::range(1000.0, 2000.0, 'kg', 0, compact: true))->toBe('1k - 2k kg');
     });
