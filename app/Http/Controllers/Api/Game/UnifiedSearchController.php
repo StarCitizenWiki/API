@@ -99,7 +99,7 @@ class UnifiedSearchController extends Controller
                     )),
                 ],
             )),
-            new OA\Response(response: 422, description: 'Validation error - filter[query] is required and must be at least 3 characters', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
+            new OA\Response(response: 422, description: 'Validation error - filter[query] is required and must be at least 2 characters', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
             new OA\Response(response: 429, description: 'Rate limit exceeded. Search endpoints are limited to 60 requests per minute per IP.', content: new OA\JsonContent(ref: '#/components/schemas/rate_limit_error_response')),
         ],
     )]

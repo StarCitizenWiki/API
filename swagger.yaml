@@ -2841,7 +2841,7 @@ paths:
                   summary: 'Grouped results for a ship search'
                   value: { data: [{ type: vehicles, label: Vehicles, results: [{ name: Carrack, class_name: ANVL_Carrack, classification: null, classification_label: null, item_type_label: null, extra_label: Exploration, web_url: 'https://star-citizen.wiki/vehicles/carrack', api_url: 'https://api.star-citizen.wiki/api/vehicles/carrack' }] }] }
         '422':
-          description: 'Validation error - filter[query] is required and must be at least 3 characters'
+          description: 'Validation error - filter[query] is required and must be at least 2 characters'
           content:
             application/json:
               schema:
