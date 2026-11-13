@@ -138,8 +138,8 @@ class UnifiedSearchController extends Controller
                     'classification_label' => $this->classificationLabel($type, $row->classification),
                     'item_type_label' => $type === 'items' ? ItemFilterLabel::resolveType($row->item_type ?? null, null) : null,
                     'extra_label' => $type === 'missions' ? null : $row->extra_label,
-                    'web_url' => $this->webUrl($type, $row),
-                    'api_url' => $this->apiUrl($type, $row),
+                    'web_url' => $this->withRequestedVersion($this->webUrl($type, $row)),
+                    'api_url' => $this->withRequestedVersion($this->apiUrl($type, $row)),
                 ])->all(),
             ])
             ->values();
@@ -499,6 +499,13 @@ class UnifiedSearchController extends Controller
         }
 
         return $classification;
+    }
+
+    private function withRequestedVersion(string $url): string
+    {
+        $version = $this->gameVersionCode();
+
+        return $version === null ? $url : url()->query($url, ['version' => $version]);
     }
 
     private function apiUrl(string $type, object $row): string

@@ -264,6 +264,10 @@ it('respects version parameter', function (): void {
     expect($defaultNames)->toContain('VersionTest Item')
         ->and($defaultNames)->not->toContain('VersionTest Item V2');
 
+    $defaultResult = collect($defaultResponse->json('data'))->firstWhere('type', 'items')['results'][0];
+    expect($defaultResult['api_url'])->toBe(route('items.show', ['identifier' => 'v1-item']))
+        ->and($defaultResult['web_url'])->toBe(route('web.items.show', ['item' => 'v1-item']));
+
     // Explicit v2 should find v2 item
     $v2Response = $this->getJson('/api/search?filter[query]=VersionTest&version=2.0.0-LIVE');
     $v2Response->assertSuccessful();
@@ -274,6 +278,20 @@ it('respects version parameter', function (): void {
         ->pluck('name');
     expect($v2Names)->toContain('VersionTest Item V2')
         ->and($v2Names)->not->toContain('VersionTest Item');
+
+    $v2Result = collect($v2Response->json('data'))->firstWhere('type', 'items')['results'][0];
+    expect($v2Result['api_url'])->toBe(route('items.show', ['identifier' => 'v2-item', 'version' => $v2->code]))
+        ->and($v2Result['web_url'])->toBe(route('web.items.show', ['item' => 'v2-item', 'version' => $v2->code]));
+
+    $this->getJson($v2Result['api_url'])
+        ->assertOk()
+        ->assertJsonPath('data.name', 'VersionTest Item V2');
+
+    $explicitDefault = $this->getJson('/api/search?filter[query]=VersionTest&version=1.0.0-LIVE')
+        ->assertOk();
+    $explicitDefaultResult = collect($explicitDefault->json('data'))->firstWhere('type', 'items')['results'][0];
+    expect($explicitDefaultResult['api_url'])->toBe(route('items.show', ['identifier' => 'v1-item', 'version' => $v1->code]))
+        ->and($explicitDefaultResult['web_url'])->toBe(route('web.items.show', ['item' => 'v1-item', 'version' => $v1->code]));
 });
 
 it('excludes vehicle-items whose vehicle has no data in the requested version', function (): void {
