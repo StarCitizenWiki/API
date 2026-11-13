@@ -9,7 +9,10 @@ use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Database\Events\TransactionCommitted;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
@@ -42,16 +45,16 @@ it('does not create vehicle data when its batch is cancelled', function (): void
 });
 
 it('runs the import writes inside a transaction', function (): void {
-    $baseline = \Illuminate\Support\Facades\DB::transactionLevel();
+    $baseline = DB::transactionLevel();
     $writes = [];
     $events = [];
-    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionBeginning::class, function () use (&$events): void {
+    Event::listen(TransactionBeginning::class, function () use (&$events): void {
         $events[] = 'begin';
     });
-    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionCommitted::class, function () use (&$events): void {
+    Event::listen(TransactionCommitted::class, function () use (&$events): void {
         $events[] = 'commit';
     });
-    \Illuminate\Support\Facades\DB::listen(function ($query) use (&$writes): void {
+    DB::listen(function ($query) use (&$writes): void {
         if (preg_match('/^(insert|update|delete)\b/i', $query->sql)) {
             $writes[] = [$query->sql, $query->connection->transactionLevel()];
         }

@@ -6,8 +6,8 @@ use App\Enums\Game\ResourceKind;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
-use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceCommodity;
+use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\Resource\ResourceLocation;
 use App\Models\Game\Resource\ResourceProvider;
 use App\Models\Game\StarmapLocation;
@@ -782,7 +782,6 @@ describe('starmap placements', function (): void {
             ->and(DB::table('game_resource_provider_starmap')->count())->toBe(0);
     });
 });
-
 
 it('refreshes commodity location facets after importing placements', function (): void {
     Storage::fake('scunpacked');

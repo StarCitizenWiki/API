@@ -6,6 +6,7 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use App\Support\UEXcorp\TerminalLocationMapper;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -326,7 +327,7 @@ it('retries terminal mapping after a failed request and caches a successful empt
     $exception = null;
     try {
         $mapper->mapping;
-    } catch (\Illuminate\Http\Client\RequestException $caught) {
+    } catch (RequestException $caught) {
         $exception = $caught;
     }
 

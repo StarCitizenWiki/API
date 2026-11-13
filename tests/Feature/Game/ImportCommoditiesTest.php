@@ -236,7 +236,6 @@ it('upserts existing commodities when the payload changes', function (): void {
         ->and(Commodity::query()->count())->toBe(1);
 });
 
-
 it('refreshes commodity rarity facets after a commodity import', function (): void {
     Storage::fake('scunpacked');
     GameVersion::factory()->create(['code' => '4.0.0-LIVE', 'channel' => 'live', 'released_at' => now(), 'is_default' => true]);

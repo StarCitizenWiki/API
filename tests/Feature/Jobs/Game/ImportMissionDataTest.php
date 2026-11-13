@@ -13,6 +13,10 @@ use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Mission\MissionRewardGroup;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
+use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Database\Events\TransactionCommitted;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -47,16 +51,16 @@ function dispatchMissionImport(int $versionId, array $payload, string $file = 'c
 
 it('runs the import writes inside a transaction', function (): void {
     $item = createMissionRewardItem(fake()->uuid(), 'Transaction reward', $this->version);
-    $baseline = \Illuminate\Support\Facades\DB::transactionLevel();
+    $baseline = DB::transactionLevel();
     $writes = [];
     $events = [];
-    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionBeginning::class, function () use (&$events): void {
+    Event::listen(TransactionBeginning::class, function () use (&$events): void {
         $events[] = 'begin';
     });
-    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionCommitted::class, function () use (&$events): void {
+    Event::listen(TransactionCommitted::class, function () use (&$events): void {
         $events[] = 'commit';
     });
-    \Illuminate\Support\Facades\DB::listen(function ($query) use (&$writes): void {
+    DB::listen(function ($query) use (&$writes): void {
         if (preg_match('/^(insert|update|delete)\b/i', $query->sql)) {
             $writes[] = [$query->sql, $query->connection->transactionLevel()];
         }
@@ -488,14 +492,14 @@ it('caches missing item UUIDs within a mission import', function (): void {
     $resolve = new ReflectionMethod(ImportMissionData::class, 'resolveItemId');
     expect($resolve->invoke($job, $item->uuid))->toBe($item->id);
 
-    \Illuminate\Support\Facades\DB::flushQueryLog();
-    \Illuminate\Support\Facades\DB::enableQueryLog();
+    DB::flushQueryLog();
+    DB::enableQueryLog();
     try {
         expect($resolve->invoke($job, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'))->toBeNull()
             ->and($resolve->invoke($job, 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'))->toBeNull();
-        $queries = \Illuminate\Support\Facades\DB::getQueryLog();
+        $queries = DB::getQueryLog();
     } finally {
-        \Illuminate\Support\Facades\DB::disableQueryLog();
+        DB::disableQueryLog();
     }
 
     expect($queries)->toHaveCount(1)
@@ -509,14 +513,14 @@ it('caches missing item data within a mission import', function (): void {
     $resolve = new ReflectionMethod(ImportMissionData::class, 'resolveItemDataId');
     expect($resolve->invoke($job, $item->id))->toBe($itemData->id);
 
-    \Illuminate\Support\Facades\DB::flushQueryLog();
-    \Illuminate\Support\Facades\DB::enableQueryLog();
+    DB::flushQueryLog();
+    DB::enableQueryLog();
     try {
         expect($resolve->invoke($job, -1))->toBeNull()
             ->and($resolve->invoke($job, -1))->toBeNull();
-        $queries = \Illuminate\Support\Facades\DB::getQueryLog();
+        $queries = DB::getQueryLog();
     } finally {
-        \Illuminate\Support\Facades\DB::disableQueryLog();
+        DB::disableQueryLog();
     }
 
     expect($queries)->toHaveCount(1)

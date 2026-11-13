@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Jobs\Game\EnrichCommodityPrices;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\GameVersion;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -78,7 +79,7 @@ it('fails without changing commodity prices when terminal mapping fails', functi
     $exception = null;
     try {
         (new EnrichCommodityPrices($version->id, [$commodity->id]))->handle();
-    } catch (\Illuminate\Http\Client\RequestException $caught) {
+    } catch (RequestException $caught) {
         $exception = $caught;
     }
 

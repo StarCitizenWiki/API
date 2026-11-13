@@ -1005,8 +1005,7 @@ it('resolves equipped items and nested ports on weapon show aliases', function (
         ->assertJsonPath('data.ports.0.ports.0.equipped_item.uuid', $nestedItem->uuid)
         ->assertJsonPath('data.ports.0.ports.0.equipped_item.name', 'Nested Item '.$requestedVersion->code);
 
-    expect(collect($queries)->contains(fn (array $query) =>
-        in_array($attachment->uuid, $query['bindings'], true)
+    expect(collect($queries)->contains(fn (array $query) => in_array($attachment->uuid, $query['bindings'], true)
         && in_array($secondAttachment->uuid, $query['bindings'], true)
     ))->toBeTrue();
 

@@ -10,6 +10,10 @@ use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
 use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
+use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Database\Events\TransactionCommitted;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
@@ -42,16 +46,16 @@ it('does not create item data when its batch is cancelled', function (): void {
 });
 
 it('runs the import writes inside a transaction', function (): void {
-    $baseline = \Illuminate\Support\Facades\DB::transactionLevel();
+    $baseline = DB::transactionLevel();
     $writes = [];
     $events = [];
-    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionBeginning::class, function () use (&$events): void {
+    Event::listen(TransactionBeginning::class, function () use (&$events): void {
         $events[] = 'begin';
     });
-    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionCommitted::class, function () use (&$events): void {
+    Event::listen(TransactionCommitted::class, function () use (&$events): void {
         $events[] = 'commit';
     });
-    \Illuminate\Support\Facades\DB::listen(function ($query) use (&$writes): void {
+    DB::listen(function ($query) use (&$writes): void {
         if (preg_match('/^(insert|update|delete)\b/i', $query->sql)) {
             $writes[] = [$query->sql, $query->connection->transactionLevel()];
         }
@@ -129,7 +133,7 @@ function failItemImportAtWrite(string $table, ?string $column = null): void
 {
     $armed = true;
 
-    \Illuminate\Support\Facades\DB::listen(function ($query) use ($table, $column, &$armed): void {
+    DB::listen(function ($query) use ($table, $column, &$armed): void {
         if (! $armed) {
             return;
         }
@@ -243,7 +247,8 @@ it('invalidates the entity tag lookup so a later import does not sync a rolled-b
         ['tag' => $tagUuid, 'name' => 'RollbackTag'],
     ];
 
-    dispatchItemImport($this->version->id, $payloadB, 'items/tag-retry.json');    $itemDataB = ItemData::query()
+    dispatchItemImport($this->version->id, $payloadB, 'items/tag-retry.json');
+    $itemDataB = ItemData::query()
         ->whereHas('item', fn ($query) => $query->where('uuid', '16161616-1616-1616-1616-161616161616'))
         ->firstOrFail();
 
