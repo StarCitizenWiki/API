@@ -334,10 +334,19 @@ class Format
      *
      * Divides the value by `$divisor`, formats with `$decimals` decimal places,
      * then strips trailing zeros and the trailing decimal point.
+     *
+     * With `$decimals = 0` there is no decimal point to protect the integer
+     * digits, so stripping would eat them through the thousands separator
+     * (e.g. "1 500" -> "1 5"); the formatted value is returned as-is.
      */
     private static function formatScaled(float $value, int|float $divisor, int $decimals): string
     {
         $formatted = self::number($value / $divisor, $decimals);
+
+        if ($decimals === 0) {
+            return $formatted;
+        }
+
         $formatted = rtrim($formatted, '0');
 
         return rtrim($formatted, '.');

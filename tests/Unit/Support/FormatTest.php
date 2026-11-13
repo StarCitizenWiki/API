@@ -353,6 +353,10 @@ describe('velocity', function (): void {
     it('formats zero as m/s', function (): void {
         expect(Format::velocity(0))->toBe('0 m/s');
     });
+
+    it('keeps integer digits when decimals is zero (S-5)', function (): void {
+        expect(Format::velocity(1_500_000_000, 0))->toBe("1\u{00A0}500 Mm/s");
+    });
 });
 
 describe('acceleration', function (): void {
