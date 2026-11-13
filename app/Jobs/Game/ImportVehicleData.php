@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
+use Throwable;
 
 class ImportVehicleData implements ShouldQueue
 {
@@ -68,55 +69,61 @@ class ImportVehicleData implements ShouldQueue
             return;
         }
 
-        $vehicle = self::$vehicleCache[$payload['UUID']] ??= Vehicle::query()->firstOrCreate(
-            ['uuid' => $payload['UUID']],
-            ['uuid' => $payload['UUID']]
-        );
+        try {
+            DB::transaction(function () use ($payload): void {
+                $vehicle = self::$vehicleCache[$payload['UUID']] ??= Vehicle::query()->firstOrCreate(
+                    ['uuid' => $payload['UUID']],
+                    ['uuid' => $payload['UUID']]
+                );
 
-        $manufacturerId = $this->resolveManufacturerId($payload);
-        $shipmatrixId = $this->resolveShipmatrixVehicleId($payload);
+                $manufacturerId = $this->resolveManufacturerId($payload);
+                $shipmatrixId = $this->resolveShipmatrixVehicleId($payload);
 
-        $values = $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId);
-        $updateColumns = $values
-                |> array_keys(...)
-                |> (static fn ($x) => array_diff($x, ['vehicle_id', 'game_version_id']))
-                |> array_values(...);
+                $values = $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId);
+                $updateColumns = $values
+                        |> array_keys(...)
+                        |> (static fn ($x) => array_diff($x, ['vehicle_id', 'game_version_id']))
+                        |> array_values(...);
 
-        $now = now();
-        $row = array_map(
-            static function (mixed $value): mixed {
-                return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
-            },
-            $values,
-        ) + [
-            'vehicle_id' => $vehicle->id,
-            'game_version_id' => $this->gameVersionId,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ];
+                $now = now();
+                $row = array_map(
+                    static function (mixed $value): mixed {
+                        return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
+                    },
+                    $values,
+                ) + [
+                    'vehicle_id' => $vehicle->id,
+                    'game_version_id' => $this->gameVersionId,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
 
-        $vehicleData = DB::transaction(function () use ($row, $updateColumns, $vehicle): VehicleData {
-            DB::table('game_vehicle_data')->upsert(
-                [$row],
-                ['vehicle_id', 'game_version_id'],
-                [...$updateColumns, 'updated_at'],
-            );
+                DB::table('game_vehicle_data')->upsert(
+                    [$row],
+                    ['vehicle_id', 'game_version_id'],
+                    [...$updateColumns, 'updated_at'],
+                );
 
-            $vehicleData = VehicleData::query()
-                ->where('vehicle_id', $vehicle->id)
-                ->where('game_version_id', $this->gameVersionId)
-                ->firstOrFail();
+                $vehicleData = VehicleData::query()
+                    ->where('vehicle_id', $vehicle->id)
+                    ->where('game_version_id', $this->gameVersionId)
+                    ->firstOrFail();
 
-            SyncVehicleInstalledItems::syncVehicle($vehicleData);
+                SyncVehicleInstalledItems::syncVehicle($vehicleData);
 
-            return $vehicleData;
-        });
+                $this->syncTranslations($vehicle, $payload);
 
-        $this->syncTranslations($vehicle, $payload);
+                $this->updateSlug($vehicle, $payload);
 
-        $this->updateSlug($vehicle, $payload);
+                $this->updateDisplayNameSlug($vehicle, $vehicleData);
+            });
+        } catch (Throwable $e) {
+            // A rolled-back transaction leaves the cached vehicle with a dead id or
+            // uncommitted slug/display attributes; drop it so a same-process retry refetches it.
+            unset(self::$vehicleCache[$payload['UUID']]);
 
-        $this->updateDisplayNameSlug($vehicle, $vehicleData);
+            throw $e;
+        }
     }
 
     /**

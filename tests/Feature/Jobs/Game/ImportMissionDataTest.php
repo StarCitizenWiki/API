@@ -10,6 +10,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Mission\Mission;
 use App\Models\Game\Mission\MissionData;
+use App\Models\Game\Mission\MissionRewardGroup;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
 use Illuminate\Support\Facades\Log;
@@ -43,6 +44,41 @@ function dispatchMissionImport(int $versionId, array $payload, string $file = 'c
 
     (new ImportMissionData($versionId, $file, 'scunpacked'))->handle();
 }
+
+it('runs the import writes inside a transaction', function (): void {
+    $item = createMissionRewardItem(fake()->uuid(), 'Transaction reward', $this->version);
+    $baseline = \Illuminate\Support\Facades\DB::transactionLevel();
+    $writes = [];
+    $events = [];
+    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionBeginning::class, function () use (&$events): void {
+        $events[] = 'begin';
+    });
+    \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionCommitted::class, function () use (&$events): void {
+        $events[] = 'commit';
+    });
+    \Illuminate\Support\Facades\DB::listen(function ($query) use (&$writes): void {
+        if (preg_match('/^(insert|update|delete)\b/i', $query->sql)) {
+            $writes[] = [$query->sql, $query->connection->transactionLevel()];
+        }
+    });
+
+    $payload = missionPayload();
+    $payload['UUID'] = fake()->uuid();
+    $payload['RewardItems'] = [['Items' => [['UUID' => $item->uuid]]]];
+    dispatchMissionImport($this->version->id, $payload);
+
+    expect($events)->toContain('begin', 'commit');
+    $matching = array_values(array_filter($writes, fn ($write) => str_contains($write[0], 'game_mission_reward_groups')));
+    expect($matching)->not->toBeEmpty();
+    foreach ($matching as $write) {
+        expect($write[1])->toBeGreaterThan($baseline);
+    }
+    $matching = array_values(array_filter($writes, fn ($write) => str_contains($write[0], 'game_mission_reward_group_item')));
+    expect($matching)->not->toBeEmpty();
+    foreach ($matching as $write) {
+        expect($write[1])->toBeGreaterThan($baseline);
+    }
+});
 
 it('creates mission data on first import', function (): void {
     $payload = missionPayload();
@@ -355,6 +391,54 @@ describe('cross-version lookup isolation', function (): void {
             ->and($dataA->star_systems)->toBe(['Stanton'])
             ->and($dataB->star_systems)->toBe(['Pyro']);
     });
+});
+
+it('keeps the previous reward groups when reward replacement fails mid-chain', function (): void {
+    $first = createMissionRewardItem('20202020-2020-2020-2020-202020202020', 'First Reward', $this->version);
+    $second = createMissionRewardItem('21212121-2121-2121-2121-212121212121', 'Second Reward', $this->version);
+
+    $payload = missionPayload();
+    $payload['UUID'] = '23232323-2323-2323-2323-232323232323';
+    $payload['RewardItems'] = [
+        ['Items' => [['UUID' => $first->uuid, 'Amount' => 1, 'SendToHome' => false]]],
+    ];
+
+    dispatchMissionImport($this->version->id, $payload, 'contracts/reward-rollback.json');
+
+    $missionData = MissionData::query()->where('game_version_id', $this->version->id)->firstOrFail();
+    expect($missionData->rewardGroups()->count())->toBe(1);
+
+    // Replace the reward set, but fail while creating the second replacement group.
+    $replacement = missionPayload();
+    $replacement['UUID'] = $payload['UUID'];
+    $replacement['RewardItems'] = [
+        ['Items' => [['UUID' => $second->uuid, 'Amount' => 2, 'SendToHome' => false]]],
+        ['Items' => [['UUID' => $first->uuid, 'Amount' => 3, 'SendToHome' => false]]],
+    ];
+    Storage::disk('scunpacked')->put('contracts/reward-rollback.json', json_encode($replacement, JSON_THROW_ON_ERROR));
+
+    MissionRewardGroup::creating(function (MissionRewardGroup $group): void {
+        if ($group->group_index === 1) {
+            throw new RuntimeException('injected reward failure');
+        }
+    });
+
+    try {
+        expect(fn () => (new ImportMissionData($this->version->id, 'contracts/reward-rollback.json', 'scunpacked'))->handle())
+            ->toThrow(RuntimeException::class, 'injected reward failure');
+    } finally {
+        MissionRewardGroup::flushEventListeners();
+    }
+
+    // The delete and the first replacement group rolled back; the original group survives intact.
+    $groups = $missionData->rewardGroups()->get();
+    expect($groups)->toHaveCount(1)
+        ->and($groups->first()->items()->firstOrFail()->amount)->toBe(1)
+        ->and($groups->first()->items()->firstOrFail()->item_data_id)->toBe(
+            ItemData::query()->where('item_id', $first->id)->where('game_version_id', $this->version->id)->firstOrFail()->id
+        )
+        // Mission data is written before the reward transaction and stays.
+        ->and(MissionData::query()->where('game_version_id', $this->version->id)->count())->toBe(1);
 });
 
 /**

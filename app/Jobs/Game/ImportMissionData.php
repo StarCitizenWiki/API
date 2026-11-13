@@ -802,71 +802,73 @@ class ImportMissionData implements ShouldQueue
 
     private function syncRewardItems(MissionData $missionData, array $payload): void
     {
-        // Grouped format: RewardItems = [{ Weight?, AwardOnlyToMissionOwner?, Items: [...] }]
-        $groups = $payload['RewardItems'] ?? null;
+        DB::transaction(function () use ($missionData, $payload): void {
+            // Grouped format: RewardItems = [{ Weight?, AwardOnlyToMissionOwner?, Items: [...] }]
+            $groups = $payload['RewardItems'] ?? null;
 
-        $missionData->rewardGroups()->delete();
+            $missionData->rewardGroups()->delete();
 
-        if (! is_array($groups)) {
-            return;
-        }
-
-        foreach (array_values($groups) as $index => $group) {
-            if (! is_array($group) || ! is_array($group['Items'] ?? null)) {
-                continue;
+            if (! is_array($groups)) {
+                return;
             }
 
-            $itemRows = [];
-
-            foreach ($group['Items'] as $item) {
-                if (! is_array($item)) {
+            foreach (array_values($groups) as $index => $group) {
+                if (! is_array($group) || ! is_array($group['Items'] ?? null)) {
                     continue;
                 }
 
-                $uuid = $this->trimOrNull($item['UUID'] ?? null);
+                $itemRows = [];
 
-                if ($uuid === null) {
+                foreach ($group['Items'] as $item) {
+                    if (! is_array($item)) {
+                        continue;
+                    }
+
+                    $uuid = $this->trimOrNull($item['UUID'] ?? null);
+
+                    if ($uuid === null) {
+                        continue;
+                    }
+
+                    $itemId = $this->resolveItemId($uuid);
+
+                    if ($itemId === null) {
+                        continue;
+                    }
+
+                    $itemDataId = $this->resolveItemDataId($itemId);
+
+                    if ($itemDataId === null) {
+                        continue;
+                    }
+
+                    $amount = $item['Amount'] ?? null;
+                    $sendToHome = $item['SendToHome'] ?? null;
+
+                    $itemRows[] = [
+                        'item_data_id' => $itemDataId,
+                        'amount' => is_numeric($amount) ? (int) $amount : null,
+                        'send_to_home' => $sendToHome !== null ? filter_var($sendToHome, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
+                    ];
+                }
+
+                if ($itemRows === []) {
                     continue;
                 }
 
-                $itemId = $this->resolveItemId($uuid);
+                $weight = $group['Weight'] ?? null;
+                $awardOwner = $group['AwardOnlyToMissionOwner'] ?? null;
 
-                if ($itemId === null) {
-                    continue;
-                }
+                /** @var MissionRewardGroup $rewardGroup */
+                $rewardGroup = $missionData->rewardGroups()->create([
+                    'group_index' => $index,
+                    'weight' => is_numeric($weight) ? (float) $weight : null,
+                    'award_only_to_mission_owner' => $awardOwner !== null ? filter_var($awardOwner, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
+                ]);
 
-                $itemDataId = $this->resolveItemDataId($itemId);
-
-                if ($itemDataId === null) {
-                    continue;
-                }
-
-                $amount = $item['Amount'] ?? null;
-                $sendToHome = $item['SendToHome'] ?? null;
-
-                $itemRows[] = [
-                    'item_data_id' => $itemDataId,
-                    'amount' => is_numeric($amount) ? (int) $amount : null,
-                    'send_to_home' => $sendToHome !== null ? filter_var($sendToHome, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
-                ];
+                $rewardGroup->items()->createMany($itemRows);
             }
-
-            if ($itemRows === []) {
-                continue;
-            }
-
-            $weight = $group['Weight'] ?? null;
-            $awardOwner = $group['AwardOnlyToMissionOwner'] ?? null;
-
-            /** @var MissionRewardGroup $rewardGroup */
-            $rewardGroup = $missionData->rewardGroups()->create([
-                'group_index' => $index,
-                'weight' => is_numeric($weight) ? (float) $weight : null,
-                'award_only_to_mission_owner' => $awardOwner !== null ? filter_var($awardOwner, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : null,
-            ]);
-
-            $rewardGroup->items()->createMany($itemRows);
-        }
+        });
     }
 
     private function extractFirstReputationAmount(array $payload): ?int

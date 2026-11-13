@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
 use RuntimeException;
+use Throwable;
 
 class ImportItemData implements ShouldQueue
 {
@@ -83,53 +84,65 @@ class ImportItemData implements ShouldQueue
             return;
         }
 
-        $item = self::$itemCache[$uuid] ??= Item::query()->firstOrCreate(
-            ['uuid' => $uuid],
-            ['uuid' => $uuid]
-        );
+        try {
+            DB::transaction(function () use ($uuid, $itemPayload, $payload): void {
+                $item = self::$itemCache[$uuid] ??= Item::query()->firstOrCreate(
+                    ['uuid' => $uuid],
+                    ['uuid' => $uuid]
+                );
 
-        $manufacturerId = $this->resolveManufacturerId($itemPayload, $uuid);
+                $manufacturerId = $this->resolveManufacturerId($itemPayload, $uuid);
 
-        $name = $this->extractName($itemPayload);
+                $name = $this->extractName($itemPayload);
 
-        $values = $this->mapItemData($itemPayload, $manufacturerId, $name);
-        $updateColumns = $values
-                |> array_keys(...)
-                |> (static fn ($x) => array_diff($x, ['item_id', 'game_version_id']))
-                |> array_values(...);
+                $values = $this->mapItemData($itemPayload, $manufacturerId, $name);
+                $updateColumns = $values
+                        |> array_keys(...)
+                        |> (static fn ($x) => array_diff($x, ['item_id', 'game_version_id']))
+                        |> array_values(...);
 
-        $now = now();
-        $row = array_map(
-            static function (mixed $value): mixed {
-                return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
-            },
-            $values,
-        ) + [
-            'item_id' => $item->id,
-            'game_version_id' => $this->gameVersionId,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ];
+                $now = now();
+                $row = array_map(
+                    static function (mixed $value): mixed {
+                        return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
+                    },
+                    $values,
+                ) + [
+                    'item_id' => $item->id,
+                    'game_version_id' => $this->gameVersionId,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
 
-        DB::table('game_item_data')->upsert(
-            [$row],
-            ['item_id', 'game_version_id'],
-            [...$updateColumns, 'updated_at'],
-        );
+                DB::table('game_item_data')->upsert(
+                    [$row],
+                    ['item_id', 'game_version_id'],
+                    [...$updateColumns, 'updated_at'],
+                );
 
-        $itemData = ItemData::query()
-            ->where('item_id', $item->id)
-            ->where('game_version_id', $this->gameVersionId)
-            ->first();
+                $itemData = ItemData::query()
+                    ->where('item_id', $item->id)
+                    ->where('game_version_id', $this->gameVersionId)
+                    ->first();
 
-        $this->updateSlug($item, $name);
+                $this->updateSlug($item, $name);
 
-        $raw = $payload['Raw'] ?? [];
+                $raw = $payload['Raw'] ?? [];
 
-        $this->syncDescriptionData($item, $itemPayload, $raw);
-        $this->syncTranslations($item, $itemPayload, $raw);
-        $this->syncEntityTags($itemData, $itemPayload);
-        $this->syncCommodities($itemData, $itemPayload);
+                $this->syncDescriptionData($item, $itemPayload, $raw);
+                $this->syncTranslations($item, $itemPayload, $raw);
+                $this->syncEntityTags($itemData, $itemPayload);
+                $this->syncCommodities($itemData, $itemPayload);
+            });
+        } catch (Throwable $e) {
+            // A rolled-back transaction leaves the cached item with a dead id or uncommitted
+            // slug/translations, and the tag lookup may reference tags created inside it.
+            // Drop both so a same-process retry recreates them instead of reusing them.
+            unset(self::$itemCache[$uuid]);
+            self::$entityTagsLookup = null;
+
+            throw $e;
+        }
     }
 
     /**
