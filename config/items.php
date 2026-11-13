@@ -401,7 +401,9 @@ return [
     | - 'title': Custom page title
     | - 'shared': Array of shared group keys to include
     | - 'shared_insert_at': Position to insert shared groups (optional)
-    |     * Positive: Insert at index (0-based)
+    |     * Positive: Insert immediately before the view button column
+    |     *     (the value is replaced by the view button index, so only
+    |     *     the relative order of shared/add positions is honored)
     |     * Negative: Count from end (-1 = before last column)
     |     * Null/Omitted: Append at end (default)
     | - 'shared_overrides': Customize shared groups (e.g., change title)
