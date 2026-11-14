@@ -60,7 +60,7 @@ class GalactapediaController extends Controller
 
                 $query->whereLike('galactapedia_articles.title', "%{$value}%");
             }),
-            AllowedFilter::custom('created_at', new DateFilter('created_at')),
+            AllowedFilter::custom('created_at', new DateFilter('galactapedia_articles.created_at')),
         ];
     }
 

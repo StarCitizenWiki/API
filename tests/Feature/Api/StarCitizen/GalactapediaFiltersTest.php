@@ -41,6 +41,33 @@ it('returns galactapedia filter values with counts', function (): void {
     );
 });
 
+describe('creation date filter', function (): void {
+    beforeEach(function (): void {
+        $category = Category::factory()->create(['name' => 'Lore']);
+        $template = Template::factory()->create(['template' => 'Civilization']);
+
+        $matching = Article::factory()->create(['created_at' => '2025-03-15 12:00:00']);
+        $matching->categories()->attach($category);
+        $matching->templates()->attach($template);
+
+        $other = Article::factory()->create(['created_at' => '2024-03-15 12:00:00']);
+        $other->categories()->attach($category);
+        $other->templates()->attach($template);
+    });
+
+    it('narrows joined facets by article creation date', function (string $date): void {
+        $response = $this->getJson(route('galactapedia.filters', [
+            'filter' => ['created_at' => $date, 'template' => 'Civilization'],
+        ]))->assertOk();
+
+        assertFacetsEqual($response, [
+            'category' => [['value' => 'Lore', 'label' => 'Lore', 'count' => 1]],
+            'tag' => [['value' => null, 'label' => 'Unknown', 'count' => 1]],
+            'template' => [['value' => 'Civilization', 'label' => 'Civilization', 'count' => 1]],
+        ]);
+    })->with(['2025', '2025-03', '2025-03-15']);
+});
+
 it('narrows facets when a filter is supplied', function (): void {
     $lore = Category::factory()->create(['name' => 'Lore']);
     $history = Category::factory()->create(['name' => 'History']);
