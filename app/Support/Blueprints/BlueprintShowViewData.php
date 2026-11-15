@@ -351,15 +351,6 @@ final class BlueprintShowViewData
             $this->pushIngredient($ingredients, $ingredientName, null);
         }
 
-        foreach ($this->normalizeIngredientList(data_get($blueprint, 'ingredients')) as $ingredient) {
-            $uuid = data_get($ingredient, 'resource_type_uuid');
-            $name = data_get($ingredient, 'name');
-
-            if ($uuid !== null || $name !== null) {
-                $this->pushIngredient($ingredients, $name, $uuid);
-            }
-        }
-
         if ($ingredients !== []) {
             return array_values($ingredients);
         }

@@ -261,12 +261,6 @@ class DeepDiff
             return;
         }
 
-        if ((is_array($old) || is_array($new)) && $old !== $new) {
-            $changes[$path] = ['old' => $old, 'new' => $new];
-
-            return;
-        }
-
         if ($old !== $new) {
             $changes[$path] = ['old' => $old, 'new' => $new];
         }

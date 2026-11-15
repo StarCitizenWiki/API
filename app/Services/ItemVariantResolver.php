@@ -1955,7 +1955,6 @@ class ItemVariantResolver
         return $value !== '' ? $value : null;
     }
 
-    /** Union-find root with path halving, shared by both partition passes. */
     /**
      * Union-find over item ids: every member seeds as its own root, then
      * bucket mates merge onto their bucket head.

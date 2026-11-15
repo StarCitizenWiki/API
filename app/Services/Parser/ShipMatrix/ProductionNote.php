@@ -21,7 +21,6 @@ class ProductionNote extends BaseElement
     private const PRODUCTION_STATUSES = [
         'Update Pass Scheduled',
         'Update pass scheduled',
-        'Update pass scheduled.',
     ];
 
     private const PRODUCTION_STATUS_NORMALIZED = 'Update Pass Scheduled';

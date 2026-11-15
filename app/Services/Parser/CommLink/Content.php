@@ -41,7 +41,6 @@ class Content extends AbstractBaseElement
     {
         $content = $this->removeElements($content);
 
-        $content = str_replace(' ', ' ', $content);
         $content = (string) str_replace(['&nbsp;', "\xc2\xa0"], ' ', $content);
 
         $content = preg_replace('/<p>\s*?<\/p>/m', '', $content) ?? $content;
