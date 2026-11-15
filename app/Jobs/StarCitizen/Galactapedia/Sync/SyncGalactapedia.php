@@ -6,7 +6,7 @@ namespace App\Jobs\StarCitizen\Galactapedia\Sync;
 
 use App\Jobs\StarCitizen\Galactapedia\ImportArticle;
 use App\Jobs\StarCitizen\Galactapedia\ImportCategories;
-use App\Services\RsiDownloadClient;
+use App\Services\GalactapediaClient;
 use App\Support\Filters\FilterCache;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -21,14 +21,13 @@ class SyncGalactapedia implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(RsiDownloadClient $client): void
+    public function handle(GalactapediaClient $client): void
     {
         FilterCache::bust(FilterCache::NAMESPACE_GALACTAPEDIA);
 
         ImportCategories::dispatch();
 
-        $result = $client->forRsi()->post('galactapedia/graphql', [
-            'query' => <<<'QUERY'
+        $result = $client->query(<<<'QUERY'
 query GetArticles {
   allArticle {
     edges {
@@ -40,16 +39,13 @@ query GetArticles {
     }
   }
 }
-QUERY,
-        ]);
+QUERY);
 
-        $result = $result->json() ?? [];
-
-        if (! isset($result['data']['allArticle']['edges'])) {
+        if (! isset($result['allArticle']['edges'])) {
             return;
         }
 
-        $jobs = collect($result['data']['allArticle']['edges'])
+        $jobs = collect($result['allArticle']['edges'])
             ->map(function (array $edge) {
                 return $edge['node'] ?? null;
             })

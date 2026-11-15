@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Galactapedia;
 
 use App\Models\StarCitizen\Galactapedia\Article;
-use App\Services\RsiDownloadClient;
+use App\Services\GalactapediaClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
@@ -26,7 +26,7 @@ class ImportArticleProperty implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(RsiDownloadClient $client): void
+    public function handle(GalactapediaClient $client): void
     {
         $article = Article::query()
             ->with('templates')
@@ -44,6 +44,12 @@ class ImportArticleProperty implements ShouldQueue
             return;
         }
 
+        $template = $this->article->templates[0]->template;
+
+        if (! preg_match('/^[_A-Za-z][_0-9A-Za-z]*$/D', $template)) {
+            return;
+        }
+
         $fields = $this->getTemplateFields($client);
 
         if ($fields === null) {
@@ -54,13 +60,12 @@ class ImportArticleProperty implements ShouldQueue
 
         $strFields = implode("\n", $fields->toArray());
 
-        $result = $client->forRsi()->post('galactapedia/graphql', [
-            'query' => <<<QUERY
-{
-  Article(id: "{$this->article->cig_id}") {
+        $result = $client->query(<<<QUERY
+query ArticleProperties(\$id: ID!) {
+  Article(id: \$id) {
     template {
-      ... on {$this->article->templates[0]->template} {
-        {$this->article->templates[0]->template} {
+      ... on {$template} {
+        {$template} {
           _meta {
             $strFields
           }
@@ -71,16 +76,13 @@ class ImportArticleProperty implements ShouldQueue
     }
   }
 }
-QUERY,
-        ]);
+QUERY, ['id' => $this->article->cig_id]);
 
-        $result = $result->json() ?? [];
-
-        if (! isset($result['data']['Article']['template'][0][$this->article->templates[0]->template])) {
+        if (! isset($result['Article']['template'][0][$this->article->templates[0]->template])) {
             return;
         }
 
-        $result = $result['data']['Article']['template'][0][$this->article->templates[0]->template];
+        $result = $result['Article']['template'][0][$this->article->templates[0]->template];
 
         collect($fields)->each(function (string $field) use ($result) {
             if (! isset($result[$field]) || empty($result[$field])) {
@@ -111,10 +113,9 @@ QUERY,
         });
     }
 
-    private function getTemplateFields(RsiDownloadClient $client): ?Collection
+    private function getTemplateFields(GalactapediaClient $client): ?Collection
     {
-        $result = $client->forRsi()->post('galactapedia/graphql', [
-            'query' => <<<'QUERY'
+        $result = $client->query(<<<'QUERY'
 query ArticleAfterCursor($type: String!) {
   template: __type(name: $type) {
     fields {
@@ -128,23 +129,19 @@ query ArticleAfterCursor($type: String!) {
     }
   }
 }
-QUERY,
-            'variables' => [
-                'type' => sprintf(
-                    '%s%s',
-                    $this->article->templates[0]->template,
-                    $this->article->templates[0]->template,
-                ),
-            ],
+QUERY, [
+            'type' => sprintf(
+                '%s%s',
+                $this->article->templates[0]->template,
+                $this->article->templates[0]->template,
+            ),
         ]);
 
-        $result = $result->json() ?? [];
-
-        if (! isset($result['data']['template']['fields'])) {
+        if (! isset($result['template']['fields'])) {
             return null;
         }
 
-        $data = $result['data']['template']['fields'];
+        $data = $result['template']['fields'];
 
         return collect($data)->reject(function (array $field) {
             return $field['name'] === '_meta';

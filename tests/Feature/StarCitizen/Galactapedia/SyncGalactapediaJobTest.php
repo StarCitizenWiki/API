@@ -7,6 +7,7 @@ use App\Jobs\StarCitizen\Galactapedia\ImportCategories;
 use App\Jobs\StarCitizen\Galactapedia\Sync\DispatchArticleProperties;
 use App\Jobs\StarCitizen\Galactapedia\Sync\SyncGalactapedia;
 use App\Models\StarCitizen\Galactapedia\Article;
+use App\Services\GalactapediaClient;
 use App\Services\RsiDownloadClient;
 use App\Support\Filters\FilterCache;
 use Illuminate\Bus\PendingBatch;
@@ -35,7 +36,7 @@ it('dispatches categories and batches article imports', function (): void {
     ]);
 
     $job = new SyncGalactapedia;
-    $job->handle(new RsiDownloadClient);
+    $job->handle(new GalactapediaClient(new RsiDownloadClient));
 
     Bus::assertDispatched(ImportCategories::class);
 
@@ -65,7 +66,7 @@ it('busts the galactapedia filter cache when the sync job runs', function (): vo
     Cache::forever($cacheKey, ['cached-galactapedia-list']);
     Cache::forever($secondaryCacheKey, ['cached-filtered-galactapedia-list']);
 
-    (new SyncGalactapedia)->handle(new RsiDownloadClient);
+    (new SyncGalactapedia)->handle(new GalactapediaClient(new RsiDownloadClient));
 
     expect(Cache::get($indexKey))->toBeNull()
         ->and(Cache::get($cacheKey))->toBeNull()
@@ -117,7 +118,7 @@ it('queues article properties after the import batch completes', function (): vo
     });
 
     $job = new SyncGalactapedia;
-    $job->handle(new RsiDownloadClient);
+    $job->handle(new GalactapediaClient(new RsiDownloadClient));
 
     expect(Article::query()->orderBy('cig_id')->pluck('slug', 'cig_id')->all())
         ->toBe([
@@ -147,7 +148,7 @@ it('derives the article slug from the title when the graphql response omits it',
         ], 200),
     ]);
 
-    (new ImportArticle('42'))->handle(new RsiDownloadClient);
+    (new ImportArticle('42'))->handle(new GalactapediaClient(new RsiDownloadClient));
 
     expect(Article::query()->where('cig_id', '42')->value('slug'))->toBe('banu-defender');
 });

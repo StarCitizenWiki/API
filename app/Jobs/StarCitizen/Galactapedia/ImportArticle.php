@@ -9,7 +9,7 @@ use App\Models\StarCitizen\Galactapedia\Category;
 use App\Models\StarCitizen\Galactapedia\Tag;
 use App\Models\StarCitizen\Galactapedia\Template;
 use App\Models\System\Language;
-use App\Services\RsiDownloadClient;
+use App\Services\GalactapediaClient;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -34,10 +34,9 @@ class ImportArticle implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(RsiDownloadClient $client): void
+    public function handle(GalactapediaClient $client): void
     {
-        $result = $client->forRsi()->post('galactapedia/graphql', [
-            'query' => <<<'QUERY'
+        $result = $client->query(<<<'QUERY'
 query ArticleByID($query: ID!) {
   Article(id: $query) {
     id
@@ -71,19 +70,15 @@ query ArticleByID($query: ID!) {
     }
   }
 }
-QUERY,
-            'variables' => [
-                'query' => $this->articleId,
-            ],
+QUERY, [
+            'query' => $this->articleId,
         ]);
 
-        $result = $result->json() ?? [];
-
-        if (! isset($result['data']['Article'])) {
+        if (! isset($result['Article'])) {
             return;
         }
 
-        $data = $result['data']['Article'];
+        $data = $result['Article'];
         $this->disableDuplicates($data);
 
         /** @var Article $article */

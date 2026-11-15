@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Galactapedia;
 
 use App\Models\StarCitizen\Galactapedia\Category;
-use App\Services\RsiDownloadClient;
+use App\Services\GalactapediaClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -20,12 +20,11 @@ class ImportCategories implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(RsiDownloadClient $client): void
+    public function handle(GalactapediaClient $client): void
     {
         Log::info('Importing Galactapedia categories.');
 
-        $result = $client->forRsi()->post('galactapedia/graphql', [
-            'query' => <<<'QUERY'
+        $result = $client->query(<<<'QUERY'
 query GetCategories {
   allCategory {
     edges {
@@ -40,16 +39,13 @@ query GetCategories {
     }
   }
 }
-QUERY
-        ]);
+QUERY);
 
-        $result = $result->json() ?? [];
-
-        if (! isset($result['data']['allCategory']['edges'])) {
+        if (! isset($result['allCategory']['edges'])) {
             return;
         }
 
-        collect($result['data']['allCategory']['edges'])
+        collect($result['allCategory']['edges'])
             ->map(function ($edge) {
                 return $edge['node'] ?? false;
             })
