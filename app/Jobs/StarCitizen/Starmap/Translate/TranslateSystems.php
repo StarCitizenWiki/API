@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Starmap\Translate;
 
 use App\Models\StarCitizen\Starmap\Starsystem;
-use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
-use App\Traits\HandlesTranslationExceptions;
+use App\Traits\TranslatesModelBatch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -22,10 +20,10 @@ use Illuminate\Support\Facades\Log;
 class TranslateSystems implements ShouldQueue
 {
     use Dispatchable;
-    use HandlesTranslationExceptions;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use TranslatesModelBatch;
 
     /**
      * Execute the job.
@@ -34,45 +32,16 @@ class TranslateSystems implements ShouldQueue
     {
         Log::info('Translating Systems');
 
-        [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
+        [$targetLocale] = TranslationService::resolveLocale();
 
-        Starsystem::query()
-            ->whereNotNull('translation')
-            ->chunk(
-                25,
-                function (Collection $systems) use ($translator, $targetLocale, $translationLocale) {
-                    foreach ($systems as $starsystem) {
-                        $english = $starsystem->getTranslation('translation', Language::ENGLISH, false);
-                        $existingTranslation = $starsystem->getTranslation('translation', $translationLocale, false);
+        $this->translateChunk(
+            Starsystem::query()->whereNotNull('translation'),
+            fn (Starsystem $starsystem, string $english): string => $translator->translate($english, $targetLocale),
+            function (Starsystem $starsystem): array {
+                Log::info(sprintf('Translating system %s', $starsystem->name));
 
-                        if ($english === null || $english === '') {
-                            continue;
-                        }
-
-                        if ($existingTranslation !== null && $existingTranslation !== '') {
-                            continue;
-                        }
-
-                        Log::info(sprintf('Translating system %s', $starsystem->name));
-                        $translation = $this->translateOrAbort(
-                            fn (): string => $translator->translate($english, $targetLocale),
-                            ['system' => $starsystem->name],
-                        );
-
-                        if ($translation === false) {
-                            return false;
-                        }
-
-                        if ($translation === null) {
-                            continue;
-                        }
-
-                        $starsystem->setTranslation('translation', $translationLocale, $translation);
-                        $starsystem->save();
-                    }
-
-                    return true;
-                }
-            );
+                return ['system' => $starsystem->name];
+            },
+        );
     }
 }

@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Galactapedia;
 
 use App\Models\StarCitizen\Galactapedia\Article;
-use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
-use App\Traits\HandlesTranslationExceptions;
+use App\Traits\TranslatesModelBatch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -18,10 +17,10 @@ use Illuminate\Support\Facades\Log;
 class TranslateArticle implements ShouldQueue
 {
     use Dispatchable;
-    use HandlesTranslationExceptions;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use TranslatesModelBatch;
 
     private Article $article;
 
@@ -41,30 +40,20 @@ class TranslateArticle implements ShouldQueue
         Log::info("Translating Galactapedia Article {$this->article->cig_id}");
         [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
 
-        $english = $this->article->getTranslation('translation', Language::ENGLISH, false);
-        $existingTranslation = $this->article->getTranslation('translation', $translationLocale, false);
+        $this->translateModel(
+            $this->article,
+            $translationLocale,
+            fn (Article $article, string $english): string => $translator->translate($english, $targetLocale),
+            fn (Article $article): array => ['article_id' => $article->cig_id],
+            function (string $english, ?string $existingTranslation): bool {
+                if ($existingTranslation !== null && ((strlen($existingTranslation) / strlen($english)) > 0.80)) {
+                    $this->delete();
 
-        if ($english === null || $english === '') {
-            return;
-        }
+                    return true;
+                }
 
-        // Delete job if an existing translation is already close in length to the English text.
-        if ($existingTranslation !== null && ((strlen($existingTranslation) / strlen($english)) > 0.80)) {
-            $this->delete();
-
-            return;
-        }
-
-        $translation = $this->translateOrAbort(
-            fn (): string => $translator->translate($english, $targetLocale),
-            ['article_id' => $this->article->cig_id],
+                return false;
+            },
         );
-
-        if ($translation === null || $translation === false) {
-            return;
-        }
-
-        $this->article->setTranslation('translation', $translationLocale, $translation);
-        $this->article->save();
     }
 }

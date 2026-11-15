@@ -36,6 +36,42 @@ describe('translate article', function () {
         expect($article->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('Hallo Universum');
     });
 
+    it('deletes the job only when the existing translation exceeds the length threshold', function (string $existing, bool $deleted) {
+        $article = createArticleWithEnglishTranslation('1234567890');
+        $article->setTranslation('translation', Language::GERMAN, $existing);
+        $article->save();
+
+        $this->mock(TranslationService::class, function ($mock) use ($deleted) {
+            if ($deleted) {
+                $mock->shouldNotReceive('translate');
+            } else {
+                $mock->shouldReceive('translate')->once()->andReturn('translated');
+            }
+        });
+
+        $job = (new TranslateArticle($article))->withFakeQueueInteractions();
+        $job->handle(app(TranslationService::class));
+
+        if ($deleted) {
+            $job->assertDeleted();
+        } else {
+            expect($article->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('translated');
+        }
+    })->with([['12345678', false], ['123456789', true]]);
+
+    it('translates the injected article without reloading it', function () {
+        $article = createArticleWithEnglishTranslation();
+        $article->setTranslation('translation', Language::ENGLISH, 'Changed in memory');
+
+        $this->mock(TranslationService::class, function ($mock) {
+            $mock->shouldReceive('translate')->once()->with('Changed in memory', 'de')->andReturn('translated');
+        });
+
+        (new TranslateArticle($article))->handle(app(TranslationService::class));
+
+        expect($article->fresh()->getTranslation('translation', Language::GERMAN, false))->toBe('translated');
+    });
+
     it('skips articles without english translation', function () {
         $article = Article::factory()->create();
 

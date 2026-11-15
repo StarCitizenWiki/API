@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App\Jobs\Rsi\CommLink\Translate;
 
 use App\Models\Rsi\CommLink\CommLink;
-use App\Models\System\Language;
 use App\Services\Translation\TranslationService;
-use App\Traits\HandlesTranslationExceptions;
+use App\Traits\TranslatesModelBatch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -22,10 +20,10 @@ use Illuminate\Support\Facades\Log;
 class TranslateCommLinks implements ShouldQueue
 {
     use Dispatchable;
-    use HandlesTranslationExceptions;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use TranslatesModelBatch;
 
     /**
      * Categories that should be translated with more formal language.
@@ -44,7 +42,7 @@ class TranslateCommLinks implements ShouldQueue
     {
         Log::info('Translating Comm-Links');
 
-        [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
+        [$targetLocale] = TranslationService::resolveLocale();
 
         $query = CommLink::query()
             ->with(['category'])
@@ -54,46 +52,21 @@ class TranslateCommLinks implements ShouldQueue
             $query->whereIn('cig_id', $this->commLinkIds);
         }
 
-        $query->chunk(
-            25,
-            function (Collection $commLinks) use ($translator, $targetLocale, $translationLocale) {
-                foreach ($commLinks as $commLink) {
-                    $english = $commLink->getTranslation('translation', Language::ENGLISH, false);
-                    $existingTranslation = $commLink->getTranslation('translation', $translationLocale, false);
-
-                    if ($english === null || $english === '') {
-                        continue;
-                    }
-
-                    if ($existingTranslation !== null && $existingTranslation !== '') {
-                        continue;
-                    }
-
-                    $formality = 'less';
-                    if ($commLink->category !== null && in_array($commLink->category->name, $this->formalCategories, true)) {
-                        $formality = 'more';
-                    }
-
-                    Log::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
-                    $translation = $this->translateOrAbort(
-                        fn (): string => $translator->translate($english, $targetLocale, 'en', $formality),
-                        ['comm_link_id' => $commLink->cig_id],
-                    );
-
-                    if ($translation === false) {
-                        return false;
-                    }
-
-                    if ($translation === null) {
-                        continue;
-                    }
-
-                    $commLink->setTranslation('translation', $translationLocale, $translation);
-                    $commLink->save();
+        $this->translateChunk(
+            $query,
+            function (CommLink $commLink, string $english) use ($translator, $targetLocale): string {
+                $formality = 'less';
+                if ($commLink->category !== null && in_array($commLink->category->name, $this->formalCategories, true)) {
+                    $formality = 'more';
                 }
 
-                return true;
-            }
+                return $translator->translate($english, $targetLocale, 'en', $formality);
+            },
+            function (CommLink $commLink): array {
+                Log::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
+
+                return ['comm_link_id' => $commLink->cig_id];
+            },
         );
     }
 }
