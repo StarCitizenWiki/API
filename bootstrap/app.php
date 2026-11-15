@@ -10,7 +10,6 @@ use App\Http\Middleware\TrustCloudflareProxies;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -58,9 +57,11 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request): bool => $request->is('api') || $request->is('api/*') || $request->expectsJson(),
         );
 
-        $exceptions->render(function (NotFoundInVersionException $exception, Request $request): ?JsonResponse {
+        $exceptions->render(function (NotFoundInVersionException $exception, Request $request): ?Response {
             if (! ($request->is('api') || $request->is('api/*') || $request->expectsJson())) {
-                return null;
+                return response()
+                    ->view('errors.404', ['exception' => $exception], 404)
+                    ->header('Cache-Control', 'no-store, private');
             }
 
             return response()->json([

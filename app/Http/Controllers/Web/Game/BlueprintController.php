@@ -14,7 +14,6 @@ use App\Support\Seo\BlueprintIndexSeoData;
 use App\Support\Seo\BlueprintShowSeoData;
 use App\Traits\NormalizesFilterParams;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
@@ -66,17 +65,12 @@ class BlueprintController extends Controller
             ]);
         }
 
-        $payload = $this->apiJsonRequest->request(
+        ['data' => $blueprintData] = $this->apiJsonRequest->fetchResource(
             route('blueprints.show', $this->buildVersionedRouteParameters($request, [
                 'blueprint' => $blueprint,
             ]), false),
             $request,
         );
-        $blueprintData = Arr::get($payload, 'data', []);
-
-        if ($blueprintData === []) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
 
         return view('blueprints.show', [
             ...$this->blueprintShowViewData->build(

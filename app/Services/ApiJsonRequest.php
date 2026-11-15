@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Exceptions\NotFoundInVersionException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -18,6 +19,7 @@ class ApiJsonRequest
      * Fetch a single API resource for a web view, forwarding the given request's
      * query params and injecting the includes. Aborts 404 when the API produced
      * no resource data; surfaces the target instead when the API redirected.
+     * Throws NotFoundInVersionException when the API 404 lists other versions.
      *
      * @param  array<int, string>  $includes
      * @return array{data: mixed, meta: array<string, mixed>}|array{__redirect: string}
@@ -36,6 +38,16 @@ class ApiJsonRequest
 
         if (isset($payload['__redirect'])) {
             return ['__redirect' => $payload['__redirect']];
+        }
+
+        $availableVersions = Arr::get($payload, 'available_versions');
+
+        if (is_array($availableVersions) && $availableVersions !== []) {
+            throw new NotFoundInVersionException(
+                (string) Arr::get($payload, 'requested_version', ''),
+                $availableVersions,
+                (string) Arr::get($payload, 'message', 'Not found.'),
+            );
         }
 
         $data = Arr::get($payload, 'data', []);
@@ -90,7 +102,9 @@ class ApiJsonRequest
         }
 
         if ($response->getStatusCode() >= 400) {
-            return [];
+            $errorPayload = json_decode($response->getContent() ?? 'null', true);
+
+            return is_array($errorPayload) ? $errorPayload : [];
         }
 
         if ($response->isRedirection()) {

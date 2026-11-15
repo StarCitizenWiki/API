@@ -30,7 +30,7 @@ it('returns the api payload with forwarded query params', function (): void {
         ]);
 });
 
-it('returns an empty array for error responses', function (): void {
+it('returns the decoded body for error responses and an empty array for non-json bodies', function (): void {
     Route::get('/api/test-api-error', function () {
         return response()->json(['message' => 'missing'], 404);
     });
@@ -40,6 +40,18 @@ it('returns an empty array for error responses', function (): void {
     });
 
     $this->get('/web/test-proxy-error')
+        ->assertSuccessful()
+        ->assertExactJson(['message' => 'missing']);
+
+    Route::get('/api/test-api-error-html', function () {
+        return response('<p>error</p>', 500);
+    });
+
+    Route::get('/web/test-proxy-error-html', function (Request $request, ApiJsonRequest $apiJsonRequest) {
+        return response()->json($apiJsonRequest->request('/api/test-api-error-html', $request));
+    });
+
+    $this->get('/web/test-proxy-error-html')
         ->assertSuccessful()
         ->assertExactJson([]);
 });
