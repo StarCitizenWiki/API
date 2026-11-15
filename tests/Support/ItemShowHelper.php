@@ -4,24 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use App\Models\Game\GameVersion;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
 
-/**
- * Standard default game version used by every Mission/Resource test in this cluster.
- * Centralized so test files stop repeating the 7-line factory config.
- */
-function createDefaultGameVersion(): GameVersion
-{
-    return GameVersion::factory()->create([
-        'code' => '4.0.0-LIVE',
-        'channel' => 'live',
-        'is_default' => true,
-        'released_at' => now(),
-    ]);
-}
+use function createDefaultGameVersion;
 
 /**
  * Builds the minimal item-show fixture: default version, manufacturer, item, and item data.
