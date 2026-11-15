@@ -96,7 +96,7 @@ class ReviewVehicleMatches extends Command
     {
         return ShipMatrixVehicle::query()
             ->whereLike('name', "%{$name}%")
-            ->orWhereLike('slug', '%{'.Str::slug($name).'}%')
+            ->orWhereLike('slug', '%'.Str::slug($name).'%')
             ->limit(10)
             ->get();
     }
