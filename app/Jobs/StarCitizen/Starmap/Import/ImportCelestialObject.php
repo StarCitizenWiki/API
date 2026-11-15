@@ -66,7 +66,7 @@ class ImportCelestialObject implements ShouldQueue
             $celestialObject->save();
         }
 
-        $celestialObject->affiliation()->sync($this->getAffiliationIds($this->rawData->pull('affiliation')));
+        $celestialObject->affiliation()->sync(Affiliation::syncFromPayload($this->rawData->pull('affiliation')));
     }
 
     public function getData(): Collection
@@ -120,31 +120,5 @@ class ImportCelestialObject implements ShouldQueue
             'name' => Arr::get($this->rawData, 'subtype.name'),
             'type' => Arr::get($this->rawData, 'subtype.type'),
         ])->id;
-    }
-
-    private function getAffiliationIds(array $affiliations): array
-    {
-        return collect($affiliations)
-            ->filter(
-                function ($affiliation) {
-                    return isset($affiliation['id']);
-                }
-            )
-            ->map(
-                function ($affiliationData) {
-                    return Affiliation::query()->updateOrCreate(['cig_id' => $affiliationData['id']], [
-                        'name' => Arr::get($affiliationData, 'name'),
-                        'code' => Arr::get($affiliationData, 'code'),
-                        'color' => Arr::get($affiliationData, 'color'),
-                        'membership_id' => Arr::get($affiliationData, 'membership.id', null),
-                    ]);
-                }
-            )
-            ->map(
-                function (Affiliation $affiliation) {
-                    return $affiliation->id;
-                }
-            )
-            ->toArray();
     }
 }

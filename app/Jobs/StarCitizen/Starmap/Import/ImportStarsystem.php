@@ -12,7 +12,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 /**
@@ -59,7 +58,7 @@ class ImportStarsystem implements ShouldQueue
             $starsystem->save();
         }
 
-        $starsystem->affiliation()->sync($this->getAffiliationIds($affiliation));
+        $starsystem->affiliation()->sync(Affiliation::syncFromPayload($affiliation));
 
         $this->dispatchCelestialObjectJobs();
     }
@@ -97,32 +96,6 @@ class ImportStarsystem implements ShouldQueue
                 'affiliation' => $this->rawData->get('affiliation'),
             ]
         );
-    }
-
-    private function getAffiliationIds(array $affiliations): array
-    {
-        return collect($affiliations)
-            ->filter(
-                function ($affiliation) {
-                    return isset($affiliation['id']);
-                }
-            )
-            ->map(
-                function ($affiliationData) {
-                    return Affiliation::query()->updateOrCreate(['cig_id' => $affiliationData['id']], [
-                        'name' => Arr::get($affiliationData, 'name'),
-                        'code' => Arr::get($affiliationData, 'code'),
-                        'color' => Arr::get($affiliationData, 'color'),
-                        'membership_id' => Arr::get($affiliationData, 'membership.id', null),
-                    ]);
-                }
-            )
-            ->map(
-                function (Affiliation $affiliation) {
-                    return $affiliation->id;
-                }
-            )
-            ->toArray();
     }
 
     private function dispatchCelestialObjectJobs(): void
