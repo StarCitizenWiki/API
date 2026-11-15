@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
-use App\Models\Game\Manufacturer;
+use App\Jobs\Game\Concerns\ImportsScUnpackedPayload;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use App\Models\System\Language;
 use App\Services\Game\SlugService;
 use App\Services\Game\VehicleMatchingService;
 use App\Services\ItemRelevanceChecker;
-use App\Services\Parser\SC\Labels;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,29 +17,22 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
-use RuntimeException;
 use Throwable;
 
 class ImportVehicleData implements ShouldQueue
 {
     use Batchable;
     use Dispatchable;
+    use ImportsScUnpackedPayload;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 
-    /** @var Collection<int, Manufacturer>|null UUID => Manufacturer */
-    private static ?Collection $manufacturerLookup = null;
-
     /** @var array<string, Vehicle>|null UUID => Vehicle */
     private static ?array $vehicleCache = null;
-
-    private static ?Labels $labels = null;
 
     public function __construct(
         private readonly int $gameVersionId,
@@ -76,33 +67,11 @@ class ImportVehicleData implements ShouldQueue
                     ['uuid' => $payload['UUID']]
                 );
 
-                $manufacturerId = $this->resolveManufacturerId($payload);
+                $manufacturerId = $this->resolveManufacturerId($payload, 'Manufacturer.UUID', 'vehicle '.$payload['UUID']);
                 $shipmatrixId = $this->resolveShipmatrixVehicleId($payload);
 
                 $values = $this->mapVehicleData($payload, $manufacturerId, $shipmatrixId);
-                $updateColumns = $values
-                        |> array_keys(...)
-                        |> (static fn ($x) => array_diff($x, ['vehicle_id', 'game_version_id']))
-                        |> array_values(...);
-
-                $now = now();
-                $row = array_map(
-                    static function (mixed $value): mixed {
-                        return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
-                    },
-                    $values,
-                ) + [
-                    'vehicle_id' => $vehicle->id,
-                    'game_version_id' => $this->gameVersionId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-
-                DB::table('game_vehicle_data')->upsert(
-                    [$row],
-                    ['vehicle_id', 'game_version_id'],
-                    [...$updateColumns, 'updated_at'],
-                );
+                $this->upsertVersionedRow('game_vehicle_data', 'vehicle_id', $vehicle->id, $values);
 
                 $vehicleData = VehicleData::query()
                     ->where('vehicle_id', $vehicle->id)
@@ -124,43 +93,6 @@ class ImportVehicleData implements ShouldQueue
 
             throw $e;
         }
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function readPayload(): array
-    {
-        $contents = Storage::disk($this->diskName)->get($this->path);
-
-        return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-    }
-
-    private function resolveManufacturerId(array $payload): int
-    {
-        $manufacturerUuid = Arr::get($payload, 'Manufacturer.UUID', '00000000-0000-0000-0000-000000000000');
-
-        if (self::$manufacturerLookup === null) {
-            self::$manufacturerLookup = Manufacturer::query()
-                ->get(['id', 'uuid'])
-                ->keyBy('uuid');
-        }
-
-        $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
-
-        if ($manufacturer === null) {
-            // Lazy-reload: manufacturer may have been created after initial cache load (e.g. in tests)
-            self::$manufacturerLookup = Manufacturer::query()
-                ->get(['id', 'uuid'])
-                ->keyBy('uuid');
-            $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
-        }
-
-        if ($manufacturer === null) {
-            throw new RuntimeException(sprintf('Manufacturer with uuid %s does not exist for vehicle %s.', $manufacturerUuid, $payload['UUID']));
-        }
-
-        return $manufacturer->id;
     }
 
     private function mapVehicleData(array $payload, ?int $manufacturerId, ?int $shipmatrixId): array
@@ -336,47 +268,11 @@ class ImportVehicleData implements ShouldQueue
         return $normalized;
     }
 
-    /**
-     * Sync description translations from label keys onto the parent Vehicle model.
-     */
     private function syncTranslations(Vehicle $vehicle, array $payload): void
     {
-        $descriptionKey = Arr::get($payload, 'DescriptionKey');
-
-        if (! is_string($descriptionKey) || trim($descriptionKey) === '') {
-            return;
-        }
-
-        $updated = false;
-
-        $englishDescription = $payload['DescriptionText'] ?? $payload['Description'] ?? null;
-
-        if (is_string($englishDescription) && trim($englishDescription) !== '') {
-            $vehicle->setTranslation('translation', Language::ENGLISH, trim($englishDescription));
-            $updated = true;
-        }
-
-        foreach (config('translations.locales', []) as $locale) {
-            $translation = $this->getLabels()->getTranslation($locale, $descriptionKey);
-
-            if ($translation !== null && $translation !== '') {
-                $vehicle->setTranslation('translation', $locale, str_replace('\n', "\n", $translation));
-                $updated = true;
-            }
-        }
-
-        if ($updated) {
-            $vehicle->save();
-        }
-    }
-
-    private function getLabels(): Labels
-    {
-        if (self::$labels === null) {
-            self::$labels = new Labels;
-        }
-
-        return self::$labels;
+        $key = Arr::get($payload, 'DescriptionKey');
+        $english = $payload['DescriptionText'] ?? $payload['Description'] ?? null;
+        $this->syncDescriptionTranslations($vehicle, is_string($english) ? $english : null, is_string($key) ? $key : null);
     }
 
     private function updateSlug(Vehicle $vehicle, array $payload): void

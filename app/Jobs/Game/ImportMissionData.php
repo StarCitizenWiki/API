@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Jobs\Game\Concerns\ImportsScUnpackedPayload;
 use App\Models\Game\Blueprint;
 use App\Models\Game\BlueprintData;
 use App\Models\Game\Commodity\Commodity;
@@ -15,9 +16,7 @@ use App\Models\Game\Mission\MissionData;
 use App\Models\Game\Mission\MissionRewardGroup;
 use App\Models\Game\StarmapLocation;
 use App\Models\Game\StarmapLocationData;
-use App\Models\System\Language;
 use App\Services\Game\SlugService;
-use App\Services\Parser\SC\Labels;
 use App\Support\Filters\MissionScopeMapping;
 use App\Support\Formatting\FormatMissionText;
 use Illuminate\Bus\Batchable;
@@ -29,12 +28,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class ImportMissionData implements ShouldQueue
 {
     use Batchable;
     use Dispatchable;
+    use ImportsScUnpackedPayload;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
@@ -74,8 +73,6 @@ class ImportMissionData implements ShouldQueue
 
     /** @var array<string, Mission>|null */
     private static ?array $missionCache = null;
-
-    private static ?Labels $labels = null;
 
     public function __construct(
         private readonly int $gameVersionId,
@@ -227,65 +224,34 @@ class ImportMissionData implements ShouldQueue
             return;
         }
 
-        $mission = Mission::query()->firstOrCreate(
-            ['uuid' => $uuid],
-            ['uuid' => $uuid]
-        );
+        DB::transaction(function () use ($uuid, $payload): void {
+            $mission = Mission::query()->firstOrCreate(
+                ['uuid' => $uuid],
+                ['uuid' => $uuid]
+            );
 
-        if ($mission->slug === null) {
-            $this->assignSlug($mission, $payload);
-        }
+            if ($mission->slug === null) {
+                $this->assignSlug($mission, $payload);
+            }
 
-        $factionId = $this->resolveFactionId($payload);
+            $factionId = $this->resolveFactionId($payload);
 
-        $values = $this->mapMissionData($payload, $factionId);
-        $values['mission_key'] = $this->computeMissionKey($payload);
-        $updateColumns = $values
-                |> array_keys(...)
-                |> (static fn ($x) => array_diff($x, ['mission_id', 'game_version_id']))
-                |> array_values(...);
+            $values = $this->mapMissionData($payload, $factionId);
+            $values['mission_key'] = $this->computeMissionKey($payload);
+            $this->upsertVersionedRow('game_mission_data', 'mission_id', $mission->id, $values);
 
-        $now = now();
-        $row = array_map(
-            static function (mixed $value): mixed {
-                return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
-            },
-            $values,
-        ) + [
-            'mission_id' => $mission->id,
-            'game_version_id' => $this->gameVersionId,
-            'created_at' => $now,
-            'updated_at' => $now,
-        ];
+            $missionData = MissionData::query()
+                ->where('mission_id', $mission->id)
+                ->where('game_version_id', $this->gameVersionId)
+                ->first();
 
-        DB::table('game_mission_data')->upsert(
-            [$row],
-            ['mission_id', 'game_version_id'],
-            [...$updateColumns, 'updated_at'],
-        );
-
-        $missionData = MissionData::query()
-            ->where('mission_id', $mission->id)
-            ->where('game_version_id', $this->gameVersionId)
-            ->first();
-
-        $this->syncStarmapLocations($missionData, $payload);
-        $this->syncBlueprints($missionData, $payload);
-        $this->syncCommodities($missionData, $payload);
-        $this->syncItems($missionData, $payload);
-        $this->syncRewardItems($missionData, $payload);
-        $this->syncTranslations($mission, $payload);
-    }
-
-    private function readPayload(): array
-    {
-        $contents = Storage::disk($this->diskName)->get($this->path);
-
-        if (! is_string($contents) || trim($contents) === '') {
-            return [];
-        }
-
-        return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+            $this->syncStarmapLocations($missionData, $payload);
+            $this->syncBlueprints($missionData, $payload);
+            $this->syncCommodities($missionData, $payload);
+            $this->syncItems($missionData, $payload);
+            $this->syncRewardItems($missionData, $payload);
+            $this->syncTranslations($mission, $payload);
+        });
     }
 
     private function resolveFactionId(array $payload): ?int
@@ -899,48 +865,12 @@ class ImportMissionData implements ShouldQueue
         return $value === '' ? null : $value;
     }
 
-    /**
-     * Sync description translations from label keys onto the parent Mission model.
-     */
     private function syncTranslations(Mission $mission, array $payload): void
     {
-        $descriptionKey = $this->trimOrNull(Arr::get($payload, 'description_key'));
-
-        if ($descriptionKey === null) {
-            return;
-        }
-
-        $updated = false;
-
-        $englishDescription = $this->trimOrNull(Arr::get($payload, 'DisplayDescription'))
+        $key = $this->trimOrNull(Arr::get($payload, 'description_key'));
+        $english = $this->trimOrNull(Arr::get($payload, 'DisplayDescription'))
             ?? $this->trimOrNull(Arr::get($payload, 'Description'));
-
-        if ($englishDescription !== null) {
-            $mission->setTranslation('translation', Language::ENGLISH, $englishDescription);
-            $updated = true;
-        }
-
-        foreach (config('translations.locales', []) as $locale) {
-            $translation = $this->getLabels()->getTranslation($locale, $descriptionKey);
-
-            if ($translation !== null && $translation !== '') {
-                $mission->setTranslation('translation', $locale, str_replace('\n', "\n", $translation));
-                $updated = true;
-            }
-        }
-
-        if ($updated) {
-            $mission->save();
-        }
-    }
-
-    private function getLabels(): Labels
-    {
-        if (self::$labels === null) {
-            self::$labels = new Labels;
-        }
-
-        return self::$labels;
+        $this->syncDescriptionTranslations($mission, $english, $key);
     }
 
     private function assignSlug(Mission $mission, array $payload): void

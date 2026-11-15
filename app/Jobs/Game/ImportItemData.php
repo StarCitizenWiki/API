@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Jobs\Game\Concerns\ImportsScUnpackedPayload;
 use App\Models\Game\Commodity\Commodity;
 use App\Models\Game\EntityTag;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Models\Game\ItemDescriptionData;
-use App\Models\Game\Manufacturer;
 use App\Models\System\Language;
 use App\Services\Game\SlugService;
 use App\Services\ItemRelevanceChecker;
@@ -25,25 +25,20 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
-use RuntimeException;
 use Throwable;
 
 class ImportItemData implements ShouldQueue
 {
     use Batchable;
     use Dispatchable;
+    use ImportsScUnpackedPayload;
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
 
-    private static ?Labels $labels = null;
-
     private static ?Collection $entityTagsLookup = null;
-
-    private static ?Collection $manufacturerLookup = null;
 
     private static array $itemCache = [];
 
@@ -91,34 +86,12 @@ class ImportItemData implements ShouldQueue
                     ['uuid' => $uuid]
                 );
 
-                $manufacturerId = $this->resolveManufacturerId($itemPayload, $uuid);
+                $manufacturerId = $this->resolveManufacturerId($itemPayload, 'stdItem.Manufacturer.UUID', 'item '.$uuid);
 
                 $name = $this->extractName($itemPayload);
 
                 $values = $this->mapItemData($itemPayload, $manufacturerId, $name);
-                $updateColumns = $values
-                        |> array_keys(...)
-                        |> (static fn ($x) => array_diff($x, ['item_id', 'game_version_id']))
-                        |> array_values(...);
-
-                $now = now();
-                $row = array_map(
-                    static function (mixed $value): mixed {
-                        return is_array($value) ? json_encode($value, JSON_THROW_ON_ERROR) : $value;
-                    },
-                    $values,
-                ) + [
-                    'item_id' => $item->id,
-                    'game_version_id' => $this->gameVersionId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
-
-                DB::table('game_item_data')->upsert(
-                    [$row],
-                    ['item_id', 'game_version_id'],
-                    [...$updateColumns, 'updated_at'],
-                );
+                $this->upsertVersionedRow('game_item_data', 'item_id', $item->id, $values);
 
                 $itemData = ItemData::query()
                     ->where('item_id', $item->id)
@@ -145,16 +118,6 @@ class ImportItemData implements ShouldQueue
         }
     }
 
-    /**
-     * @throws JsonException
-     */
-    private function readPayload(): array
-    {
-        $contents = Storage::disk($this->diskName)->get($this->path);
-
-        return json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
-    }
-
     private function extractUuid(array $itemPayload): ?string
     {
         $uuid = $itemPayload['reference'] ?? $itemPayload['uuid'] ?? null;
@@ -166,33 +129,6 @@ class ImportItemData implements ShouldQueue
         $uuid = trim($uuid);
 
         return $uuid === '' ? null : $uuid;
-    }
-
-    private function resolveManufacturerId(array $itemPayload, string $uuid): int
-    {
-        $manufacturerUuid = Arr::get($itemPayload, 'stdItem.Manufacturer.UUID', '00000000-0000-0000-0000-000000000000');
-
-        if (self::$manufacturerLookup === null) {
-            self::$manufacturerLookup = Manufacturer::query()
-                ->get(['id', 'uuid'])
-                ->keyBy('uuid');
-        }
-
-        $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
-
-        if ($manufacturer === null) {
-            // Lazy-reload: manufacturer may have been created after initial cache load (e.g. in tests)
-            self::$manufacturerLookup = Manufacturer::query()
-                ->get(['id', 'uuid'])
-                ->keyBy('uuid');
-            $manufacturer = self::$manufacturerLookup->get($manufacturerUuid);
-        }
-
-        if ($manufacturer === null) {
-            throw new RuntimeException(sprintf('Manufacturer with uuid %s does not exist for item %s.', $manufacturerUuid, $uuid));
-        }
-
-        return $manufacturer->id;
     }
 
     private function mapItemData(array $itemPayload, int $manufacturerId, string $name): array
@@ -344,15 +280,6 @@ class ImportItemData implements ShouldQueue
         ];
 
         return array_find($candidates, fn ($candidate) => is_string($candidate) && trim($candidate) !== '');
-    }
-
-    private function getLabels(): Labels
-    {
-        if (self::$labels === null) {
-            self::$labels = new Labels;
-        }
-
-        return self::$labels;
     }
 
     private function getEntityTagsLookup(): Collection
