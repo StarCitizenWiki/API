@@ -6,7 +6,6 @@ namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\ImportMissionData;
 use App\Jobs\Game\LinkMissionChains;
-use App\Models\Game\GameVersion;
 use App\Models\Game\StarmapLocationData;
 use App\Traits\PromptsForGameVersion;
 use Illuminate\Bus\Batch;
@@ -28,15 +27,9 @@ class ImportMissions extends Command implements PromptsForMissingInput
 
     public function handle(): int
     {
-        $versionCode = (string) $this->argument('version');
-
-        $gameVersion = GameVersion::query()
-            ->where('code', $versionCode)
-            ->first();
+        $gameVersion = $this->resolveGameVersionFromOptionOrArgument();
 
         if ($gameVersion === null) {
-            $this->error(sprintf('Game version "%s" does not exist. Please create it first.', $versionCode));
-
             return self::FAILURE;
         }
 
@@ -106,10 +99,10 @@ class ImportMissions extends Command implements PromptsForMissingInput
                       )
                 ', [$versionId, $versionId]);
             })
-            ->catch(static function (Batch $batch, Throwable $exception) use ($versionCode): void {
+            ->catch(static function (Batch $batch, Throwable $exception) use ($gameVersion): void {
                 Log::error('Failed mission import batch; linking and counters skipped.', [
                     'batch_id' => $batch->id,
-                    'game_version' => $versionCode,
+                    'game_version' => $gameVersion->code,
                     'exception' => $exception,
                 ]);
             })

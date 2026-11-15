@@ -16,6 +16,7 @@ use App\Jobs\Game\SyncVehicleInstalledItems;
 use App\Models\Game\GameVersion;
 use App\Models\Game\ItemData;
 use App\Models\Game\Manufacturer;
+use App\Traits\PromptsForGameVersion;
 use Closure;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
@@ -27,10 +28,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
 
-use function Laravel\Prompts\select;
-
 class SyncGameData extends Command
 {
+    use PromptsForGameVersion;
+
     /**
      * The name and signature of the console command.
      *
@@ -180,38 +181,24 @@ class SyncGameData extends Command
                 ->update(['is_craftable' => false]));
     }
 
+    /**
+     * Syncing must not silently fall back to the default version, so prompt for
+     * a code when the option is omitted, then resolve the chosen code through
+     * the shared resolver to keep error handling identical.
+     */
     private function resolveGameVersion(): ?GameVersion
     {
         $versionCode = $this->option('game-version');
 
         if (! is_string($versionCode) || $versionCode === '') {
-            $options = GameVersion::query()
-                ->orderByRaw('released_at DESC NULLS FIRST')
-                ->orderBy('code')
-                ->pluck('code', 'code')
-                ->toArray();
-
-            if ($options === []) {
-                $this->error('No game versions exist. Please create one before syncing.');
-
-                return null;
-            }
-
-            $versionCode = select(
-                label: 'Select game version to import',
-                options: $options
-            );
+            $versionCode = $this->promptForGameVersionCode() ?? '';
         }
 
-        $gameVersion = GameVersion::query()
-            ->where('code', $versionCode)
-            ->first();
-
-        if ($gameVersion === null) {
-            $this->error(sprintf('Game version "%s" does not exist. Please create it first.', $versionCode));
+        if ($versionCode === '') {
+            return null;
         }
 
-        return $gameVersion;
+        return $this->resolveGameVersionFromOptionOrArgument($versionCode);
     }
 
     /**

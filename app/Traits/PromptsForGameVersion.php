@@ -18,25 +18,58 @@ trait PromptsForGameVersion
     protected function promptForMissingArgumentsUsing(): array
     {
         return [
-            'version' => function (): string {
-                $options = GameVersion::query()
-                    ->orderByRaw('released_at DESC NULLS FIRST')
-                    ->orderBy('code')
-                    ->pluck('code', 'code')
-                    ->toArray();
-
-                if ($options === []) {
-                    $this->error('No game versions exist. Please create one before importing.');
-
-                    return '';
-                }
-
-                return select(
-                    label: 'Select game version to import',
-                    options: $options
-                );
-            },
+            'version' => fn (): string => $this->promptForGameVersionCode() ?? '',
         ];
+    }
+
+    /**
+     * Prompt for a game version code, or null when no versions exist.
+     */
+    protected function promptForGameVersionCode(): ?string
+    {
+        $options = GameVersion::query()
+            ->orderByRaw('released_at DESC NULLS FIRST')
+            ->orderBy('code')
+            ->pluck('code', 'code')
+            ->toArray();
+
+        if ($options === []) {
+            $this->error('No game versions exist. Please create one before importing.');
+
+            return null;
+        }
+
+        return select(
+            label: 'Select game version to import',
+            options: $options
+        );
+    }
+
+    /**
+     * Resolve the game version from the {version} argument or the {--game-version}
+     * option, falling back to the default version when neither carries a code.
+     * An explicitly passed code overrides both. Emits one shared error and
+     * returns null when resolution fails.
+     */
+    protected function resolveGameVersionFromOptionOrArgument(?string $versionCode = null): ?GameVersion
+    {
+        $versionCode ??= $this->hasOption('game-version') ? $this->option('game-version') : null;
+
+        if (! is_string($versionCode) || $versionCode === '') {
+            $versionCode = $this->hasArgument('version') ? $this->argument('version') : null;
+        }
+
+        $versionCode = is_string($versionCode) && $versionCode !== '' ? $versionCode : null;
+
+        $gameVersion = GameVersion::query()
+            ->requestedOrDefault($versionCode)
+            ->first();
+
+        if ($gameVersion === null) {
+            $this->error(sprintf('Game version "%s" does not exist. Please create it first.', $versionCode ?? 'default'));
+        }
+
+        return $gameVersion;
     }
 
     /**

@@ -7,11 +7,13 @@ namespace App\Console\Commands\Game;
 use App\Jobs\Game\ComputeItemSetItems as ComputeItemSetItemsJob;
 use App\Jobs\Game\ComputeItemVariantGradeLinks as ComputeItemVariantGradeLinksJob;
 use App\Jobs\Game\ComputeItemVariantGroups as ComputeItemVariantGroupsJob;
-use App\Models\Game\GameVersion;
+use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 
 class ComputeItemGroups extends Command
 {
+    use PromptsForGameVersion;
+
     protected $signature = 'game:compute-item-groups
                             {--game-version= : Specific game version code (defaults to the current default)}';
 
@@ -19,19 +21,9 @@ class ComputeItemGroups extends Command
 
     public function handle(): int
     {
-        $versionCode = $this->option('game-version');
-
-        $gameVersion = GameVersion::query()
-            ->requestedOrDefault(is_string($versionCode) && $versionCode !== '' ? $versionCode : null)
-            ->first();
+        $gameVersion = $this->resolveGameVersionFromOptionOrArgument();
 
         if ($gameVersion === null) {
-            if (is_string($versionCode) && $versionCode !== '') {
-                $this->error(sprintf('Game version "%s" does not exist.', $versionCode));
-            } else {
-                $this->error('No default game version exists.');
-            }
-
             return self::FAILURE;
         }
 

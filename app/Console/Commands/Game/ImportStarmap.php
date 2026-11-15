@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands\Game;
 
 use App\Jobs\Game\ImportStarmapData;
-use App\Models\Game\GameVersion;
 use App\Traits\PromptsForGameVersion;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\PromptsForMissingInput;
@@ -21,15 +20,9 @@ class ImportStarmap extends Command implements PromptsForMissingInput
 
     public function handle(): int
     {
-        $versionCode = (string) $this->argument('version');
-
-        $gameVersion = GameVersion::query()
-            ->where('code', $versionCode)
-            ->first();
+        $gameVersion = $this->resolveGameVersionFromOptionOrArgument();
 
         if ($gameVersion === null) {
-            $this->error(sprintf('Game version "%s" does not exist. Please create it first.', $versionCode));
-
             return self::FAILURE;
         }
 

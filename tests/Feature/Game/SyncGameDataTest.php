@@ -258,6 +258,64 @@ it('prompts for a game version when none is provided and none exists', function 
         ->assertExitCode(Command::FAILURE);
 });
 
+it('prompts for a game version when the option is omitted', function (): void {
+    GameVersion::factory()->create([
+        'code' => '3.24.2-LIVE',
+        'released_at' => now()->subYear(),
+        'is_default' => true,
+    ]);
+    $newest = GameVersion::factory()->create([
+        'code' => '4.0.0-LIVE',
+        'released_at' => now(),
+        'is_default' => false,
+    ]);
+
+    Storage::disk('scunpacked')->put('blueprints.json', json_encode([
+        [
+            'UUID' => fake()->uuid(),
+            'Key' => 'BP_PROMPTED',
+            'Kind' => 'creation',
+            'CategoryUUID' => fake()->uuid(),
+            'Output' => [
+                'UUID' => fake()->uuid(),
+                'Class' => 'prompted_output',
+                'Name' => 'Prompted Output',
+            ],
+            'Availability' => [
+                'Default' => true,
+            ],
+            'Tiers' => [
+                [
+                    'CraftTimeSeconds' => 45,
+                    'Requirements' => [
+                        'Kind' => 'root',
+                        'Children' => [
+                            [
+                                'Kind' => 'resource',
+                                'UUID' => $this->resourceTypeUuid,
+                                'Name' => 'Test Resource',
+                                'QuantityScu' => 1.5,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ], JSON_THROW_ON_ERROR));
+
+    Bus::fake();
+
+    $this->artisan('game:sync-data')
+        ->expectsQuestion('Select game version to import', $newest->code)
+        ->assertExitCode(Command::SUCCESS);
+
+    // The prompt answer must drive the sync, not the default version fallback.
+    expect(BlueprintData::query()
+        ->where('game_version_id', $newest->id)
+        ->where('key', 'BP_PROMPTED')
+        ->exists())->toBeTrue();
+});
+
 it('fails when the provided game version does not exist', function (): void {
     $this->artisan('game:sync-data', ['--game-version' => '9.9.9-LIVE'])
         ->expectsOutputToContain('does not exist.')

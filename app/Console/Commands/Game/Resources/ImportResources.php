@@ -6,7 +6,6 @@ namespace App\Console\Commands\Game\Resources;
 
 use App\Enums\Game\ResourceKind;
 use App\Models\Game\Commodity\Commodity;
-use App\Models\Game\GameVersion;
 use App\Models\Game\Resource\Resource;
 use App\Models\Game\Resource\ResourceData;
 use App\Support\Filters\FilterCache;
@@ -25,16 +24,11 @@ class ImportResources extends Command implements PromptsForMissingInput
 
     public function handle(): int
     {
-        $versionCode = (string) $this->argument('version');
         $path = (string) $this->option('path');
 
-        $gameVersion = GameVersion::query()
-            ->where('code', $versionCode)
-            ->first();
+        $gameVersion = $this->resolveGameVersionFromOptionOrArgument();
 
         if ($gameVersion === null) {
-            $this->error(sprintf('Game version "%s" does not exist. Please create it first.', $versionCode));
-
             return self::FAILURE;
         }
 

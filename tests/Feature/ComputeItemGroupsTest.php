@@ -29,7 +29,7 @@ it('fails when the requested game version does not exist', function (): void {
 
     $this->artisan('game:compute-item-groups', ['--game-version' => 'missing'])
         ->assertExitCode(Command::FAILURE)
-        ->expectsOutput('Game version "missing" does not exist.');
+        ->expectsOutput('Game version "missing" does not exist. Please create it first.');
 
     Queue::assertNothingPushed();
 });
