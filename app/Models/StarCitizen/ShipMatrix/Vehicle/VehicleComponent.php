@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class VehicleComponent extends Pivot
 {
-    protected $table = 'shipmatrix_vehicle_components';
+    protected $table = 'shipmatrix_vehicle_component';
 
     protected $fillable = [
         'mounts',
