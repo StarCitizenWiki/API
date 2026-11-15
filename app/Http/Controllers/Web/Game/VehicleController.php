@@ -12,7 +12,6 @@ use App\Support\Seo\VehicleShowSeoData;
 use App\Traits\MergesIncludeParam;
 use App\Traits\NormalizesFilterParams;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
@@ -45,19 +44,17 @@ class VehicleController extends Controller
 
     public function show(Request $request, string $item): View
     {
-        $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', $this->mergeInclude($request, ['shipMatrixVehicle']));
+        $includes = explode(',', $this->mergeInclude($request, ['shipMatrixVehicle']));
 
-        $payload = $this->apiJsonRequest->request(route('vehicles.show', ['vehicle' => $item], false), $apiRequest);
-        $vehicleData = Arr::get($payload, 'data', []);
-
-        if (empty($vehicleData)) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        ['data' => $vehicleData, 'meta' => $vehicleMeta] = $this->apiJsonRequest->fetchResource(
+            route('vehicles.show', ['vehicle' => $item], false),
+            $request,
+            $includes,
+        );
 
         return view('vehicles.show', [
             'vehicle' => $vehicleData,
-            'vehicleMeta' => Arr::get($payload, 'meta', []),
+            'vehicleMeta' => $vehicleMeta,
             'pageTitle' => Arr::get($vehicleData, 'name', 'Vehicle'),
             'seo' => $this->vehicleShowSeoData->build($vehicleData, $request),
         ]);

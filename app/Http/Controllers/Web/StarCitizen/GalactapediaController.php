@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Services\ApiJsonRequest;
 use App\Traits\MergesIncludeParam;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
@@ -27,19 +26,17 @@ class GalactapediaController extends Controller
 
     public function show(Request $request, string $article): View
     {
-        $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', $this->mergeInclude($request, ['categories', 'tags', 'properties', 'related']));
+        $includes = explode(',', $this->mergeInclude($request, ['categories', 'tags', 'properties', 'related']));
 
-        $payload = $this->apiJsonRequest->request(route('galactapedia.show', ['article' => $article], false), $apiRequest);
-        $articleData = Arr::get($payload, 'data', []);
-
-        if ($articleData === []) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        ['data' => $articleData, 'meta' => $articleMeta] = $this->apiJsonRequest->fetchResource(
+            route('galactapedia.show', ['article' => $article], false),
+            $request,
+            $includes,
+        );
 
         return view('galactapedia.show', [
             'article' => $articleData,
-            'articleMeta' => Arr::get($payload, 'meta', []),
+            'articleMeta' => $articleMeta,
             'pageTitle' => Arr::get($articleData, 'title', 'Galactapedia'),
         ]);
     }

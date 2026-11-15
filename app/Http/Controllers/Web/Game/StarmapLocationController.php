@@ -17,10 +17,10 @@ use App\Traits\NormalizesFilterParams;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 #[CacheTag('starmap')]
 class StarmapLocationController extends Controller
@@ -52,23 +52,21 @@ class StarmapLocationController extends Controller
 
     public function show(Request $request, string $identifier): View|RedirectResponse
     {
-        $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', 'children,resources,missions');
-
-        $payload = $this->apiJsonRequest->request(
-            route('locations.show', ['identifier' => $identifier], false),
-            $apiRequest
-        );
-        $locationData = Arr::get($payload, 'data', []);
-
-        if ($locationData === []) {
+        try {
+            ['data' => $locationData] = $this->apiJsonRequest->fetchResource(
+                route('locations.show', ['identifier' => $identifier], false),
+                $request,
+                ['children', 'resources', 'missions'],
+            );
+        } catch (NotFoundHttpException $exception) {
             // Drifted slug suffixes from old imports still get hit; redirect to the canonical slug.
             $redirect = $this->resolveNumericSuffixRedirect($request, $identifier);
+
             if ($redirect !== null) {
                 return $redirect;
             }
 
-            abort(Response::HTTP_NOT_FOUND);
+            throw $exception;
         }
 
         return view('starmap.locations.show', [

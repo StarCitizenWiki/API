@@ -69,16 +69,15 @@ class MissionController extends Controller
 
     public function show(Request $request, string $mission): View
     {
+        // The mission view needs every locale; fetchResource only injects includes.
         $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', 'faction,starmapLocations,blueprints,rewardGroups,unlocks,requiredBy,prerequisites');
         $apiRequest->query->set('locale', 'all');
 
-        $payload = $this->apiJsonRequest->request(route('missions.show', ['mission' => $mission], false), $apiRequest);
-        $data = Arr::get($payload, 'data', []);
-
-        if ($data === []) {
-            abort(404);
-        }
+        ['data' => $data] = $this->apiJsonRequest->fetchResource(
+            route('missions.show', ['mission' => $mission], false),
+            $apiRequest,
+            ['faction', 'starmapLocations', 'blueprints', 'rewardGroups', 'unlocks', 'requiredBy', 'prerequisites'],
+        );
 
         $seo = $this->missionShowSeoData->build($data, $request);
 

@@ -6,11 +6,46 @@ namespace App\Services;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Arr;
 
 class ApiJsonRequest
 {
     public function __construct(private readonly Router $router) {}
+
+    /**
+     * Fetch a single API resource for a web view, forwarding the given request's
+     * query params and injecting the includes. Aborts 404 when the API produced
+     * no resource data; surfaces the target instead when the API redirected.
+     *
+     * @param  array<int, string>  $includes
+     * @return array{data: mixed, meta: array<string, mixed>}|array{__redirect: string}
+     *
+     * @throws Exception
+     */
+    public function fetchResource(string $route, Request $request, array $includes = []): array
+    {
+        $apiRequest = $request->duplicate();
+
+        if ($includes !== []) {
+            $apiRequest->query->set('include', implode(',', $includes));
+        }
+
+        $payload = $this->request($route, $apiRequest);
+
+        if (isset($payload['__redirect'])) {
+            return ['__redirect' => $payload['__redirect']];
+        }
+
+        $data = Arr::get($payload, 'data', []);
+
+        if ($data === []) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        return ['data' => $data, 'meta' => Arr::get($payload, 'meta', [])];
+    }
 
     /**
      * @return array<string, mixed>

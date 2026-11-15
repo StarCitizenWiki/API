@@ -92,38 +92,32 @@ class ItemController extends Controller
 
     public function show(Request $request, string $item): View|RedirectResponse
     {
-        $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', $this->mergeInclude($request, ['related_items', 'blueprints', 'vehicles']));
+        $includes = explode(',', $this->mergeInclude($request, ['related_items', 'blueprints', 'vehicles']));
 
-        $payload = $this->apiJsonRequest->request(route('items.show', ['identifier' => $item], false), $apiRequest);
+        $resource = $this->apiJsonRequest->fetchResource(route('items.show', ['identifier' => $item], false), $request, $includes);
 
-        if (isset($payload['__redirect'])) {
-            $path = parse_url($payload['__redirect'], PHP_URL_PATH) ?? '';
-            $uuid = basename($path);
+        if (isset($resource['__redirect'])) {
+            $uuid = basename(parse_url($resource['__redirect'], PHP_URL_PATH) ?? '');
 
-            if ($uuid !== '') {
-                $params = ['vehicle' => $uuid];
-                $version = $request->query('version');
-
-                if (is_string($version) && $version !== '') {
-                    $params['version'] = $version;
-                }
-
-                return redirect(route('web.vehicles.show', $params));
+            if ($uuid === '') {
+                abort(Response::HTTP_NOT_FOUND);
             }
-        }
 
-        $itemData = Arr::get($payload, 'data', []);
+            $params = ['vehicle' => $uuid];
+            $version = $request->query('version');
 
-        if ($itemData === []) {
-            abort(Response::HTTP_NOT_FOUND);
+            if (is_string($version) && $version !== '') {
+                $params['version'] = $version;
+            }
+
+            return redirect(route('web.vehicles.show', $params));
         }
 
         return view('items.show', [
-            'item' => $itemData,
-            'itemMeta' => Arr::get($payload, 'meta', []),
-            'pageTitle' => Arr::get($itemData, 'name', 'Item'),
-            'seo' => $this->itemShowSeoData->build($itemData, $request),
+            'item' => $resource['data'],
+            'itemMeta' => $resource['meta'],
+            'pageTitle' => Arr::get($resource['data'], 'name', 'Item'),
+            'seo' => $this->itemShowSeoData->build($resource['data'], $request),
         ]);
     }
 }

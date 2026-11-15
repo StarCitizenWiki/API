@@ -139,3 +139,81 @@ it('forwards merged query and request parameters to the nested api request', fun
         ->assertJsonPath('query.bar', 'from-body')
         ->assertJsonPath('query.baz', 'from-body');
 });
+
+it('fetches a resource with data, meta, includes and forwarded query params', function (): void {
+    Route::get('/api/test-fetch-resource', function (Request $request): JsonResponse {
+        return response()->json([
+            'data' => [
+                'id' => 7,
+                'include' => $request->query('include'),
+                'foo' => $request->query('foo'),
+            ],
+            'meta' => ['current_page' => 1],
+        ]);
+    });
+
+    Route::get('/web/test-fetch-resource', function (Request $request, ApiJsonRequest $apiJsonRequest): JsonResponse {
+        return response()->json($apiJsonRequest->fetchResource('/api/test-fetch-resource', $request, ['images', 'links']));
+    });
+
+    $this->get('/web/test-fetch-resource?foo=bar')
+        ->assertSuccessful()
+        ->assertJsonPath('data.id', 7)
+        ->assertJsonPath('data.include', 'images,links')
+        ->assertJsonPath('data.foo', 'bar')
+        ->assertJsonPath('meta.current_page', 1);
+});
+
+it('aborts 404 when the fetched resource has no data', function (): void {
+    Route::get('/api/test-fetch-resource-empty', function (): JsonResponse {
+        return response()->json(['data' => [], 'meta' => []]);
+    });
+
+    Route::get('/web/test-fetch-resource-empty', function (Request $request, ApiJsonRequest $apiJsonRequest): JsonResponse {
+        return response()->json($apiJsonRequest->fetchResource('/api/test-fetch-resource-empty', $request));
+    });
+
+    $this->get('/web/test-fetch-resource-empty')->assertNotFound();
+});
+
+it('aborts 404 when the fetched api endpoint errors', function (): void {
+    Route::get('/api/test-fetch-resource-error', function (): JsonResponse {
+        return response()->json(['message' => 'missing'], 404);
+    });
+
+    Route::get('/web/test-fetch-resource-error', function (Request $request, ApiJsonRequest $apiJsonRequest): JsonResponse {
+        return response()->json($apiJsonRequest->fetchResource('/api/test-fetch-resource-error', $request));
+    });
+
+    $this->get('/web/test-fetch-resource-error')->assertNotFound();
+});
+
+it('surfaces an api redirect envelope instead of aborting', function (): void {
+    Route::get('/api/test-fetch-resource-redirect', function () {
+        return redirect()->to('/api/vehicles/some-uuid', 302);
+    });
+
+    Route::get('/web/test-fetch-resource-redirect', function (Request $request, ApiJsonRequest $apiJsonRequest): JsonResponse {
+        return response()->json($apiJsonRequest->fetchResource('/api/test-fetch-resource-redirect', $request, ['images']));
+    });
+
+    $this->get('/web/test-fetch-resource-redirect')
+        ->assertSuccessful()
+        ->assertExactJson(['__redirect' => url('/api/vehicles/some-uuid')]);
+});
+
+it('keeps the request include param untouched when no includes are given', function (): void {
+    Route::get('/api/test-fetch-resource-include-passthrough', function (Request $request): JsonResponse {
+        return response()->json([
+            'data' => ['include' => $request->query('include')],
+        ]);
+    });
+
+    Route::get('/web/test-fetch-resource-include-passthrough', function (Request $request, ApiJsonRequest $apiJsonRequest): JsonResponse {
+        return response()->json($apiJsonRequest->fetchResource('/api/test-fetch-resource-include-passthrough', $request));
+    });
+
+    $this->get('/web/test-fetch-resource-include-passthrough?include=user')
+        ->assertSuccessful()
+        ->assertJsonPath('data.include', 'user');
+});

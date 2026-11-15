@@ -12,7 +12,6 @@ use App\Models\Rsi\CommLink\Image\Image;
 use App\Services\ApiJsonRequest;
 use App\Services\CommLinkImageSearchService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
@@ -55,19 +54,15 @@ class CommLinkController extends Controller
 
     public function show(Request $request, string $id): View
     {
-        $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', 'images,links');
-
-        $payload = $this->apiJsonRequest->request(route('comm-links.show', ['id' => $id], false), $apiRequest);
-        $commLinkData = Arr::get($payload, 'data', []);
-
-        if ($commLinkData === []) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        ['data' => $commLinkData, 'meta' => $commLinkMeta] = $this->apiJsonRequest->fetchResource(
+            route('comm-links.show', ['id' => $id], false),
+            $request,
+            ['images', 'links'],
+        );
 
         return view('comm-links.show', [
             'commLink' => $commLinkData,
-            'commLinkMeta' => Arr::get($payload, 'meta', []),
+            'commLinkMeta' => $commLinkMeta,
             'pageTitle' => Arr::get($commLinkData, 'title', 'Comm-Link'),
         ]);
     }
@@ -142,12 +137,7 @@ class CommLinkController extends Controller
 
     public function showImage(Request $request, int $image): View
     {
-        $payload = $this->apiJsonRequest->request(route('comm-link-images.show', ['image' => $image], false), $request);
-        $imageData = Arr::get($payload, 'data', []);
-
-        if ($imageData === []) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        ['data' => $imageData] = $this->apiJsonRequest->fetchResource(route('comm-link-images.show', ['image' => $image], false), $request);
 
         return view('comm-links.images.show', [
             'image' => $imageData,

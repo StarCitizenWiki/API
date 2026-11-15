@@ -41,18 +41,18 @@ class CommodityController extends Controller
 
     public function show(Request $request, string $identifier): View
     {
-        $apiRequest = $request->duplicate();
-        $apiRequest->query->set('include', 'blueprints,items');
-
-        $payload = $this->apiJsonRequest->request(
+        $resource = $this->apiJsonRequest->fetchResource(
             route('commodities.show', ['commodity' => $identifier], false),
-            $apiRequest
+            $request,
+            ['blueprints', 'items'],
         );
-        $commodityData = Arr::get($payload, 'data', []);
 
-        if ($commodityData === []) {
+        // The API redirects starmap location UUIDs to the per-location listing; this page has no equivalent.
+        if (isset($resource['__redirect'])) {
             abort(404);
         }
+
+        $commodityData = $resource['data'];
 
         return view('commodities.show', [
             'resource' => $commodityData,
