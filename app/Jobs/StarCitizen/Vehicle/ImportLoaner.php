@@ -86,6 +86,8 @@ class ImportLoaner implements ShouldQueue
 
         if (empty($version)) {
             $this->fail('Could not find current version.');
+
+            return;
         }
 
         collect($rows)->flatMap(function (array $data) {
