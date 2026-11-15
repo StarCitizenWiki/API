@@ -492,7 +492,7 @@ paths:
       tags:
         - Factions
       summary: 'List Factions'
-      description: 'Returns paginated factions sorted by name by default. Factions hidden from the Delphi app are excluded.'
+      description: 'Returns paginated factions sorted by name by default. Factions hidden from the Delphi app are excluded unless filter[hide_in_delphi_app] is set.'
       operationId: listFactions
       parameters:
         -
@@ -528,7 +528,7 @@ paths:
         -
           name: 'filter[hide_in_delphi_app]'
           in: query
-          description: 'When true, only factions hidden from the Delphi app are returned. Note: the index endpoint excludes hidden factions by default. Example: `false`'
+          description: 'When true, only factions hidden from the Delphi app are returned. When false or omitted, only factions visible in the Delphi app are returned. Example: `true`'
           schema:
             type: boolean
         -

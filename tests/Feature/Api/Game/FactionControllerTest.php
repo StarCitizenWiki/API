@@ -44,6 +44,21 @@ it('excludes factions hidden from delphi app', function (): void {
         ->assertJsonPath('data.0.name', 'Visible');
 });
 
+it('filters factions by hide_in_delphi_app', function (): void {
+    Faction::factory()->create(['name' => 'Visible', 'hide_in_delphi_app' => false]);
+    Faction::factory()->create(['name' => 'Hidden', 'hide_in_delphi_app' => true]);
+
+    $this->getJson('/api/factions?filter[hide_in_delphi_app]=true')
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Hidden');
+
+    $this->getJson('/api/factions?filter[hide_in_delphi_app]=false')
+        ->assertSuccessful()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Visible');
+});
+
 it('filters factions by faction_type', function (): void {
     Faction::factory()->create(['faction_type' => 'Lawful', 'hide_in_delphi_app' => false]);
     Faction::factory()->create(['faction_type' => 'Unlawful', 'hide_in_delphi_app' => false]);

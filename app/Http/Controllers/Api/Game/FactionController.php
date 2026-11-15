@@ -27,7 +27,7 @@ class FactionController extends Controller
     #[OA\Get(
         path: '/api/factions',
         operationId: 'listFactions',
-        description: 'Returns paginated factions sorted by name by default. Factions hidden from the Delphi app are excluded.',
+        description: 'Returns paginated factions sorted by name by default. Factions hidden from the Delphi app are excluded unless filter[hide_in_delphi_app] is set.',
         summary: 'List Factions',
         tags: ['Factions'],
         parameters: [
@@ -38,7 +38,7 @@ class FactionController extends Controller
             new OA\Parameter(name: 'filter[has_reputation]', description: 'When true, only factions with a reputation system are returned. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[lawful]', description: 'When true, only lawful factions are returned. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[is_npc]', description: 'When true, only NPC-controlled factions are returned. Example: `false`', in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'filter[hide_in_delphi_app]', description: 'When true, only factions hidden from the Delphi app are returned. Note: the index endpoint excludes hidden factions by default. Example: `false`', in: 'query', schema: new OA\Schema(type: 'boolean')),
+            new OA\Parameter(name: 'filter[hide_in_delphi_app]', description: 'When true, only factions hidden from the Delphi app are returned. When false or omitted, only factions visible in the Delphi app are returned. Example: `true`', in: 'query', schema: new OA\Schema(type: 'boolean')),
             new OA\Parameter(name: 'filter[query]', description: 'Search factions by name or description. Example: `ArcCorp`', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(
                 name: 'sort',
@@ -70,7 +70,8 @@ class FactionController extends Controller
             ->allowedFilters(...$this->allowedFilters())
             ->allowedSorts('name', 'faction_type')
             ->defaultSort('name')
-            ->where('hide_in_delphi_app', false)
+            // Only default-exclude hidden rows; the exact filter must still be able to match them.
+            ->when($request->input('filter.hide_in_delphi_app') === null, static fn (Builder $query): Builder => $query->where('hide_in_delphi_app', false))
             ->jsonPaginate()
             ->appends($request->query());
 
