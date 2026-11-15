@@ -10,6 +10,7 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Game\Manufacturer\ManufacturerLinkResource;
 use App\Http\Resources\Game\Manufacturer\ManufacturerResource;
 use App\Models\Game\Manufacturer;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -136,7 +137,7 @@ class ManufacturerController extends Controller
                     ?? QueryBuilder::for(Manufacturer::class, $request)
                         ->where(fn (Builder $query): Builder => $this->matchNameOrCodeLike(
                             $query,
-                            '%'.$this->escapeLike($identifier).'%'
+                            '%'.QueryLike::escape($identifier).'%'
                         ))
                         ->orderBy('name')
                         ->firstOrFail();
@@ -219,10 +220,5 @@ class ManufacturerController extends Controller
         return $query
             ->whereRaw('"name" ilike ? ESCAPE \'\\\'', [$pattern])
             ->orWhereRaw('"code" ilike ? ESCAPE \'\\\'', [$pattern]);
-    }
-
-    private function escapeLike(string $query): string
-    {
-        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query);
     }
 }

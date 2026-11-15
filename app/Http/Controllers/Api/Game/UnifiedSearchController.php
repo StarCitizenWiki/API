@@ -15,6 +15,7 @@ use App\Models\Game\StarmapLocation;
 use App\Models\Game\Vehicle;
 use App\Support\Filters\ItemFilterLabel;
 use App\Support\Formatting\FormatMissionText;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -110,7 +111,7 @@ class UnifiedSearchController extends Controller
         ]);
 
         $query = $validated['filter']['query'];
-        $like = '%'.$this->escapeLike($query).'%';
+        $like = '%'.QueryLike::escape($query).'%';
         $versionId = $this->gameVersion()->id;
 
         $rows = Cache::remember(
@@ -287,7 +288,7 @@ class UnifiedSearchController extends Controller
      */
     private function resolveByText(string $query, int $versionId): ?object
     {
-        $escaped = $this->escapeLike($query);
+        $escaped = QueryLike::escape($query);
         $fuzzy = "%{$escaped}%";
 
         return $this->firstMatch([
@@ -376,11 +377,6 @@ class UnifiedSearchController extends Controller
         }
 
         return $query;
-    }
-
-    private function escapeLike(string $query): string
-    {
-        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query);
     }
 
     private function buildSearchSql(): string

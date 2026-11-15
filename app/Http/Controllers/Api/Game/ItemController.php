@@ -23,6 +23,7 @@ use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\ItemFilterLabel;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -485,14 +486,14 @@ class ItemController extends Controller
                     return;
                 }
 
-                $query->whereLike('game_item_data.class_name', "%{$value}%");
+                $query->whereLike('game_item_data.class_name', '%'.QueryLike::escape($value).'%');
             }),
             AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
                     return;
                 }
 
-                $query->whereLike('game_item_data.name', "%{$value}%");
+                $query->whereLike('game_item_data.name', '%'.QueryLike::escape($value).'%');
             }),
             AllowedFilter::callback('classification', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || $value === '') {
@@ -604,7 +605,7 @@ class ItemController extends Controller
                 }
 
                 $query->where(static function (Builder $q) use ($value): void {
-                    $pattern = "%{$value}%";
+                    $pattern = '%'.QueryLike::escape($value).'%';
 
                     $q->whereLike('game_item_data.name', $pattern)
                         ->orWhereLike('game_item_data.class_name', $pattern);
