@@ -48,7 +48,7 @@ class CoolerResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
         $stdItem = $this->extractStdItem($data);
         $cooler = Arr::get($stdItem, 'Cooler', []);
 

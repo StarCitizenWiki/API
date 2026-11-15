@@ -99,7 +99,7 @@ class TurretResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
 
         $turret = $data['stdItem']['Turret'] ?? [];
         $movementList = $turret['MovementList'] ?? [];

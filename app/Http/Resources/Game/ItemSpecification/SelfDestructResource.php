@@ -75,7 +75,7 @@ class SelfDestructResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
 
         $selfDestruct = Arr::get($data, 'stdItem.SelfDestruct', []);
 

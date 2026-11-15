@@ -160,7 +160,7 @@ class ShieldResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
 
         $shield = Arr::get($data, 'stdItem.Shield', []);
 

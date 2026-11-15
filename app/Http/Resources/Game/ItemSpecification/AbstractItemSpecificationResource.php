@@ -13,6 +13,14 @@ abstract class AbstractItemSpecificationResource extends AbstractBaseResource
     use ExtractsJsonData;
 
     /**
+     * Resolve this resource's specification data once, handling array or object storage.
+     */
+    protected function specificationData(): array
+    {
+        return $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+    }
+
+    /**
      * Parse specification data that may be an array or object into an array.
      *
      * Handles the common pattern where specification data can be stored

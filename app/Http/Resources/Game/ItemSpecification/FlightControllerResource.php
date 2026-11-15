@@ -207,7 +207,7 @@ class FlightControllerResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
 
         $ifcs = Arr::get($data, 'stdItem.Ifcs', []);
         $afterburner = Arr::get($ifcs, 'Afterburner', []);

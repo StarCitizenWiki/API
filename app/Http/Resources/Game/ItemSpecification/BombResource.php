@@ -138,7 +138,7 @@ class BombResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
 
         $bomb = Arr::get($data, 'stdItem.Bomb', []);
         $damageData = Arr::get($bomb, 'Damage', []);

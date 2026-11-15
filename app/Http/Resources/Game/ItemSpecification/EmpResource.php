@@ -68,7 +68,7 @@ class EmpResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
         $emp = Arr::get($data, 'stdItem.Emp', []);
 
         $chargeDuration = Arr::get($emp, 'ChargeTime');

@@ -144,7 +144,7 @@ class QuantumInterdictionGeneratorResource extends AbstractItemSpecificationReso
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
 
         $quantumInterdiction = Arr::get($data, 'stdItem.QuantumInterdictionGenerator', []);
 

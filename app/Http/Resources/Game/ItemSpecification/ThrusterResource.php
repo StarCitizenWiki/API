@@ -108,7 +108,7 @@ class ThrusterResource extends AbstractItemSpecificationResource
 {
     public function toArray(Request $request): array
     {
-        $data = $this->parseSpecificationData($this->resource['data'] ?? $this->resource->data ?? null);
+        $data = $this->specificationData();
 
         $stdItem = $this->extractStdItem($data);
         $thruster = Arr::get($stdItem, 'Thruster', []);
