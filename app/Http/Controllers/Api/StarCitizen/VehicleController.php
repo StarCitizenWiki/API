@@ -317,8 +317,6 @@ class VehicleController extends Controller
 
         $vehicles = $query->jsonPaginate();
 
-        return VehicleResource::collection($vehicles)->additional([
-            'meta' => ['deprecated' => true],
-        ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(VehicleResource::collection($vehicles));
     }
 }

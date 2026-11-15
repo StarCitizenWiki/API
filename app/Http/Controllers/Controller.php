@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 #[OA\Info(
@@ -46,6 +48,17 @@ This API is maintained by the Star Citizen Wiki community. Data is sourced from 
 )]
 abstract class Controller
 {
+    /**
+     * Tail shared by every deprecated POST search endpoint: marks the body meta and the Deprecated header in one place.
+     */
+    protected function deprecatedSearchResponse(AnonymousResourceCollection $collection, array $meta = []): JsonResponse
+    {
+        return $collection
+            ->additional(['meta' => array_merge(['deprecated' => true], $meta)])
+            ->response()
+            ->header('Deprecated', 'true');
+    }
+
     /**
      * Clean the name for query use.
      */

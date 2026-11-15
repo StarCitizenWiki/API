@@ -1238,10 +1238,7 @@ class ItemController extends Controller
 
         ItemData::loadCraftingBlueprints($items->getCollection());
 
-        return ItemResource::collection($items)
-            ->additional([
-                'meta' => ['deprecated' => true],
-            ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(ItemResource::collection($items));
     }
 
     #[OA\Get(

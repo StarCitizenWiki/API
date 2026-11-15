@@ -207,9 +207,7 @@ class ManufacturerController extends Controller
             ->jsonPaginate()
             ->appends($request->query());
 
-        return ManufacturerLinkResource::collection($manufacturers)->additional([
-            'meta' => ['deprecated' => true],
-        ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(ManufacturerLinkResource::collection($manufacturers));
     }
 
     /**

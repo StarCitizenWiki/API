@@ -264,8 +264,6 @@ class CelestialObjectController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return CelestialObjectResource::collection($objects)->additional([
-            'meta' => ['deprecated' => true],
-        ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(CelestialObjectResource::collection($objects));
     }
 }

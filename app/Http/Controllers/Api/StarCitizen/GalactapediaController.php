@@ -353,8 +353,6 @@ class GalactapediaController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return ArticleResource::collection($queryBuilder)->additional([
-            'meta' => ['deprecated' => true],
-        ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(ArticleResource::collection($queryBuilder));
     }
 }

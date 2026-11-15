@@ -125,9 +125,10 @@ class CommLinkSearchController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return CommLinkResource::collection($commLinks)->additional([
-            'meta' => ['deprecated' => true, 'valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())],
-        ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(
+            CommLinkResource::collection($commLinks),
+            ['valid_relations' => IncludeDefinition::toNames($this->includeDefinitions())]
+        );
     }
 
     #[OA\Post(

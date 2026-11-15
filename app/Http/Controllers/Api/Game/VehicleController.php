@@ -580,10 +580,7 @@ class VehicleController extends Controller
         $vehicles = $query->jsonPaginate(maxResults: 50);
         $this->preloadIndexResourceDependencies($this->paginatedVehicleCollection($vehicles));
 
-        return VehicleResource::collection($vehicles)
-            ->additional([
-                'meta' => ['deprecated' => true],
-            ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(VehicleResource::collection($vehicles));
     }
 
     #[OA\Get(

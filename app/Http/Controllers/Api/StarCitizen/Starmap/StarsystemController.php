@@ -271,9 +271,7 @@ class StarsystemController extends Controller
             ->jsonPaginate()
             ->appends(request()->query());
 
-        return StarsystemResource::collection($starsystems)->additional([
-            'meta' => ['deprecated' => true],
-        ])->response()->header('Deprecated', 'true');
+        return $this->deprecatedSearchResponse(StarsystemResource::collection($starsystems));
     }
 
     #[OA\Get(
