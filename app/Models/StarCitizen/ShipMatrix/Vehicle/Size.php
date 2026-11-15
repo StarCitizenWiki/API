@@ -4,33 +4,18 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\ShipMatrix\Vehicle;
 
+use App\Models\StarCitizen\ShipMatrix\AbstractShipMatrixLookup;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
 
 /**
  * Vehicle Size Model
  */
-class Size extends Model
+class Size extends AbstractShipMatrixLookup
 {
-    use HasFactory;
-    use HasTranslations;
-
     /**
      * @var bool
      */
     public $timestamps = false;
-
-    public array $translatable = ['translation'];
-
-    /**
-     * @var array
-     */
-    protected $fillable = [
-        'slug',
-        'translation',
-    ];
 
     /**
      * @var string

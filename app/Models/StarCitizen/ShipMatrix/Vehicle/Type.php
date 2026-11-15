@@ -4,23 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\ShipMatrix\Vehicle;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
+use App\Models\StarCitizen\ShipMatrix\AbstractShipMatrixLookup;
 
-class Type extends Model
+class Type extends AbstractShipMatrixLookup
 {
-    use HasFactory;
-    use HasTranslations;
-
-    public array $translatable = ['translation'];
-
     protected $table = 'shipmatrix_vehicle_types';
-
-    protected $fillable = [
-        'slug',
-        'translation',
-    ];
 
     public function getRouteKeyName(): string
     {

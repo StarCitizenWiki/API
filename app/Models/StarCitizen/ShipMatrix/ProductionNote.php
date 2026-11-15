@@ -4,18 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\ShipMatrix;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
-
-class ProductionNote extends Model
+class ProductionNote extends AbstractShipMatrixLookup
 {
-    use HasFactory;
-    use HasTranslations;
-
     protected $table = 'shipmatrix_production_notes';
-
-    public array $translatable = ['translation'];
 
     protected $fillable = [
         'translation',

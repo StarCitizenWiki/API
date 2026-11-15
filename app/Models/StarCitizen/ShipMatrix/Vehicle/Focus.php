@@ -4,23 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\ShipMatrix\Vehicle;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
+use App\Models\StarCitizen\ShipMatrix\AbstractShipMatrixLookup;
 
-class Focus extends Model
+class Focus extends AbstractShipMatrixLookup
 {
-    use HasFactory;
-    use HasTranslations;
-
     public $timestamps = false;
-
-    public array $translatable = ['translation'];
-
-    protected $fillable = [
-        'slug',
-        'translation',
-    ];
 
     protected $table = 'shipmatrix_vehicle_foci';
 
