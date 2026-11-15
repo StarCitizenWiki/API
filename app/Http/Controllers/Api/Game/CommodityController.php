@@ -18,6 +18,7 @@ use App\Models\Game\StarmapLocation;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use App\Support\Game\MiningGroups;
+use App\Support\QueryIdentifier;
 use App\Support\QueryLike;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
@@ -183,8 +184,7 @@ class CommodityController extends Controller
         $versionCode = $this->gameVersionCode();
 
         $locationModel = StarmapLocation::query()
-            ->when(Str::isUuid($location), fn (Builder $q) => $q->where('uuid', $location))
-            ->unless(Str::isUuid($location), fn (Builder $q) => $q->where('slug', $location))
+            ->tap(fn (Builder $query) => QueryIdentifier::whereUuidOrSlug($query, $location))
             ->first();
 
         if ($locationModel === null) {
@@ -299,8 +299,7 @@ class CommodityController extends Controller
         $versionCode = $this->gameVersionCode();
 
         $commodityModel = QueryBuilder::for(Commodity::class, $request)
-            ->when(Str::isUuid($commodity), fn (Builder $q) => $q->where('uuid', $commodity))
-            ->unless(Str::isUuid($commodity), fn (Builder $q) => $q->where('slug', $commodity))
+            ->tap(fn (Builder $query) => QueryIdentifier::whereUuidOrSlug($query, $commodity))
             ->allowedIncludes(
                 IncludeDefinition::callback('blueprints', fn (BelongsToMany $query) => $query
                     ->forRequestedOrDefaultVersion($versionCode)

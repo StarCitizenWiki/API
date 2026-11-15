@@ -19,12 +19,12 @@ use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
 use App\Support\Filters\FilterValues;
 use App\Support\Filters\ItemFilterLabel;
+use App\Support\QueryIdentifier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
@@ -150,8 +150,7 @@ class BlueprintController extends Controller
     public function show(Request $request, string $blueprint): BlueprintResource
     {
         $blueprintModel = Blueprint::query()
-            ->when(Str::isUuid($blueprint), fn (Builder $q) => $q->where('uuid', $blueprint))
-            ->unless(Str::isUuid($blueprint), fn (Builder $q) => $q->where('slug', $blueprint))
+            ->tap(fn (Builder $query) => QueryIdentifier::whereUuidOrSlug($query, $blueprint))
             ->first();
 
         if ($blueprintModel === null) {

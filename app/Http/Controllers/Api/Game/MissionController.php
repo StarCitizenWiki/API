@@ -19,6 +19,7 @@ use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
 use App\Support\Filters\FilterValues;
+use App\Support\QueryIdentifier;
 use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
@@ -214,8 +215,7 @@ class MissionController extends Controller
         $versionCode = $this->gameVersionCode();
 
         $missionModel = Mission::query()
-            ->when(Str::isUuid($mission), fn (Builder $q) => $q->where('uuid', $mission))
-            ->unless(Str::isUuid($mission), fn (Builder $q) => $q->where('slug', $mission))
+            ->tap(fn (Builder $query) => QueryIdentifier::whereUuidOrSlug($query, $mission))
             ->first();
 
         if ($missionModel === null) {

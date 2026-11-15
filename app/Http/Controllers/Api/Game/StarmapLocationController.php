@@ -16,6 +16,7 @@ use App\Rules\BooleanFilterValue;
 use App\Rules\UuidFilterValue;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
+use App\Support\QueryIdentifier;
 use App\Support\QueryLike;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
@@ -394,8 +395,7 @@ class StarmapLocationController extends Controller
         $location = QueryBuilder::for(StarmapLocationData::class, $request)
             ->forRequestedOrDefaultVersion($versionCode)
             ->whereHas('location', static function (Builder $query) use ($identifier): void {
-                $query->when(Str::isUuid($identifier), fn (Builder $q) => $q->where('uuid', $identifier))
-                    ->unless(Str::isUuid($identifier), fn (Builder $q) => $q->where('slug', $identifier));
+                QueryIdentifier::whereUuidOrSlug($query, $identifier);
             })
             ->whereNotNull('system')
             ->with('amenities')
