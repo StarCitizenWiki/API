@@ -17,6 +17,7 @@ use App\Rules\NumericFilterValue;
 use App\Support\CommLinkIds;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -78,13 +79,7 @@ class CommLinkController extends Controller
     {
         return [
             AllowedFilter::exact('id', 'cig_id'),
-            AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('comm_links.title', "%{$value}%");
-            }),
+            AllowedFilter::callback('title', QueryLike::filter('comm_links.title')),
             AllowedFilter::callback('content', static function (Builder $query, mixed $value): void {
                 if (! is_string($value)) {
                     return;

@@ -19,6 +19,7 @@ use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
 use App\Support\Filters\FilterValues;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -600,31 +601,9 @@ class MissionController extends Controller
 
                 $query->where('reward_max', '<=', (int) $value);
             }),
-            AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_mission_data.title', "%{$value}%");
-            })->delimiter(''),
-            AllowedFilter::callback('description', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_mission_data.description', "%{$value}%");
-            })->delimiter(''),
-            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('game_mission_data.title', "%{$value}%")
-                        ->orWhereLike('game_mission_data.description', "%{$value}%")
-                        ->orWhereLike('game_mission_data.debug_name', "%{$value}%");
-                });
-            })->delimiter(''),
+            AllowedFilter::callback('title', QueryLike::filter('game_mission_data.title'))->delimiter(''),
+            AllowedFilter::callback('description', QueryLike::filter('game_mission_data.description'))->delimiter(''),
+            AllowedFilter::callback('query', QueryLike::filter(['game_mission_data.title', 'game_mission_data.description', 'game_mission_data.debug_name']))->delimiter(''),
             AllowedFilter::exact('reward_scope', 'game_mission_data.reward_scope'),
             AllowedFilter::callback('location', static function (Builder $query, mixed $value): void {
                 if (! is_string($value) || ! Str::isUuid($value)) {

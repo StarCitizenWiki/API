@@ -16,6 +16,7 @@ use App\Rules\BooleanFilterValue;
 use App\Rules\UuidFilterValue;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
+use App\Support\QueryLike;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -139,13 +140,7 @@ class StarmapLocationController extends Controller
         };
 
         return [
-            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_starmap_location_data.name', "%{$value}%");
-            }),
+            AllowedFilter::callback('name', QueryLike::filter('game_starmap_location_data.name')),
             AllowedFilter::exact('type_name'),
             AllowedFilter::exact('type_classification'),
             AllowedFilter::exact('respawn_location_type'),
@@ -155,13 +150,7 @@ class StarmapLocationController extends Controller
             AllowedFilter::exact('block_travel'),
             AllowedFilter::callback('amenity', $amenityFilter),
             AllowedFilter::callback('tag', $entityTagFilter),
-            AllowedFilter::callback('parent_name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_starmap_location_data.parent_name', "%{$value}%");
-            }),
+            AllowedFilter::callback('parent_name', QueryLike::filter('game_starmap_location_data.parent_name')),
             AllowedFilter::callback('parent_uuid', static function (Builder $query, mixed $value): void {
                 $entries = is_array($value) ? $value : [$value];
 
@@ -176,25 +165,11 @@ class StarmapLocationController extends Controller
 
                 $query->whereIn('game_starmap_location_data.parent_location_uuid', $uuids);
             }),
-            AllowedFilter::callback('system', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_starmap_location_data.system', "%{$value}%");
-            }),
+            AllowedFilter::callback('system', QueryLike::filter('game_starmap_location_data.system')),
             AllowedFilter::callback('has_resources', $hasResourcesFilter),
             AllowedFilter::callback('resource', $resourceFilter),
             AllowedFilter::callback('hide_minor_locations', $hideMinorLocationsFilter),
-            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('game_starmap_location_data.name', "%{$value}%");
-                });
-            }),
+            AllowedFilter::callback('query', QueryLike::filter('game_starmap_location_data.name', grouped: true)),
         ];
     }
 

@@ -481,27 +481,9 @@ class ItemController extends Controller
             AllowedFilter::exact('sub_type'),
             AllowedFilter::callback('manufacturer', $manufacturerFilter),
             AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
-            AllowedFilter::callback('class_name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_item_data.class_name', '%'.QueryLike::escape($value).'%');
-            }),
-            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_item_data.name', '%'.QueryLike::escape($value).'%');
-            }),
-            AllowedFilter::callback('classification', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_item_data.classification', "%{$value}%");
-            }),
+            AllowedFilter::callback('class_name', QueryLike::filter('game_item_data.class_name')),
+            AllowedFilter::callback('name', QueryLike::filter('game_item_data.name')),
+            AllowedFilter::callback('classification', QueryLike::filter('game_item_data.classification')),
             AllowedFilter::custom('size', new IntegerExactFilter, 'game_item_data.size'),
             AllowedFilter::custom('grade', new IntegerExactFilter(ItemGrade::labelMap()), 'game_item_data.grade'),
             AllowedFilter::exact('class'),
@@ -599,18 +581,7 @@ class ItemController extends Controller
                 });
             }),
             AllowedFilter::custom('variants', new ItemVariantsFilter),
-            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->where(static function (Builder $q) use ($value): void {
-                    $pattern = '%'.QueryLike::escape($value).'%';
-
-                    $q->whereLike('game_item_data.name', $pattern)
-                        ->orWhereLike('game_item_data.class_name', $pattern);
-                });
-            }),
+            AllowedFilter::callback('query', QueryLike::filter(['game_item_data.name', 'game_item_data.class_name'])),
         ];
     }
 

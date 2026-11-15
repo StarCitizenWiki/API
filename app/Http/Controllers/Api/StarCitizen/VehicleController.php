@@ -13,6 +13,7 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\StarCitizen\Vehicle\VehicleResource;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle;
 use App\Support\Filters\FilterCache;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -52,13 +53,7 @@ class VehicleController extends Controller
             AllowedFilter::scope('type'),
             AllowedFilter::scope('focus'),
             AllowedFilter::scope('production_status'),
-            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('shipmatrix_vehicles.name', "%{$value}%");
-            }),
+            AllowedFilter::callback('name', QueryLike::filter('shipmatrix_vehicles.name')),
         ];
     }
 

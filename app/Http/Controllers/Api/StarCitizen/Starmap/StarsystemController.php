@@ -15,6 +15,7 @@ use App\Models\StarCitizen\Starmap\Starsystem;
 use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -46,13 +47,7 @@ class StarsystemController extends Controller
         return [
             AllowedFilter::exact('affiliation', 'affiliation.name'),
             AllowedFilter::exact('code'),
-            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('starmap_starsystems.name', "%{$value}%");
-            }),
+            AllowedFilter::callback('name', QueryLike::filter('starmap_starsystems.name')),
             AllowedFilter::exact('status'),
             AllowedFilter::exact('type'),
             AllowedFilter::operator('size', FilterOperator::DYNAMIC, internalName: 'aggregated_size'),

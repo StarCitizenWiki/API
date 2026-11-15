@@ -13,6 +13,7 @@ use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Starmap\CelestialObjectResource;
 use App\Models\StarCitizen\Starmap\CelestialObject;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -54,13 +55,7 @@ class CelestialObjectController extends Controller
             ->allowedIncludes(...IncludeDefinition::toSpatieIncludes($this->includeDefinitions()))
             ->allowedFilters(
                 AllowedFilter::exact('starsystem', 'starsystem.name'),
-                AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
-                    if (! is_string($value) || $value === '') {
-                        return;
-                    }
-
-                    $query->whereLike('starmap_celestial_objects.name', "%{$value}%");
-                }),
+                AllowedFilter::callback('name', QueryLike::filter('starmap_celestial_objects.name')),
                 AllowedFilter::exact('designation'),
                 AllowedFilter::exact('type'),
             )

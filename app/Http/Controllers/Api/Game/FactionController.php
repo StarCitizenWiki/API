@@ -11,6 +11,7 @@ use App\Http\Resources\Game\Faction\FactionResource;
 use App\Models\Game\Faction;
 use App\Rules\BooleanFilterValue;
 use App\Support\Filters\FilterInput;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -158,15 +159,7 @@ class FactionController extends Controller
             AllowedFilter::exact('lawful'),
             AllowedFilter::exact('is_npc'),
             AllowedFilter::exact('hide_in_delphi_app'),
-            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('name', "%{$value}%")->orWhereLike('description', "%{$value}%");
-                });
-            }),
+            AllowedFilter::callback('query', QueryLike::filter(['name', 'description'])),
         ];
     }
 }

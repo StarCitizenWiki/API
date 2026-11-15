@@ -18,6 +18,7 @@ use App\Models\Game\StarmapLocation;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
 use App\Support\Game\MiningGroups;
+use App\Support\QueryLike;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -664,16 +665,7 @@ class CommodityController extends Controller
                         });
                 });
             }),
-            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->where(static function (Builder $q) use ($value): void {
-                    $q->whereLike('game_commodities.name', "%{$value}%")
-                        ->orWhereLike('game_commodities.key', "%{$value}%");
-                });
-            }),
+            AllowedFilter::callback('query', QueryLike::filter(['game_commodities.name', 'game_commodities.key'])),
             AllowedFilter::callback('ship', $this->booleanFilterCallback(MiningGroups::SHIP)),
             AllowedFilter::callback('ground_vehicle', $this->booleanFilterCallback(self::GROUP_GROUND_VEHICLE)),
             AllowedFilter::callback('fps', $this->booleanFilterCallback(MiningGroups::FPS)),

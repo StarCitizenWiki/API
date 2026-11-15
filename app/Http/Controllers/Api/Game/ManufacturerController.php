@@ -35,13 +35,7 @@ class ManufacturerController extends Controller
             ->selectRaw("MIN(NULLIF(code, '')) AS code")
             ->selectRaw("MIN(NULLIF(uuid::text, ''))::uuid AS uuid")
             ->where('name', '<>', '')
-            ->allowedFilters(AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_manufacturers.name', "%{$value}%");
-            }))
+            ->allowedFilters(AllowedFilter::callback('name', QueryLike::filter('game_manufacturers.name')))
             ->groupBy('name')
             ->orderBy('name');
     }

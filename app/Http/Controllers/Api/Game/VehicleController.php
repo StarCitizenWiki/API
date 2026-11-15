@@ -28,6 +28,7 @@ use App\Rules\NumericFilterValue;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
 use App\Support\Filters\FilterValues;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -934,20 +935,8 @@ class VehicleController extends Controller
         return [
             AllowedFilter::callback('manufacturer', $manufacturerFilter),
             AllowedFilter::callback('manufacturer.name', $manufacturerFilter),
-            AllowedFilter::callback('class_name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_vehicle_data.class_name', "%{$value}%");
-            }),
-            AllowedFilter::callback('name', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('game_vehicle_data.name', "%{$value}%");
-            }),
+            AllowedFilter::callback('class_name', QueryLike::filter('game_vehicle_data.class_name')),
+            AllowedFilter::callback('name', QueryLike::filter('game_vehicle_data.name')),
             AllowedFilter::exact('career'),
             AllowedFilter::exact('role'),
             AllowedFilter::exact('is_vehicle'),
@@ -987,18 +976,7 @@ class VehicleController extends Controller
                 }
             }),
             AllowedFilter::custom('max_medical_tier', new NonEmptyExactFilter),
-            AllowedFilter::callback('query', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $pattern = "%{$value}%";
-
-                $query->where(static function (Builder $q) use ($pattern): void {
-                    $q->whereLike('game_vehicle_data.name', $pattern)
-                        ->orWhereLike('game_vehicle_data.class_name', $pattern);
-                });
-            }),
+            AllowedFilter::callback('query', QueryLike::filter(['game_vehicle_data.name', 'game_vehicle_data.class_name'])),
         ];
     }
 

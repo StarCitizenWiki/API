@@ -14,6 +14,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\StarCitizen\Galactapedia\ArticleResource;
 use App\Models\StarCitizen\Galactapedia\Article;
 use App\Support\Filters\FilterCache;
+use App\Support\QueryLike;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -53,13 +54,7 @@ class GalactapediaController extends Controller
             AllowedFilter::scope('category'),
             AllowedFilter::scope('tag'),
             AllowedFilter::scope('template'),
-            AllowedFilter::callback('title', static function (Builder $query, mixed $value): void {
-                if (! is_string($value) || $value === '') {
-                    return;
-                }
-
-                $query->whereLike('galactapedia_articles.title', "%{$value}%");
-            }),
+            AllowedFilter::callback('title', QueryLike::filter('galactapedia_articles.title')),
             AllowedFilter::custom('created_at', new DateFilter('galactapedia_articles.created_at')),
         ];
     }
