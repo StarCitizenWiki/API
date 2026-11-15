@@ -16,6 +16,6 @@ use Tests\TestCase;
 |
 */
 
-pest()->extend(TestCase::class)->in('Feature', 'Unit', 'Browser');
+pest()->extend(TestCase::class)->in('Feature', 'Unit');
 
 pest()->use(LazilyRefreshDatabase::class)->in('Feature');
