@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Rsi\CommLink\Image;
 
 use App\Models\Rsi\CommLink\Image\Image;
+use App\Services\RsiDownloadClient;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -34,7 +35,9 @@ class CreateImageMetadatum implements ShouldQueue
 
         $response = Http::timeout(30)->head($image->url);
 
-        if ($response->serverError()) {
+        $errorType = RsiDownloadClient::errorType($response);
+
+        if ($errorType === 'server') {
             Log::warning('Comm-Link image metadata request failed with server error.', [
                 'image_id' => $image->id,
                 'status' => $response->status(),
@@ -45,7 +48,7 @@ class CreateImageMetadatum implements ShouldQueue
             return;
         }
 
-        if ($response->clientError()) {
+        if ($errorType === 'client') {
             Log::info('Comm-Link image metadata request failed with client error.', [
                 'image_id' => $image->id,
                 'status' => $response->status(),

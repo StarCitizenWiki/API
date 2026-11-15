@@ -73,9 +73,9 @@ class ImportShipMatrix implements ShouldQueue
 
         $response = $client->forRsi()->throw()->get(config('services.rsi_url').self::SHIPS_ENDPOINT);
 
-        $parsed = json_decode($response->body(), false, 512, JSON_THROW_ON_ERROR);
+        $parsed = RsiDownloadClient::decodeEnvelope($response->body());
 
-        if (($parsed->success ?? 0) !== 1) {
+        if (! RsiDownloadClient::envelopeSucceeded($parsed->success ?? 0)) {
             throw new RuntimeException(
                 sprintf('RSI data is not valid. Expected success = 1, got %d', $parsed->success ?? 0)
             );

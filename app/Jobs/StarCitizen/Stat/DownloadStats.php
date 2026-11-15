@@ -61,7 +61,9 @@ class DownloadStats implements ShouldQueue
                 ]
             );
 
-        if ($response->serverError()) {
+        $errorType = RsiDownloadClient::errorType($response);
+
+        if ($errorType === 'server') {
             Log::critical('Could not connect to RSI Stats Endpoint', [
                 'status' => $response->status(),
             ]);
@@ -71,7 +73,7 @@ class DownloadStats implements ShouldQueue
             return;
         }
 
-        if ($response->clientError()) {
+        if ($errorType === 'client') {
             Log::warning('Stats request failed with client error', [
                 'status' => $response->status(),
             ]);
@@ -87,12 +89,12 @@ class DownloadStats implements ShouldQueue
     private function validateRsiResponse(string $body): stdClass
     {
         try {
-            $response = json_decode($body, false, 512, JSON_THROW_ON_ERROR);
+            $response = RsiDownloadClient::decodeEnvelope($body);
         } catch (JsonException) {
             throw new RuntimeException('Invalid JSON response from RSI');
         }
 
-        if (($response->success ?? 0) !== 1) {
+        if (! RsiDownloadClient::envelopeSucceeded($response->success ?? 0)) {
             throw new RuntimeException(
                 sprintf('RSI API returned failure. Expected success=1, got %d', $response->success ?? 0)
             );

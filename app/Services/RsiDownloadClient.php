@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 final class RsiDownloadClient
@@ -26,6 +27,25 @@ final class RsiDownloadClient
         $baseUrl = config('services.rsi_url');
 
         return $this->withBaseUrl(is_string($baseUrl) ? $baseUrl : null);
+    }
+
+    public static function errorType(Response $response): ?string
+    {
+        if ($response->serverError()) {
+            return 'server';
+        }
+
+        return $response->clientError() ? 'client' : null;
+    }
+
+    public static function decodeEnvelope(string $body, bool $associative = false): mixed
+    {
+        return json_decode($body, $associative, 512, JSON_THROW_ON_ERROR);
+    }
+
+    public static function envelopeSucceeded(mixed $success, bool $strict = true): bool
+    {
+        return $strict ? $success === 1 : (bool) $success;
     }
 
     private function withBaseUrl(?string $baseUrl): PendingRequest

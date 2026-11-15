@@ -69,7 +69,9 @@ class DownloadStarsystem implements ShouldQueue
         $response = $client->forRsi()
             ->post(sprintf('%s%s', self::STARSYSTEM_ENDPOINT, $this->systemCode));
 
-        if ($response->serverError()) {
+        $errorType = RsiDownloadClient::errorType($response);
+
+        if ($errorType === 'server') {
             Log::error(sprintf('Could not connect to RSI Starmap %s', $this->systemCode), [
                 'status' => $response->status(),
             ]);
@@ -79,7 +81,7 @@ class DownloadStarsystem implements ShouldQueue
             return;
         }
 
-        if ($response->clientError()) {
+        if ($errorType === 'client') {
             Log::warning(sprintf('Starmap request failed for %s', $this->systemCode), [
                 'status' => $response->status(),
             ]);
@@ -96,12 +98,7 @@ class DownloadStarsystem implements ShouldQueue
     private function checkStructure(): bool
     {
         try {
-            $this->systemData = json_decode(
-                $this->response->body(),
-                true,
-                512,
-                JSON_THROW_ON_ERROR
-            );
+            $this->systemData = RsiDownloadClient::decodeEnvelope($this->response->body(), true);
         } catch (JsonException $e) {
             Log::error(sprintf('Can\'t decode %s.', $this->systemCode));
 
@@ -124,7 +121,7 @@ class DownloadStarsystem implements ShouldQueue
      */
     private function validateDataStructure(array $data, array $keys): bool
     {
-        if (! isset($data['success']) || $data['success'] !== 1) {
+        if (! RsiDownloadClient::envelopeSucceeded($data['success'] ?? null)) {
             return false;
         }
 

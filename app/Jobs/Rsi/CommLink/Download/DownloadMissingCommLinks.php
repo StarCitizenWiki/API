@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Models\Rsi\CommLink\CommLink;
+use App\Services\RsiDownloadClient;
 use App\Support\CommLinkIds;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -60,7 +61,9 @@ class DownloadMissingCommLinks implements ShouldQueue
             'page' => 1,
         ]);
 
-        if ($response->serverError()) {
+        $errorType = RsiDownloadClient::errorType($response);
+
+        if ($errorType === 'server') {
             Log::warning('Comm-Link hub API request failed with server error.', [
                 'page' => 1,
                 'status' => $response->status(),
@@ -71,7 +74,7 @@ class DownloadMissingCommLinks implements ShouldQueue
             return null;
         }
 
-        if ($response->clientError()) {
+        if ($errorType === 'client') {
             Log::info('Comm-Link hub API request failed with client error.', [
                 'page' => 1,
                 'status' => $response->status(),
@@ -80,7 +83,7 @@ class DownloadMissingCommLinks implements ShouldQueue
             return null;
         }
 
-        if (! $response->json('success')) {
+        if (! RsiDownloadClient::envelopeSucceeded($response->json('success'), false)) {
             Log::warning('Comm-Link hub API returned unsuccessful response.', [
                 'page' => 1,
             ]);

@@ -89,7 +89,9 @@ class SyncStarmap implements ShouldQueue
     {
         $response = $client->forRsi()->post(self::STARSYSTEM_BOOTUP_ENDPOINT);
 
-        if ($response->serverError()) {
+        $errorType = RsiDownloadClient::errorType($response);
+
+        if ($errorType === 'server') {
             Log::error('Could not connect to RSI Starmap Bootup', [
                 'status' => $response->status(),
             ]);
@@ -99,7 +101,7 @@ class SyncStarmap implements ShouldQueue
             return;
         }
 
-        if ($response->clientError()) {
+        if ($errorType === 'client') {
             Log::warning('Starmap bootup request failed', [
                 'status' => $response->status(),
             ]);

@@ -73,3 +73,21 @@ it('preserves full urls when rsi base url is missing', function (?string $rsiUrl
     'null url' => null,
     'empty url' => '',
 ]);
+
+it('classifies HTTP errors without treating redirects as errors', function (int $status, ?string $expected): void {
+    Http::fake(['*' => Http::response('', $status)]);
+
+    expect(RsiDownloadClient::errorType(Http::get('https://example.test')))->toBe($expected);
+})->with([[200, null], [302, null], [404, 'client'], [500, 'server']]);
+
+it('preserves strict and truthy envelope checks', function (mixed $success, bool $strict, bool $truthy): void {
+    expect(RsiDownloadClient::envelopeSucceeded($success))->toBe($strict)
+        ->and(RsiDownloadClient::envelopeSucceeded($success, false))->toBe($truthy);
+})->with([[1, true, true], ['1', false, true], [true, false, true], [0, false, false], [null, false, false]]);
+
+it('decodes envelopes in either representation and rejects invalid JSON', function (): void {
+    expect(RsiDownloadClient::decodeEnvelope('{"success":1}')->success)->toBe(1)
+        ->and(RsiDownloadClient::decodeEnvelope('{"success":1}', true))->toBe(['success' => 1]);
+
+    RsiDownloadClient::decodeEnvelope('{');
+})->throws(JsonException::class);
