@@ -16,6 +16,7 @@ use App\Models\Game\Vehicle;
 use App\Support\Filters\ItemFilterLabel;
 use App\Support\Formatting\FormatMissionText;
 use App\Support\QueryLike;
+use App\Support\Redirects;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -192,13 +193,7 @@ class UnifiedSearchController extends Controller
             ? $this->apiUrl($match->type, $match)
             : $this->webUrl($match->type, $match);
 
-        $queryString = $request->server->get('QUERY_STRING');
-
-        if ($queryString !== null && $queryString !== '') {
-            $url .= str_contains($url, '?') ? '&'.$queryString : '?'.$queryString;
-        }
-
-        return redirect($url);
+        return Redirects::withQueryString($request, $url, 302);
     }
 
     /**

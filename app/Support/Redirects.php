@@ -16,7 +16,7 @@ class Redirects
         $queryString = $request->server->get('QUERY_STRING');
 
         if ($queryString !== null && $queryString !== '') {
-            $target .= '?'.$queryString;
+            $target .= str_contains($target, '?') ? '&'.$queryString : '?'.$queryString;
         }
 
         return redirect($target, $status);

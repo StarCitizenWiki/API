@@ -20,6 +20,7 @@ use App\Support\Filters\FilterValues;
 use App\Support\Game\MiningGroups;
 use App\Support\QueryIdentifier;
 use App\Support\QueryLike;
+use App\Support\Redirects;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -376,13 +377,8 @@ class CommodityController extends Controller
         if ($commodityModel === null) {
             if (Str::isUuid($commodity) && StarmapLocation::query()->where('uuid', $commodity)->exists()) {
                 $url = route('locations.commodities.index', ['location' => $commodity]);
-                $queryString = $request->server->get('QUERY_STRING');
 
-                if ($queryString !== null && $queryString !== '') {
-                    $url .= '?'.$queryString;
-                }
-
-                return redirect($url, 302);
+                return Redirects::withQueryString($request, $url, 302);
             }
 
             throw new NotFoundHttpException('No commodity found with the given identifier.');

@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\StarCitizen\Starmap\StarsystemController;
 use App\Http\Controllers\Api\StarCitizen\StatController;
 use App\Http\Controllers\Api\StarCitizen\VehicleController as ShipMatrixVehicleController;
 use App\Http\Controllers\Api\UserController;
+use App\Support\Redirects;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -53,13 +54,8 @@ $redirectToIntendedRoute = static function (Request $request, ?string $any = nul
     }
 
     $target = '/api'.($any !== null && $any !== '' ? '/'.$any : '');
-    $queryString = $request->server->get('QUERY_STRING');
 
-    if ($queryString !== null && $queryString !== '') {
-        $target .= '?'.$queryString;
-    }
-
-    return redirect($target, 308);
+    return Redirects::withQueryString($request, $target, 308);
 };
 
 Route::group(

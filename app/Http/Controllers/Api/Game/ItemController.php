@@ -24,6 +24,7 @@ use App\Models\Game\ItemData;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\ItemFilterLabel;
 use App\Support\QueryLike;
+use App\Support\Redirects;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -1116,9 +1117,8 @@ class ItemController extends Controller
 
         if ($redirectsToVehicle) {
             $url = sprintf('/api/vehicles/%s', $itemData->item->uuid);
-            $qs = $request->server->get('QUERY_STRING');
 
-            return redirect($qs !== null && $qs !== '' ? $url.'?'.$qs : $url);
+            return Redirects::withQueryString($request, $url, 302);
         }
 
         ItemResource::preloadLocationData(
