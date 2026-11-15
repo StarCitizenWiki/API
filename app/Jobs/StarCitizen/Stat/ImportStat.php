@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use JsonException;
 
@@ -44,7 +45,7 @@ class ImportStat implements ShouldQueue
      */
     public function handle(): void
     {
-        app('Log')::info('Parsing Stat Download');
+        Log::info('Parsing Stat Download');
 
         try {
             $content = Storage::disk(self::STATS_DISK)->get(sprintf('%d/%s', $this->year, $this->statFileName));
@@ -59,7 +60,7 @@ class ImportStat implements ShouldQueue
                 JSON_THROW_ON_ERROR
             );
         } catch (FileNotFoundException $e) {
-            app('Log')::error(
+            Log::error(
                 "File {$this->statFileName} not found on Disk ".self::STATS_DISK,
                 [
                     'message' => $e->getMessage(),
@@ -70,7 +71,7 @@ class ImportStat implements ShouldQueue
 
             return;
         } catch (JsonException $e) {
-            app('Log')::error(
+            Log::error(
                 "File {$this->statFileName} does not contain valid JSON",
                 [
                     'message' => $e->getMessage(),

@@ -8,6 +8,7 @@ use App\Exceptions\Translation\AuthenticationException;
 use App\Exceptions\Translation\QuotaExceededException;
 use App\Exceptions\Translation\RateLimitException;
 use App\Exceptions\Translation\TranslationException;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Shared DeepL exception ladder for translation jobs
@@ -26,25 +27,25 @@ trait HandlesTranslationExceptions
         try {
             return $translate();
         } catch (QuotaExceededException $e) {
-            app('Log')::warning('DeepL quota exceeded');
+            Log::warning('DeepL quota exceeded');
 
             $this->fail($e);
 
             return false;
         } catch (RateLimitException $e) {
-            app('Log')::info('Got rate limit exception. Trying job again in 60 seconds.');
+            Log::info('Got rate limit exception. Trying job again in 60 seconds.');
 
             $this->release(60);
 
             return false;
         } catch (AuthenticationException $e) {
-            app('Log')::error('DeepL authentication failed', ['error' => $e->getMessage()]);
+            Log::error('DeepL authentication failed', ['error' => $e->getMessage()]);
 
             $this->fail($e);
 
             return false;
         } catch (TranslationException $e) {
-            app('Log')::warning('Translation failed', $context + ['error' => $e->getMessage()]);
+            Log::warning('Translation failed', $context + ['error' => $e->getMessage()]);
 
             return null;
         }

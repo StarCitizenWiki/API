@@ -10,6 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ImportLoaner implements ShouldQueue
@@ -147,7 +148,7 @@ class ImportLoaner implements ShouldQueue
         $this->missing = collect($this->missing)->unique()->toArray();
 
         if (! empty($this->missing)) {
-            app('Log')::info(sprintf(
+            Log::info(sprintf(
                 'Found missing vehicles while importing loaner: %s',
                 implode(', ', $this->missing)
             ));

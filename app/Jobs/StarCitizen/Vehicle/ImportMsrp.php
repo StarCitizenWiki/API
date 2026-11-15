@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Import all msrps by requesting the pledge-store upgrade api endpoint
@@ -65,7 +66,7 @@ QUERY;
                 'query' => $query,
             ])->throw();
         } catch (RequestException $e) {
-            app('Log')::critical('Could not connect to RSI Pledge Store API', [
+            Log::critical('Could not connect to RSI Pledge Store API', [
                 'message' => $e->getMessage(),
             ]);
 

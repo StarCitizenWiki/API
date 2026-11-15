@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Translate all Comm-Links without a translation in the configured target locale.
@@ -41,7 +42,7 @@ class TranslateCommLinks implements ShouldQueue
      */
     public function handle(TranslationService $translator): void
     {
-        app('Log')::info('Translating Comm-Links');
+        Log::info('Translating Comm-Links');
 
         [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
 
@@ -73,7 +74,7 @@ class TranslateCommLinks implements ShouldQueue
                         $formality = 'more';
                     }
 
-                    app('Log')::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
+                    Log::info(sprintf('Translating Comm-Link %d', $commLink->cig_id));
                     $translation = $this->translateOrAbort(
                         fn (): string => $translator->translate($english, $targetLocale, 'en', $formality),
                         ['comm_link_id' => $commLink->cig_id],

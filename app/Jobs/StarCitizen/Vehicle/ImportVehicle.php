@@ -21,6 +21,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ImportVehicle implements ShouldQueue
@@ -85,7 +86,7 @@ class ImportVehicle implements ShouldQueue
      */
     public function handle(): void
     {
-        app('Log')::info(
+        Log::info(
             "Parsing Vehicle {$this->rawData->get(self::VEHICLE_NAME)}",
             [
                 'vehicle' => $this->rawData->get(self::VEHICLE_NAME),

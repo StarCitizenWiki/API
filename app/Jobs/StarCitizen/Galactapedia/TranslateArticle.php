@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class TranslateArticle implements ShouldQueue
 {
@@ -37,7 +38,7 @@ class TranslateArticle implements ShouldQueue
      */
     public function handle(TranslationService $translator): void
     {
-        app('Log')::info("Translating Galactapedia Article {$this->article->cig_id}");
+        Log::info("Translating Galactapedia Article {$this->article->cig_id}");
         [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
 
         $english = $this->article->getTranslation('translation', Language::ENGLISH, false);

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 use RuntimeException;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -409,7 +410,7 @@ class CommLinkSearchController extends Controller
     private function checkExtensionsLoaded(): void
     {
         if (! extension_loaded('gd')) {
-            app('Log')::error('Required extension "GD" not available.');
+            Log::error('Required extension "GD" not available.');
 
             throw new HttpException(501, 'Required extension "GD" not available.');
         }

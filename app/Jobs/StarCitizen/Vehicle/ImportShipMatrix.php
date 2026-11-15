@@ -16,6 +16,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use JsonException;
@@ -37,7 +38,7 @@ class ImportShipMatrix implements ShouldQueue
     {
         FilterCache::bust(FilterCache::NAMESPACE_SHIPMATRIX);
 
-        app('Log')::info('Downloading and importing Ship Matrix');
+        Log::info('Downloading and importing Ship Matrix');
 
         try {
             $shipMatrixPath = $this->downloadShipMatrix($client);
@@ -45,7 +46,7 @@ class ImportShipMatrix implements ShouldQueue
             $vehicles = $this->loadVehicles($shipMatrixPath);
             $this->assertStructure($vehicles);
         } catch (Throwable $e) {
-            app('Log')::error(
+            Log::error(
                 'Ship Matrix download or import failed',
                 [
                     'message' => $e->getMessage(),
@@ -122,7 +123,7 @@ class ImportShipMatrix implements ShouldQueue
         if ($diff->count() !== 0) {
             $keys = $diff->keys();
 
-            app('Log')::error('Ship Matrix structure changed, aborting job. Missing keys:', $keys->toArray());
+            Log::error('Ship Matrix structure changed, aborting job. Missing keys:', $keys->toArray());
 
             throw new RuntimeException('Ship Matrix structure changed. Missing keys: '.$keys->implode(', '));
         }

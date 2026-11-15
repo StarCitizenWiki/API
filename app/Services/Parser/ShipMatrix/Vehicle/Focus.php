@@ -7,6 +7,7 @@ namespace App\Services\Parser\ShipMatrix\Vehicle;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Focus as VehicleFocus;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -33,7 +34,7 @@ class Focus extends BaseElement
         $rawFocus = $this->rawData->get(self::VEHICLE_FOCUS);
 
         if ($rawFocus === null) {
-            app('Log')::debug('Vehicle Focus not set in Matrix');
+            Log::debug('Vehicle Focus not set in Matrix');
 
             return [];
         }
@@ -41,7 +42,7 @@ class Focus extends BaseElement
         $vehicleFoci = array_map('trim', preg_split('/(\/|\s-\s|,|\sand\s)/', $rawFocus));
         $vehicleFociIDs = [];
 
-        app('Log')::debug('Vehicle Focus count: '.count($vehicleFoci));
+        Log::debug('Vehicle Focus count: '.count($vehicleFoci));
 
         collect($vehicleFoci)->each(
             function ($vehicleFocus) use (&$vehicleFociIDs) {

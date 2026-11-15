@@ -7,6 +7,7 @@ namespace App\Services\Parser\ShipMatrix;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -33,7 +34,7 @@ class TranslatableLookup extends AbstractBaseElement
         $value = $this->rawData->get($this->arrayKey);
 
         if ($value === null) {
-            app('Log')::debug($this->arrayKey.' not set in Matrix, returning default (undefined)');
+            Log::debug($this->arrayKey.' not set in Matrix, returning default (undefined)');
 
             return $this->modelClass::query()->findOrFail(1);
         }
@@ -43,7 +44,7 @@ class TranslatableLookup extends AbstractBaseElement
                 ->where('translation->'.config('language.english'), $value)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            app('Log')::debug($this->arrayKey.' not found in DB');
+            Log::debug($this->arrayKey.' not found in DB');
 
             return $this->create();
         }
@@ -63,7 +64,7 @@ class TranslatableLookup extends AbstractBaseElement
             $model->save();
         }
 
-        app('Log')::debug(class_basename($this->modelClass).' created', ['id' => $model->id]);
+        Log::debug(class_basename($this->modelClass).' created', ['id' => $model->id]);
 
         return $model;
     }

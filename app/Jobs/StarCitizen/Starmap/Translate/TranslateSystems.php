@@ -14,6 +14,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Translate all systems
@@ -31,7 +32,7 @@ class TranslateSystems implements ShouldQueue
      */
     public function handle(TranslationService $translator): void
     {
-        app('Log')::info('Translating Systems');
+        Log::info('Translating Systems');
 
         [$targetLocale, $translationLocale] = TranslationService::resolveLocale();
 
@@ -52,7 +53,7 @@ class TranslateSystems implements ShouldQueue
                             continue;
                         }
 
-                        app('Log')::info(sprintf('Translating system %s', $starsystem->name));
+                        Log::info(sprintf('Translating system %s', $starsystem->name));
                         $translation = $this->translateOrAbort(
                             fn (): string => $translator->translate($english, $targetLocale),
                             ['system' => $starsystem->name],

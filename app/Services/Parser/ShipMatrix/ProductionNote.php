@@ -7,6 +7,7 @@ namespace App\Services\Parser\ShipMatrix;
 use App\Models\StarCitizen\ShipMatrix\ProductionNote as ProductionNoteModel;
 use App\Services\Parser\ShipMatrix\AbstractBaseElement as BaseElement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class ProductionNote
@@ -33,7 +34,7 @@ class ProductionNote extends BaseElement
         $note = $this->getNormalizedStatus();
 
         if ($note === null) {
-            app('Log')::debug('Production Note not set in Matrix, returning default (None)');
+            Log::debug('Production Note not set in Matrix, returning default (None)');
 
             return $this->defaultProductionNote();
         }
@@ -43,7 +44,7 @@ class ProductionNote extends BaseElement
                 ->where('translation->'.config('language.english'), $note)
                 ->firstOrFail();
         } catch (ModelNotFoundException $e) {
-            app('Log')::debug('Production Note not found in DB');
+            Log::debug('Production Note not found in DB');
 
             if ($note === '') {
                 return $this->defaultProductionNote();
@@ -56,7 +57,7 @@ class ProductionNote extends BaseElement
                 ],
             ]);
 
-            app('Log')::debug('Production Note created', ['id' => $productionNote->id]);
+            Log::debug('Production Note created', ['id' => $productionNote->id]);
 
             return $productionNote;
         }
