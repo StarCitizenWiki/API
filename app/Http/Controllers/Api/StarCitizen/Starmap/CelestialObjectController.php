@@ -244,7 +244,7 @@ class CelestialObjectController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
+    public function search(SearchRequest $request): JsonResponse
     {
         $query = mb_strtoupper($request->validated('query'));
 

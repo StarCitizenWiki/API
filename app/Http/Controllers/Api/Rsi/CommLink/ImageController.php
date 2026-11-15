@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Api\Rsi\CommLink;
 
 use App\Attributes\CacheTag;
 use App\Http\Controllers\Controller;
-// use App\Http\Filters\ImageTagFilter;
 use App\Http\Requests\Api\Game\SearchRequest;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
 use App\Models\Rsi\CommLink\Image\Image;

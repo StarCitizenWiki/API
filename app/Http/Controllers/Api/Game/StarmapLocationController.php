@@ -36,9 +36,6 @@ class StarmapLocationController extends Controller
     use ResolvesGameVersion;
 
     /**
-     * @return array<int, AllowedFilter>
-     */
-    /**
      * @return array<string, array<int, mixed>>
      */
     private function filterInputRules(): array

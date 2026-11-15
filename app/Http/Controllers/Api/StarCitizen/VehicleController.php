@@ -305,7 +305,7 @@ class VehicleController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
+    public function search(SearchRequest $request): JsonResponse
     {
         $toSearch = urldecode($request->validated('query'));
 

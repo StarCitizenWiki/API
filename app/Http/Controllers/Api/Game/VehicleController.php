@@ -556,7 +556,7 @@ class VehicleController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
+    public function search(SearchRequest $request): JsonResponse
     {
         FilterInput::validate($request, $this->filterInputRules());
 
@@ -891,9 +891,6 @@ class VehicleController extends Controller
     }
 
     /**
-     * Allowed filters for in-game vehicles, including JSON-backed fields.
-     */
-    /**
      * @return array<string, array<int, mixed>>
      */
     private function filterInputRules(): array
@@ -1107,31 +1104,6 @@ class VehicleController extends Controller
 
             return [$item->uuid => $item];
         });
-
-        request()->attributes->set('eager_loaded_port_items', $items);
-    }
-
-    /**
-     * Build merged UUID->Item lookup for a collection of VehicleData.
-     */
-    private function buildBatchPortItemMap(Collection $vehicleDataCollection): void
-    {
-        $items = collect();
-
-        foreach ($vehicleDataCollection as $vehicleData) {
-            if (! $vehicleData->relationLoaded('installedItems')) {
-                continue;
-            }
-
-            foreach ($vehicleData->installedItems as $itemData) {
-                $item = $itemData->item;
-                if ($item === null || $items->has($item->uuid)) {
-                    continue;
-                }
-                $item->setRelation('data', collect([$itemData]));
-                $items[$item->uuid] = $item;
-            }
-        }
 
         request()->attributes->set('eager_loaded_port_items', $items);
     }

@@ -137,9 +137,6 @@ class FactionController extends Controller
     }
 
     /**
-     * @return array<int, AllowedFilter>
-     */
-    /**
      * @return array<string, array<int, mixed>>
      */
     private function filterInputRules(): array

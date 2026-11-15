@@ -450,7 +450,7 @@ class ItemController extends Controller
 
         foreach ($sortConfig as $sortKey => $config) {
             $allowedSorts[] = $this->jsonSort(
-                $config['path'], // $sortKey,
+                $config['path'],
                 'stdItem.'.$config['path'],
                 $config['cast'] ?? 'numeric'
             );
@@ -1216,7 +1216,7 @@ class ItemController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
+    public function search(SearchRequest $request): JsonResponse
     {
         $toSearch = $request->validated('query');
         $isUuid = Str::isUuid($toSearch);

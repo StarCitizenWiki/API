@@ -108,7 +108,7 @@ class CommLinkSearchController extends Controller
         ],
         deprecated: true,
     )]
-    public function searchByTitle(Request $request): AnonymousResourceCollection|JsonResponse
+    public function searchByTitle(Request $request): JsonResponse
     {
         $request->validate((new CommLinkSearchRequest)->rules());
 

@@ -31,9 +31,6 @@ class StarsystemController extends Controller
     use ComputesFacets;
 
     /**
-     * @return array<int, AllowedFilter>
-     */
-    /**
      * @return array<string, array<int, mixed>>
      */
     private function filterInputRules(): array
@@ -254,7 +251,7 @@ class StarsystemController extends Controller
         ],
         deprecated: true
     )]
-    public function search(SearchRequest $request): AnonymousResourceCollection|JsonResponse
+    public function search(SearchRequest $request): JsonResponse
     {
         FilterInput::validate($request, $this->filterInputRules());
         $query = mb_strtoupper($request->validated('query'));
