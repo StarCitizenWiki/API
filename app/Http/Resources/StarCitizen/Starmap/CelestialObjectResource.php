@@ -111,7 +111,7 @@ class CelestialObjectResource extends AbstractBaseResource
                     'name' => $this->starsystem?->name,
                 ];
             }),
-            $this->mergeWhen($this->whenLoaded('subtype'), [
+            $this->mergeWhen($this->relationLoaded('subtype'), fn () => [
                 'sub_type' => [
                     'id' => $this->subtype->id,
                     'name' => $this->subtype->name,
