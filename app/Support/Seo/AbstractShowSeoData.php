@@ -140,7 +140,7 @@ abstract class AbstractShowSeoData extends AbstractSeoData
             return Format::number($mass, 0).' kg';
         }
 
-        return rtrim(rtrim(Format::number($mass, 2), '0'), '.').' kg';
+        return Format::stripTrailingZeros(Format::number($mass, 2)).' kg';
     }
 
     protected function buildImage(array $entity): ?string

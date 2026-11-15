@@ -347,9 +347,12 @@ class Format
             return $formatted;
         }
 
-        $formatted = rtrim($formatted, '0');
+        return self::stripTrailingZeros($formatted);
+    }
 
-        return rtrim($formatted, '.');
+    public static function stripTrailingZeros(string $formatted): string
+    {
+        return rtrim(rtrim($formatted, '0'), '.');
     }
 
     /**

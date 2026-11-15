@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Resources;
 
+use App\Support\Formatting\FormatDuration;
 use App\Support\Game\MiningGroups;
-use Carbon\CarbonInterval;
 
 trait HasDepositFormatting
 {
@@ -248,10 +248,7 @@ trait HasDepositFormatting
 
     protected static function formatDuration(int $seconds): string
     {
-        return CarbonInterval::seconds($seconds)
-            ->locale('en')
-            ->cascade()
-            ->forHumans(short: true);
+        return FormatDuration::interval($seconds, options: ['short' => true], locale: 'en');
     }
 
     protected static function buildDepositBase(array $depositPairs, mixed $resourceData, ?int $commodityId): array

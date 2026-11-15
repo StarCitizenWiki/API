@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Items;
 
+use App\Enums\Game\ItemGrade;
+
 /**
  * Prepares view data for the {@see resources/views/components/items/hero.blade.php} component.
  *
@@ -56,7 +58,7 @@ final class ItemHeroViewData
 
         $variantStateLabel = $this->resolveVariantState($item);
 
-        $gradeLetter = $this->resolveGradeLetter(data_get($item, 'grade'));
+        $gradeLetter = ItemGrade::shipLabel(data_get($item, 'grade'));
         $isCraftable = data_get($item, 'is_craftable') === true;
         $isLootable = data_get($item, 'is_lootable') === true;
         $isFps = $classificationValue !== null && str_starts_with($classificationValue, 'FPS.');
@@ -159,20 +161,6 @@ final class ItemHeroViewData
             $isBaseVariant === false => 'Variant',
             $hasVariantFamily => 'Base Variant',
             default => null,
-        };
-    }
-
-    /**
-     * Ship grades arrive as 1-4 from the resource; map to A-D letters, pass anything else through.
-     */
-    private function resolveGradeLetter(mixed $grade): mixed
-    {
-        return match ($grade) {
-            1 => 'A',
-            2 => 'B',
-            3 => 'C',
-            4 => 'D',
-            default => $grade,
         };
     }
 

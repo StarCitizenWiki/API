@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Seo;
 
 use App\Support\Format;
-use Carbon\CarbonInterval;
+use App\Support\Formatting\FormatDuration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -87,7 +87,7 @@ final class MissionShowSeoData extends AbstractShowSeoData
             'Enemy Count' => $this->buildEnemyCountRange($mission),
             'Rank' => data_get($mission, 'rank_index'),
             'Time to Complete' => ($mins = data_get($mission, 'time_to_complete_minutes')) !== null
-                ? CarbonInterval::minutes((int) $mins)->cascade()->forHumans(short: true)
+                ? FormatDuration::interval((int) $mins, unit: 'minutes', options: ['short' => true])
                 : null,
             'Reward Scope' => data_get($mission, 'reward_scope'),
             'Shareable' => data_get($mission, 'shareable') === true ? 'Yes' : null,

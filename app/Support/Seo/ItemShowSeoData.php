@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Seo;
 
+use App\Enums\Game\ItemGrade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -30,13 +31,9 @@ final class ItemShowSeoData extends AbstractShowSeoData
         $classification = data_get($item, 'classification');
         $itemClass = data_get($item, 'class');
         $rawGrade = data_get($item, 'grade');
-        $grade = $rawGrade === null || $rawGrade === '' ? null : match ($rawGrade) {
-            1, '1' => 'A',
-            2, '2' => 'B',
-            3, '3' => 'C',
-            4, '4' => 'D',
-            default => (string) $rawGrade,
-        };
+        $grade = $rawGrade === null || $rawGrade === '' ? null : (string) ItemGrade::shipLabel(
+            in_array($rawGrade, ['1', '2', '3', '4'], true) ? (int) $rawGrade : $rawGrade
+        );
         $uuid = data_get($item, 'uuid');
         $description = $this->resolveDescription(data_get($item, 'description'));
         $size = data_get($item, 'size');

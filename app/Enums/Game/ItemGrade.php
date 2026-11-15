@@ -14,6 +14,13 @@ enum ItemGrade: int
     case F = 6;
     case G = 7;
 
+    public static function shipLabel(mixed $grade): mixed
+    {
+        return is_int($grade) && $grade >= 1 && $grade <= 4
+            ? self::from($grade)->name
+            : $grade;
+    }
+
     public static function labelMap(): array
     {
         $map = [];

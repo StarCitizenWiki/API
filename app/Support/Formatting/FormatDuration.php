@@ -20,8 +20,17 @@ class FormatDuration
             return $normalizedSeconds.' seconds';
         }
 
-        return CarbonInterval::seconds($normalizedSeconds)->cascade()->forHumans([
-            'parts' => 2,
-        ]);
+        return self::interval($normalizedSeconds, options: ['parts' => 2]);
+    }
+
+    public static function interval(int $value, string $unit = 'seconds', array $options = [], ?string $locale = null): string
+    {
+        $interval = CarbonInterval::make($value, $unit);
+
+        if ($locale !== null) {
+            $interval->locale($locale);
+        }
+
+        return $interval->cascade()->forHumans($options);
     }
 }

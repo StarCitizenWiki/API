@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models\Game;
 
+use App\Enums\Game\ItemGrade;
 use App\Models\Game\Commodity\Commodity;
 use App\Support\Filters\ItemFilterLabel;
 use Illuminate\Database\Eloquent\Builder;
@@ -515,12 +516,6 @@ class ItemData extends Model
             return $grade;
         }
 
-        return match ($grade) {
-            1 => 'A',
-            2 => 'B',
-            3 => 'C',
-            4 => 'D',
-            default => $grade,
-        };
+        return ItemGrade::shipLabel($grade);
     }
 }

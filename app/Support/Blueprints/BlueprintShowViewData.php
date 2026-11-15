@@ -504,7 +504,7 @@ final class BlueprintShowViewData
         $normalizedQuantity = (float) $quantity;
         $quantityLabel = fmod($normalizedQuantity, 1.0) === 0.0
             ? (string) (int) $normalizedQuantity
-            : rtrim(rtrim(Format::number($normalizedQuantity, 2), '0'), '.');
+            : Format::stripTrailingZeros(Format::number($normalizedQuantity, 2));
 
         if (($input['kind'] ?? null) === 'item') {
             return $quantityLabel.' '.($normalizedQuantity === 1.0 ? 'item' : 'items');
