@@ -15,19 +15,14 @@ use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageHashResource;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\Rsi\CommLink\Image\ImageHash as ImageHashModel;
-use App\Services\ImageHash\PdqHasher;
-use App\Services\Parser\CommLink\Image as ImageParser;
+use App\Services\CommLinkImageSearchService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
-use RuntimeException;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 #[CacheTag('comm-links')]
 class CommLinkSearchController extends Controller
@@ -192,32 +187,9 @@ class CommLinkSearchController extends Controller
             ),
         ],
     )]
-    public function reverseImageLinkSearch(ReverseImageLinkSearchRequest $request): AnonymousResourceCollection
+    public function reverseImageLinkSearch(ReverseImageLinkSearchRequest $request, CommLinkImageSearchService $imageSearch): AnonymousResourceCollection
     {
-        $image = Image::query();
-
-        $dir = $this->getDirHashFromImageUrl($request->get('url', ''));
-        if ($dir === 'i') {
-            $path = parse_url(
-                ImageParser::cleanImgSource($request->get('url')),
-                PHP_URL_PATH
-            );
-            $parts = explode('/', $path);
-            array_pop($parts);
-            $path = implode('/', $parts);
-
-            $image->where('src', 'LIKE', $path.'%');
-        } else {
-            $image->where('dir', $dir);
-        }
-
-        /** @var Image $image */
-        $image = $image->firstOr(
-            ['*'],
-            function () {
-                return [];
-            }
-        );
+        $image = $imageSearch->resolveByMediaUrl((string) $request->get('url', ''));
 
         if ($image instanceof Image) {
             $commLinks = $image->commLinks()
@@ -296,22 +268,11 @@ class CommLinkSearchController extends Controller
             ),
         ],
     )]
-    public function reverseImageSearch(ReverseImageSearchRequest $request, PdqHasher $hasher): AnonymousResourceCollection
+    public function reverseImageSearch(ReverseImageSearchRequest $request, CommLinkImageSearchService $imageSearch): AnonymousResourceCollection
     {
-        $this->checkExtensionsLoaded();
-
-        try {
-            $hashResult = $hasher->hashContents($request->imageContents());
-        } catch (RuntimeException $exception) {
-            throw new HttpException(422, $exception->getMessage(), $exception);
-        }
-
-        $data = ImageHashModel::similarImagesForHash(
-            $hashResult->toBitString(),
-            $request->similarity()
+        return ImageHashResource::collection(
+            $imageSearch->similarImages($request->file('image'), $request->similarity())
         );
-
-        return ImageHashResource::collection($data);
     }
 
     #[OA\Get(
@@ -384,35 +345,5 @@ class CommLinkSearchController extends Controller
         $similarity = $data['similarity'] ?? 50;
 
         return ImageHashResource::collection($image->similarImages($similarity, 50));
-    }
-
-    /**
-     * Returns the RSI directory hash of an image url
-     *
-     * @param  string  $url  The RSI Media URl
-     * @return string The directory hash of the image
-     */
-    private function getDirHashFromImageUrl(string $url): string
-    {
-        return ImageParser::getDirHash(
-            parse_url(
-                ImageParser::cleanImgSource($url),
-                PHP_URL_PATH
-            )
-        );
-    }
-
-    /**
-     * Checks if either GD or Imagick is loaded
-     *
-     * @throws HttpException
-     */
-    private function checkExtensionsLoaded(): void
-    {
-        if (! extension_loaded('gd')) {
-            Log::error('Required extension "GD" not available.');
-
-            throw new HttpException(501, 'Required extension "GD" not available.');
-        }
     }
 }

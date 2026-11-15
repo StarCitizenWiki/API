@@ -9,21 +9,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Rsi\CommLink\Image\ImageHashResource;
 use App\Http\Resources\Rsi\CommLink\Image\ImageResource;
 use App\Models\Rsi\CommLink\Image\Image;
-use App\Models\Rsi\CommLink\Image\ImageHash as ImageHashModel;
 use App\Services\ApiJsonRequest;
-use App\Services\ImageHash\PdqHasher;
-use App\Services\Parser\CommLink\Image as ImageParser;
+use App\Services\CommLinkImageSearchService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
-use RuntimeException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 #[CacheTag('comm-links')]
 class CommLinkController extends Controller
 {
-    public function __construct(private readonly ApiJsonRequest $apiJsonRequest) {}
+    public function __construct(
+        private readonly ApiJsonRequest $apiJsonRequest,
+        private readonly CommLinkImageSearchService $imageSearch,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -117,32 +116,15 @@ class CommLinkController extends Controller
         ]);
     }
 
-    public function reverseImageSearch(Request $request, PdqHasher $hasher): View
+    public function reverseImageSearch(Request $request): View
     {
         $validated = $request->validate([
             'image' => ['required', 'image', 'max:5120'],
             'similarity' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $file = $request->file('image');
-        $contents = $file ? file_get_contents($file->getPathname()) : false;
-
-        if ($contents === false) {
-            throw new HttpException(422, 'Unable to read uploaded image.');
-        }
-
-        if (! extension_loaded('gd')) {
-            throw new HttpException(501, 'Required extension "GD" not available.');
-        }
-
-        try {
-            $hashResult = $hasher->hashContents($contents);
-        } catch (RuntimeException $exception) {
-            throw new HttpException(422, $exception->getMessage(), $exception);
-        }
-
         $similarity = (int) ($validated['similarity'] ?? 75);
-        $matches = ImageHashModel::similarImagesForHash($hashResult->toBitString(), $similarity);
+        $matches = $this->imageSearch->similarImagesFromUpload($request->file('image'), $similarity);
 
         $matches->loadMissing(['metadata', 'commLinks.channel', 'commLinks.category', 'commLinks.series', 'tags']);
 
@@ -210,7 +192,7 @@ class CommLinkController extends Controller
      */
     private function commLinksForMediaUrl(string $url): array
     {
-        $image = $this->imageForMediaUrl($url);
+        $image = $this->imageSearch->resolveByMediaUrl($url);
 
         if ($image === null) {
             return [];
@@ -226,28 +208,6 @@ class CommLinkController extends Controller
             ])
             ->values()
             ->all();
-    }
-
-    private function imageForMediaUrl(string $url): ?Image
-    {
-        $path = parse_url(ImageParser::cleanImgSource($url), PHP_URL_PATH);
-
-        if (! is_string($path) || $path === '') {
-            return null;
-        }
-
-        $dir = ImageParser::getDirHash($path);
-        $query = Image::query();
-
-        if ($dir === 'i') {
-            $parts = explode('/', $path);
-            array_pop($parts);
-            $prefix = implode('/', $parts);
-
-            return $query->where('src', 'LIKE', $prefix.'%')->first();
-        }
-
-        return $query->where('dir', $dir)->first();
     }
 
     /**
