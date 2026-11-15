@@ -8,6 +8,7 @@ use App\Models\Game\GameLabel;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use JsonException;
@@ -83,6 +84,8 @@ class ImportLabels extends Command
         $totalLabels = $englishLabels->count();
         $this->info("Successfully imported {$totalLabels} labels");
 
+        $this->flushLabelsCache();
+
         return self::SUCCESS;
     }
 
@@ -130,6 +133,21 @@ class ImportLabels extends Command
         }
 
         return collect(parse_ini_file($path, scanner_mode: INI_SCANNER_RAW) ?: []);
+    }
+
+    /**
+     * Drop the 24h persistent label caches so new translations are served immediately.
+     */
+    private function flushLabelsCache(): void
+    {
+        $locales = array_unique([
+            ...config('translations.locales', []),
+            'en',
+        ]);
+
+        foreach ($locales as $locale) {
+            Cache::forget("labels:{$locale}");
+        }
     }
 
     private function upsertLabels(array $labelsData): void
