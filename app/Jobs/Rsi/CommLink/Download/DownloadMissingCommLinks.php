@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Rsi\CommLink\Download;
 
 use App\Models\Rsi\CommLink\CommLink;
+use App\Support\CommLinkIds;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Http;
@@ -13,8 +14,6 @@ use Illuminate\Support\Facades\Log;
 class DownloadMissingCommLinks implements ShouldQueue
 {
     use Queueable;
-
-    public const int FIRST_COMM_LINK_ID = 12663;
 
     private const string ID_PATTERN = '#/comm-link/(?:[a-z0-9-]+)?/(\d+)-#';
 
@@ -108,7 +107,7 @@ class DownloadMissingCommLinks implements ShouldQueue
 
         return collect($matches[1] ?? [])
             ->map(static fn (string $id) => (int) $id)
-            ->filter(static fn (int $id) => $id >= self::FIRST_COMM_LINK_ID)
+            ->filter(static fn (int $id) => $id >= CommLinkIds::FIRST_COMM_LINK_ID)
             ->unique()
             ->values()
             ->all();
@@ -137,8 +136,8 @@ class DownloadMissingCommLinks implements ShouldQueue
             ->pluck('cig_id');
 
         $missingApiIds = $apiIds->diff($existingApiIds);
-        $latestDbId = CommLink::query()->max('cig_id') ?? self::FIRST_COMM_LINK_ID - 1;
-        $gapStartId = max(self::FIRST_COMM_LINK_ID, $latestDbId + 1);
+        $latestDbId = CommLink::query()->max('cig_id') ?? CommLinkIds::FIRST_COMM_LINK_ID - 1;
+        $gapStartId = max(CommLinkIds::FIRST_COMM_LINK_ID, $latestDbId + 1);
         $gapIds = $gapStartId <= $latestApiId ? range($gapStartId, $latestApiId) : [];
 
         return $missingApiIds

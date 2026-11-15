@@ -7,6 +7,7 @@ namespace App\Console\Commands\CommLink;
 use App\Jobs\Rsi\CommLink\Download\DownloadCommLink;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLink;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLinks as ImportCommLinksJob;
+use App\Support\CommLinkIds;
 use App\Support\Filters\FilterCache;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -14,8 +15,6 @@ use Illuminate\Support\Str;
 
 class ImportCommLinks extends Command
 {
-    private const FIRST_COMM_LINK_ID = 12663;
-
     /**
      * The name and signature of the console command.
      *
@@ -55,7 +54,7 @@ class ImportCommLinks extends Command
 
         $commLinkId = (int) $id;
 
-        if ($commLinkId < self::FIRST_COMM_LINK_ID) {
+        if ($commLinkId < CommLinkIds::FIRST_COMM_LINK_ID) {
             $this->error('Comm-Link ID is below the first known ID.');
 
             return self::FAILURE;

@@ -6,12 +6,11 @@ namespace App\Console\Commands\CommLink;
 
 use App\Jobs\Rsi\CommLink\Download\DownloadCommLink;
 use App\Jobs\Rsi\CommLink\Import\ImportCommLinks;
+use App\Support\CommLinkIds;
 use Illuminate\Console\Command;
 
 class DownloadCommLinks extends Command
 {
-    private const FIRST_COMM_LINK_ID = 12663;
-
     /**
      * The name and signature of the console command.
      *
@@ -37,7 +36,7 @@ class DownloadCommLinks extends Command
         $ids = collect($this->argument('ids'))
             ->filter(static fn ($id) => is_numeric($id))
             ->map(static fn ($id) => (int) $id)
-            ->filter(static fn (int $id) => $id >= self::FIRST_COMM_LINK_ID)
+            ->filter(static fn (int $id) => $id >= CommLinkIds::FIRST_COMM_LINK_ID)
             ->values();
 
         if ($ids->isEmpty()) {

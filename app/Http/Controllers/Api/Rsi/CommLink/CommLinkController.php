@@ -14,6 +14,7 @@ use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Rsi\CommLink\CommLinkResource;
 use App\Models\Rsi\CommLink\CommLink;
 use App\Rules\NumericFilterValue;
+use App\Support\CommLinkIds;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterInput;
 use Illuminate\Database\Eloquent\Builder;
@@ -268,7 +269,7 @@ class CommLinkController extends Controller
                     description: 'Comm-Link CIG ID, starting from 12663',
                     type: 'integer',
                     format: 'int64',
-                    minimum: 12663,
+                    minimum: CommLinkIds::FIRST_COMM_LINK_ID,
                     example: 12663
                 ),
             ),
@@ -298,7 +299,7 @@ class CommLinkController extends Controller
                 'comm_link' => $request->id,
             ],
             [
-                'comm_link' => 'required|int|min:12663',
+                'comm_link' => 'required|int|min:'.CommLinkIds::FIRST_COMM_LINK_ID,
             ]
         );
 
