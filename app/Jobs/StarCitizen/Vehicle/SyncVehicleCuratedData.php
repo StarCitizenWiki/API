@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\StarCitizen\Vehicle;
 
 use App\Models\Game\Vehicle;
+use App\Services\StarCitizenToolsClient;
 use App\Services\Wiki\VehicleInfoboxParser;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -13,7 +14,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -28,8 +28,6 @@ class SyncVehicleCuratedData implements ShouldQueue
 
     public int $timeout = 300;
 
-    private const string DEFAULT_API_URL = 'https://starcitizen.tools/api.php';
-
     private const int TITLES_PER_BATCH = 50;
 
     private const array CATEGORIES = ['Category:Ships', 'Category:Ground vehicles'];
@@ -37,7 +35,7 @@ class SyncVehicleCuratedData implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(StarCitizenToolsClient $client = new StarCitizenToolsClient): void
     {
         $startedAt = microtime(true);
         $parser = new VehicleInfoboxParser;
@@ -54,12 +52,12 @@ class SyncVehicleCuratedData implements ShouldQueue
             'errors' => 0,
         ];
 
-        $titles = $this->enumerateTitles();
+        $titles = $this->enumerateTitles($client);
 
         $stats['scanned'] = $titles->count();
 
         foreach ($titles->chunk(self::TITLES_PER_BATCH) as $batch) {
-            $body = $this->apiGet([
+            $body = $client->apiGet([
                 'action' => 'query',
                 'prop' => 'revisions',
                 'rvslots' => 'main',
@@ -87,7 +85,7 @@ class SyncVehicleCuratedData implements ShouldQueue
      *
      * @return Collection<int, string>
      */
-    private function enumerateTitles(): Collection
+    private function enumerateTitles(StarCitizenToolsClient $client): Collection
     {
         $titles = collect();
 
@@ -109,7 +107,7 @@ class SyncVehicleCuratedData implements ShouldQueue
                     $query['gcmcontinue'] = $continue;
                 }
 
-                $body = $this->apiGet($query);
+                $body = $client->apiGet($query);
 
                 $titles = $titles->merge(collect($body['query']['pages'] ?? [])->pluck('title'));
 
@@ -279,28 +277,6 @@ class SyncVehicleCuratedData implements ShouldQueue
     private function isNestedTemplate(string $value): bool
     {
         return str_starts_with($value, '{{');
-    }
-
-    /**
-     * @param  array<string, mixed>  $query
-     * @return array<string, mixed>
-     */
-    private function apiGet(array $query): array
-    {
-        $response = Http::withUserAgent((string) config('services.rsi_user_agent'))
-            ->timeout(60)
-            ->get($this->apiUrl(), $query)
-            ->throw();
-
-        usleep((int) config('images.throttle_microseconds', 200_000));
-
-        return $response->json() ?? [];
-    }
-
-    private function apiUrl(): string
-    {
-        return collect(config('images.sources'))
-            ->firstWhere('name', 'starcitizen.tools')['api_url'] ?? self::DEFAULT_API_URL;
     }
 
     public function failed(Throwable $exception): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Game;
 
+use App\Services\StarCitizenToolsClient;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -45,7 +46,7 @@ class EnrichImages implements ShouldQueue
         public readonly array $idUuidMap = [],
     ) {}
 
-    public function handle(): void
+    public function handle(StarCitizenToolsClient $client = new StarCitizenToolsClient): void
     {
         if ($this->batch()?->cancelled()) {
             return;
@@ -69,7 +70,7 @@ class EnrichImages implements ShouldQueue
 
             $chunkResults = match ($source['type'] ?? 'mediawiki') {
                 'direct' => $this->queryDirect($source, $remaining),
-                default => $this->queryMediaWiki($source, $remaining, $placeholderPatterns),
+                default => $this->queryMediaWiki($source, $remaining, $placeholderPatterns, $client),
             };
 
             foreach ($chunkResults as $id => $imageData) {
@@ -88,7 +89,7 @@ class EnrichImages implements ShouldQueue
      * @param  array<int, string>  $placeholderPatterns
      * @return array<int, array{source: string, thumbnail_url: string, thumbnail_width: int, thumbnail_height: int, original_url: string|null, original_width: int|null, original_height: int|null}>
      */
-    private function queryMediaWiki(array $source, array $idNameMap, array $placeholderPatterns): array
+    private function queryMediaWiki(array $source, array $idNameMap, array $placeholderPatterns, StarCitizenToolsClient $client): array
     {
         $results = [];
         $nameToId = array_flip($idNameMap);
@@ -102,7 +103,7 @@ class EnrichImages implements ShouldQueue
 
             $titles = implode('|', $chunk->values()->toArray());
 
-            $response = Http::timeout(30)->get($source['api_url'], [
+            $response = $client->request(30)->get($source['api_url'], [
                 'action' => 'query',
                 'prop' => 'pageimages',
                 'piprop' => 'thumbnail|name|original',

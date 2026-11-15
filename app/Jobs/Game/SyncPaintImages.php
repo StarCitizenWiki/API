@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs\Game;
 
 use App\Models\Game\Item;
+use App\Services\StarCitizenToolsClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,9 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
 use Throwable;
 
 class SyncPaintImages implements ShouldQueue
@@ -28,8 +27,6 @@ class SyncPaintImages implements ShouldQueue
 
     public int $timeout = 300;
 
-    private const string DEFAULT_API_URL = 'https://starcitizen.tools/api.php';
-
     private const string SOURCE = 'starcitizen.tools/paints';
 
     private const int TITLES_PER_BATCH = 50;
@@ -39,7 +36,7 @@ class SyncPaintImages implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(StarCitizenToolsClient $client = new StarCitizenToolsClient): void
     {
         $startedAt = microtime(true);
 
@@ -53,12 +50,12 @@ class SyncPaintImages implements ShouldQueue
             'errors' => 0,
         ];
 
-        $titles = $this->enumerateSubpages();
+        $titles = $this->enumerateSubpages($client);
 
         $candidatesByUuid = [];
 
         foreach ($titles->chunk(self::TITLES_PER_BATCH) as $batch) {
-            $body = $this->apiGet([
+            $body = $client->apiGet([
                 'action' => 'query',
                 'prop' => 'revisions',
                 'rvslots' => 'main',
@@ -92,7 +89,7 @@ class SyncPaintImages implements ShouldQueue
 
         $stats['uuids_found'] = count($candidatesByUuid);
 
-        $resolved = $this->resolveFiles($candidatesByUuid, $stats);
+        $resolved = $this->resolveFiles($candidatesByUuid, $stats, $client);
 
         $this->writeImages($candidatesByUuid, $resolved, $stats);
 
@@ -106,7 +103,7 @@ class SyncPaintImages implements ShouldQueue
      *
      * @return Collection<int, string>
      */
-    private function enumerateSubpages(): Collection
+    private function enumerateSubpages(StarCitizenToolsClient $client): Collection
     {
         $titles = collect();
         $offset = null;
@@ -125,7 +122,7 @@ class SyncPaintImages implements ShouldQueue
                 $query['sroffset'] = $offset;
             }
 
-            $body = $this->apiGet($query);
+            $body = $client->apiGet($query);
 
             foreach ($body['query']['search'] ?? [] as $result) {
                 $title = $result['title'] ?? null;
@@ -322,7 +319,7 @@ class SyncPaintImages implements ShouldQueue
      * @param  array<string, int|float>  $stats
      * @return array<string, array<string, mixed>>
      */
-    private function resolveFiles(array $candidatesByUuid, array &$stats): array
+    private function resolveFiles(array $candidatesByUuid, array &$stats, StarCitizenToolsClient $client): array
     {
         $resolved = [];
 
@@ -332,7 +329,7 @@ class SyncPaintImages implements ShouldQueue
             ->values();
 
         foreach ($titles->chunk(self::TITLES_PER_BATCH) as $batch) {
-            $body = $this->apiGet([
+            $body = $client->apiGet([
                 'action' => 'query',
                 'prop' => 'imageinfo',
                 'iiprop' => 'url|size',
@@ -435,34 +432,6 @@ class SyncPaintImages implements ShouldQueue
         $before = strstr($url, '?', true);
 
         return $before === false ? $url : $before;
-    }
-
-    /**
-     * @param  array<string, mixed>  $query
-     * @return array<string, mixed>
-     */
-    private function apiGet(array $query): array
-    {
-        $response = Http::withUserAgent((string) config('services.rsi_user_agent'))
-            ->timeout(60)
-            ->get($this->apiUrl(), [...$query, 'maxlag' => 5])
-            ->throw();
-
-        usleep((int) config('images.throttle_microseconds', 200_000));
-
-        $body = $response->json() ?? [];
-
-        if (isset($body['error'])) {
-            throw new RuntimeException('Wiki API error: '.(string) ($body['error']['info'] ?? $body['error']['code'] ?? 'unknown'));
-        }
-
-        return $body;
-    }
-
-    private function apiUrl(): string
-    {
-        return collect(config('images.sources'))
-            ->firstWhere('name', 'starcitizen.tools')['api_url'] ?? self::DEFAULT_API_URL;
     }
 
     public function failed(Throwable $exception): void
