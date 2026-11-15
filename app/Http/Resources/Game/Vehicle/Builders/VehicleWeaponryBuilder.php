@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\Vehicle\Builders;
 
+use App\Support\Game\DamageTypes;
+
 /**
  * @internal
  *
@@ -78,7 +80,7 @@ final class VehicleWeaponryBuilder
      */
     public function buildDamageTypeRange(array $payload, string $path): array
     {
-        $damageTypes = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
+        $damageTypes = DamageTypes::ALL;
 
         $parent = $payload;
         if ($path !== '') {

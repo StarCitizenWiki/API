@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Resources;
 
+use App\Support\TableColumns;
+
 final class CommodityTableConfig
 {
     /**
@@ -16,11 +18,7 @@ final class CommodityTableConfig
      */
     public function build(): array
     {
-        $booleanFilterOptions = [
-            ['value' => '', 'label' => 'All'],
-            ['value' => 'true', 'label' => 'Yes'],
-            ['value' => 'false', 'label' => 'No'],
-        ];
+        $booleanFilterOptions = TableColumns::booleanOptions();
 
         return [
             'title' => 'Commodities',
@@ -163,19 +161,7 @@ final class CommodityTableConfig
                     'field' => 'box_sizes_scu',
                     'headerSort' => false,
                 ],
-                [
-                    'title' => 'API Url',
-                    'field' => 'uuid',
-                    'formatter' => 'link',
-                    'formatterParams' => [
-                        'label' => 'API Url',
-                        'target' => 'blank',
-                        'urlField' => 'link',
-                    ],
-                    'headerSort' => false,
-                    'hozAlign' => 'right',
-                    'width' => 100,
-                ],
+                TableColumns::apiUrlColumn(),
             ],
         ];
     }

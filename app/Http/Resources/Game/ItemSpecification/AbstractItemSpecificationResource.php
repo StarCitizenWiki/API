@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\ItemSpecification;
 
 use App\Http\Resources\AbstractBaseResource;
 use App\Http\Resources\Game\Concerns\ExtractsJsonData;
+use App\Support\Game\DamageTypes;
 use Illuminate\Support\Arr;
 
 abstract class AbstractItemSpecificationResource extends AbstractBaseResource
@@ -64,7 +65,7 @@ abstract class AbstractItemSpecificationResource extends AbstractBaseResource
     protected function buildDamageArray(array $damageData, ?string $typePrefix = null): array
     {
         $damages = [];
-        $damageTypes = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
+        $damageTypes = DamageTypes::ALL;
 
         foreach ($damageTypes as $type) {
             $damageValue = Arr::get($damageData, $type, 0);
@@ -86,7 +87,7 @@ abstract class AbstractItemSpecificationResource extends AbstractBaseResource
     protected function calculateTotalDamage(array $damageData): float
     {
         $total = 0;
-        $damageTypes = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
+        $damageTypes = DamageTypes::ALL;
 
         foreach ($damageTypes as $type) {
             $total += Arr::get($damageData, $type, 0);

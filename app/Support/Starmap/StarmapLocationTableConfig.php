@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Starmap;
 
+use App\Support\TableColumns;
+
 final class StarmapLocationTableConfig
 {
     /**
@@ -16,11 +18,7 @@ final class StarmapLocationTableConfig
      */
     public function build(): array
     {
-        $booleanFilterValues = [
-            '' => 'All',
-            'true' => 'Yes',
-            'false' => 'No',
-        ];
+        $booleanFilterValues = array_column(TableColumns::booleanOptions(), 'label', 'value');
 
         return [
             'title' => 'Starmap Locations',
@@ -48,11 +46,7 @@ final class StarmapLocationTableConfig
                 [
                     'title' => 'Has Mineables',
                     'field' => 'has_resources',
-                    'options' => [
-                        ['value' => '', 'label' => 'All'],
-                        ['value' => 'true', 'label' => 'Yes'],
-                        ['value' => 'false', 'label' => 'No'],
-                    ],
+                    'options' => TableColumns::booleanOptions(),
                 ],
                 [
                     'title' => 'Available Commodities',
@@ -159,19 +153,7 @@ final class StarmapLocationTableConfig
                     ],
                     'width' => 130,
                 ],
-                [
-                    'title' => 'API Url',
-                    'field' => 'uuid',
-                    'formatter' => 'link',
-                    'formatterParams' => [
-                        'label' => 'API Url',
-                        'target' => 'blank',
-                        'urlField' => 'link',
-                    ],
-                    'headerSort' => false,
-                    'hozAlign' => 'right',
-                    'width' => 100,
-                ],
+                TableColumns::apiUrlColumn(),
             ],
         ];
     }

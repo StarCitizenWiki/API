@@ -9,7 +9,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Str;
 
 /**
- * UUID filter value. Comma-separated lists are allowed; each item must be a
+ * UUID filter value. Configured delimiter-separated lists are allowed; each item must be a
  * UUID because the value is bound to a uuid column. Array values
  * (filter[x][]) are validated per element; empty arrays pass because the
  * filter callbacks ignore empty filters.
@@ -27,7 +27,7 @@ class UuidFilterValue implements ValidationRule
                 return;
             }
 
-            foreach (explode(',', (string) $entry) as $item) {
+            foreach (explode((string) config('query-builder.delimiter', ','), (string) $entry) as $item) {
                 if (! Str::isUuid(trim($item))) {
                     $fail('The :attribute filter must be a valid UUID.');
 

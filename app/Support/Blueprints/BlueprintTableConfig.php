@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Blueprints;
 
+use App\Support\TableColumns;
+
 final class BlueprintTableConfig
 {
     /**
@@ -97,19 +99,7 @@ final class BlueprintTableConfig
                     'hozAlign' => 'center',
                     'width' => 110,
                 ],
-                [
-                    'title' => 'API Url',
-                    'field' => 'uuid',
-                    'formatter' => 'link',
-                    'formatterParams' => [
-                        'label' => 'API Url',
-                        'target' => 'blank',
-                        'urlField' => 'link',
-                    ],
-                    'headerSort' => false,
-                    'hozAlign' => 'right',
-                    'width' => 100,
-                ],
+                TableColumns::apiUrlColumn(),
             ],
         ];
     }

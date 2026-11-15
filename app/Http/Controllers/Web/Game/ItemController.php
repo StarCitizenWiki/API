@@ -11,6 +11,7 @@ use App\Support\Items\ItemFieldCatalog;
 use App\Support\Items\ItemTableConfig;
 use App\Support\Seo\ItemIndexSeoData;
 use App\Support\Seo\ItemShowSeoData;
+use App\Support\TableColumns;
 use App\Traits\MergesIncludeParam;
 use App\Traits\NormalizesFilterParams;
 use Illuminate\Http\RedirectResponse;
@@ -56,15 +57,8 @@ class ItemController extends Controller
         );
 
         $tableConfig['externalFilters'] = array_merge($tableConfig['externalFilters'] ?? [], [
-            ['title' => 'Include Irrelevant', 'field' => 'include_irrelevant', 'options' => [
-                ['value' => '', 'label' => 'Default'],
-                ['value' => 'true', 'label' => 'Yes'],
-            ]],
-            ['title' => 'Lootable', 'field' => 'is_lootable', 'options' => [
-                ['value' => '', 'label' => 'Default'],
-                ['value' => 'true', 'label' => 'Yes'],
-                ['value' => 'false', 'label' => 'No'],
-            ]],
+            ['title' => 'Include Irrelevant', 'field' => 'include_irrelevant', 'options' => array_slice(TableColumns::booleanOptions('Default'), 0, 2)],
+            ['title' => 'Lootable', 'field' => 'is_lootable', 'options' => TableColumns::booleanOptions('Default')],
         ]);
 
         $manufacturer = $endpointFilters['manufacturer'] ?? null;

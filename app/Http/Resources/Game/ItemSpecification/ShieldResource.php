@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Game\ItemSpecification;
 
+use App\Support\Game\DamageTypes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use OpenApi\Attributes as OA;
@@ -208,7 +209,7 @@ class ShieldResource extends AbstractItemSpecificationResource
             return null;
         }
 
-        $keys = ['Physical', 'Energy', 'Distortion', 'Thermal', 'Biochemical', 'Stun'];
+        $keys = DamageTypes::ALL;
 
         $mapped = [];
 

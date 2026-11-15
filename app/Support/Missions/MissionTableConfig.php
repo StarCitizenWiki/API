@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Support\Missions;
 
+use App\Support\TableColumns;
+
 final class MissionTableConfig
 {
     /**
@@ -16,11 +18,7 @@ final class MissionTableConfig
      */
     public function build(): array
     {
-        $booleanFilterOptions = [
-            ['value' => '', 'label' => 'All'],
-            ['value' => 'true', 'label' => 'Yes'],
-            ['value' => 'false', 'label' => 'No'],
-        ];
+        $booleanFilterOptions = TableColumns::booleanOptions();
 
         $legalityFilterOptions = [
             ['value' => '', 'label' => 'All'],
@@ -207,18 +205,7 @@ final class MissionTableConfig
                     'headerSort' => false,
                     'hozAlign' => 'center',
                 ],
-                [
-                    'title' => 'API Url',
-                    'field' => 'uuid',
-                    'formatter' => 'link',
-                    'formatterParams' => [
-                        'label' => 'API Url',
-                        'target' => 'blank',
-                        'urlField' => 'link',
-                    ],
-                    'headerSort' => false,
-                    'hozAlign' => 'right',
-                ],
+                TableColumns::apiUrlColumn(null),
             ],
         ];
     }
