@@ -17,6 +17,7 @@ use App\Models\Game\Resource\ResourceData;
 use App\Models\Game\StarmapLocation;
 use App\Support\Filters\FilterCache;
 use App\Support\Filters\FilterValues;
+use App\Support\Game\MiningGroups;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -50,13 +51,7 @@ class CommodityController extends Controller
         ];
     }
 
-    private const string GROUP_SHIP = 'SpaceShip_Mineables';
-
     private const string GROUP_GROUND_VEHICLE = 'GroundVehicle_Mineables';
-
-    private const array GROUPS_FPS = ['FPS_Mineables', 'FPS mineables'];
-
-    private const array GROUPS_HARVESTABLE = ['Harvestables', 'Havestables', 'Plants'];
 
     #[OA\Get(
         path: '/api/commodities',
@@ -679,10 +674,10 @@ class CommodityController extends Controller
                         ->orWhereLike('game_commodities.key', "%{$value}%");
                 });
             }),
-            AllowedFilter::callback('ship', $this->booleanFilterCallback(self::GROUP_SHIP)),
+            AllowedFilter::callback('ship', $this->booleanFilterCallback(MiningGroups::SHIP)),
             AllowedFilter::callback('ground_vehicle', $this->booleanFilterCallback(self::GROUP_GROUND_VEHICLE)),
-            AllowedFilter::callback('fps', $this->booleanFilterCallback(self::GROUPS_FPS)),
-            AllowedFilter::callback('harvestable', $this->booleanFilterCallback(self::GROUPS_HARVESTABLE)),
+            AllowedFilter::callback('fps', $this->booleanFilterCallback(MiningGroups::FPS)),
+            AllowedFilter::callback('harvestable', $this->booleanFilterCallback(MiningGroups::HARVESTABLE)),
             AllowedFilter::callback('salvage', function (Builder $query, mixed $value): void {
                 if (! filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
                     return;

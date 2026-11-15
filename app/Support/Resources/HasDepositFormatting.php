@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\Resources;
 
+use App\Support\Game\MiningGroups;
 use Carbon\CarbonInterval;
 
 trait HasDepositFormatting
@@ -11,10 +12,10 @@ trait HasDepositFormatting
     protected static function resolveMiningType(string $groupName): array
     {
         return match (true) {
-            $groupName === 'SpaceShip_Mineables' => ['label' => 'Ship Mining', 'sort_order' => 0],
+            $groupName === MiningGroups::SHIP => ['label' => 'Ship Mining', 'sort_order' => 0],
             $groupName === 'GroundVehicle_Mineables' => ['label' => 'Vehicle Mining', 'sort_order' => 1],
-            in_array($groupName, ['FPS_Mineables', 'FPS mineables'], true) => ['label' => 'FPS Mining', 'sort_order' => 2],
-            in_array($groupName, ['Harvestables', 'Havestables', 'Plants'], true) => ['label' => 'Harvestables', 'sort_order' => 3],
+            in_array($groupName, MiningGroups::FPS, true) => ['label' => 'FPS Mining', 'sort_order' => 2],
+            in_array($groupName, MiningGroups::HARVESTABLE, true) => ['label' => 'Harvestables', 'sort_order' => 3],
             str_starts_with($groupName, 'Salvage') => ['label' => 'Salvage', 'sort_order' => 4],
             default => ['label' => str_replace('_', ' ', $groupName), 'sort_order' => 99],
         };

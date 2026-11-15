@@ -6,6 +6,7 @@ namespace App\Http\Resources\Game\Commodity;
 
 use App\Enums\Game\ResourceKind;
 use App\Http\Resources\AbstractBaseResource;
+use App\Support\Game\MiningGroups;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -345,20 +346,18 @@ class CommodityIndexResource extends AbstractBaseResource
 
     protected function resolveFlags(array $groupNames): array
     {
-        $hasShip = in_array('SpaceShip_Mineables', $groupNames, true);
+        $hasShip = in_array(MiningGroups::SHIP, $groupNames, true);
         $hasGround = in_array('GroundVehicle_Mineables', $groupNames, true);
-        $fps = ['FPS_Mineables' => true, 'FPS mineables' => true];
         $hasFps = false;
-        $harvestable = ['Harvestables' => true, 'Havestables' => true, 'Plants' => true];
         $hasHarvestable = false;
         $hasSalvage = false;
 
         foreach ($groupNames as $name) {
-            if (isset($fps[$name])) {
+            if (in_array($name, MiningGroups::FPS, true)) {
                 $hasFps = true;
             }
 
-            if (isset($harvestable[$name])) {
+            if (in_array($name, MiningGroups::HARVESTABLE, true)) {
                 $hasHarvestable = true;
             }
 
