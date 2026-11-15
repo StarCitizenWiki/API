@@ -131,6 +131,10 @@ class CommLinkController extends Controller
             throw new HttpException(422, 'Unable to read uploaded image.');
         }
 
+        if (! extension_loaded('gd')) {
+            throw new HttpException(501, 'Required extension "GD" not available.');
+        }
+
         try {
             $hashResult = $hasher->hashContents($contents);
         } catch (RuntimeException $exception) {
