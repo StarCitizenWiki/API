@@ -53,7 +53,7 @@ class FuelTankResource extends AbstractItemSpecificationResource
         $stdItem = $this->extractStdItem($data);
 
         return [
-            'fill_rate' => Arr::get($stdItem, 'ResourceNetwork.States.0.Deltas.0.GenerateRate'),
+            'fill_rate' => Arr::get($stdItem, 'ResourceNetwork.States.0.Deltas.0.GeneratedRate'),
             'drain_rate' => Arr::get($stdItem, 'ResourceNetwork.States.0.Deltas.0.Discharge'),
             'capacity' => Arr::get($stdItem, 'ResourceContainer.Capacity.SCU') ?? Arr::get($stdItem, 'FuelTank.Capacity'),
             'discharge_rate' => Arr::get($stdItem, 'FuelTank.Capacity'),  // deprecated: use capacity

@@ -169,7 +169,7 @@ class QuantumInterdictionGeneratorResource extends AbstractItemSpecificationReso
                 'radius' => Arr::get($pulse, 'RadiusMeters'),
                 'decrease_charge_rate_time' => Arr::get($pulse, 'DecreaseChargeRateTimeSeconds'),
                 'increase_charge_rate_time' => Arr::get($pulse, 'IncreaseChargeRateTimeSeconds'),
-                'activation_phase_duration' => Arr::get($pulse, 'ActivationPhaseDuration_seconds'),
+                'activation_phase_duration' => Arr::get($pulse, 'ActivationPhaseDurationSeconds'),
                 'disperse_charge_time' => Arr::get($pulse, 'DisperseChargeTimeSeconds'),
                 'max_power_draw' => Arr::get($pulse, 'MaxPowerDraw'),
                 'stop_charging_power_fraction' => Arr::get($pulse, 'StopChargingPowerDrawFraction'),

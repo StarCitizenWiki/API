@@ -307,7 +307,7 @@ class FlightControllerResource extends AbstractItemSpecificationResource
                 'turn_friction' => Arr::get($flightController, 'Gravlev.TurnFriction'),
                 'air_controller_multiplier' => Arr::get($flightController, 'Gravlev.AirControllerMultiplier'),
                 'anti_fall_multiplier' => Arr::get($flightController, 'Gravlev.AntiFallMultiplier'),
-                'lateral_strafe_multiplier' => Arr::get($flightController, 'Gravlev.LateralStafeMultiplier'),
+                'lateral_strafe_multiplier' => Arr::get($flightController, 'Gravlev.LateralStrafeMultiplier'),
             ],
 
             'no_fuel_params' => $this->buildNoFuelParams($ifcs),
