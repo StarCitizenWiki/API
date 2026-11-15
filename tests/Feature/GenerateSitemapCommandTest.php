@@ -127,10 +127,9 @@ it('includes comm-link URLs using cig_id', function (): void {
 });
 
 it('excludes subscriber-only comm-links', function (): void {
-    Channel::factory()->create(['name' => 'General']);
+    $subscriberChannel = Channel::factory()->create(['name' => 'Subscriber']);
     $public = CommLink::factory()->create();
-    Channel::factory()->create(['name' => 'Subscriber']);
-    CommLink::factory()->create();
+    $subscriber = CommLink::factory()->create(['channel_id' => $subscriberChannel->id]);
 
     $this->artisan('sitemap:generate', ['--only' => 'comm-links'])
         ->assertExitCode(Command::SUCCESS);
@@ -138,7 +137,7 @@ it('excludes subscriber-only comm-links', function (): void {
     $content = file_get_contents(storage_path('app/sitemaps/sitemap-comm-links.xml'));
 
     expect($content)->toContain(route('web.comm-links.show', $public->cig_id));
-    expect($content)->not->toContain('<loc>'.count(CommLink::withoutGlobalScope('limit_subscriber')->get()).'</loc>');
+    expect($content)->not->toContain(route('web.comm-links.show', $subscriber->cig_id));
 });
 
 it('excludes disabled galactapedia articles', function (): void {
