@@ -73,8 +73,6 @@ class VehicleData extends Model
     ];
 
     protected $casts = [
-        'data' => 'array',
-
         'uex_purchase_prices' => 'array',
         'uex_rental_prices' => 'array',
     ];

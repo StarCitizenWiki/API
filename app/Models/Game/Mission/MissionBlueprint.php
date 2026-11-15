@@ -19,9 +19,6 @@ class MissionBlueprint extends Pivot
         'chance',
     ];
 
-    protected $casts = [
-    ];
-
     public function mission(): BelongsTo
     {
         return $this->belongsTo(MissionData::class);

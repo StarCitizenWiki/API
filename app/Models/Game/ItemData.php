@@ -58,7 +58,6 @@ class ItemData extends Model
         'grade' => 'integer',
         'is_player_relevant' => 'boolean',
         'is_bespoke' => 'boolean',
-        'data' => 'array',
         'uex_prices' => 'array',
         'bespoke_vehicle_tags' => 'array',
         'mass' => 'float',

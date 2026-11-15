@@ -18,8 +18,4 @@ class Stat extends Model
         'fans',
         'fleet',
     ];
-
-    protected $casts = [
-        'created_at' => 'datetime',
-    ];
 }
