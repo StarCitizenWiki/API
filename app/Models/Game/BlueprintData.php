@@ -56,11 +56,6 @@ class BlueprintData extends Model
         return $this->belongsTo(Blueprint::class);
     }
 
-    public function outputItem(): BelongsTo
-    {
-        return $this->belongsTo(Item::class, 'output_item_uuid', 'uuid');
-    }
-
     public function ingredients(): BelongsToMany
     {
         return $this->belongsToMany(Commodity::class, 'game_blueprint_data_ingredients', 'blueprint_data_id', 'resource_type_id')
@@ -110,11 +105,6 @@ class BlueprintData extends Model
         return $query->whereHas('dismantleReturns', static function (Builder $builder) use ($resourceTypeUuid): void {
             $builder->where('uuid', $resourceTypeUuid);
         });
-    }
-
-    public function scopeForOutputItemUuid(Builder $query, string $outputItemUuid): Builder
-    {
-        return $query->where('output_item_uuid', $outputItemUuid);
     }
 
     public function scopeForOutputName(Builder $query, string $outputName): Builder

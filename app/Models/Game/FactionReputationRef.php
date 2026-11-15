@@ -19,11 +19,6 @@ class FactionReputationRef extends Model
         'faction_scope_id',
     ];
 
-    public function faction(): BelongsTo
-    {
-        return $this->belongsTo(Faction::class);
-    }
-
     public function factionScope(): BelongsTo
     {
         return $this->belongsTo(FactionScope::class, 'faction_scope_id');

@@ -110,24 +110,9 @@ class StarmapLocationData extends Model
             ]);
     }
 
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(self::class, 'parent_data_id');
-    }
-
-    public function star(): BelongsTo
-    {
-        return $this->belongsTo(self::class, 'star_data_id');
-    }
-
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_data_id')->orderBy('name');
-    }
-
-    public function locationHierarchyEntityTag(): BelongsTo
-    {
-        return $this->belongsTo(EntityTag::class, 'location_hierarchy_entity_tag_id');
     }
 
     public function amenities(): BelongsToMany

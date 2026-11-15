@@ -96,20 +96,6 @@ class Vehicle extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function scopeShips(Builder $query): Builder
-    {
-        return $query->whereHas('size', function (Builder $sizeQuery): void {
-            $sizeQuery->ship();
-        });
-    }
-
-    public function scopeGroundVehicles(Builder $query): Builder
-    {
-        return $query->whereHas('size', function (Builder $sizeQuery): void {
-            $sizeQuery->groundVehicle();
-        });
-    }
-
     public function skus(): HasMany
     {
         return $this->hasMany(VehicleSku::class);

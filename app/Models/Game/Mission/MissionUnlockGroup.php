@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Game\Mission;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MissionUnlockGroup extends Model
@@ -22,11 +21,6 @@ class MissionUnlockGroup extends Model
     protected $casts = [
         'group_index' => 'integer',
     ];
-
-    public function missionData(): BelongsTo
-    {
-        return $this->belongsTo(MissionData::class);
-    }
 
     public function missions(): HasMany
     {

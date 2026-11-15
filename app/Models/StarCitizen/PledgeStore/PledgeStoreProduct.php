@@ -6,7 +6,6 @@ namespace App\Models\StarCitizen\PledgeStore;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PledgeStoreProduct extends Model
 {
@@ -22,9 +21,4 @@ class PledgeStoreProduct extends Model
     protected $casts = [
         'cig_id' => 'integer',
     ];
-
-    public function skus(): HasMany
-    {
-        return $this->hasMany(PledgeStoreSku::class, 'product_id', 'cig_id');
-    }
 }

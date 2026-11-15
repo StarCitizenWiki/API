@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ResourceProvider extends Model
 {
@@ -33,11 +32,6 @@ class ResourceProvider extends Model
     public function gameVersion(): BelongsTo
     {
         return $this->belongsTo(GameVersion::class);
-    }
-
-    public function resourceLocations(): HasMany
-    {
-        return $this->hasMany(ResourceLocation::class);
     }
 
     public function starmapLocationData(): BelongsToMany

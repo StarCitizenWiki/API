@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models\StarCitizen\ShipMatrix\Vehicle;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
@@ -26,15 +25,5 @@ class Type extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function scopeShip(Builder $query): void
-    {
-        $query->where('slug', '!=', 'ground');
-    }
-
-    public function scopeGroundVehicle(Builder $query): void
-    {
-        $query->where('slug', 'ground');
     }
 }

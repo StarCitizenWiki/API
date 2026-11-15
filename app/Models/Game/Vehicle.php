@@ -6,7 +6,6 @@ namespace App\Models\Game;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Translatable\HasTranslations;
@@ -35,11 +34,6 @@ class Vehicle extends Model
     public function data(): HasMany
     {
         return $this->hasMany(VehicleData::class);
-    }
-
-    public function item(): BelongsTo
-    {
-        return $this->belongsTo(Item::class, 'uuid', 'uuid');
     }
 
     public function curatedData(): HasOne

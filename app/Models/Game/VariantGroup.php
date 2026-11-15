@@ -7,7 +7,6 @@ namespace App\Models\Game;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class VariantGroup extends Model
 {
@@ -26,10 +25,5 @@ class VariantGroup extends Model
     public function items(): HasMany
     {
         return $this->hasMany(VariantGroupItem::class, 'variant_group_id');
-    }
-
-    public function baseItem(): HasOne
-    {
-        return $this->hasOne(VariantGroupItem::class, 'variant_group_id')->where('is_base', true);
     }
 }

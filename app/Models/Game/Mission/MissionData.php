@@ -147,16 +147,6 @@ class MissionData extends Model
         return $this->hasMany(MissionUnlockGroup::class);
     }
 
-    public function requiredByMissions(): HasMany
-    {
-        return $this->hasMany(MissionPrerequisiteGroupMission::class, 'linked_mission_data_id');
-    }
-
-    public function unlockedByGroups(): HasMany
-    {
-        return $this->hasMany(MissionUnlockGroupMission::class, 'linked_mission_data_id');
-    }
-
     public function rewardGroups(): HasMany
     {
         return $this->hasMany(MissionRewardGroup::class)

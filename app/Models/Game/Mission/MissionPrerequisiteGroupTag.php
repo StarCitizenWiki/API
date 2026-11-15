@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Game\Mission;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MissionPrerequisiteGroupTag extends Model
 {
@@ -17,9 +16,4 @@ class MissionPrerequisiteGroupTag extends Model
         'tag_uuid',
         'tag_name',
     ];
-
-    public function prerequisiteGroup(): BelongsTo
-    {
-        return $this->belongsTo(MissionPrerequisiteGroup::class, 'prerequisite_group_id');
-    }
 }

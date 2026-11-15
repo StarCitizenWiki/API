@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\Game;
 
 use App\Models\Game\Commodity\Commodity;
-use App\Models\Game\Mission\MissionData;
 use App\Support\Filters\ItemFilterLabel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -246,16 +245,6 @@ class ItemData extends Model
     public function gradeLinks(): HasMany
     {
         return $this->hasMany(VariantGradeItem::class, 'item_data_id');
-    }
-
-    public function missions(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            MissionData::class,
-            'game_mission_data_item',
-            'item_data_id',
-            'mission_data_id',
-        );
     }
 
     public function installedOnVehicles(): BelongsToMany

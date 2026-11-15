@@ -121,15 +121,4 @@ class CelestialObject extends Model
     {
         return $this->belongsTo(Jumppoint::class, 'cig_id', 'exit_id');
     }
-
-    /**
-     * Get jumppoint (entry or exit) for this celestial object
-     */
-    public function jumppoint(): ?Jumppoint
-    {
-        return Jumppoint::query()
-            ->where('entry_id', $this->cig_id)
-            ->orWhere('exit_id', $this->cig_id)
-            ->first();
-    }
 }

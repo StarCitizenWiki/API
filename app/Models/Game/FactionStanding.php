@@ -6,7 +6,6 @@ namespace App\Models\Game;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FactionStanding extends Model
 {
@@ -35,10 +34,5 @@ class FactionStanding extends Model
     public function getRouteKeyName(): string
     {
         return 'uuid';
-    }
-
-    public function scope(): BelongsTo
-    {
-        return $this->belongsTo(FactionScope::class, 'faction_scope_id');
     }
 }

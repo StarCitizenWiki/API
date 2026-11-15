@@ -16,11 +16,6 @@ class MissionPrerequisiteGroupMission extends Pivot
         'linked_mission_data_id',
     ];
 
-    public function prerequisiteGroup(): BelongsTo
-    {
-        return $this->belongsTo(MissionPrerequisiteGroup::class, 'prerequisite_group_id');
-    }
-
     public function linkedMissionData(): BelongsTo
     {
         return $this->belongsTo(MissionData::class, 'linked_mission_data_id')

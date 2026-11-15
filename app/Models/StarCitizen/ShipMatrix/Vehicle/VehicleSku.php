@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models\StarCitizen\ShipMatrix\Vehicle;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class VehicleSku extends Model
 {
@@ -24,9 +23,4 @@ class VehicleSku extends Model
         'available' => 'boolean',
         'cig_id' => 'integer',
     ];
-
-    public function vehicle(): BelongsTo
-    {
-        return $this->belongsTo(Vehicle::class);
-    }
 }

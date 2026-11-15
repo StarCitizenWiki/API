@@ -27,11 +27,6 @@ class MissionRewardGroupItem extends Model
         'send_to_home' => 'boolean',
     ];
 
-    public function rewardGroup(): BelongsTo
-    {
-        return $this->belongsTo(MissionRewardGroup::class, 'reward_group_id');
-    }
-
     public function itemData(): BelongsTo
     {
         return $this->belongsTo(ItemData::class, 'item_data_id')
