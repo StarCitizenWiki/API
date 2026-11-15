@@ -7,8 +7,8 @@ namespace App\Jobs\Game;
 use App\Jobs\Game\Concerns\BuildsUexLinks;
 use App\Jobs\Game\Concerns\FiltersUexVersions;
 use App\Jobs\Game\Concerns\MapsUexPrices;
+use App\Jobs\Game\Concerns\UexPriceJobDefaults;
 use App\Models\Game\Commodity\Commodity;
-use App\Models\Game\GameVersion;
 use App\Support\UEXcorp\TerminalLocationMapper;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -19,7 +19,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class EnrichCommodityPrices implements ShouldQueue
 {
@@ -31,12 +30,11 @@ class EnrichCommodityPrices implements ShouldQueue
     use MapsUexPrices;
     use Queueable;
     use SerializesModels;
+    use UexPriceJobDefaults;
 
     public int $tries = 3;
 
     public int $timeout = 600;
-
-    private const int THROTTLE_MICROSECONDS = 200_000;
 
     /**
      * @param  array<int, int>  $commodityIds  our commodity IDs to enrich
@@ -49,17 +47,13 @@ class EnrichCommodityPrices implements ShouldQueue
 
     public function handle(): void
     {
-        if ($this->batch()?->cancelled()) {
+        $context = $this->resolveVersionContext();
+
+        if ($context === null) {
             return;
         }
 
-        $gameVersion = GameVersion::find($this->gameVersionId);
-
-        if ($gameVersion === null) {
-            return;
-        }
-
-        $versionPrefixMap = $this->buildVersionPrefixMap($gameVersion->code);
+        [$gameVersion, $versionPrefixMap] = $context;
 
         $commodities = Commodity::query()
             ->whereIn('id', $this->commodityIds)
@@ -168,12 +162,16 @@ class EnrichCommodityPrices implements ShouldQueue
         return true;
     }
 
-    public function failed(Throwable $exception): void
+    protected function failedLogMessage(): string
     {
-        Log::error('UEX commodity prices enrichment job failed', [
-            'game_version_id' => $this->gameVersionId,
-            'chunk_size' => count($this->commodityIds),
-            'message' => $exception->getMessage(),
-        ]);
+        return 'UEX commodity prices enrichment job failed';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function failedLogContext(): array
+    {
+        return ['chunk_size' => count($this->commodityIds)];
     }
 }

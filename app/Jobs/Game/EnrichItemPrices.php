@@ -7,7 +7,7 @@ namespace App\Jobs\Game;
 use App\Jobs\Game\Concerns\BuildsUexLinks;
 use App\Jobs\Game\Concerns\FiltersUexVersions;
 use App\Jobs\Game\Concerns\MapsUexPrices;
-use App\Models\Game\GameVersion;
+use App\Jobs\Game\Concerns\UexPriceJobDefaults;
 use App\Models\Game\Item;
 use App\Models\Game\ItemData;
 use App\Support\UEXcorp\TerminalLocationMapper;
@@ -20,7 +20,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class EnrichItemPrices implements ShouldQueue
 {
@@ -32,12 +31,11 @@ class EnrichItemPrices implements ShouldQueue
     use MapsUexPrices;
     use Queueable;
     use SerializesModels;
+    use UexPriceJobDefaults;
 
     public int $tries = 3;
 
     public int $timeout = 600;
-
-    private const int THROTTLE_MICROSECONDS = 200_000;
 
     /**
      * @param  array<int, string>  $itemUuids
@@ -54,17 +52,13 @@ class EnrichItemPrices implements ShouldQueue
 
     public function handle(): void
     {
-        if ($this->batch()?->cancelled()) {
+        $context = $this->resolveVersionContext();
+
+        if ($context === null) {
             return;
         }
 
-        $gameVersion = GameVersion::find($this->gameVersionId);
-
-        if ($gameVersion === null) {
-            return;
-        }
-
-        $versionPrefixMap = $this->buildVersionPrefixMap($gameVersion->code);
+        [$gameVersion, $versionPrefixMap] = $context;
 
         $items = Item::query()
             ->whereIn('uuid', $this->itemUuids)
@@ -188,12 +182,16 @@ class EnrichItemPrices implements ShouldQueue
         return true;
     }
 
-    public function failed(Throwable $exception): void
+    protected function failedLogMessage(): string
     {
-        Log::error('UEX item prices enrichment job failed', [
-            'game_version_id' => $this->gameVersionId,
-            'chunk_size' => count($this->itemUuids),
-            'message' => $exception->getMessage(),
-        ]);
+        return 'UEX item prices enrichment job failed';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function failedLogContext(): array
+    {
+        return ['chunk_size' => count($this->itemUuids)];
     }
 }

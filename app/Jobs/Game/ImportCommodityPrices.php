@@ -7,8 +7,8 @@ namespace App\Jobs\Game;
 use App\Jobs\Game\Concerns\BuildsUexLinks;
 use App\Jobs\Game\Concerns\FiltersUexVersions;
 use App\Jobs\Game\Concerns\MapsUexPrices;
+use App\Jobs\Game\Concerns\UexPriceJobDefaults;
 use App\Models\Game\Commodity\Commodity;
-use App\Models\Game\GameVersion;
 use App\Support\UEXcorp\TerminalLocationMapper;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -18,7 +18,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class ImportCommodityPrices implements ShouldQueue
 {
@@ -30,6 +29,7 @@ class ImportCommodityPrices implements ShouldQueue
     use MapsUexPrices;
     use Queueable;
     use SerializesModels;
+    use UexPriceJobDefaults;
 
     public int $tries = 3;
 
@@ -44,17 +44,13 @@ class ImportCommodityPrices implements ShouldQueue
 
     public function handle(): void
     {
-        if ($this->batch()?->cancelled()) {
+        $context = $this->resolveVersionContext();
+
+        if ($context === null) {
             return;
         }
 
-        $gameVersion = GameVersion::find($this->gameVersionId);
-
-        if ($gameVersion === null) {
-            Log::error('Game version not found', ['game_version_id' => $this->gameVersionId]);
-
-            return;
-        }
+        [$gameVersion, $versionPrefixMap] = $context;
 
         $response = Http::timeout(60)->get(self::API_URL);
 
@@ -82,7 +78,7 @@ class ImportCommodityPrices implements ShouldQueue
             return;
         }
 
-        $this->processPrices($data, $gameVersion->code, $this->buildVersionPrefixMap($gameVersion->code));
+        $this->processPrices($data, $gameVersion->code, $versionPrefixMap);
     }
 
     /**
@@ -137,11 +133,13 @@ class ImportCommodityPrices implements ShouldQueue
         ]);
     }
 
-    public function failed(Throwable $exception): void
+    protected function reportMissingGameVersion(): void
     {
-        Log::error('UEX commodity price import job failed', [
-            'game_version_id' => $this->gameVersionId,
-            'message' => $exception->getMessage(),
-        ]);
+        Log::error('Game version not found', ['game_version_id' => $this->gameVersionId]);
+    }
+
+    protected function failedLogMessage(): string
+    {
+        return 'UEX commodity price import job failed';
     }
 }
