@@ -66,6 +66,30 @@ it('ignores medical beds without a tier when resolving max medical tier', functi
         ->assertJsonPath('data.seating.medical_beds.T2', 1);
 });
 
+it('returns fixed weapon identifiers when present in the vehicle payload', function (): void {
+    $uuid = fake()->uuid();
+    $weapon = ['Name' => 'M9A Cannon', 'Dps' => 1200, 'SustainedDps' => 900, 'Alpha' => 400];
+    $vehicle = bindVehicle($this->defaultVersion, 'Test Ship', [
+        'data' => [
+            'Weaponry' => [
+                'FixedWeapons' => [
+                    'Weapons' => [
+                        [...$weapon, 'ClassName' => 'TEST_M9A_S7', 'UUID' => $uuid],
+                        $weapon,
+                    ],
+                ],
+            ],
+        ],
+    ]);
+
+    $response = $this->getJson(route('vehicles.show', ['vehicle' => $vehicle->uuid]));
+
+    $response->assertOk()->assertJsonPath('data.weaponry.fixed_weapons.weapons', [
+        ['name' => 'M9A Cannon', 'dps' => 1200, 'sustained_dps' => 900, 'alpha' => 400, 'class_name' => 'TEST_M9A_S7', 'uuid' => $uuid],
+        ['name' => 'M9A Cannon', 'dps' => 1200, 'sustained_dps' => 900, 'alpha' => 400, 'class_name' => null, 'uuid' => null],
+    ]);
+});
+
 it('accepts hardpoints include on vehicle index route', function (): void {
     bindVehicle($this->defaultVersion);
 

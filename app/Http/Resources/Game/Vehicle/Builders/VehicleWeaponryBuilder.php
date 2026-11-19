@@ -42,6 +42,8 @@ final class VehicleWeaponryBuilder
                     'dps' => $weapon['Dps'] ?? null,
                     'sustained_dps' => $weapon['SustainedDps'] ?? null,
                     'alpha' => $weapon['Alpha'] ?? null,
+                    'class_name' => $weapon['ClassName'] ?? null,
+                    'uuid' => $weapon['UUID'] ?? null,
                 ], $fixedWeapons['Weapons'] ?? []),
             ];
         }

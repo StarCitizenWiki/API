@@ -426,6 +426,8 @@ use OpenApi\Attributes as OA;
                         new OA\Property(property: 'dps', type: 'number', nullable: true),
                         new OA\Property(property: 'sustained_dps', type: 'number', nullable: true),
                         new OA\Property(property: 'alpha', type: 'number', nullable: true),
+                        new OA\Property(property: 'class_name', description: 'Fixed weapon class name.', type: 'string', nullable: true),
+                        new OA\Property(property: 'uuid', description: 'Fixed weapon UUID.', type: 'string', format: 'uuid', nullable: true),
                     ], type: 'object'), nullable: true),
                 ], type: 'object', nullable: true),
                 new OA\Property(property: 'missiles', description: 'Missile statistics.', properties: [

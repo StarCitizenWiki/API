@@ -19522,7 +19522,7 @@ components:
                   nullable: true
                 weapons:
                   type: array
-                  items: { properties: { name: { type: string, nullable: true }, dps: { type: number, nullable: true }, sustained_dps: { type: number, nullable: true }, alpha: { type: number, nullable: true } }, type: object }
+                  items: { properties: { name: { type: string, nullable: true }, dps: { type: number, nullable: true }, sustained_dps: { type: number, nullable: true }, alpha: { type: number, nullable: true }, class_name: { description: 'Fixed weapon class name.', type: string, nullable: true }, uuid: { description: 'Fixed weapon UUID.', type: string, format: uuid, nullable: true } }, type: object }
                   nullable: true
               type: object
               nullable: true
