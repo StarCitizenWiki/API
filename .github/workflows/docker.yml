@@ -91,7 +91,7 @@ jobs:
           DB_PORT: 5432
           DB_USERNAME: "scw__api"
           DB_PASSWORD: "postgres"
-        run: vendor/bin/pest --compact tests/Unit tests/Feature
+        run: composer test
 
   laravel-test-browser:
     if: github.event_name == 'pull_request'
