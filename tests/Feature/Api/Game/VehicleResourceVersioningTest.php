@@ -7,7 +7,6 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
-use App\Services\Game\VehicleMatchingService;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -64,11 +63,7 @@ it('exposes utility turrets from imported dumps', function (?array $utilityTurre
     }
 
     Storage::disk('scunpacked')->put('ships/utility.json', json_encode($payload, JSON_THROW_ON_ERROR));
-    try {
-        (new ImportVehicleData($this->gameVersion->id, 'ships/utility.json'))->handle();
-    } finally {
-        VehicleMatchingService::resetState();
-    }
+    (new ImportVehicleData($this->gameVersion->id, 'ships/utility.json'))->handle();
 
     $response = $this->getJson('/api/v3/vehicles/'.$payload['UUID'])->assertSuccessful();
 
