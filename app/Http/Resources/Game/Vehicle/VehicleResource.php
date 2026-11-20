@@ -506,6 +506,13 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'manned', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
                 new OA\Property(property: 'remote', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
                 new OA\Property(property: 'pdc', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
+                new OA\Property(
+                    property: 'utility',
+                    description: 'Utility turret housings and their installed utility payloads. Null for older dumps without this summary; empty when the dump reports no utility turrets.',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/game_vehicle_utility_turret'),
+                    nullable: true
+                ),
             ],
             type: 'object',
             nullable: true
@@ -1090,6 +1097,7 @@ class VehicleResource extends AbstractBaseResource
             ),
             'parts' => $this->buildParts($payload, $request),
             'turrets' => [
+                'utility' => isset($payload['UtilityTurrets']) ? UtilityTurretResource::collection($payload['UtilityTurrets']) : null,
                 'manned' => TurretSummaryResource::collection($mannedTurrets),
                 'remote' => TurretSummaryResource::collection($remoteTurrets),
                 'pdc' => TurretSummaryResource::collection($pdcTurrets),
