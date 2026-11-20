@@ -17,7 +17,7 @@ jobs:
         env:
           POSTGRES_DB: scw__api
           POSTGRES_USER: scw__api
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
@@ -80,7 +80,7 @@ jobs:
           DB_HOST: "127.0.0.1"
           DB_PORT: 5432
           DB_USERNAME: "scw__api"
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PASSWORD: "postgres"
         run: php artisan migrate
 
       - name: Execute tests via Pest
@@ -90,12 +90,27 @@ jobs:
           DB_HOST: "127.0.0.1"
           DB_PORT: 5432
           DB_USERNAME: "scw__api"
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PASSWORD: "postgres"
         run: vendor/bin/pest --compact tests/Unit tests/Feature
 
   laravel-test-browser:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: scw__api
+          POSTGRES_USER: scw__api
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U scw__api"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - uses: actions/checkout@v5
         with:
@@ -150,9 +165,13 @@ jobs:
 
       - name: Migrate database
         env:
-          DB_CONNECTION: "sqlite"
-          DB_DATABASE: "db.sqlite"
-        run: touch database/db.sqlite; php artisan migrate
+          DB_CONNECTION: "pgsql"
+          DB_DATABASE: "scw__api"
+          DB_HOST: "127.0.0.1"
+          DB_PORT: 5432
+          DB_USERNAME: "scw__api"
+          DB_PASSWORD: "postgres"
+        run: php artisan migrate
 
       - name: npm ci
         run: npm ci
@@ -165,8 +184,12 @@ jobs:
 
       - name: Execute browser tests via Pest
         env:
-          DB_CONNECTION: "sqlite"
-          DB_DATABASE: "db.sqlite"
+          DB_CONNECTION: "pgsql"
+          DB_DATABASE: "scw__api"
+          DB_HOST: "127.0.0.1"
+          DB_PORT: 5432
+          DB_USERNAME: "scw__api"
+          DB_PASSWORD: "postgres"
         run: vendor/bin/pest --compact tests/Browser --browser chrome
 
   docker-build:
