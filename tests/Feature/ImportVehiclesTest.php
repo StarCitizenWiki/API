@@ -14,7 +14,6 @@ use App\Models\StarCitizen\ShipMatrix\ProductionStatus;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Size as ShipSize;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Type as ShipType;
 use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
-use App\Services\Game\VehicleMatchingService;
 use App\Services\Parser\SC\Labels;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -22,7 +21,6 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function (): void {
-    VehicleMatchingService::resetState();
     Labels::flushCache();
     Cache::flush();
 });

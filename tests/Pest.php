@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\Game\VehicleMatchingService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -18,4 +19,6 @@ use Tests\TestCase;
 
 pest()->extend(TestCase::class)->in('Feature', 'Unit');
 
-pest()->use(LazilyRefreshDatabase::class)->in('Feature');
+pest()->use(LazilyRefreshDatabase::class)->in('Feature')->beforeEach(function (): void {
+    VehicleMatchingService::resetState();
+});

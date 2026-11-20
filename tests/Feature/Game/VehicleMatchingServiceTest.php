@@ -7,8 +7,6 @@ use App\Models\StarCitizen\ShipMatrix\Vehicle\Vehicle as ShipMatrixVehicle;
 use App\Services\Game\VehicleMatchingService;
 
 beforeEach(function (): void {
-    VehicleMatchingService::resetState();
-
     createShipMatrixReferenceData();
 
     $this->service = app(VehicleMatchingService::class);
