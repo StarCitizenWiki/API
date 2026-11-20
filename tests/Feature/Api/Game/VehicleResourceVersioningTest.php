@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Jobs\Game\ImportVehicleData;
 use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use App\Services\Game\VehicleMatchingService;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->manufacturer = Manufacturer::factory()->create([
@@ -47,6 +50,53 @@ beforeEach(function () {
             ],
         ]);
 });
+
+it('exposes utility turrets from imported dumps', function (?array $utilityTurrets, ?array $expected): void {
+    Storage::fake('scunpacked');
+    $payload = [
+        'UUID' => fake()->uuid(),
+        'ClassName' => 'TEST_UtilityTurrets',
+        'Name' => 'Test Utility Turrets',
+        'Manufacturer' => ['UUID' => $this->manufacturer->uuid],
+    ];
+    if ($utilityTurrets !== null) {
+        $payload['UtilityTurrets'] = $utilityTurrets;
+    }
+
+    Storage::disk('scunpacked')->put('ships/utility.json', json_encode($payload, JSON_THROW_ON_ERROR));
+    try {
+        (new ImportVehicleData($this->gameVersion->id, 'ships/utility.json'))->handle();
+    } finally {
+        VehicleMatchingService::resetState();
+    }
+
+    $response = $this->getJson('/api/v3/vehicles/'.$payload['UUID'])->assertSuccessful();
+
+    expect($response->json('data.turrets'))->toHaveKey('utility');
+    expect($response->json('data.turrets.utility'))->toBe($expected);
+})->with([
+    'older dump' => [null, null],
+    'no utility turrets' => [[], []],
+    'installed payload' => [[[
+        'HardpointName' => 'hardpoint_turret',
+        'TurretClassName' => 'CNOU_Nomad_Remote_Turret',
+        'TurretType' => 'Turret.GunTurret',
+        'Payloads' => [[
+            'HardpointName' => 'turret_weapon',
+            'ClassName' => 'GRIN_TractorBeam_S1',
+            'Type' => 'TractorBeam.UNDEFINED',
+        ]],
+    ]], [[
+        'hardpoint_name' => 'hardpoint_turret',
+        'turret_class_name' => 'CNOU_Nomad_Remote_Turret',
+        'turret_type' => 'Turret.GunTurret',
+        'payloads' => [[
+            'hardpoint_name' => 'turret_weapon',
+            'class_name' => 'GRIN_TractorBeam_S1',
+            'type' => 'TractorBeam.UNDEFINED',
+        ]],
+    ]]],
+]);
 
 it('does not treat wildcard characters as show route patterns', function (): void {
     $this->getJson('/api/vehicles/'.rawurlencode('%'))
