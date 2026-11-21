@@ -30,34 +30,31 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'name', type: 'string'),
             new OA\Property(property: 'type', type: 'string'),
             new OA\Property(property: 'size', type: 'integer'),
+            new OA\Property(property: 'combat_stats', description: 'Reported stats for the item installed at this port. Unreported metrics are omitted.', properties: [
+                new OA\Property(property: 'dps', description: 'Gun damage per second.', type: 'number'),
+                new OA\Property(property: 'sustained_dps', description: 'Sustained gun damage per second.', type: 'number'),
+                new OA\Property(property: 'alpha', description: 'Gun damage per shot.', type: 'number'),
+                new OA\Property(property: 'missile_damage', description: 'Total damage of this installed missile, not damage per second.', type: 'number', example: 1600),
+            ], type: 'object'),
         ], type: 'object')),
-        new OA\Property(property: 'control_routes', description: 'Known control routes. Absence means unknown.', type: 'array', items: new OA\Items(required: ['kind', 'operator', 'seat_port_id'], properties: [
-            new OA\Property(property: 'kind', type: 'string', enum: ['Controller', 'InTurret']),
-            new OA\Property(property: 'operator', type: 'string', enum: ['Pilot', 'Crew']),
-            new OA\Property(property: 'seat_port_id', type: 'string'),
-            new OA\Property(property: 'controller_port_id', type: 'string'),
-            new OA\Property(property: 'control', description: 'Game-data binding for an installed module controller: Aim means a weapon controller targets the turret; Payload means a salvage controller targets the tractor beam. Neither value describes or limits what the player can do in-game. Omitted when no such binding is reported.', type: 'string', enum: ['Aim', 'Payload']),
+        new OA\Property(property: 'operating_stations', description: 'Verified stations a player can occupy to fire the installed weapon or use the installed tool. Omitted for vacant positions. On occupied positions, an absent or empty list means unknown. A listed station does not rule out other stations. Older technical control routes are never used as a fallback.', type: 'array', items: new OA\Items(required: ['kind', 'seat_port_id', 'name'], properties: [
+            new OA\Property(property: 'kind', type: 'string', enum: ['Pilot', 'Crew', 'InTurret']),
+            new OA\Property(property: 'seat_port_id', description: 'Snapshot-local loadout port ID of the installed seat, or of the turret with an integrated seat.', type: 'string'),
+            new OA\Property(property: 'name', description: 'Station name supplied by the dumper.', type: 'string', example: 'Pilot seat'),
         ], type: 'object')),
-        new OA\Property(property: 'combat_stats', description: 'Combat stats reported by the dump without recalculation.', properties: [
-            new OA\Property(property: 'dps_total', type: 'number'),
-            new OA\Property(property: 'sustained_dps_total', type: 'number'),
-            new OA\Property(property: 'alpha_total', type: 'number'),
-            new OA\Property(property: 'is_pilot_slaveable', type: 'boolean'),
-            new OA\Property(property: 'weapons', type: 'array', items: new OA\Items(properties: [
-                new OA\Property(property: 'uuid', type: 'string'),
-                new OA\Property(property: 'class_name', type: 'string'),
-                new OA\Property(property: 'name', type: 'string'),
-                new OA\Property(property: 'dps', type: 'number'),
-                new OA\Property(property: 'sustained_dps', type: 'number'),
-                new OA\Property(property: 'alpha', type: 'number'),
-                new OA\Property(property: 'is_pilot_slaveable', type: 'boolean'),
-            ], type: 'object')),
+        new OA\Property(property: 'combat_stats', description: 'Combat stats for this position. The installed totals sum reported values across payload ports and omit unreported metrics.', properties: [
+            new OA\Property(property: 'dps', description: 'Total gun damage per second for installed payload.', type: 'number'),
+            new OA\Property(property: 'sustained_dps', description: 'Total sustained gun damage per second for installed payload.', type: 'number'),
+            new OA\Property(property: 'alpha', description: 'Sum of gun damage per shot for installed payload.', type: 'number'),
+            new OA\Property(property: 'missile_damage', description: 'Sum of damage for missiles actually loaded in this position. Not DPS, salvo damage, or full rack capacity damage.', type: 'number', example: 1600),
         ], type: 'object'),
     ],
     type: 'object',
 )]
 class MountingPositionResource extends AbstractBaseResource
 {
+    private const array COMBAT_METRICS = ['Dps', 'SustainedDps', 'Alpha', 'MissileDamage'];
+
     public function toArray(Request $request): array
     {
         $position = $this->resource;
@@ -65,25 +62,25 @@ class MountingPositionResource extends AbstractBaseResource
             'PortId', 'HardpointName', 'Occupied', 'MinSize', 'MaxSize', 'InstalledSize', 'MountType', 'TurretRole', 'IsPilotSlaveable',
         ]);
 
-        $mapped['payload'] = array_map(static fn (array $payload): array => self::mapFields($payload, [
-            'PortId', 'HardpointName', 'UUID', 'ClassName', 'Name', 'Type', 'Size',
-        ]), $position['Payload']);
+        $mapped['payload'] = array_map(static function (array $payload): array {
+            $item = self::mapFields($payload, ['PortId', 'HardpointName', 'UUID', 'ClassName', 'Name', 'Type', 'Size']);
+            $combatStats = self::mapFields($payload['CombatStats'] ?? [], self::COMBAT_METRICS);
+            if ($combatStats !== []) {
+                $item['combat_stats'] = $combatStats;
+            }
 
-        if (isset($position['ControlRoutes'])) {
-            $mapped['control_routes'] = array_map(static fn (array $route): array => self::mapFields($route, [
-                'Kind', 'Operator', 'SeatPortId', 'ControllerPortId', 'Control',
-            ]), $position['ControlRoutes']);
+            return $item;
+        }, $position['Payload']);
+
+        if (($position['Occupied'] ?? false) && isset($position['OperatingStations'])) {
+            $mapped['operating_stations'] = array_map(static fn (array $station): array => self::mapFields($station, [
+                'Kind', 'SeatPortId', 'Name',
+            ]), $position['OperatingStations']);
         }
 
-        if (isset($position['CombatStats'])) {
-            $stats = $position['CombatStats'];
-            $mapped['combat_stats'] = self::mapFields($stats, ['DpsTotal', 'SustainedDpsTotal', 'AlphaTotal', 'IsPilotSlaveable']);
-
-            if (isset($stats['Weapons'])) {
-                $mapped['combat_stats']['weapons'] = array_map(static fn (array $weapon): array => self::mapFields($weapon, [
-                    'UUID', 'ClassName', 'Name', 'Dps', 'SustainedDps', 'Alpha', 'IsPilotSlaveable',
-                ]), $stats['Weapons']);
-            }
+        $combatStats = self::mapFields($position['CombatStats'] ?? [], self::COMBAT_METRICS);
+        if ($combatStats !== []) {
+            $mapped['combat_stats'] = $combatStats;
         }
 
         // The dump's legacy summary facts (LegacyBucket / LegacyOrdinal /

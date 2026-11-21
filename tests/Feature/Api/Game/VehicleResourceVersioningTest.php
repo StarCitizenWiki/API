@@ -113,6 +113,7 @@ it('links imported mounting positions to exactly one classified loadout port', f
     $dump['Manufacturer']['UUID'] = $this->manufacturer->uuid;
     $dump['IsSpaceship'] = true;
     $dump['Crew'] = 1;
+    $dump['MountingPositions'][1]['CombatStats'] += ['DpsTotal' => 999, 'IsPilotSlaveable' => false, 'Weapons' => []];
     $dump['Weaponry'] = [
         'PilotDps' => 450,
         'TurretDps' => 750,
@@ -135,6 +136,7 @@ it('links imported mounting positions to exactly one classified loadout port', f
         'MinSize' => 1,
         'MaxSize' => 2,
         'Payload' => [],
+        'OperatingStations' => [['Kind' => 'Pilot', 'SeatPortId' => 'loadout.36', 'Name' => 'Stale vacant station']],
     ];
     $url = "/api/v3/vehicles/{$dump['UUID']}";
 
@@ -149,11 +151,18 @@ it('links imported mounting positions to exactly one classified loadout port', f
         ->assertJsonStructure(['data' => ['mounting_positions' => [['port_id']]]])
         ->assertJsonCount(4, 'data.mounting_positions')
         ->assertJsonPath('data.mounting_positions.0.mount_type', 'Gimbal')
+        ->assertJsonPath('data.mounting_positions.0.combat_stats', ['dps' => 450, 'sustained_dps' => 0])
+        ->assertJsonPath('data.mounting_positions.0.payload.0.combat_stats', ['dps' => 450, 'sustained_dps' => 0])
         ->assertJsonPath('data.mounting_positions.1.turret_role', 'Manned')
-        ->assertJsonPath('data.mounting_positions.1.control_routes.0.operator', 'Crew')
-        ->assertJsonPath('data.mounting_positions.1.combat_stats.dps_total', 750)
+        ->assertJsonPath('data.mounting_positions.1.operating_stations.0.name', 'Seat inside turret')
+        ->assertJsonMissingPath('data.mounting_positions.1.control_routes')
+        ->assertJsonMissingPath('data.mounting_positions.3.operating_stations')
+        ->assertJsonPath('data.mounting_positions.1.combat_stats', ['dps' => 750, 'sustained_dps' => 672, 'alpha' => 90])
         ->assertJsonPath('data.mounting_positions.1.is_pilot_slaveable', false)
         ->assertJsonPath('data.mounting_positions.2.mount_type', 'Rack')
+        ->assertJsonPath('data.mounting_positions.2.combat_stats', ['missile_damage' => 1600])
+        ->assertJsonPath('data.mounting_positions.2.payload.0.combat_stats', ['missile_damage' => 1600])
+        ->assertJsonMissingPath('data.mounting_positions.2.payload.1.combat_stats')
         ->assertJsonPath('data.mounting_positions.3.occupied', false)
         ->assertJsonPath('data.mounting_positions.3.payload', [])
         ->assertJsonMissingPath('data.mounting_positions.3.mount_type')
@@ -186,8 +195,8 @@ it('links imported mounting positions to exactly one classified loadout port', f
             expect($portsById[$payload['port_id']] ?? [])->toHaveCount(1);
         }
 
-        foreach ($position['control_routes'] ?? [] as $route) {
-            expect($portsById[$route['seat_port_id']] ?? [])->toHaveCount(1);
+        foreach ($position['operating_stations'] ?? [] as $station) {
+            expect($portsById[$station['seat_port_id']] ?? [])->toHaveCount(1);
         }
     }
 

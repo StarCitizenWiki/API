@@ -75,7 +75,7 @@
                                         <th scope="col">Position</th>
                                         <th scope="col">Installed size</th>
                                         <th scope="col">Port capacity</th>
-                                        <th scope="col">Controlled by</th>
+                                        <th scope="col">Operated from</th>
                                         <th scope="col">Combat stats</th>
                                     </tr>
                                 </thead>
@@ -106,8 +106,7 @@
                                                     $min !== null => 'S'.$min,
                                                     default => '-',
                                                 };
-                                                $stats = $position['combat_stats'] ?? [];
-                                                $totals = array_filter(array_intersect_key($stats, array_flip(['dps_total', 'sustained_dps_total', 'alpha_total'])), static fn ($value) => $value !== null);
+                                                $totals = $position['combat_stats'] ?? [];
                                             @endphp
                                             <tr class="align-top">
                                                 <th scope="row" class="min-w-44 font-medium">
@@ -138,6 +137,11 @@
                                                                         {{ $itemName }}
                                                                     @endif
                                                                     @if (isset($item['size']))<span class="text-subtle">(S{{ $item['size'] }})</span>@endif
+                                                                    @foreach ($statLabels + ['missile_damage' => 'Missile damage'] as $stat => $statLabel)
+                                                                        @if (isset($item['combat_stats'][$stat]))
+                                                                            <div class="text-subtle">{{ $statLabel }}: {{ Format::numberOrDash($item['combat_stats'][$stat], 1) }}</div>
+                                                                        @endif
+                                                                    @endforeach
                                                                 </li>
                                                             @endforeach
                                                         </ul>
@@ -146,63 +150,22 @@
                                                 <td class="whitespace-nowrap">{{ ! $vacant && $installedSize !== null ? 'S'.$installedSize : '-' }}</td>
                                                 <td class="whitespace-nowrap">{{ $capacity }}</td>
                                                 <td class="min-w-32">
-                                                    @if ($type === 'Turret' && $role === 'Pdc')
-                                                        <div>AI-controlled</div>
-                                                    @endif
-                                                    @php
-                                                        $seenRoutes = [];
-                                                    @endphp
-                                                    @forelse ($position['control_routes'] ?? [] as $route)
-                                                        @php
-                                                            $seat = $portsById[$route['seat_port_id'] ?? ''] ?? [];
-                                                            $inTurret = ($route['kind'] ?? null) === 'InTurret';
-                                                            $seatLabel = $seat === $port && $inTurret ? null : $portLabel($seat);
-                                                            $routeKey = serialize([$route['operator'] ?? 'Operator not recorded', $route['kind'] ?? null, $seatLabel]);
-                                                        @endphp
-                                                        @continue(isset($seenRoutes[$routeKey]))
-                                                        @php
-                                                            $seenRoutes[$routeKey] = true;
-                                                        @endphp
-                                                        <div class="mb-1 last:mb-0">
-                                                            {{ $route['operator'] ?? 'Operator not recorded' }}
-                                                            @if ($inTurret)
-                                                                (Inside turret)
-                                                            @elseif (($route['kind'] ?? null) === 'Controller')
-                                                                (Via controller)
-                                                            @endif
-                                                            @if ($seatLabel !== null)
-                                                                <div class="text-xs text-subtle">Seat: {{ $seatLabel }}</div>
-                                                            @endif
-                                                        </div>
+                                                    @forelse ($vacant ? [] : ($position['operating_stations'] ?? []) as $station)
+                                                        <div class="mb-1 last:mb-0">{{ $station['name'] }}</div>
                                                     @empty
-                                                        @if ($type !== 'Turret' || $role !== 'Pdc')
-                                                            <span class="text-subtle">{{ $vacant ? '-' : 'No control information' }}</span>
-                                                        @endif
+                                                        <span class="text-subtle">{{ $vacant ? '-' : 'Unknown' }}</span>
                                                     @endforelse
                                                 </td>
                                                 <td class="min-w-28 tabular-nums">
                                                     @foreach ($statLabels as $stat => $label)
-                                                        @if (isset($totals[$stat.'_total']))
-                                                            <div class="whitespace-nowrap">{{ $label }}: {{ Format::numberOrDash($totals[$stat.'_total'], 1) }}</div>
+                                                        @if (isset($totals[$stat]))
+                                                            <div class="whitespace-nowrap">{{ $label }}: {{ Format::numberOrDash($totals[$stat], 1) }}</div>
                                                         @endif
                                                     @endforeach
-                                                    @if (! empty($stats['weapons']))
-                                                        <details class="mt-1 text-xs">
-                                                            <summary class="cursor-pointer text-subtle">Per weapon</summary>
-                                                            <ul class="space-y-1 pt-1">
-                                                                @foreach ($stats['weapons'] as $weapon)
-                                                                    <li>
-                                                                        <div>{{ $weapon['name'] ?? $weapon['class_name'] ?? 'Unknown weapon' }}</div>
-                                                                        @foreach ($statLabels as $stat => $label)
-                                                                            @if (isset($weapon[$stat]))
-                                                                                <div class="whitespace-nowrap text-subtle">{{ $label }}: {{ Format::numberOrDash($weapon[$stat], 1) }}</div>
-                                                                            @endif
-                                                                        @endforeach
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </details>
-                                                    @elseif ($totals === [])
+                                                    @if (isset($totals['missile_damage']))
+                                                        <div class="whitespace-nowrap">Missile damage: {{ Format::numberOrDash($totals['missile_damage'], 1) }}</div>
+                                                    @endif
+                                                    @if ($totals === [])
                                                         <span class="text-subtle">-</span>
                                                     @endif
                                                 </td>

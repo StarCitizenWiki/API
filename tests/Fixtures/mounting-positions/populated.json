@@ -859,9 +859,11 @@
                     "Name": "Deadbolt V Cannon",
                     "Type": "WeaponGun.Gun",
                     "PortId": "loadout.2.loadout.0",
-                    "Size": 5
+                    "Size": 5,
+                    "CombatStats": {"Dps": 450, "SustainedDps": 0}
                 }
-            ]
+            ],
+            "CombatStats": {"Dps": 450, "SustainedDps": 0}
         },
         {
             "PortId": "loadout.36",
@@ -893,38 +895,17 @@
                     "Size": 3
                 }
             ],
-            "ControlRoutes": [
+            "OperatingStations": [
                 {
                     "Kind": "InTurret",
-                    "Operator": "Crew",
-                    "SeatPortId": "loadout.36"
+                    "SeatPortId": "loadout.36",
+                    "Name": "Seat inside turret"
                 }
             ],
             "CombatStats": {
-                "DpsTotal": 750,
-                "SustainedDpsTotal": 672,
-                "AlphaTotal": 90,
-                "IsPilotSlaveable": false,
-                "Weapons": [
-                    {
-                        "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
-                        "ClassName": "BEHR_BallisticRepeater_S3",
-                        "Name": "SW16BR3 \u201cShredder\u201d Repeater",
-                        "Dps": 375,
-                        "SustainedDps": 336,
-                        "Alpha": 45,
-                        "IsPilotSlaveable": false
-                    },
-                    {
-                        "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
-                        "ClassName": "BEHR_BallisticRepeater_S3",
-                        "Name": "SW16BR3 \u201cShredder\u201d Repeater",
-                        "Dps": 375,
-                        "SustainedDps": 336,
-                        "Alpha": 45,
-                        "IsPilotSlaveable": false
-                    }
-                ]
+                "Dps": 750,
+                "SustainedDps": 672,
+                "Alpha": 90
             },
             "LegacyBucket": "MannedTurrets",
             "LegacyOrdinal": 0
@@ -945,7 +926,8 @@
                     "Name": "Dominator II Missile",
                     "Type": "Missile.Missile",
                     "PortId": "loadout.66.loadout.0",
-                    "Size": 2
+                    "Size": 2,
+                    "CombatStats": {"MissileDamage": 1600}
                 },
                 {
                     "HardpointName": "missile_02_attach",
@@ -974,7 +956,8 @@
                     "PortId": "loadout.66.loadout.3",
                     "Size": 2
                 }
-            ]
+            ],
+            "CombatStats": {"MissileDamage": 1600}
         }
     ],
     "MannedTurrets": [

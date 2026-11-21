@@ -28,8 +28,7 @@ beforeEach(function (): void {
  * LegacySize on mounting positions. All legacy summary facts stay internal:
  * the API drops them because mounting_positions serves current state only;
  * turrets.* serves the exact legacy values unchanged.
- * Galaxy Cargo positions cover Control on module-bound control routes (see
- * galaxy-cargo-control-routes.json).
+ * Older Galaxy Cargo routes must not become operating-station claims.
  */
 function contractDump(): array
 {
@@ -118,9 +117,7 @@ function contractDump(): array
         'InstalledSize' => 0,
     ];
 
-    // Galaxy Cargo module turrets (rsi_galaxy_temp_cargo, dumper 5472476):
-    // each module seat binds one payload-scoped and one aim-scoped controller,
-    // while the hull remote turret's older routes carry no Control key at all.
+    // Older technical routes are deliberately retained to guard against fallback claims.
     $dump['MountingPositions'] = [
         ...$dump['MountingPositions'],
         ...array_map(static fn (array $position): array => Arr::except($position, ['CombatStats', 'LegacyBucket', 'LegacyOrdinal']), json_decode(
@@ -280,26 +277,35 @@ it('serves exact legacy turret facts from turrets.manned only', function (): voi
         ->and($positions['loadout.201'])->not->toHaveKeys(['legacy_bucket', 'legacy_size']);
 });
 
-it('maps the optional control scope on module-bound controller routes', function (): void {
+it('publishes verified operating stations without exposing technical routes', function (): void {
+    $dump = contractDump();
+    $dump['MountingPositions'][0]['OperatingStations'] = [
+        ['Kind' => 'Pilot', 'SeatPortId' => 'loadout.49', 'Name' => 'Pilot seat', 'ControllerPortId' => 'internal'],
+        ['Kind' => 'Crew', 'SeatPortId' => 'loadout.64', 'Name' => 'Utility operator seat'],
+    ];
+    $dump['MountingPositions'][1]['OperatingStations'] = [];
+
+    $data = importContractDump($dump);
+
+    expect($data['mounting_positions'][0]['operating_stations'])->toBe([
+        ['kind' => 'Pilot', 'seat_port_id' => 'loadout.49', 'name' => 'Pilot seat'],
+        ['kind' => 'Crew', 'seat_port_id' => 'loadout.64', 'name' => 'Utility operator seat'],
+    ])->and($data['mounting_positions'][1]['operating_stations'])->toBe([]);
+    foreach ($data['mounting_positions'] as $position) {
+        expect($position)->not->toHaveKey('control_routes');
+    }
+    expect(collect($data['mounting_positions'])->keyBy('port_id')['loadout.74.loadout.6'])
+        ->not->toHaveKey('operating_stations');
+});
+
+it('does not turn older module aim or payload routes into operating stations', function (): void {
     $data = importContractDump(contractDump());
     $positions = collect($data['mounting_positions'])->keyBy('port_id');
 
-    // Each Galaxy Cargo module turret carries one payload-scoped and one
-    // aim-scoped crew route from the module seat.
-    expect($positions['loadout.74.loadout.6']['control_routes'])->toBe([
-        ['kind' => 'Controller', 'operator' => 'Crew', 'seat_port_id' => 'loadout.74.loadout.5', 'controller_port_id' => 'loadout.74.loadout.8', 'control' => 'Payload'],
-        ['kind' => 'Controller', 'operator' => 'Crew', 'seat_port_id' => 'loadout.74.loadout.5', 'controller_port_id' => 'loadout.74.loadout.9', 'control' => 'Aim'],
-    ])->and($positions['loadout.74.loadout.11']['control_routes'])->toBe([
-        ['kind' => 'Controller', 'operator' => 'Crew', 'seat_port_id' => 'loadout.74.loadout.10', 'controller_port_id' => 'loadout.74.loadout.13', 'control' => 'Payload'],
-        ['kind' => 'Controller', 'operator' => 'Crew', 'seat_port_id' => 'loadout.74.loadout.10', 'controller_port_id' => 'loadout.74.loadout.14', 'control' => 'Aim'],
+    foreach (['loadout.74.loadout.6', 'loadout.74.loadout.11', 'loadout.6'] as $portId) {
+        expect($positions[$portId])->not->toHaveKeys(['control_routes', 'operating_stations']);
+    }
+    expect($positions['loadout.36']['operating_stations'])->toBe([
+        ['kind' => 'InTurret', 'seat_port_id' => 'loadout.36', 'name' => 'Seat inside turret'],
     ]);
-
-    // Routes without a scope in the dump keep omitting the key.
-    expect($positions['loadout.6']['control_routes'])->toBe([
-        ['kind' => 'Controller', 'operator' => 'Pilot', 'seat_port_id' => 'loadout.49', 'controller_port_id' => 'loadout.80'],
-        ['kind' => 'Controller', 'operator' => 'Crew', 'seat_port_id' => 'loadout.64', 'controller_port_id' => 'loadout.78'],
-    ])
-        ->and($positions['loadout.36']['control_routes'])->toBe([
-            ['kind' => 'InTurret', 'operator' => 'Crew', 'seat_port_id' => 'loadout.36'],
-        ]);
 });
