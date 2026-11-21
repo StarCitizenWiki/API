@@ -85,7 +85,11 @@
                     <x-vehicles.relay-network-card :vehicle="$vehicle" />
 
                     <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="parts" />
-                    <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="turrets" />
+                    @if (array_key_exists('mounting_positions', $vehicle))
+                        <x-vehicles.mounting-positions-card :vehicle="$vehicle" />
+                    @else
+                        <x-vehicles.parts-turrets-card :vehicle="$vehicle" section="turrets" />
+                    @endif
 
                     <x-vehicles.crew-medical-card :vehicle="$vehicle" />
                     <x-vehicles.weapon-storage-card :vehicle="$vehicle" />

@@ -6,6 +6,8 @@ use App\Models\Game\GameVersion;
 use App\Models\Game\Manufacturer;
 use App\Models\Game\Vehicle;
 use App\Models\Game\VehicleData;
+use Dom\HTMLDocument;
+use Dom\XPath;
 
 it('renders nested hardpoints on the vehicle page', function (): void {
     $version = GameVersion::factory()->create([
@@ -118,3 +120,102 @@ it('renders nested hardpoints on the vehicle page', function (): void {
         ->assertSeeText('S1')
         ->assertSeeText('S1 1');
 });
+
+it('renders mounting positions on the vehicle detail page', function (string $snapshot): void {
+    $version = GameVersion::factory()->create(['is_default' => true]);
+    $vehicle = Vehicle::factory()->create();
+    $dump = json_decode(file_get_contents(base_path('tests/Fixtures/mounting-positions/populated.json')), true, flags: JSON_THROW_ON_ERROR);
+    $dump['Loadout'][0]['Loadout'][0]['PortDisplayName'] = 'Nose cannon socket';
+    $dump['Loadout'][0]['PortDisplayName'] = 'Nose gimbal socket';
+    $dump['Loadout'][] = [
+        'PortId' => 'test.vacant', 'PortDisplayName' => 'Vacant tool socket', 'MinSize' => 2, 'MaxSize' => 4,
+    ];
+    $dump['MountingPositions'][] = [
+        'PortId' => 'test.vacant', 'Occupied' => false, 'MinSize' => 2, 'MaxSize' => 4, 'Payload' => [],
+    ];
+    $dump['MountingPositions'][0]['IsPilotSlaveable'] = true;
+    array_push($dump['MountingPositions'][1]['ControlRoutes'],
+        ['Kind' => 'Controller', 'Operator' => 'Pilot', 'Control' => 'Aim', 'SeatPortId' => 'test.aim'],
+        ['Kind' => 'Controller', 'Operator' => 'Crew', 'Control' => 'Payload', 'SeatPortId' => 'test.seat', 'ControllerPortId' => 'test.payload-controller'],
+        ['Kind' => 'Controller', 'Operator' => 'Crew', 'Control' => 'Aim', 'SeatPortId' => 'test.seat', 'ControllerPortId' => 'test.aim-controller'],
+        ['Kind' => 'Controller', 'Operator' => 'Crew', 'SeatPortId' => 'test.reserve'],
+    );
+    array_push($dump['Loadout'],
+        ['PortId' => 'test.aim', 'PortDisplayName' => 'Pilot seat'],
+        ['PortId' => 'test.seat', 'PortDisplayName' => 'Utility operator seat'],
+        ['PortId' => 'test.reserve', 'PortDisplayName' => 'Reserve seat'],
+    );
+    $dump['Loadout'][] = ['PortId' => 'test.pdc', 'PortDisplayName' => 'port_NameTurret05', 'HardpointName' => 'hardpoint_left_lower_turret'];
+    $dump['MountingPositions'][] = ['PortId' => 'test.pdc', 'MountType' => 'Turret', 'TurretRole' => 'Pdc', 'Occupied' => true, 'Payload' => []];
+
+    if ($snapshot === 'empty') {
+        $dump['MountingPositions'] = [];
+    } elseif ($snapshot === 'older') {
+        unset($dump['MountingPositions']);
+    } elseif ($snapshot === 'no turrets') {
+        $dump['MountingPositions'] = array_values(array_filter($dump['MountingPositions'], fn (array $position): bool => ($position['MountType'] ?? null) !== 'Turret'));
+    }
+
+    VehicleData::factory()->for($vehicle)->for($version, 'gameVersion')->create(['data' => $dump]);
+
+    $response = $this->get(route('web.vehicles.show', $vehicle->uuid))->assertOk();
+
+    $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR | Dom\HTML_NO_DEFAULT_NS);
+    $xpath = new XPath($document);
+    $card = '//section[@aria-labelledby="mounting-positions-heading"]';
+    $legacyHeading = '//h2[normalize-space(.)="Turrets"]';
+
+    if ($snapshot === 'older') {
+        expect($xpath->query($card))->toHaveCount(0)
+            ->and($xpath->query($legacyHeading))->toHaveCount(1);
+
+        return;
+    }
+
+    expect($xpath->query($card))->toHaveCount(1)
+        ->and($xpath->query($legacyHeading))->toHaveCount(0);
+
+    if ($snapshot === 'empty') {
+        expect($xpath->evaluate("normalize-space({$card}//p)"))->toBe('No mounting positions');
+
+        return;
+    }
+
+    $firstTab = $snapshot === 'no turrets' ? 'Gimbals' : 'Turrets';
+    expect($xpath->evaluate("string(({$card}//input[@role='tab'])[1]/@aria-label)"))->toBe($firstTab)
+        ->and($xpath->query("{$card}//input[@checked]"))->toHaveCount(1)
+        ->and($xpath->query("{$card}//input[@aria-label='{$firstTab}'][@checked]"))->toHaveCount(1);
+
+    if ($snapshot === 'no turrets') {
+        expect($xpath->query("{$card}//input[@aria-label='Turrets']"))->toHaveCount(0);
+
+        return;
+    }
+
+    $gimbal = "{$card}//*[@id='mounting-panel-Gimbal']//tbody/tr";
+    $vacant = "{$card}//*[@id='mounting-panel-Vacant']//tbody/tr";
+    $turretRows = "{$card}//*[@id='mounting-panel-Turret']//tbody/tr[th[@scope='row']]";
+    $manned = "({$turretRows})[1]";
+    $pdc = "({$turretRows})[2]";
+
+    expect($xpath->query($gimbal))->toHaveCount(1)
+        ->and($xpath->evaluate("normalize-space({$gimbal}/th/div[1])"))->toBe('Nose gimbal socket')
+        ->and($xpath->evaluate("normalize-space({$gimbal}/th/div[2])"))->toBe('Mount_Gimbal_S5')
+        ->and($xpath->evaluate("normalize-space({$gimbal}/th//li)"))->toContain('Nose cannon socket:', 'Deadbolt V Cannon')
+        ->and($xpath->query("{$gimbal}/th//a"))->toHaveCount(0)
+        ->and($xpath->query("{$vacant}/th//a"))->toHaveCount(0)
+        ->and($xpath->evaluate("normalize-space({$gimbal}/td[3])"))->toBe('No control information')
+        ->and($xpath->evaluate("normalize-space({$vacant}/th)"))->toBe('Vacant tool socket')
+        ->and($xpath->evaluate("normalize-space({$vacant}/td[1])"))->toBe('-')
+        ->and($xpath->evaluate("normalize-space({$vacant}/td[2])"))->toBe('S2-S4')
+        ->and($xpath->query("{$manned}/td[3]/div"))->toHaveCount(4)
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[1])"))->toBe('Crew (Inside turret)')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[2])"))->toBe('Pilot (Via controller) Seat: Pilot seat')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[3])"))->toBe('Crew (Via controller) Seat: Utility operator seat')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[4])"))->toBe('Crew (Via controller) Seat: Reserve seat')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[4])"))->toContain('DPS: 750.0', 'Sustained DPS: 672.0', 'Alpha: 90.0')
+        ->and($xpath->evaluate("normalize-space({$pdc}/th)"))->toBe('Left Lower Turret')
+        ->and($xpath->evaluate("normalize-space({$pdc}/td[3])"))->toBe('AI-controlled');
+
+    $response->assertDontSee('test.seat')->assertDontSee('test.vacant');
+})->with(['populated', 'empty', 'older', 'no turrets']);
