@@ -3853,6 +3853,7 @@ paths:
               schema:
                 properties:
                   data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
+                  meta: { $ref: '#/components/schemas/metadata' }
                 type: object
         '404':
           description: 'Vehicle not found, or no data for the requested game version.'
@@ -3894,6 +3895,7 @@ paths:
               schema:
                 properties:
                   data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
+                  meta: { $ref: '#/components/schemas/metadata' }
                 type: object
         '404':
           description: 'Vehicle not found, or no data for the requested game version.'
@@ -3935,6 +3937,7 @@ paths:
               schema:
                 properties:
                   data: { oneOf: [{ $ref: '#/components/schemas/game_vehicle' }, { $ref: '#/components/schemas/ship_matrix_vehicle' }] }
+                  meta: { $ref: '#/components/schemas/metadata' }
                 type: object
         '404':
           description: 'Vehicle not found, or no data for the requested game version.'
@@ -17968,6 +17971,127 @@ components:
           nullable: true
       type: object
       deprecated: true
+    game_vehicle_mounting_position:
+      required:
+        - port_id
+        - occupied
+        - min_size
+        - max_size
+        - payload
+      properties:
+        port_id:
+          description: 'ID of the corresponding loadout port in this snapshot.'
+          type: string
+        hardpoint_name:
+          type: string
+        occupied:
+          type: boolean
+        min_size:
+          description: 'Minimum size accepted by the port.'
+          type: integer
+        max_size:
+          description: 'Maximum size accepted by the port.'
+          type: integer
+        installed_size:
+          description: 'Size of the installed item.'
+          type: integer
+        mount_type:
+          description: 'Installed mount type. Absent for vacant positions or unknown types.'
+          type: string
+          enum:
+            - Fixed
+            - Gimbal
+            - Turret
+            - Rack
+            - Missile
+            - Tool
+            - Device
+        turret_role:
+          type: string
+          enum:
+            - Manned
+            - Remote
+            - Pdc
+            - Autonomous
+        is_pilot_slaveable:
+          description: 'Legacy slaveability flag, not a control route.'
+          type: boolean
+        payload:
+          type: array
+          items:
+            required:
+              - port_id
+            properties:
+              port_id:
+                type: string
+              hardpoint_name:
+                type: string
+              uuid:
+                type: string
+              class_name:
+                type: string
+              name:
+                type: string
+              type:
+                type: string
+              size:
+                type: integer
+            type: object
+        control_routes:
+          description: 'Known control routes. Absence means unknown.'
+          type: array
+          items:
+            required:
+              - kind
+              - operator
+              - seat_port_id
+            properties:
+              kind:
+                type: string
+                enum:
+                  - Controller
+                  - InTurret
+              operator:
+                type: string
+                enum:
+                  - Pilot
+                  - Crew
+              seat_port_id:
+                type: string
+              controller_port_id:
+                type: string
+              control:
+                description: 'Scope the module controller grants on this route: weapon-style aim (Aim) or tractor/salvage payload (Payload). Only present on routes bound to an installed vehicle module controller; older routes omit it.'
+                type: string
+                enum:
+                  - Aim
+                  - Payload
+            type: object
+        combat_stats:
+          description: 'Combat stats reported by the dump without recalculation.'
+          properties:
+            dps_total:
+              type: number
+            sustained_dps_total:
+              type: number
+            alpha_total:
+              type: number
+            is_pilot_slaveable:
+              type: boolean
+            weapons:
+              type: array
+              items:
+                properties:
+                  uuid: { type: string }
+                  class_name: { type: string }
+                  name: { type: string }
+                  dps: { type: number }
+                  sustained_dps: { type: number }
+                  alpha: { type: number }
+                  is_pilot_slaveable: { type: boolean }
+                type: object
+          type: object
+      type: object
     game_vehicle_part:
       title: 'Vehicle Structure Part'
       description: 'Structural hierarchy for the vehicle with damage caps.'
@@ -18010,6 +18134,31 @@ components:
       title: 'Vehicle Port / Hardpoint'
       description: 'Ports (hardpoints) as defined in scunpacked ship files. Nested ports are supported.'
       properties:
+        port_id:
+          description: 'Snapshot-local port ID on v3 and unversioned detail responses when provided by the dump.'
+          type: string
+        mount_type:
+          description: 'Installed mount type when classified by the dump.'
+          type: string
+        turret_role:
+          description: 'Turret role when classified by the dump.'
+          type: string
+        port_display_name:
+          description: 'Localized display name of this port as exported by the snapshot, including nested adapter and payload ports. Present on v3 and unversioned detail responses when provided by the dump.'
+          type: string
+          nullable: true
+        part_display_name:
+          description: 'Localized display name of the hull part hosting this port. Present on v3 and unversioned detail responses when provided by the dump.'
+          type: string
+          nullable: true
+        part_name:
+          description: 'Name of the hull part hosting this port. Present on v3 and unversioned detail responses when provided by the dump.'
+          type: string
+          nullable: true
+        installed_size:
+          description: 'Size of the installed item as declared by the snapshot, including nested adapters such as gimbal mounts. Distinct from the port capacity in sizes; resolved from the snapshot without a database lookup.'
+          type: integer
+          nullable: true
         name:
           description: 'Hardpoint name from scunpacked ship data.'
           type: string
@@ -19584,6 +19733,11 @@ components:
               nullable: true
           type: object
           nullable: true
+        mounting_positions:
+          description: 'Weapon and utility mounting positions in the loadout, including vacant and occupied gun, turret, missile rack, and utility tool positions. Excludes unrelated equipment such as shields and coolers. Only on v3 and unversioned detail responses for snapshots that provide this list: an absent key means an older snapshot without the list, while an empty list means the snapshot provides the list and the vehicle has no eligible positions. Each position links to exactly one loadout entry in ports, including nested entries, by port_id; do not join by hardpoint name.'
+          type: array
+          items:
+            $ref: '#/components/schemas/game_vehicle_mounting_position'
         ports:
           description: 'Equipment ports from ship loadout. On show routes: full ports with resolved items and nested children. On index routes: primary hardpoints only, lightweight items from raw JSON.'
           type: array
@@ -19602,22 +19756,29 @@ components:
             $ref: '#/components/schemas/game_vehicle_part'
           nullable: true
         turrets:
+          description: 'Legacy turret summaries. Deprecated on v3 and unversioned detail responses that include mounting_positions (see turrets.manned, turrets.remote, turrets.pdc).'
           properties:
             manned:
+              description: 'Deprecated, use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id. Older snapshots without mounting_positions keep returning these summaries unchanged.'
               type: array
               items:
                 $ref: '#/components/schemas/game_vehicle_turret'
               nullable: true
+              deprecated: true
             remote:
+              description: 'Deprecated, use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id. Older snapshots without mounting_positions keep returning these summaries unchanged.'
               type: array
               items:
                 $ref: '#/components/schemas/game_vehicle_turret'
               nullable: true
+              deprecated: true
             pdc:
+              description: 'Deprecated, use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id. Older snapshots without mounting_positions keep returning these summaries unchanged.'
               type: array
               items:
                 $ref: '#/components/schemas/game_vehicle_turret'
               nullable: true
+              deprecated: true
           type: object
           nullable: true
         cross_section:
@@ -20088,8 +20249,10 @@ components:
           description: 'The Game Version this item exists in.'
           type: string
         deprecated_fields:
-          description: 'Deprecated fields that will be removed in future versions.'
-          type: string
+          description: 'Deprecated response fields that will be removed in future versions, as a map of dotted field paths to migration hints.'
+          type: object
+          additionalProperties:
+            type: string
         resource:
           $ref: '#/components/schemas/canonical_resource_meta'
       type: object

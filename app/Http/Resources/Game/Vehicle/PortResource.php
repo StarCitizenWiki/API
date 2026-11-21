@@ -23,6 +23,13 @@ use OpenApi\Attributes as OA;
     title: 'Vehicle Port / Hardpoint',
     description: 'Ports (hardpoints) as defined in scunpacked ship files. Nested ports are supported.',
     properties: [
+        new OA\Property(property: 'port_id', description: 'Snapshot-local port ID on v3 and unversioned detail responses when provided by the dump.', type: 'string'),
+        new OA\Property(property: 'mount_type', description: 'Installed mount type when classified by the dump.', type: 'string'),
+        new OA\Property(property: 'turret_role', description: 'Turret role when classified by the dump.', type: 'string'),
+        new OA\Property(property: 'port_display_name', description: 'Localized display name of this port as exported by the snapshot, including nested adapter and payload ports. Present on v3 and unversioned detail responses when provided by the dump.', type: 'string', nullable: true),
+        new OA\Property(property: 'part_display_name', description: 'Localized display name of the hull part hosting this port. Present on v3 and unversioned detail responses when provided by the dump.', type: 'string', nullable: true),
+        new OA\Property(property: 'part_name', description: 'Name of the hull part hosting this port. Present on v3 and unversioned detail responses when provided by the dump.', type: 'string', nullable: true),
+        new OA\Property(property: 'installed_size', description: 'Size of the installed item as declared by the snapshot, including nested adapters such as gimbal mounts. Distinct from the port capacity in sizes; resolved from the snapshot without a database lookup.', type: 'integer', nullable: true),
         new OA\Property(property: 'name', description: 'Hardpoint name from scunpacked ship data.', type: 'string', example: 'hardpoint_weapon_class2_nose'),
         new OA\Property(property: 'position', description: 'Positional label (e.g. left, right, nose).', type: 'string', example: 'left', nullable: true),
         new OA\Property(property: 'sizes', description: 'Minimum and maximum item sizes the port accepts.', properties: [
@@ -117,7 +124,22 @@ class PortResource extends AbstractBaseResource
         $minSize = $this->resource['MinSize'] ?? null;
         $maxSize = $this->resource['MaxSize'] ?? null;
 
+        // Every non-v2 show route serves the snapshot carriers; no PortId
+        // (older dump) means the dump never exported them.
+        $hasPortId = $isShowRoute && $request->route('api_version') !== 'v2' && isset($this->resource['PortId']);
+        $hasPortDisplayName = $hasPortId && array_key_exists('PortDisplayName', $this->resource);
+        $hasPartDisplayName = $hasPortId && array_key_exists('PartDisplayName', $this->resource);
+        $hasPartName = $hasPortId && array_key_exists('PartName', $this->resource);
+        $hasInstalledSize = $hasPortId && array_key_exists('InstalledSize', $this->resource);
+
         return [
+            'port_id' => $this->when($hasPortId, $this->resource['PortId'] ?? null),
+            'mount_type' => $this->when($hasPortId && isset($this->resource['MountType']), $this->resource['MountType'] ?? null),
+            'turret_role' => $this->when($hasPortId && isset($this->resource['TurretRole']), $this->resource['TurretRole'] ?? null),
+            'port_display_name' => $this->when($hasPortDisplayName, $this->resource['PortDisplayName'] ?? null),
+            'part_display_name' => $this->when($hasPartDisplayName, $this->resource['PartDisplayName'] ?? null),
+            'part_name' => $this->when($hasPartName, $this->resource['PartName'] ?? null),
+            'installed_size' => $this->when($hasInstalledSize, $this->resource['InstalledSize'] ?? null),
             'name' => $this->resource['HardpointName'] ?? null,
             'position' => $this->resource['Position'] ?? null,
             'class_name' => $this->resource['ClassName'] ?? null,

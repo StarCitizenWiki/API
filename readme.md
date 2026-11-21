@@ -5,7 +5,7 @@
 [![Laravel 13](https://img.shields.io/badge/Laravel-13-FF2D20.svg)](https://laravel.com)
 [![Docker Build](https://github.com/StarCitizenWiki/API/actions/workflows/docker.yml/badge.svg)](https://github.com/StarCitizenWiki/API/actions/workflows/docker.yml)
 
-The Star Citizen Wiki / Tools API for Star Citizen game data – vehicles, items, manufacturers, star systems, missions, commodities, comm-links, and galactapedia entries.
+The Star Citizen Wiki / Tools API for Star Citizen game data: vehicles, items, manufacturers, star systems, missions, commodities, comm-links, and galactapedia entries.
 
 Interactive **Swagger API documentation:** [docs.star-citizen.wiki](https://docs.star-citizen.wiki)
 
@@ -130,6 +130,7 @@ Visit [http://localhost:8080](http://localhost:8080) to verify.
 | [Artisan Commands](docs/commands.md)              | All custom commands and scheduled tasks          |
 | [Docker Guide](docs/docker.md)                    | Architecture, queues, volumes, and Traefik setup |
 | [v2 Migration](docs/migration-v2.md)              | Migrating from v2 to v3                          |
+| [Turret Migration](docs/migration-turrets.md)     | Migrating to v3 mounting positions               |
 
 
 ## Third-Party Data & Attributions

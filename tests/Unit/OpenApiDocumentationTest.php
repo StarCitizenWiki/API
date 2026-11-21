@@ -114,6 +114,23 @@ describe('OpenAPI specification', function (): void {
         expect($property['type'] ?? null)->toBe('boolean');
     });
 
+    it('marks exactly the three legacy turret buckets deprecated with a string notice map', function (): void {
+        $buckets = $this->spec['components']['schemas']['game_vehicle']['properties']['turrets']['properties'] ?? null;
+
+        expect($buckets)->toBeArray('game_vehicle.turrets.properties missing from spec');
+        expect(array_keys($buckets))->toBe(['manned', 'remote', 'pdc']);
+
+        foreach ($buckets as $bucket => $property) {
+            expect($property['deprecated'] ?? null)->toBeTrue("Legacy turret bucket {$bucket} should be flagged deprecated");
+        }
+
+        $notices = $this->spec['components']['schemas']['metadata']['properties']['deprecated_fields'] ?? null;
+
+        expect($notices)->toBeArray('metadata.deprecated_fields missing from spec')
+            ->and($notices['type'] ?? null)->toBe('object')
+            ->and($notices['additionalProperties']['type'] ?? null)->toBe('string');
+    });
+
     it('documents the public user fields returned by /api/user', function (): void {
         $userSchema = $this->spec['paths']['/api/user']['get']['responses'][200]['content']['application/json']['schema']['properties'] ?? [];
 
