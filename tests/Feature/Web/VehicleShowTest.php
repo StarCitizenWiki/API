@@ -132,21 +132,30 @@ it('renders mounting positions on the vehicle detail page', function (string $sn
     ];
     $dump['MountingPositions'][] = [
         'PortId' => 'test.vacant', 'Occupied' => false, 'MinSize' => 2, 'MaxSize' => 4, 'Payload' => [],
+        'OperatingStations' => [['Kind' => 'Pilot', 'SeatPortId' => 'test.aim', 'Name' => 'Stale vacant station']],
     ];
     $dump['MountingPositions'][0]['IsPilotSlaveable'] = true;
-    array_push($dump['MountingPositions'][1]['ControlRoutes'],
+    $dump['MountingPositions'][1]['ControlRoutes'] = [
         ['Kind' => 'Controller', 'Operator' => 'Pilot', 'Control' => 'Aim', 'SeatPortId' => 'test.aim'],
-        ['Kind' => 'Controller', 'Operator' => 'Crew', 'Control' => 'Payload', 'SeatPortId' => 'test.seat', 'ControllerPortId' => 'test.payload-controller'],
-        ['Kind' => 'Controller', 'Operator' => 'Crew', 'Control' => 'Aim', 'SeatPortId' => 'test.seat', 'ControllerPortId' => 'test.aim-controller'],
+        ['Kind' => 'Controller', 'Operator' => 'Crew', 'Control' => 'Payload', 'SeatPortId' => 'test.seat'],
         ['Kind' => 'Controller', 'Operator' => 'Crew', 'SeatPortId' => 'test.reserve'],
-    );
+    ];
+    $dump['MountingPositions'][1]['OperatingStations'] = [
+        ['Kind' => 'InTurret', 'SeatPortId' => 'loadout.36', 'Name' => 'Seat inside turret'],
+        ['Kind' => 'Pilot', 'SeatPortId' => 'test.aim', 'Name' => 'Pilot seat'],
+        ['Kind' => 'Crew', 'SeatPortId' => 'test.seat', 'Name' => 'Utility operator seat'],
+        ['Kind' => 'Crew', 'SeatPortId' => 'test.reserve', 'Name' => 'Reserve seat'],
+    ];
+    $dump['MountingPositions'][0]['ControlRoutes'] = [
+        ['Kind' => 'Controller', 'Operator' => 'Pilot', 'SeatPortId' => 'test.aim'],
+    ];
     array_push($dump['Loadout'],
         ['PortId' => 'test.aim', 'PortDisplayName' => 'Pilot seat'],
-        ['PortId' => 'test.seat', 'PortDisplayName' => 'Utility operator seat'],
+        ['PortId' => 'test.seat', 'PortDisplayName' => 'Legacy utility port label'],
         ['PortId' => 'test.reserve', 'PortDisplayName' => 'Reserve seat'],
     );
     $dump['Loadout'][] = ['PortId' => 'test.pdc', 'PortDisplayName' => 'port_NameTurret05', 'HardpointName' => 'hardpoint_left_lower_turret'];
-    $dump['MountingPositions'][] = ['PortId' => 'test.pdc', 'MountType' => 'Turret', 'TurretRole' => 'Pdc', 'Occupied' => true, 'Payload' => []];
+    $dump['MountingPositions'][] = ['PortId' => 'test.pdc', 'MountType' => 'Turret', 'TurretRole' => 'Pdc', 'Occupied' => true, 'Payload' => [], 'OperatingStations' => []];
 
     if ($snapshot === 'empty') {
         $dump['MountingPositions'] = [];
@@ -204,18 +213,27 @@ it('renders mounting positions on the vehicle detail page', function (string $sn
         ->and($xpath->evaluate("normalize-space({$gimbal}/th//li)"))->toContain('Nose cannon socket:', 'Deadbolt V Cannon')
         ->and($xpath->query("{$gimbal}/th//a"))->toHaveCount(0)
         ->and($xpath->query("{$vacant}/th//a"))->toHaveCount(0)
-        ->and($xpath->evaluate("normalize-space({$gimbal}/td[3])"))->toBe('No control information')
+        ->and($xpath->evaluate("normalize-space({$gimbal}/td[3])"))->toBe('Unknown')
+        ->and($xpath->evaluate("normalize-space({$gimbal}/td[4])"))->toBe('DPS: 450.0 Sustained DPS: 0.0')
+        ->and($xpath->evaluate("normalize-space({$gimbal}/th//li)"))->toContain('DPS: 450.0', 'Sustained DPS: 0.0')
+        ->and($xpath->evaluate("normalize-space({$card}//*[@id='mounting-panel-Rack']//tbody/tr/td[4])"))->toBe("Missile damage: 1\u{00a0}600.0")
         ->and($xpath->evaluate("normalize-space({$vacant}/th)"))->toBe('Vacant tool socket')
         ->and($xpath->evaluate("normalize-space({$vacant}/td[1])"))->toBe('-')
         ->and($xpath->evaluate("normalize-space({$vacant}/td[2])"))->toBe('S2-S4')
-        ->and($xpath->query("{$manned}/td[3]/div"))->toHaveCount(4)
-        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[1])"))->toBe('Crew (Inside turret)')
-        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[2])"))->toBe('Pilot (Via controller) Seat: Pilot seat')
-        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[3])"))->toBe('Crew (Via controller) Seat: Utility operator seat')
-        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[4])"))->toBe('Crew (Via controller) Seat: Reserve seat')
+        ->and($xpath->evaluate("normalize-space({$vacant}/td[3])"))->toBe('-')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[1])"))->toBe('Seat inside turret')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[2])"))->toBe('Pilot seat')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[3])"))->toBe('Utility operator seat')
+        ->and($xpath->evaluate("normalize-space({$manned}/td[3]/div[4])"))->toBe('Reserve seat')
         ->and($xpath->evaluate("normalize-space({$manned}/td[4])"))->toContain('DPS: 750.0', 'Sustained DPS: 672.0', 'Alpha: 90.0')
         ->and($xpath->evaluate("normalize-space({$pdc}/th)"))->toBe('Left Lower Turret')
-        ->and($xpath->evaluate("normalize-space({$pdc}/td[3])"))->toBe('AI-controlled');
+        ->and($xpath->evaluate("normalize-space({$pdc}/td[3])"))->toBe('Unknown');
+
+    $response->assertSeeText('Operated from')
+        ->assertDontSeeText('Via controller')
+        ->assertDontSeeText('Controlled by')
+        ->assertDontSeeText('Stale vacant station')
+        ->assertDontSeeText('Legacy utility port label');
 
     $response->assertDontSee('test.seat')->assertDontSee('test.vacant');
 })->with(['populated', 'empty', 'older', 'no turrets']);

@@ -18036,60 +18036,54 @@ components:
                 type: string
               size:
                 type: integer
+              combat_stats:
+                description: 'Reported stats for the item installed at this port. Unreported metrics are omitted.'
+                properties:
+                  dps: { description: 'Gun damage per second.', type: number }
+                  sustained_dps: { description: 'Sustained gun damage per second.', type: number }
+                  alpha: { description: 'Gun damage per shot.', type: number }
+                  missile_damage: { description: 'Total damage of this installed missile, not damage per second.', type: number, example: 1600 }
+                type: object
             type: object
-        control_routes:
-          description: 'Known control routes. Absence means unknown.'
+        operating_stations:
+          description: 'Verified stations a player can occupy to fire the installed weapon or use the installed tool. Omitted for vacant positions. On occupied positions, an absent or empty list means unknown. A listed station does not rule out other stations. Older technical control routes are never used as a fallback.'
           type: array
           items:
             required:
               - kind
-              - operator
               - seat_port_id
+              - name
             properties:
               kind:
                 type: string
                 enum:
-                  - Controller
-                  - InTurret
-              operator:
-                type: string
-                enum:
                   - Pilot
                   - Crew
+                  - InTurret
               seat_port_id:
+                description: 'Snapshot-local loadout port ID of the installed seat, or of the turret with an integrated seat.'
                 type: string
-              controller_port_id:
+              name:
+                description: 'Station name supplied by the dumper.'
                 type: string
-              control:
-                description: 'Game-data binding for an installed module controller: Aim means a weapon controller targets the turret; Payload means a salvage controller targets the tractor beam. Neither value describes or limits what the player can do in-game. Omitted when no such binding is reported.'
-                type: string
-                enum:
-                  - Aim
-                  - Payload
+                example: 'Pilot seat'
             type: object
         combat_stats:
-          description: 'Combat stats reported by the dump without recalculation.'
+          description: 'Combat stats for this position. The installed totals sum reported values across payload ports and omit unreported metrics.'
           properties:
-            dps_total:
+            dps:
+              description: 'Total gun damage per second for installed payload.'
               type: number
-            sustained_dps_total:
+            sustained_dps:
+              description: 'Total sustained gun damage per second for installed payload.'
               type: number
-            alpha_total:
+            alpha:
+              description: 'Sum of gun damage per shot for installed payload.'
               type: number
-            is_pilot_slaveable:
-              type: boolean
-            weapons:
-              type: array
-              items:
-                properties:
-                  uuid: { type: string }
-                  class_name: { type: string }
-                  name: { type: string }
-                  dps: { type: number }
-                  sustained_dps: { type: number }
-                  alpha: { type: number }
-                  is_pilot_slaveable: { type: boolean }
-                type: object
+            missile_damage:
+              description: 'Sum of damage for missiles actually loaded in this position. Not DPS, salvo damage, or full rack capacity damage.'
+              type: number
+              example: 1600
           type: object
       type: object
     game_vehicle_part:
