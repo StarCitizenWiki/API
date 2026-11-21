@@ -481,6 +481,12 @@ use OpenApi\Attributes as OA;
             nullable: true
         ),
         new OA\Property(
+            property: 'mounting_positions',
+            description: 'Weapon and utility mounting positions in the loadout, including vacant and occupied gun, turret, missile rack, and utility tool positions. Excludes unrelated equipment such as shields and coolers. Only on v3 and unversioned detail responses for snapshots that provide this list: an absent key means an older snapshot without the list, while an empty list means the snapshot provides the list and the vehicle has no eligible positions. Each position links to exactly one loadout entry in ports, including nested entries, by port_id; do not join by hardpoint name.',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/game_vehicle_mounting_position'),
+        ),
+        new OA\Property(
             property: 'ports',
             description: 'Equipment ports from ship loadout. On show routes: full ports with resolved items and nested children. On index routes: primary hardpoints only, lightweight items from raw JSON.',
             type: 'array',
@@ -502,10 +508,32 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'turrets',
+            description: 'Legacy turret summaries. Deprecated on v3 and unversioned detail responses that include mounting_positions (see turrets.manned, turrets.remote, turrets.pdc).',
             properties: [
-                new OA\Property(property: 'manned', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
-                new OA\Property(property: 'remote', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
-                new OA\Property(property: 'pdc', type: 'array', items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'), nullable: true),
+                new OA\Property(
+                    property: 'manned',
+                    description: 'Deprecated, use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id. Older snapshots without mounting_positions keep returning these summaries unchanged.',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'),
+                    nullable: true,
+                    deprecated: true
+                ),
+                new OA\Property(
+                    property: 'remote',
+                    description: 'Deprecated, use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id. Older snapshots without mounting_positions keep returning these summaries unchanged.',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'),
+                    nullable: true,
+                    deprecated: true
+                ),
+                new OA\Property(
+                    property: 'pdc',
+                    description: 'Deprecated, use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id. Older snapshots without mounting_positions keep returning these summaries unchanged.',
+                    type: 'array',
+                    items: new OA\Items(ref: '#/components/schemas/game_vehicle_turret'),
+                    nullable: true,
+                    deprecated: true
+                ),
             ],
             type: 'object',
             nullable: true
@@ -817,6 +845,14 @@ class VehicleResource extends AbstractBaseResource
 
         $portKey = $apiVersion === 'v2' ? 'hardpoints' : 'ports';
 
+        // Canonical and alias routes carry no api_version; every non-v2 show
+        // route serves the v3 shape. The legacy turret summaries stay in every
+        // response; the deprecation notices appear only where the replacement
+        // is actually served.
+        $servesMountingPositions = $apiVersion !== 'v2'
+            && $this->isVehicleShowRoute($request)
+            && isset($payload['MountingPositions']);
+
         $cargoGridPayload = $payload['CargoGrids'] ?? [];
         $cargoLimits = $this->calculateCargoGridSizeLimits($cargoGridPayload);
 
@@ -850,6 +886,14 @@ class VehicleResource extends AbstractBaseResource
             'armor.damage_multipliers' => 'Use armor.damage_multiplier instead.',
             'armor.resistance_multipliers' => 'Use armor.resistance_multiplier instead.',
         ]);
+
+        if ($servesMountingPositions) {
+            $this->addMetadata('deprecated_fields', [
+                'turrets.manned' => 'Use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id.',
+                'turrets.remote' => 'Use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id.',
+                'turrets.pdc' => 'Use mounting_positions on v3 and unversioned detail responses instead and join each row to its loadout port by port_id.',
+            ]);
+        }
 
         return [
             'uuid' => $this->vehicle->uuid,
@@ -1087,6 +1131,10 @@ class VehicleResource extends AbstractBaseResource
             $this->mergeWhen(
                 ! $this->isVehicleShowRoute($request),
                 fn () => [$portKey => $this->buildLightweightPorts($payload, $request)]
+            ),
+            'mounting_positions' => $this->when(
+                $servesMountingPositions,
+                fn () => MountingPositionResource::collection($payload['MountingPositions']),
             ),
             'parts' => $this->buildParts($payload, $request),
             'turrets' => [

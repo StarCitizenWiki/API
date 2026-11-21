@@ -1,0 +1,1082 @@
+{
+    "UUID": "a8208d11-32d4-4a4a-82c4-fd7f498b2ae6",
+    "ClassName": "AEGS_Vanguard",
+    "Name": "Aegis Vanguard Warden",
+    "Loadout": [
+        {
+            "HardpointName": "hardpoint_weapon_gun_nose",
+            "ClassName": "Mount_Gimbal_S5",
+            "UUID": "99e0ea17-45fc-4700-8607-ab879d05a284",
+            "Name": "VariPuck S5 Gimbal Mount",
+            "ManufacturerName": "Flashfire Systems",
+            "Type": "Turret.GunTurret",
+            "Grade": 1,
+            "Loadout": [
+                {
+                    "HardpointName": "hardpoint_class_2",
+                    "ClassName": "ESPR_BallisticCannon_S5",
+                    "UUID": "76775574-fcf2-493d-859e-337f1267a7ef",
+                    "Name": "Deadbolt V Cannon",
+                    "ManufacturerName": "Esperia",
+                    "Type": "WeaponGun.Gun",
+                    "Grade": 1,
+                    "Loadout": [
+                        {
+                            "HardpointName": "BAR1",
+                            "ClassName": "ESPR_BallisticCannon_Barrel_S5",
+                            "UUID": "e2d856c4-0ba3-40af-a2c7-a444786bf885",
+                            "Name": "<= PLACEHOLDER =>",
+                            "ManufacturerName": "Unknown Manufacturer",
+                            "Type": "WeaponAttachment.Barrel",
+                            "Grade": 5,
+                            "Editable": false,
+                            "EditableChildren": false,
+                            "CompatibleTypes": [
+                                {
+                                    "Type": "WeaponAttachment",
+                                    "SubTypes": [
+                                        "Barrel"
+                                    ]
+                                }
+                            ],
+                            "MaxSize": 5,
+                            "MinSize": 5,
+                            "PortId": "loadout.2.loadout.0.loadout.0",
+                            "ParentPortId": "loadout.2.loadout.0",
+                            "RootPortId": "loadout.2",
+                            "Path": [
+                                "hardpoint_weapon_gun_nose",
+                                "hardpoint_class_2",
+                                "BAR1"
+                            ]
+                        },
+                        {
+                            "HardpointName": "MEC",
+                            "ClassName": "ESPR_BallisticCannon_FiringMechanism_S5",
+                            "UUID": "f345bdce-1969-4da9-8178-bd83094d14eb",
+                            "Name": "<= PLACEHOLDER =>",
+                            "ManufacturerName": "Esperia",
+                            "Type": "WeaponAttachment.FiringMechanism",
+                            "Grade": 5,
+                            "Editable": false,
+                            "EditableChildren": false,
+                            "CompatibleTypes": [
+                                {
+                                    "Type": "WeaponAttachment",
+                                    "SubTypes": [
+                                        "FiringMechanism"
+                                    ]
+                                }
+                            ],
+                            "MaxSize": 5,
+                            "MinSize": 5,
+                            "PortId": "loadout.2.loadout.0.loadout.1",
+                            "ParentPortId": "loadout.2.loadout.0",
+                            "RootPortId": "loadout.2",
+                            "Path": [
+                                "hardpoint_weapon_gun_nose",
+                                "hardpoint_class_2",
+                                "MEC"
+                            ]
+                        },
+                        {
+                            "HardpointName": "POW",
+                            "ClassName": "ESPR_BallisticCannon_PowerArray_S5",
+                            "UUID": "2a558e7b-8756-419c-a2e5-c0f9bc72ded4",
+                            "Name": "<= PLACEHOLDER =>",
+                            "ManufacturerName": "Unknown Manufacturer",
+                            "Type": "WeaponAttachment.PowerArray",
+                            "Grade": 5,
+                            "Editable": false,
+                            "EditableChildren": false,
+                            "CompatibleTypes": [
+                                {
+                                    "Type": "WeaponAttachment",
+                                    "SubTypes": [
+                                        "PowerArray"
+                                    ]
+                                }
+                            ],
+                            "MaxSize": 5,
+                            "MinSize": 5,
+                            "PortId": "loadout.2.loadout.0.loadout.2",
+                            "ParentPortId": "loadout.2.loadout.0",
+                            "RootPortId": "loadout.2",
+                            "Path": [
+                                "hardpoint_weapon_gun_nose",
+                                "hardpoint_class_2",
+                                "POW"
+                            ]
+                        },
+                        {
+                            "HardpointName": "VEN",
+                            "ClassName": "ESPR_BallisticCannon_Ventilation_S5",
+                            "UUID": "6594c807-395c-4930-9aa5-9bbc912e7946",
+                            "Name": "<= PLACEHOLDER =>",
+                            "ManufacturerName": "Unknown Manufacturer",
+                            "Type": "WeaponAttachment.Ventilation",
+                            "Grade": 5,
+                            "Editable": false,
+                            "EditableChildren": false,
+                            "CompatibleTypes": [
+                                {
+                                    "Type": "WeaponAttachment",
+                                    "SubTypes": [
+                                        "Ventilation"
+                                    ]
+                                }
+                            ],
+                            "MaxSize": 5,
+                            "MinSize": 5,
+                            "PortId": "loadout.2.loadout.0.loadout.3",
+                            "ParentPortId": "loadout.2.loadout.0",
+                            "RootPortId": "loadout.2",
+                            "Path": [
+                                "hardpoint_weapon_gun_nose",
+                                "hardpoint_class_2",
+                                "VEN"
+                            ]
+                        }
+                    ],
+                    "Editable": true,
+                    "EditableChildren": false,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "WeaponGun",
+                            "SubTypes": [
+                                "Gun"
+                            ]
+                        }
+                    ],
+                    "MaxSize": 5,
+                    "MinSize": 5,
+                    "PortId": "loadout.2.loadout.0",
+                    "ParentPortId": "loadout.2",
+                    "RootPortId": "loadout.2",
+                    "Path": [
+                        "hardpoint_weapon_gun_nose",
+                        "hardpoint_class_2"
+                    ],
+                    "InstalledSize": 5
+                }
+            ],
+            "Editable": false,
+            "EditableChildren": false,
+            "CompatibleTypes": [
+                {
+                    "Type": "Turret",
+                    "SubTypes": [
+                        "Gun",
+                        "GunTurret"
+                    ]
+                },
+                {
+                    "Type": "WeaponGun",
+                    "SubTypes": [
+                        "Gun"
+                    ]
+                }
+            ],
+            "MaxSize": 5,
+            "MinSize": 5,
+            "PortId": "loadout.2",
+            "RootPortId": "loadout.2",
+            "Path": [
+                "hardpoint_weapon_gun_nose"
+            ],
+            "MountType": "Gimbal",
+            "InstalledSize": 5
+        },
+        {
+            "HardpointName": "hardpoint_turret",
+            "ClassName": "AEGS_Vanguard_SCItem_Turret",
+            "UUID": "171c3bcf-ec19-4a36-b60a-701dbfebc17b",
+            "Name": "Manned Turret",
+            "ManufacturerName": "Aegis Dynamics",
+            "Type": "TurretBase.MannedTurret",
+            "Grade": 1,
+            "Loadout": [
+                {
+                    "HardpointName": "turret_left",
+                    "ClassName": "Mount_Gimbal_S3",
+                    "UUID": "8197c45b-eaf4-4836-a8f0-837d1875cd9c",
+                    "Name": "VariPuck S3 Gimbal Mount",
+                    "ManufacturerName": "Flashfire Systems",
+                    "Type": "Turret.GunTurret",
+                    "Grade": 1,
+                    "Loadout": [
+                        {
+                            "HardpointName": "hardpoint_class_2",
+                            "ClassName": "BEHR_BallisticRepeater_S3",
+                            "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                            "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                            "ManufacturerName": "BEH",
+                            "Type": "WeaponGun.Gun",
+                            "Grade": 1,
+                            "Loadout": [
+                                {
+                                    "HardpointName": "BAR1",
+                                    "ClassName": "BEHR_BallisticRepeater_Barrel_S3",
+                                    "UUID": "86ca9f40-5bcf-4f17-8834-2760ef15dd56",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.Barrel",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "Barrel"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.0.loadout.0.loadout.0",
+                                    "ParentPortId": "loadout.36.loadout.0.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_left",
+                                        "hardpoint_class_2",
+                                        "BAR1"
+                                    ]
+                                },
+                                {
+                                    "HardpointName": "MEC",
+                                    "ClassName": "BEHR_BallisticRepeater_FiringMechanism_S3",
+                                    "UUID": "97c3b5cd-4056-4ffe-97f7-05178b45c7fa",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.FiringMechanism",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "FiringMechanism"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.0.loadout.0.loadout.1",
+                                    "ParentPortId": "loadout.36.loadout.0.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_left",
+                                        "hardpoint_class_2",
+                                        "MEC"
+                                    ]
+                                },
+                                {
+                                    "HardpointName": "POW",
+                                    "ClassName": "BEHR_BallisticRepeater_PowerArray_S3",
+                                    "UUID": "95d58b14-28f5-4069-a93b-c4c416386377",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.PowerArray",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "PowerArray"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.0.loadout.0.loadout.2",
+                                    "ParentPortId": "loadout.36.loadout.0.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_left",
+                                        "hardpoint_class_2",
+                                        "POW"
+                                    ]
+                                },
+                                {
+                                    "HardpointName": "VEN",
+                                    "ClassName": "BEHR_BallisticRepeater_Ventilation_S3",
+                                    "UUID": "97e19cf8-a554-4a1c-b3e1-73d66a593f6a",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.Ventilation",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "Ventilation"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.0.loadout.0.loadout.3",
+                                    "ParentPortId": "loadout.36.loadout.0.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_left",
+                                        "hardpoint_class_2",
+                                        "VEN"
+                                    ]
+                                }
+                            ],
+                            "Editable": true,
+                            "EditableChildren": false,
+                            "CompatibleTypes": [
+                                {
+                                    "Type": "WeaponGun",
+                                    "SubTypes": [
+                                        "Gun"
+                                    ]
+                                }
+                            ],
+                            "MaxSize": 3,
+                            "MinSize": 3,
+                            "PortId": "loadout.36.loadout.0.loadout.0",
+                            "ParentPortId": "loadout.36.loadout.0",
+                            "RootPortId": "loadout.36",
+                            "Path": [
+                                "hardpoint_turret",
+                                "turret_left",
+                                "hardpoint_class_2"
+                            ]
+                        }
+                    ],
+                    "Editable": false,
+                    "EditableChildren": false,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "WeaponGun",
+                            "SubTypes": [
+                                "Gun",
+                                "Rocket"
+                            ]
+                        },
+                        {
+                            "Type": "Turret",
+                            "SubTypes": [
+                                "GunTurret"
+                            ]
+                        }
+                    ],
+                    "MaxSize": 2,
+                    "MinSize": 2,
+                    "PortId": "loadout.36.loadout.0",
+                    "ParentPortId": "loadout.36",
+                    "RootPortId": "loadout.36",
+                    "Path": [
+                        "hardpoint_turret",
+                        "turret_left"
+                    ],
+                    "PortDisplayName": "Weapon - Top Left",
+                    "InstalledSize": 3
+                },
+                {
+                    "HardpointName": "turret_right",
+                    "ClassName": "Mount_Gimbal_S3",
+                    "UUID": "8197c45b-eaf4-4836-a8f0-837d1875cd9c",
+                    "Name": "VariPuck S3 Gimbal Mount",
+                    "ManufacturerName": "Flashfire Systems",
+                    "Type": "Turret.GunTurret",
+                    "Grade": 1,
+                    "Loadout": [
+                        {
+                            "HardpointName": "hardpoint_class_2",
+                            "ClassName": "BEHR_BallisticRepeater_S3",
+                            "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                            "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                            "ManufacturerName": "BEH",
+                            "Type": "WeaponGun.Gun",
+                            "Grade": 1,
+                            "Loadout": [
+                                {
+                                    "HardpointName": "BAR1",
+                                    "ClassName": "BEHR_BallisticRepeater_Barrel_S3",
+                                    "UUID": "86ca9f40-5bcf-4f17-8834-2760ef15dd56",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.Barrel",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "Barrel"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.1.loadout.0.loadout.0",
+                                    "ParentPortId": "loadout.36.loadout.1.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_right",
+                                        "hardpoint_class_2",
+                                        "BAR1"
+                                    ]
+                                },
+                                {
+                                    "HardpointName": "MEC",
+                                    "ClassName": "BEHR_BallisticRepeater_FiringMechanism_S3",
+                                    "UUID": "97c3b5cd-4056-4ffe-97f7-05178b45c7fa",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.FiringMechanism",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "FiringMechanism"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.1.loadout.0.loadout.1",
+                                    "ParentPortId": "loadout.36.loadout.1.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_right",
+                                        "hardpoint_class_2",
+                                        "MEC"
+                                    ]
+                                },
+                                {
+                                    "HardpointName": "POW",
+                                    "ClassName": "BEHR_BallisticRepeater_PowerArray_S3",
+                                    "UUID": "95d58b14-28f5-4069-a93b-c4c416386377",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.PowerArray",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "PowerArray"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.1.loadout.0.loadout.2",
+                                    "ParentPortId": "loadout.36.loadout.1.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_right",
+                                        "hardpoint_class_2",
+                                        "POW"
+                                    ]
+                                },
+                                {
+                                    "HardpointName": "VEN",
+                                    "ClassName": "BEHR_BallisticRepeater_Ventilation_S3",
+                                    "UUID": "97e19cf8-a554-4a1c-b3e1-73d66a593f6a",
+                                    "Name": "<= PLACEHOLDER =>",
+                                    "ManufacturerName": "Unknown Manufacturer",
+                                    "Type": "WeaponAttachment.Ventilation",
+                                    "Grade": 1,
+                                    "Editable": false,
+                                    "EditableChildren": false,
+                                    "CompatibleTypes": [
+                                        {
+                                            "Type": "WeaponAttachment",
+                                            "SubTypes": [
+                                                "Ventilation"
+                                            ]
+                                        }
+                                    ],
+                                    "MaxSize": 1,
+                                    "MinSize": 1,
+                                    "PortId": "loadout.36.loadout.1.loadout.0.loadout.3",
+                                    "ParentPortId": "loadout.36.loadout.1.loadout.0",
+                                    "RootPortId": "loadout.36",
+                                    "Path": [
+                                        "hardpoint_turret",
+                                        "turret_right",
+                                        "hardpoint_class_2",
+                                        "VEN"
+                                    ]
+                                }
+                            ],
+                            "Editable": true,
+                            "EditableChildren": false,
+                            "CompatibleTypes": [
+                                {
+                                    "Type": "WeaponGun",
+                                    "SubTypes": [
+                                        "Gun"
+                                    ]
+                                }
+                            ],
+                            "MaxSize": 3,
+                            "MinSize": 3,
+                            "PortId": "loadout.36.loadout.1.loadout.0",
+                            "ParentPortId": "loadout.36.loadout.1",
+                            "RootPortId": "loadout.36",
+                            "Path": [
+                                "hardpoint_turret",
+                                "turret_right",
+                                "hardpoint_class_2"
+                            ]
+                        }
+                    ],
+                    "Editable": false,
+                    "EditableChildren": false,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "WeaponGun",
+                            "SubTypes": [
+                                "Gun",
+                                "Rocket"
+                            ]
+                        },
+                        {
+                            "Type": "Turret",
+                            "SubTypes": [
+                                "GunTurret"
+                            ]
+                        }
+                    ],
+                    "MaxSize": 2,
+                    "MinSize": 2,
+                    "PortId": "loadout.36.loadout.1",
+                    "ParentPortId": "loadout.36",
+                    "RootPortId": "loadout.36",
+                    "Path": [
+                        "hardpoint_turret",
+                        "turret_right"
+                    ],
+                    "PortDisplayName": "Weapon - Top Right",
+                    "InstalledSize": 3
+                },
+                {
+                    "HardpointName": "Screen_Radar",
+                    "ClassName": "Radar_Display_Screen_Template",
+                    "UUID": "7a37dc17-4984-4418-a70d-04bf22fea031",
+                    "Name": "<= PLACEHOLDER =>",
+                    "ManufacturerName": "Unknown Manufacturer",
+                    "Type": "Display.UNDEFINED",
+                    "Grade": 1,
+                    "Editable": true,
+                    "EditableChildren": true,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "Display"
+                        }
+                    ],
+                    "MaxSize": 1,
+                    "MinSize": 1,
+                    "PortId": "loadout.36.loadout.2",
+                    "ParentPortId": "loadout.36",
+                    "RootPortId": "loadout.36",
+                    "Path": [
+                        "hardpoint_turret",
+                        "Screen_Radar"
+                    ]
+                },
+                {
+                    "HardpointName": "Screen_Right_Top",
+                    "ClassName": "Vehicle_Screen_MFD",
+                    "UUID": "c08cedfa-fafc-4ea6-9737-59faeb4b1510",
+                    "Name": "<= PLACEHOLDER =>",
+                    "ManufacturerName": "Unknown Manufacturer",
+                    "Type": "Display.UNDEFINED",
+                    "Grade": 1,
+                    "Editable": true,
+                    "EditableChildren": true,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "Display"
+                        }
+                    ],
+                    "MaxSize": 1,
+                    "MinSize": 1,
+                    "PortId": "loadout.36.loadout.3",
+                    "ParentPortId": "loadout.36",
+                    "RootPortId": "loadout.36",
+                    "Path": [
+                        "hardpoint_turret",
+                        "Screen_Right_Top"
+                    ]
+                },
+                {
+                    "HardpointName": "Screen_Left_Top",
+                    "ClassName": "Vehicle_Screen_MFD",
+                    "UUID": "c08cedfa-fafc-4ea6-9737-59faeb4b1510",
+                    "Name": "<= PLACEHOLDER =>",
+                    "ManufacturerName": "Unknown Manufacturer",
+                    "Type": "Display.UNDEFINED",
+                    "Grade": 1,
+                    "Editable": true,
+                    "EditableChildren": true,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "Display"
+                        }
+                    ],
+                    "MaxSize": 1,
+                    "MinSize": 1,
+                    "PortId": "loadout.36.loadout.4",
+                    "ParentPortId": "loadout.36",
+                    "RootPortId": "loadout.36",
+                    "Path": [
+                        "hardpoint_turret",
+                        "Screen_Left_Top"
+                    ]
+                }
+            ],
+            "Editable": false,
+            "EditableChildren": false,
+            "CompatibleTypes": [
+                {
+                    "Type": "TurretBase",
+                    "SubTypes": [
+                        "MannedTurret"
+                    ]
+                }
+            ],
+            "MaxSize": 6,
+            "MinSize": 1,
+            "PortId": "loadout.36",
+            "RootPortId": "loadout.36",
+            "Path": [
+                "hardpoint_turret"
+            ],
+            "DpsTotal": 750,
+            "SustainedDpsTotal": 672,
+            "AlphaTotal": 90,
+            "Weapons": [
+                {
+                    "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                    "ClassName": "BEHR_BallisticRepeater_S3",
+                    "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                    "Dps": 375,
+                    "SustainedDps": 336,
+                    "Alpha": 45,
+                    "IsPilotSlaveable": false
+                },
+                {
+                    "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                    "ClassName": "BEHR_BallisticRepeater_S3",
+                    "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                    "Dps": 375,
+                    "SustainedDps": 336,
+                    "Alpha": 45,
+                    "IsPilotSlaveable": false
+                }
+            ],
+            "IsPilotSlaveable": false,
+            "MountType": "Turret",
+            "TurretRole": "Manned",
+            "PortDisplayName": "port_NameTurret02",
+            "PartName": "hardpoint_turret",
+            "InstalledSize": 6
+        },
+        {
+            "HardpointName": "hardpoint_weapon_missilerack_right_inner",
+            "ClassName": "MRCK_S04_AEGS_Vanguard",
+            "UUID": "0a38dafc-a21d-4684-bbb6-20b179ba3535",
+            "Name": "MSD-442 Missile Rack",
+            "ManufacturerName": "BEH",
+            "Type": "MissileLauncher.MissileRack",
+            "Grade": 1,
+            "Loadout": [
+                {
+                    "HardpointName": "missile_01_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "ManufacturerName": "Talon",
+                    "Type": "Missile.Missile",
+                    "Grade": 1,
+                    "Editable": true,
+                    "EditableChildren": true,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "Missile",
+                            "SubTypes": [
+                                "Missile"
+                            ]
+                        }
+                    ],
+                    "MaxSize": 2,
+                    "MinSize": 2,
+                    "PortId": "loadout.66.loadout.0",
+                    "ParentPortId": "loadout.66",
+                    "RootPortId": "loadout.66",
+                    "Path": [
+                        "hardpoint_weapon_missilerack_right_inner",
+                        "missile_01_attach"
+                    ]
+                },
+                {
+                    "HardpointName": "missile_02_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "ManufacturerName": "Talon",
+                    "Type": "Missile.Missile",
+                    "Grade": 1,
+                    "Editable": true,
+                    "EditableChildren": true,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "Missile",
+                            "SubTypes": [
+                                "Missile"
+                            ]
+                        }
+                    ],
+                    "MaxSize": 2,
+                    "MinSize": 2,
+                    "PortId": "loadout.66.loadout.1",
+                    "ParentPortId": "loadout.66",
+                    "RootPortId": "loadout.66",
+                    "Path": [
+                        "hardpoint_weapon_missilerack_right_inner",
+                        "missile_02_attach"
+                    ]
+                },
+                {
+                    "HardpointName": "missile_03_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "ManufacturerName": "Talon",
+                    "Type": "Missile.Missile",
+                    "Grade": 1,
+                    "Editable": true,
+                    "EditableChildren": true,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "Missile",
+                            "SubTypes": [
+                                "Missile"
+                            ]
+                        }
+                    ],
+                    "MaxSize": 2,
+                    "MinSize": 2,
+                    "PortId": "loadout.66.loadout.2",
+                    "ParentPortId": "loadout.66",
+                    "RootPortId": "loadout.66",
+                    "Path": [
+                        "hardpoint_weapon_missilerack_right_inner",
+                        "missile_03_attach"
+                    ]
+                },
+                {
+                    "HardpointName": "missile_04_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "ManufacturerName": "Talon",
+                    "Type": "Missile.Missile",
+                    "Grade": 1,
+                    "Editable": true,
+                    "EditableChildren": true,
+                    "CompatibleTypes": [
+                        {
+                            "Type": "Missile",
+                            "SubTypes": [
+                                "Missile"
+                            ]
+                        }
+                    ],
+                    "MaxSize": 2,
+                    "MinSize": 2,
+                    "PortId": "loadout.66.loadout.3",
+                    "ParentPortId": "loadout.66",
+                    "RootPortId": "loadout.66",
+                    "Path": [
+                        "hardpoint_weapon_missilerack_right_inner",
+                        "missile_04_attach"
+                    ]
+                }
+            ],
+            "Editable": false,
+            "EditableChildren": false,
+            "CompatibleTypes": [
+                {
+                    "Type": "MissileLauncher",
+                    "SubTypes": [
+                        "MissileRack"
+                    ]
+                }
+            ],
+            "MaxSize": 4,
+            "MinSize": 4,
+            "PortId": "loadout.66",
+            "RootPortId": "loadout.66",
+            "Path": [
+                "hardpoint_weapon_missilerack_right_inner"
+            ],
+            "MountType": "Rack",
+            "InstalledSize": 4
+        }
+    ],
+    "MountingPositions": [
+        {
+            "PortId": "loadout.2",
+            "HardpointName": "hardpoint_weapon_gun_nose",
+            "MountType": "Gimbal",
+            "MinSize": 5,
+            "MaxSize": 5,
+            "Occupied": true,
+            "InstalledSize": 5,
+            "Payload": [
+                {
+                    "HardpointName": "hardpoint_class_2",
+                    "ClassName": "ESPR_BallisticCannon_S5",
+                    "UUID": "76775574-fcf2-493d-859e-337f1267a7ef",
+                    "Name": "Deadbolt V Cannon",
+                    "Type": "WeaponGun.Gun",
+                    "PortId": "loadout.2.loadout.0",
+                    "Size": 5
+                }
+            ]
+        },
+        {
+            "PortId": "loadout.36",
+            "HardpointName": "hardpoint_turret",
+            "MountType": "Turret",
+            "TurretRole": "Manned",
+            "MinSize": 1,
+            "MaxSize": 6,
+            "Occupied": true,
+            "InstalledSize": 6,
+            "IsPilotSlaveable": false,
+            "Payload": [
+                {
+                    "HardpointName": "hardpoint_class_2",
+                    "ClassName": "BEHR_BallisticRepeater_S3",
+                    "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                    "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                    "Type": "WeaponGun.Gun",
+                    "PortId": "loadout.36.loadout.0.loadout.0",
+                    "Size": 3
+                },
+                {
+                    "HardpointName": "hardpoint_class_2",
+                    "ClassName": "BEHR_BallisticRepeater_S3",
+                    "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                    "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                    "Type": "WeaponGun.Gun",
+                    "PortId": "loadout.36.loadout.1.loadout.0",
+                    "Size": 3
+                }
+            ],
+            "ControlRoutes": [
+                {
+                    "Kind": "InTurret",
+                    "Operator": "Crew",
+                    "SeatPortId": "loadout.36"
+                }
+            ],
+            "CombatStats": {
+                "DpsTotal": 750,
+                "SustainedDpsTotal": 672,
+                "AlphaTotal": 90,
+                "IsPilotSlaveable": false,
+                "Weapons": [
+                    {
+                        "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                        "ClassName": "BEHR_BallisticRepeater_S3",
+                        "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                        "Dps": 375,
+                        "SustainedDps": 336,
+                        "Alpha": 45,
+                        "IsPilotSlaveable": false
+                    },
+                    {
+                        "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                        "ClassName": "BEHR_BallisticRepeater_S3",
+                        "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                        "Dps": 375,
+                        "SustainedDps": 336,
+                        "Alpha": 45,
+                        "IsPilotSlaveable": false
+                    }
+                ]
+            },
+            "LegacyBucket": "MannedTurrets",
+            "LegacyOrdinal": 0
+        },
+        {
+            "PortId": "loadout.66",
+            "HardpointName": "hardpoint_weapon_missilerack_right_inner",
+            "MountType": "Rack",
+            "MinSize": 4,
+            "MaxSize": 4,
+            "Occupied": true,
+            "InstalledSize": 4,
+            "Payload": [
+                {
+                    "HardpointName": "missile_01_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "Type": "Missile.Missile",
+                    "PortId": "loadout.66.loadout.0",
+                    "Size": 2
+                },
+                {
+                    "HardpointName": "missile_02_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "Type": "Missile.Missile",
+                    "PortId": "loadout.66.loadout.1",
+                    "Size": 2
+                },
+                {
+                    "HardpointName": "missile_03_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "Type": "Missile.Missile",
+                    "PortId": "loadout.66.loadout.2",
+                    "Size": 2
+                },
+                {
+                    "HardpointName": "missile_04_attach",
+                    "ClassName": "MISL_S02_EM_TALN_Dominator",
+                    "UUID": "67d6efbd-6b65-49d9-b319-041dc6a2675a",
+                    "Name": "Dominator II Missile",
+                    "Type": "Missile.Missile",
+                    "PortId": "loadout.66.loadout.3",
+                    "Size": 2
+                }
+            ]
+        }
+    ],
+    "MannedTurrets": [
+        {
+            "PartName": "hardpoint_turret",
+            "HardpointName": "hardpoint_turret",
+            "DisplayName": "port_NameTurret02",
+            "Size": 6,
+            "TurretClassName": "AEGS_Vanguard_SCItem_Turret",
+            "TurretType": "TurretBase.MannedTurret",
+            "MountCount": 2,
+            "Mounts": [
+                {
+                    "HardpointName": "turret_left",
+                    "DisplayName": "Weapon - Top Left",
+                    "Size": 3,
+                    "MinSize": 2,
+                    "MaxSize": 2,
+                    "Types": [
+                        "WeaponGun.Gun",
+                        "WeaponGun.Rocket",
+                        "Turret.GunTurret"
+                    ],
+                    "MountClassName": "Mount_Gimbal_S3",
+                    "MountType": "Turret.GunTurret",
+                    "PayloadTypes": [
+                        "WeaponGun.Gun"
+                    ],
+                    "PayloadClassNames": [
+                        "BEHR_BallisticRepeater_S3"
+                    ],
+                    "PayloadSizes": [
+                        3
+                    ],
+                    "WeaponSizes": [
+                        3
+                    ]
+                },
+                {
+                    "HardpointName": "turret_right",
+                    "DisplayName": "Weapon - Top Right",
+                    "Size": 3,
+                    "MinSize": 2,
+                    "MaxSize": 2,
+                    "Types": [
+                        "WeaponGun.Gun",
+                        "WeaponGun.Rocket",
+                        "Turret.GunTurret"
+                    ],
+                    "MountClassName": "Mount_Gimbal_S3",
+                    "MountType": "Turret.GunTurret",
+                    "PayloadTypes": [
+                        "WeaponGun.Gun"
+                    ],
+                    "PayloadClassNames": [
+                        "BEHR_BallisticRepeater_S3"
+                    ],
+                    "PayloadSizes": [
+                        3
+                    ],
+                    "WeaponSizes": [
+                        3
+                    ]
+                }
+            ],
+            "WeaponSizes": [
+                3,
+                3
+            ],
+            "PayloadSizes": [
+                3,
+                3
+            ],
+            "PayloadTypes": [
+                "WeaponGun.Gun"
+            ],
+            "Gimballed": false,
+            "Turret": true,
+            "DpsTotal": 750,
+            "SustainedDpsTotal": 672,
+            "AlphaTotal": 90,
+            "Weapons": [
+                {
+                    "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                    "ClassName": "BEHR_BallisticRepeater_S3",
+                    "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                    "Dps": 375,
+                    "SustainedDps": 336,
+                    "Alpha": 45,
+                    "IsPilotSlaveable": false
+                },
+                {
+                    "UUID": "bbfbb4b5-c26e-4bee-9d41-9679e102e860",
+                    "ClassName": "BEHR_BallisticRepeater_S3",
+                    "Name": "SW16BR3 \u201cShredder\u201d Repeater",
+                    "Dps": 375,
+                    "SustainedDps": 336,
+                    "Alpha": 45,
+                    "IsPilotSlaveable": false
+                }
+            ],
+            "IsPilotSlaveable": false
+        }
+    ]
+}

@@ -1,0 +1,149 @@
+[
+    {
+        "PortId": "loadout.6",
+        "HardpointName": "hardpoint_remote_turret_left",
+        "MountType": "Turret",
+        "TurretRole": "Remote",
+        "MinSize": 3,
+        "MaxSize": 3,
+        "Occupied": true,
+        "InstalledSize": 3,
+        "IsPilotSlaveable": true,
+        "Payload": [
+            {
+                "HardpointName": "hardpoint_class_2",
+                "ClassName": "KLWE_LaserRepeater_S5",
+                "UUID": "4170fcb0-0cef-4228-a3d5-7efc41ba4ea3",
+                "Name": "CF-557 Galdereen Repeater",
+                "Type": "WeaponGun.Gun",
+                "PortId": "loadout.6.loadout.0.loadout.0",
+                "Size": 5
+            },
+            {
+                "HardpointName": "hardpoint_class_2",
+                "ClassName": "KLWE_LaserRepeater_S5",
+                "UUID": "4170fcb0-0cef-4228-a3d5-7efc41ba4ea3",
+                "Name": "CF-557 Galdereen Repeater",
+                "Type": "WeaponGun.Gun",
+                "PortId": "loadout.6.loadout.1.loadout.0",
+                "Size": 5
+            }
+        ],
+        "ControlRoutes": [
+            {
+                "Kind": "Controller",
+                "Operator": "Pilot",
+                "SeatPortId": "loadout.49",
+                "ControllerPortId": "loadout.80"
+            },
+            {
+                "Kind": "Controller",
+                "Operator": "Crew",
+                "SeatPortId": "loadout.64",
+                "ControllerPortId": "loadout.78"
+            }
+        ],
+        "CombatStats": {
+            "DpsTotal": 2454.8,
+            "SustainedDpsTotal": 1239.6,
+            "AlphaTotal": 196.4,
+            "IsPilotSlaveable": true,
+            "Weapons": [
+                {
+                    "UUID": "4170fcb0-0cef-4228-a3d5-7efc41ba4ea3",
+                    "ClassName": "KLWE_LaserRepeater_S5",
+                    "Name": "CF-557 Galdereen Repeater",
+                    "Dps": 1227.4,
+                    "SustainedDps": 619.8,
+                    "Alpha": 98.2,
+                    "IsPilotSlaveable": true
+                },
+                {
+                    "UUID": "4170fcb0-0cef-4228-a3d5-7efc41ba4ea3",
+                    "ClassName": "KLWE_LaserRepeater_S5",
+                    "Name": "CF-557 Galdereen Repeater",
+                    "Dps": 1227.4,
+                    "SustainedDps": 619.8,
+                    "Alpha": 98.2,
+                    "IsPilotSlaveable": true
+                }
+            ]
+        },
+        "LegacyBucket": "RemoteTurrets",
+        "LegacyOrdinal": 0
+    },
+    {
+        "PortId": "loadout.74.loadout.6",
+        "HardpointName": "hardpoint_tractor_left",
+        "MountType": "Turret",
+        "TurretRole": "Remote",
+        "MinSize": 0,
+        "MaxSize": 0,
+        "Occupied": true,
+        "InstalledSize": 2,
+        "Payload": [
+            {
+                "HardpointName": "turret_tractor",
+                "ClassName": "GRIN_TractorBeam_S2",
+                "UUID": "8c16ee3d-78fb-4fef-a369-b3d42952ec33",
+                "Name": "SureGrip S2 Tractor Beam",
+                "Type": "TractorBeam.UNDEFINED",
+                "PortId": "loadout.74.loadout.6.loadout.0",
+                "Size": 2
+            }
+        ],
+        "ControlRoutes": [
+            {
+                "Kind": "Controller",
+                "Operator": "Crew",
+                "SeatPortId": "loadout.74.loadout.5",
+                "ControllerPortId": "loadout.74.loadout.8",
+                "Control": "Payload"
+            },
+            {
+                "Kind": "Controller",
+                "Operator": "Crew",
+                "SeatPortId": "loadout.74.loadout.5",
+                "ControllerPortId": "loadout.74.loadout.9",
+                "Control": "Aim"
+            }
+        ]
+    },
+    {
+        "PortId": "loadout.74.loadout.11",
+        "HardpointName": "hardpoint_tractor_right",
+        "MountType": "Turret",
+        "TurretRole": "Remote",
+        "MinSize": 0,
+        "MaxSize": 0,
+        "Occupied": true,
+        "InstalledSize": 2,
+        "Payload": [
+            {
+                "HardpointName": "turret_tractor",
+                "ClassName": "GRIN_TractorBeam_S2",
+                "UUID": "8c16ee3d-78fb-4fef-a369-b3d42952ec33",
+                "Name": "SureGrip S2 Tractor Beam",
+                "Type": "TractorBeam.UNDEFINED",
+                "PortId": "loadout.74.loadout.11.loadout.0",
+                "Size": 2
+            }
+        ],
+        "ControlRoutes": [
+            {
+                "Kind": "Controller",
+                "Operator": "Crew",
+                "SeatPortId": "loadout.74.loadout.10",
+                "ControllerPortId": "loadout.74.loadout.13",
+                "Control": "Payload"
+            },
+            {
+                "Kind": "Controller",
+                "Operator": "Crew",
+                "SeatPortId": "loadout.74.loadout.10",
+                "ControllerPortId": "loadout.74.loadout.14",
+                "Control": "Aim"
+            }
+        ]
+    }
+]

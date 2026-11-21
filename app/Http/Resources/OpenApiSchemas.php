@@ -23,8 +23,9 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'deprecated_fields',
-            description: 'Deprecated fields that will be removed in future versions.',
-            type: 'string',
+            description: 'Deprecated response fields that will be removed in future versions, as a map of dotted field paths to migration hints.',
+            type: 'object',
+            additionalProperties: new OA\AdditionalProperties(type: 'string'),
         ),
         new OA\Property(
             property: 'resource',

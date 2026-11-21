@@ -283,7 +283,7 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/version'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'A Ground Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])], type: 'object')),
+            new OA\Response(response: 200, description: 'A Ground Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')]), new OA\Property(property: 'meta', ref: '#/components/schemas/metadata')], type: 'object')),
             new OA\Response(response: 404, description: 'Vehicle not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
             new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
@@ -300,7 +300,7 @@ class VehicleController extends Controller
             new OA\Parameter(ref: '#/components/parameters/version'),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'A Gravlev Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')])], type: 'object')),
+            new OA\Response(response: 200, description: 'A Gravlev Vehicle', content: new OA\JsonContent(properties: [new OA\Property(property: 'data', oneOf: [new OA\Schema(ref: '#/components/schemas/game_vehicle'), new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle')]), new OA\Property(property: 'meta', ref: '#/components/schemas/metadata')], type: 'object')),
             new OA\Response(response: 404, description: 'Vehicle not found, or no data for the requested game version.', content: new OA\JsonContent(ref: '#/components/schemas/not_found_in_version_error_response')),
             new OA\Response(response: 422, description: 'Unknown game version code.', content: new OA\JsonContent(ref: '#/components/schemas/validation_error_response')),
         ]
@@ -335,6 +335,7 @@ class VehicleController extends Controller
                             new OA\Schema(ref: '#/components/schemas/game_vehicle'),
                             new OA\Schema(ref: '#/components/schemas/ship_matrix_vehicle'),
                         ]),
+                        new OA\Property(property: 'meta', ref: '#/components/schemas/metadata'),
                     ],
                     type: 'object'
                 )
