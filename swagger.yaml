@@ -18061,7 +18061,7 @@ components:
               controller_port_id:
                 type: string
               control:
-                description: 'Scope the module controller grants on this route: weapon-style aim (Aim) or tractor/salvage payload (Payload). Only present on routes bound to an installed vehicle module controller; older routes omit it.'
+                description: 'Game-data binding for an installed module controller: Aim means a weapon controller targets the turret; Payload means a salvage controller targets the tractor beam. Neither value describes or limits what the player can do in-game. Omitted when no such binding is reported.'
                 type: string
                 enum:
                   - Aim

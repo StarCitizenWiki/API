@@ -36,7 +36,7 @@ use OpenApi\Attributes as OA;
             new OA\Property(property: 'operator', type: 'string', enum: ['Pilot', 'Crew']),
             new OA\Property(property: 'seat_port_id', type: 'string'),
             new OA\Property(property: 'controller_port_id', type: 'string'),
-            new OA\Property(property: 'control', description: 'Scope the module controller grants on this route: weapon-style aim (Aim) or tractor/salvage payload (Payload). Only present on routes bound to an installed vehicle module controller; older routes omit it.', type: 'string', enum: ['Aim', 'Payload']),
+            new OA\Property(property: 'control', description: 'Game-data binding for an installed module controller: Aim means a weapon controller targets the turret; Payload means a salvage controller targets the tractor beam. Neither value describes or limits what the player can do in-game. Omitted when no such binding is reported.', type: 'string', enum: ['Aim', 'Payload']),
         ], type: 'object')),
         new OA\Property(property: 'combat_stats', description: 'Combat stats reported by the dump without recalculation.', properties: [
             new OA\Property(property: 'dps_total', type: 'number'),
